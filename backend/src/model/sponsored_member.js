@@ -1,10 +1,18 @@
 const mongoose = require('mongoose');
 
 const SponsoredMemberSchema = new mongoose.Schema({
-    name: {
+    last_name: {
         type: String,
         required: true,
-        unique: true
+    },
+    first_name: {
+        type: String,
+        required: true,
+    },
+    middle_name: {
+        type: String,
+        default: null,
+        required: false,
     },
     sex: {
         type: String,

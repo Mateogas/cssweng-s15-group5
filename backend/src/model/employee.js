@@ -11,7 +11,8 @@ const EmployeeSchema = new mongoose.Schema({
     },
     middle_name: {
         type: String,
-        required: false,
+        default: null,
+        required: false
     },
     username: {
         type: String,
@@ -20,7 +21,7 @@ const EmployeeSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: false
+        required: true
     },
     password: {
         type: String,
