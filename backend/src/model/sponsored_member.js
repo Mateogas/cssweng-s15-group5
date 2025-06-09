@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
 
+/*
+     UPDATE: 
+        > Added sm_number
+        > Changed intervention to of type array
+ */
 const SponsoredMemberSchema = new mongoose.Schema({
+    sm_number: {
+        type: String,
+        required: true,
+    },
     last_name: {
         type: String,
         required: true,
@@ -58,12 +67,12 @@ const SponsoredMemberSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    interventions: {
+    interventions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Intervention',
-        default: null,
+        default: [],
         required: false
-    },
+    }],
     history_problem: {
         type: String,
         required: false
