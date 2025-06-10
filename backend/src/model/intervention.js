@@ -26,6 +26,12 @@ const InterventionsSchema = new Schema ({
 
           required: true
      },
+     progress_reports: {
+          type: [mongoose.Schema.Types.ObjectId], 
+          ref: 'Progress Report',
+          required: true,
+          default: []
+     },
 }, { timestamps: true });
 
 const Intervention = mongoose.model('Intervention', InterventionsSchema);

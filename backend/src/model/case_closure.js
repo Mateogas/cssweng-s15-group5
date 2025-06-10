@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CaseClosureSchema = new Schema ({
+     sm: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Sponsored Member',
+          required: true
+     },
      reason: {
           type: String,
 
