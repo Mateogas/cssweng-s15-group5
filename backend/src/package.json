@@ -4,7 +4,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev-server": "nodemon server.js",
+    "frontend": "cd ../../frontend-dev-test && npm run dev",
+    "dev": "concurrently \"npm run dev-server\" \"npm run frontend\""
   },
   "keywords": [],
   "author": "",
@@ -14,6 +17,10 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "mongodb": "^6.16.0",
-    "mongoose": "^8.15.1"
+    "mongoose": "^8.15.1",
+    "react-router-dom": "^7.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

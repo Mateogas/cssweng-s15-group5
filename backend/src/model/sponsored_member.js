@@ -98,7 +98,4 @@ const Sponsored_Member = mongoose.model('Sponsored Member', SponsoredMemberSchem
 // Add methods here
 
 
-module.exports = {
-    Sponsored_Member,
-
-};
+module.exports =Sponsored_Member;

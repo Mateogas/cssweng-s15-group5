@@ -19,6 +19,8 @@ mongoose
     //Starts the Server when mongodb is connected
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
+      
+      console.log('FRONTEND APP: Click here to open → http://localhost:5174/\n');
     });
 
   })
