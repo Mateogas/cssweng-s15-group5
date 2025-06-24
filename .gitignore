@@ -1,0 +1,8 @@
+# Root
+node_modules
+
+# backend 
+backend/node_modules
+
+# frontend
+frontend-dev-test/node_modules
