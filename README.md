@@ -2,8 +2,6 @@
 
 This repository contains both the **backend (Express/MongoDB)** and **frontend (React/Vite)** components of the Case Management System.
 
----
-
 ##  Prerequisites
 
 Before you begin, make sure you have the following installed on your machine:
@@ -12,17 +10,20 @@ Before you begin, make sure you have the following installed on your machine:
 - npm (comes with Node.js)
 - [MongoDB](https://www.mongodb.com/) (local installation or cloud instance like MongoDB Atlas)
 
----
-
 ##  Setup
+**Make sure you are in the project `root` directory.**
 
-## First 
-### make sure you are in the root 
-npm install
+1. Install root dependencies  
+   ```
+   npm install
+   ```
 
-## Secondly
-npm run install:all
+2. Install frontend and backend dependencies  
+   ```
+   npm run install:all
+   ```
 
-## Lastly (assuming you have correct env files)
-
-npm run dev
+3. Run the development servers (if your `.env` files are correctly set up)
+   ```
+   npm run dev
+   ```
