@@ -1,0 +1,25 @@
+@import "@fontsource/inter"; 
+@import "tailwindcss";
+
+@import './styles/typography.css';
+@import './styles/components.css';
+
+html {
+  font-size: 62.5%; /* Makes 1 rem = 10px, this is good for accessility if ever */
+}
+
+:root {
+    --color-primary: #E46455;
+    --color-green: #78A181;
+    --color-blue: #2AB0B7;
+
+    --color-white: #ffffff;
+    --color-black: #2B2D31;
+
+    --accent-dark: #93989E;
+    --accent-white: #F2F2F2;
+
+
+
+
+}

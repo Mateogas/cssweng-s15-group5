@@ -1,0 +1,40 @@
+.drop-shadow-base {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.drop-shadow-card {
+  box-shadow: 4px 4px 4px rgba(4, 4, 4, 0.25);
+}
+
+.outline-gray {
+    border: 0.1rem solid var(--accent-dark);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: 0.1rem solid var(--accent-dark);
+  @apply px-4 py-4 rounded-lg w-max;
+}
+
+.btn-blue {
+  background-color: var(--color-blue);
+  color: var(--color-white);
+  border: 0.1rem solid var(--accent-dark);
+  @apply px-4 py-4 rounded-lg w-max;
+}
+
+.btn-outline-rounded {
+    border: 0.1rem solid var(--accent-dark);
+    @apply w-max px-8 py-4 rounded-full;
+}
+
+.text-input {
+  border: 0.1rem solid var(--accent-dark);
+  @apply w-full px-4 py-4 rounded-xl;
+}
+
+.text-area {
+  border: 0.1rem solid var(--accent-dark);
+  @apply w-full px-4 py-4 rounded-xl;
+}
