@@ -33,8 +33,8 @@ function Case() {
     }
   }
 
-  // allows us to edit a specific section of a case
-  const handleEdit = (caseId, section) => {
+  // allows us to edit a specific field of a case
+  const handleEdit = (caseId, field) => {
     // Initialize edit data if not already done
     if (!editData[caseId]) {
       const caseToEdit = data.find(item => item._id === caseId)
@@ -44,12 +44,12 @@ function Case() {
       })
     }
     
-    // Toggle edit mode for the specific section
+    // Toggle edit mode for the specific field
     setEditMode({
       ...editMode,
       [caseId]: {
         ...editMode[caseId],
-        [section]: true
+        [field]: true
       }
     })
   }
@@ -68,35 +68,25 @@ function Case() {
   /**
    * saves the changes made in the edit mode to the backend
    * 
-   * POST /api/cases/:caseId/:section
+   * POST /api/cases/:caseId/:field
    *    caseId is the ID of the case being edited
-   *    section is the part of the case being edited (personal, case, history)
+   *    field is the specific field being edited (problem_presented, observation_findings, etc.)
    * 
    * */
-  const handleSave = async (caseId, section) => {
+  const handleSave = async (caseId, field) => {
     setLoading(true)
     try {
-      // Define which fields belong to which section
-      const fieldMap = {
-        'personal': ['pob', 'religion', 'edu_attainment', 'occupation', 'contact_no'],
-        'case': ['problem_presented', 'observation_findings', 'recommendation'],
-        'history': ['history_problem', 'evaluation']
-      }
+      const fieldValue = editData[caseId][field]
       
-      const fieldsToUpdate = {}
-      fieldMap[section].forEach(field => {
-        fieldsToUpdate[field] = editData[caseId][field]
-      })
-
       // Send update to backend
-      const response = await fetch(`/api/cases/${caseId}/${section}`, {
+      const response = await fetch(`/api/cases/${caseId}/${field}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           sm_number: editData[caseId].sm_number,
-          ...fieldsToUpdate
+          [field]: fieldValue
         })
       })
 
@@ -104,9 +94,9 @@ function Case() {
         throw new Error(`Update failed: ${response.status}`)
       }
 
-      // Update the data state with the edited values
+      // Update the data state with the edited value
       setData(data.map(item => 
-        item._id === caseId ? { ...item, ...fieldsToUpdate } : item
+        item._id === caseId ? { ...item, [field]: fieldValue } : item
       ))
       
       // Exit edit mode
@@ -114,7 +104,7 @@ function Case() {
         ...editMode,
         [caseId]: {
           ...editMode[caseId],
-          [section]: false
+          [field]: false
         }
       })
     } catch (err) {
@@ -125,13 +115,13 @@ function Case() {
     }
   }
 
-  const handleCancel = (caseId, section) => {
+  const handleCancel = (caseId, field) => {
     // Exit edit mode without saving
     setEditMode({
       ...editMode,
       [caseId]: {
         ...editMode[caseId],
-        [section]: false
+        [field]: false
       }
     })
     
@@ -211,14 +201,6 @@ function Case() {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <h4 style={{ marginTop: '0' }}>Personal Details</h4>
-                      {isEditing['personal'] ? (
-                        <div>
-                          <button onClick={() => handleSave(caseId, 'personal')}>Save</button>
-                          <button onClick={() => handleCancel(caseId, 'personal')}>Cancel</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => handleEdit(caseId, 'personal')}>Edit</button>
-                      )}
                     </div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -292,52 +274,74 @@ function Case() {
                     borderRadius: '6px',
                     marginBottom: '15px'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <h4 style={{ marginTop: '0' }}>Case Details</h4>
-                      {isEditing['case'] ? (
-                        <div>
-                          <button onClick={() => handleSave(caseId, 'case')}>Save</button>
-                          <button onClick={() => handleCancel(caseId, 'case')}>Cancel</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => handleEdit(caseId, 'case')}>Edit</button>
-                      )}
-                    </div>
+                    <h4 style={{ marginTop: '0' }}>Case Details</h4>
                     
                     <p>
-                      <strong>Problem:</strong> 
-                      {isEditing['case'] ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong>Problem:</strong>
+                        {isEditing['problem_presented'] ? (
+                          <div>
+                            <button onClick={() => handleSave(caseId, 'problem_presented')}>Save</button>
+                            <button onClick={() => handleCancel(caseId, 'problem_presented')}>Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => handleEdit(caseId, 'problem_presented')}>Edit</button>
+                        )}
+                      </div>
+                      {isEditing['problem_presented'] ? (
                         <textarea 
                           value={editedCase.problem_presented || ''} 
                           onChange={(e) => handleChange(caseId, 'problem_presented', e.target.value)}
-                          style={{ width: '100%', minHeight: '60px' }}
+                          style={{ width: '100%', minHeight: '60px', marginTop: '8px' }}
                         />
                       ) : (
-                        <span> {caseItem.problem_presented}</span>
+                        <div style={{ marginTop: '8px' }}>{caseItem.problem_presented}</div>
                       )}
                     </p>
+                    
                     <p>
-                      <strong>Observations:</strong> 
-                      {isEditing['case'] ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong>Observations:</strong>
+                        {isEditing['observation_findings'] ? (
+                          <div>
+                            <button onClick={() => handleSave(caseId, 'observation_findings')}>Save</button>
+                            <button onClick={() => handleCancel(caseId, 'observation_findings')}>Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => handleEdit(caseId, 'observation_findings')}>Edit</button>
+                        )}
+                      </div>
+                      {isEditing['observation_findings'] ? (
                         <textarea 
                           value={editedCase.observation_findings || ''} 
                           onChange={(e) => handleChange(caseId, 'observation_findings', e.target.value)}
-                          style={{ width: '100%', minHeight: '60px' }}
+                          style={{ width: '100%', minHeight: '60px', marginTop: '8px' }}
                         />
                       ) : (
-                        <span> {caseItem.observation_findings}</span>
+                        <div style={{ marginTop: '8px' }}>{caseItem.observation_findings}</div>
                       )}
                     </p>
+                    
                     <p>
-                      <strong>Recommendation:</strong> 
-                      {isEditing['case'] ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong>Recommendation:</strong>
+                        {isEditing['recommendation'] ? (
+                          <div>
+                            <button onClick={() => handleSave(caseId, 'recommendation')}>Save</button>
+                            <button onClick={() => handleCancel(caseId, 'recommendation')}>Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => handleEdit(caseId, 'recommendation')}>Edit</button>
+                        )}
+                      </div>
+                      {isEditing['recommendation'] ? (
                         <textarea 
                           value={editedCase.recommendation || ''} 
                           onChange={(e) => handleChange(caseId, 'recommendation', e.target.value)}
-                          style={{ width: '100%', minHeight: '60px' }}
+                          style={{ width: '100%', minHeight: '60px', marginTop: '8px' }}
                         />
                       ) : (
-                        <span> {caseItem.recommendation}</span>
+                        <div style={{ marginTop: '8px' }}>{caseItem.recommendation}</div>
                       )}
                     </p>
                   </div>
@@ -348,40 +352,51 @@ function Case() {
                     padding: '12px',
                     borderRadius: '6px' 
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <h4 style={{ marginTop: '0' }}>History & Evaluation</h4>
-                      {isEditing['history'] ? (
-                        <div>
-                          <button onClick={() => handleSave(caseId, 'history')}>Save</button>
-                          <button onClick={() => handleCancel(caseId, 'history')}>Cancel</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => handleEdit(caseId, 'history')}>Edit</button>
-                      )}
-                    </div>
+                    <h4 style={{ marginTop: '0' }}>History & Evaluation</h4>
                     
                     <p>
-                      <strong>History:</strong> 
-                      {isEditing['history'] ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong>History:</strong>
+                        {isEditing['history_problem'] ? (
+                          <div>
+                            <button onClick={() => handleSave(caseId, 'history_problem')}>Save</button>
+                            <button onClick={() => handleCancel(caseId, 'history_problem')}>Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => handleEdit(caseId, 'history_problem')}>Edit</button>
+                        )}
+                      </div>
+                      {isEditing['history_problem'] ? (
                         <textarea 
                           value={editedCase.history_problem || ''} 
                           onChange={(e) => handleChange(caseId, 'history_problem', e.target.value)}
-                          style={{ width: '100%', minHeight: '60px' }}
+                          style={{ width: '100%', minHeight: '60px', marginTop: '8px' }}
                         />
                       ) : (
-                        <span> {caseItem.history_problem}</span>
+                        <div style={{ marginTop: '8px' }}>{caseItem.history_problem}</div>
                       )}
                     </p>
+                    
                     <p>
-                      <strong>Evaluation:</strong> 
-                      {isEditing['history'] ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong>Evaluation:</strong>
+                        {isEditing['evaluation'] ? (
+                          <div>
+                            <button onClick={() => handleSave(caseId, 'evaluation')}>Save</button>
+                            <button onClick={() => handleCancel(caseId, 'evaluation')}>Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => handleEdit(caseId, 'evaluation')}>Edit</button>
+                        )}
+                      </div>
+                      {isEditing['evaluation'] ? (
                         <textarea 
                           value={editedCase.evaluation || ''} 
                           onChange={(e) => handleChange(caseId, 'evaluation', e.target.value)}
-                          style={{ width: '100%', minHeight: '60px' }}
+                          style={{ width: '100%', minHeight: '60px', marginTop: '8px' }}
                         />
                       ) : (
-                        <span> {caseItem.evaluation}</span>
+                        <div style={{ marginTop: '8px' }}>{caseItem.evaluation}</div>
                       )}
                     </p>
                     <p>
