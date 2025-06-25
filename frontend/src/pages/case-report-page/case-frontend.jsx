@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import FamilyCard from '../../Components/FamilyCard';
 
 function CaseFrontend() {
     const [data, setData] = useState({
@@ -22,7 +23,8 @@ function CaseFrontend() {
         recommendation: "Recommend follow-up sessions and group support.",
         history_problem: "History of relocation, social withdrawal.",
         evaluation: "Initial evaluation suggests mild adjustment disorder.",
-        is_active: "yes"
+        is_active: "yes",
+        assessment: "Yes, very very qualified to wield firearms in public!"
     });
 
 
@@ -87,6 +89,16 @@ function CaseFrontend() {
     const [contactNo, setContactNo] = useState(data?.contact_no || '');
     const [relationship, setRelationship] = useState(data?.relationship_to_client || '');
 
+    const [problemPresented, setProblemPresented] = useState(data?.problem_presented || '');
+    const [observationFindings, setObservationFindings] = useState(data?.observation_findings || '');
+    const [historyProblem, setHistoryProblem] = useState(data?.history_problem || '');
+    const [caseAssessment, setCaseAssessment] = useState(data?.assessment || '');
+
+    const [caseEvalutation, setCaseEvalutation] = useState(data?.evaluation || '');
+    const [caseRecommendation, setCaseRecommendation] = useState(data?.recommendation || '');
+
+    const [editingField, setEditingField] = useState(null);
+
     useEffect(() => {
         setAge(calculateAge(dob));
     }, [dob]);
@@ -110,6 +122,15 @@ function CaseFrontend() {
         setEditingFamilyValue(newMember);
     };
 
+
+    const [drafts, setDrafts] = useState({
+        problemPresented: problemPresented,
+        historyProblem: historyProblem,
+        observationFindings: observationFindings,
+        caseAssessment: caseAssessment,
+        caseRecommendation: caseRecommendation,
+        caseEvalutation: caseEvalutation
+    });
 
     return (
         <main className='flex flex-col gap-20'>
@@ -260,149 +281,224 @@ function CaseFrontend() {
                 <h1 className="header-main">Family Composition</h1>
 
                 <button className="btn-primary font-bold-label drop-shadow-base"
-                  onClick={handleAddFamilyMember}>Add New Family Member</button>
+                    onClick={handleAddFamilyMember}>Add New Family Member</button>
 
                 <div className="flex justify-between gap-10">
                     <div className="flex gap-8 flex-wrap">
                         {familyMembers.map((member, index) => (
-                            <div key={index} className="flex flex-col gap-5 w-[40rem] drop-shadow-card px-[2rem] py-[3rem] rounded-xl outline-gray">
-                                <div className='flex justify-between items-center gap-4'>
-                                    {selectedFamily === index ? (
-                                        <input
-                                            type="text"
-                                            value={editingFamilyValue.name || ''}
-                                            className="text-input font-bold-label text-xl"
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, name: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        <h3 className="header-sub">{member.name}</h3>
-                                    )}
-                                    <button onClick={() => {
-                                        if (selectedFamily === index) {
-                                            setSelectedFamily(null)
-                                        } else {
-                                            setEditingFamilyValue({ ...member })
-                                            setSelectedFamily(index)
-                                        }
-                                    }}>
-
-                                        <img src="/dots.svg" alt="dots" className="w-8 h-8" />
-                                    </button>
-                                </div>
-
-                                <div className="grid grid-cols-[max-content_1fr] gap-5 text-sm font-label">
-                                    <div className="font-bold-label">Age</div>
-                                    {selectedFamily === index ? (
-                                        <input type="number"
-                                            className="text-input"
-                                            value={editingFamilyValue.age || ''}
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, age: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        `: ${member.age}`
-                                    )}
-
-                                    <div className="font-bold-label">Income</div>
-                                    {selectedFamily === index ? (
-                                        <input type="text"
-                                            className="text-input"
-                                            value={editingFamilyValue.income || ''}
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, income: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        `: ${member.income}`
-                                    )}
-
-                                    <div className="font-bold-label">Civil Status</div>
-                                    {selectedFamily === index ? (
-                                        <input type="text"
-                                            className="text-input"
-                                            value={editingFamilyValue.civilStatus || ''}
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, civilStatus: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        `: ${member.civilStatus}`
-                                    )}
-
-                                    <div className="font-bold-label">Occupation</div>
-                                    <div>{selectedFamily === index ? (
-                                        <input type="text"
-                                            className="text-input"
-                                            value={editingFamilyValue.occupation || ''}
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, occupation: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        `: ${member.occupation}`
-                                    )}
-                                    </div>
-
-                                    <div className="font-bold-label">Educational Attainment</div>
-                                    {selectedFamily === index ? (
-                                        <input type="text"
-                                            className="text-input"
-                                            value={editingFamilyValue.education || ''}
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, education: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        `: ${member.education}`
-                                    )}
-
-                                    <div className="font-bold-label">Relationship to Client</div>
-                                    {selectedFamily === index ? (
-                                        <input type="text"
-                                            className="text-input"
-                                            value={editingFamilyValue.relationship || ''}
-                                            onChange={(e) =>
-                                                setEditingFamilyValue({ ...editingFamilyValue, relationship: e.target.value })
-                                            }
-                                        />
-                                    ) : (
-                                        `: ${member.relationship}`
-                                    )}
-                                </div>
-
-                                {selectedFamily === index && (
-                                    <div className='flex justify-between items-center'>
-                                        <button className='mt-5'
-                                            onClick={() => {
-                                                const updated = familyMembers.filter((_, i) => i !== index)
-                                                setFamilyMembers(updated)
-                                                setSelectedFamily(null)
-                                            }}>
-                                            <img src="/trash.svg" alt="trash" className="w-8 h-8" />
-                                        </button>
-
-                                        <button className='font-bold-label'
-                                            style={{ color: "var(--color-primary)" }}
-                                            onClick={() => {
-                                                const updated = [...familyMembers]
-                                                updated[index] = { ...editingFamilyValue }
-                                                setFamilyMembers(updated)
-                                                setSelectedFamily(null)
-                                            }}>
-                                            Save Changes
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                            <FamilyCard key={index} index={index} member={member} selectedFamily={selectedFamily}
+                                setSelectedFamily={setSelectedFamily} editingFamilyValue={editingFamilyValue}
+                                setEditingFamilyValue={setEditingFamilyValue} familyMembers={familyMembers}
+                                setFamilyMembers={setFamilyMembers} />
                         ))}
+
                     </div>
                 </div>
 
             </section>
 
+            <section className='flex flex-col gap-8'>
+                <div className="flex justify-between items-center gap-4">
+
+                    <h1 className="header-main">Problems and Findings</h1>
+                    <button onClick={() => {
+                        if (editingField) {
+                            setDrafts({
+                                problemPresented,
+                                historyProblem,
+                                observationFindings,
+                                caseAssessment,
+                                caseEvalutation,
+                                caseRecommendation
+                            });
+                            setEditingField(null);
+                        } else {
+                            setEditingField('history-fields');
+                        }
+                    }}>
+                        <img src="/dots.svg" alt="dots" className="w-8 h-8" />
+                    </button>
+
+                </div>
+
+
+                <div className="grid grid-cols-2 gap-10">
+                    <div className='flex flex-col gap-4'>
+                        <h3 className="header-sub">Problem Presented</h3>
+
+                        {editingField === 'history-fields' ? (
+                            <textarea className="text-input font-label"
+                                value={drafts.problemPresented}
+                                onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, problemPresented: e.target.value }))} />
+                        ) : (
+                            <p className='font-label'>{problemPresented || '-'}</p>
+                        )}
+                    </div>
+
+
+                    <div className='flex flex-col gap-4'>
+                        <h3 className="header-sub">History of the Problem</h3>
+
+                        {editingField === 'history-fields' ? (
+                            <textarea className="text-input font-label"
+                                value={drafts.historyProblem}
+                                onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, historyProblem: e.target.value }))} />
+                        ) : (
+                            <p className='font-label'>{historyProblem || '-'}</p>
+                        )}
+                    </div>
+
+                    <div className='flex flex-col gap-4'>
+                        <h3 className="header-sub">Findings</h3>
+
+                        {editingField === 'history-fields' ? (
+                            <textarea className="text-input font-label"
+                                value={drafts.observationFindings}
+                                onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, observationFindings: e.target.value }))} />
+                        ) : (
+                            <p className='font-label'>{observationFindings || '-'}</p>
+                        )}
+                    </div>
+
+                </div>
+
+                {editingField == "history-fields" && (
+                    <button className="btn-primary font-bold-label drop-shadow-base my-3 mx-auto"
+                        onClick={() => {
+                            setProblemPresented(drafts.problemPresented);
+                            setHistoryProblem(drafts.historyProblem);
+                            setObservationFindings(drafts.observationFindings);
+                            setEditingField(null);
+                        }}>
+                        Submit Changes
+                    </button>
+                )}
+
+            </section>
+
+            <section className='flex flex-col gap-8'>
+                <div className="flex justify-between items-center gap-4">
+
+                    <h1 className="header-main">Assessment</h1>
+                    <button onClick={() => {
+                        if (editingField) {
+                            setDrafts({
+                                problemPresented,
+                                historyProblem,
+                                observationFindings,
+                                caseAssessment,
+                                caseEvalutation,
+                                caseRecommendation
+                            });
+                            setEditingField(null);
+                        } else {
+                            setEditingField('assessment-field');
+                        }
+                    }}>
+                        <img src="/dots.svg" alt="dots" className="w-8 h-8" />
+                    </button>
+
+                </div>
+
+                <div className="grid grid-cols-1 gap-10">
+
+                    <div className='flex flex-col gap-4'>
+                        {editingField === 'assessment-field' ? (
+                            <textarea className="text-input font-label"
+                                value={drafts.caseAssessment}
+                                onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, caseAssessment: e.target.value }))} />
+                        ) : (
+                            <p className='font-label'>{caseAssessment || '-'}</p>
+                        )}
+                    </div>
+                </div>
+
+                {editingField == "assessment-field" && (
+                    <button className="btn-primary font-bold-label drop-shadow-base my-3 mx-auto"
+                        onClick={() => {
+                            setCaseAssessment(drafts.caseAssessment);
+                            setEditingField(null);
+                        }}>
+                        Submit Changes
+                    </button>
+                )}
+            </section>
+
+            <section className='flex flex-col gap-8'>
+                <div className="flex justify-between items-center gap-4">
+
+                    <h1 className="header-main">Evaluation and Recommendation</h1>
+                    <button onClick={() => {
+                        if (editingField) {
+                            setDrafts({
+                                problemPresented,
+                                historyProblem,
+                                observationFindings,
+                                caseAssessment,
+                                caseEvalutation,
+                                caseRecommendation
+                            });
+                            setEditingField(null);
+                        } else {
+                            setEditingField('assessment-fields');
+                        }
+                    }}>
+                        <img src="/dots.svg" alt="dots" className="w-8 h-8" />
+                    </button>
+
+                </div>
+
+
+                <div className="grid grid-cols-2 gap-10">
+                    <div className='flex flex-col gap-4'>
+                        <h3 className="header-sub">Evaluation</h3>
+
+                        {editingField === 'assessment-fields' ? (
+                            <textarea className="text-input font-label"
+                                value={drafts.caseEvalutation}
+                                onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, caseEvalutation: e.target.value }))} />
+                        ) : (
+                            <p className='font-label'>{caseEvalutation || '-'}</p>
+                        )}
+                    </div>
+
+
+                    <div className='flex flex-col gap-4'>
+                        <h3 className="header-sub">Recommendation</h3>
+
+                        {editingField === 'assessment-fields' ? (
+                            <textarea className="text-input font-label"
+                                value={drafts.caseRecommendation}
+                                onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, caseRecommendation: e.target.value }))} />
+                        ) : (
+                            <p className='font-label'>{caseRecommendation || '-'}</p>
+                        )}
+                    </div>
+
+                </div>
+
+                {editingField == "assessment-fields" && (
+                    <button className="btn-primary font-bold-label drop-shadow-base my-3 mx-auto"
+                        onClick={() => {
+                            setCaseEvalutation(drafts.caseEvalutation);
+                            setCaseRecommendation(drafts.caseRecommendation);
+                            setEditingField(null);
+                        }}>
+                        Submit Changes
+                    </button>
+                )}
+
+            </section>
+
+            <button className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto">
+                Terminate Case
+            </button>
         </main>
     );
 }
