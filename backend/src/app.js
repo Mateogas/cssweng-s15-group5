@@ -17,7 +17,7 @@ app.use(express.json());
 /**
  *  Require controllers
  */
-caseController = require("./controller/caseController");
+const caseController = require("./controller/caseController");
 
 
 /**
@@ -28,5 +28,10 @@ app.get('/',(req,res)=>{
 })
 
 app.get('/api/cases', caseController.getCase);
+
+app.post('/api/cases/edit-problem-presented', caseController.editProblemPresented);
+app.post('/api/cases/edit-history-problem', caseController.editHistOfProblem);
+app.post('/api/cases/edit-findings', caseController.editFindings);
+app.post('/api/cases/edit-assessment', caseController.editAssessment);
 
 module.exports = app;
