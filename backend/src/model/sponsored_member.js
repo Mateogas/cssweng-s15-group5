@@ -27,6 +27,10 @@ const SponsoredMemberSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    present_address:{
+        type: String,
+        required: true
+    },
     dob: {
         type: Date,
         required: true
@@ -88,7 +92,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
         required: true
     },
     is_active: {
-        type: String,
+        type: Boolean,
         required: true
     },
 });

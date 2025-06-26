@@ -1,18 +1,18 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import {useNavigate} from 'react-router-dom'
+
+import viteLogo from '/vite.svg'            // Remove this if not used
+import { useNavigate } from 'react-router-dom'
 import './App.css'
 
 function App() {
-  const navigate = useNavigate()//we actually need this for routing to go to other pages since react is a single page only
-
+  const navigate = useNavigate()
+  
   return (
     <>
       <h1 style={{color: 'red', fontSize: '32px'}}>TEST HEADER</h1>
       <div>
         <button 
-          onClick={() => navigate('/testcase')}
+          onClick={() => navigate('/case-frontend/68496470eaa08161083d1afe')}
           style={{ 
             padding: '20px', 
             backgroundColor: 'blue', 

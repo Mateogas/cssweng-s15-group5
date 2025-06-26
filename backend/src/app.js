@@ -18,7 +18,7 @@ app.use(express.json());
  *  Require controllers
  */
 caseController = require("./controller/caseController");
-
+const caseRoutes = require('./route/caseRoutes')
 
 /**
  *  Routes
@@ -27,6 +27,6 @@ app.get('/',(req,res)=>{
     res.send('it works?')
 })
 
-app.get('/api/cases', caseController.getCase);
+app.use('/case-frontend', caseRoutes);
 
 module.exports = app;
