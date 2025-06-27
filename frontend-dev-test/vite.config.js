@@ -9,10 +9,11 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '/case-frontend': {
+      '/api': {
         target: 'http://localhost:3000', // Your Express backend
         changeOrigin: true
       }
-    }
+    },
+    historyApiFallback:true
   }
 })

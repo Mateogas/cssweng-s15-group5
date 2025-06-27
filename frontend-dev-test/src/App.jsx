@@ -12,7 +12,7 @@ function App() {
       <h1 style={{color: 'red', fontSize: '32px'}}>TEST HEADER</h1>
       <div>
         <button 
-          onClick={() => navigate('/case-frontend/68496470eaa08161083d1afe')}
+          onClick={() => navigate('/cases')} // Navigate to your cases page, not the API
           style={{ 
             padding: '20px', 
             backgroundColor: 'blue', 

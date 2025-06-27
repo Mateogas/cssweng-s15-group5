@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
  */
 const SponsoredMemberSchema = new mongoose.Schema({
     sm_number: {
-        type: String,
+        type: Number,
         required: true,
     },
     last_name: {

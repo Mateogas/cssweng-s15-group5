@@ -45,8 +45,8 @@ function CaseFrontend() {
                 try {
                     setLoading(true);
                     const caseId = id || "1"; 
-                    const response = await fetch(`/case-frontend/${caseId}`);
-                    
+                    const response = await fetch(`/api/cases/${caseId}`);
+
                     if (!response.ok) {
                         throw new Error(`API error: ${response.status}`);
                     }
