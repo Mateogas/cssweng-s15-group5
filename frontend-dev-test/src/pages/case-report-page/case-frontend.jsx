@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate,useParams } from 'react-router-dom'
 
 function CaseFrontend() {
+    //these just instantiates variables into nulls and their defaults
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
-
-
     const [dob, setDob] = useState('');
     const [age, setAge] = useState(0);
     const [civilStatus, setCivilStatus] = useState('');
@@ -23,7 +22,7 @@ function CaseFrontend() {
     const [relationship, setRelationship] = useState('');
 
     const [familyMembers, setFamilyMembers] = useState([]);
-
+    //this was made by jm
     function calculateAge(dateValue) {
         const birthday = new Date(dateValue);
         const today = new Date();
@@ -40,6 +39,7 @@ function CaseFrontend() {
 
         return age;
     }
+            // This is the main function that fetches the data from the call and assigns variables
             useEffect(() => {
             const fetchCase = async () => {
                 try {
@@ -52,10 +52,9 @@ function CaseFrontend() {
                     }
                     
                     const caseData = await response.json();
+                    //this just sets everything like assigning value to variable
                     setData(caseData);
                     
-                    // Change this part - use caseData instead of data
-                    // data is still null at this point because setState is asynchronous
                     const formattedDate = caseData?.dob ? new Date(caseData.dob).toISOString().split('T')[0] : '';
                     setDob(formattedDate);
                     setAge(calculateAge(caseData?.dob));
