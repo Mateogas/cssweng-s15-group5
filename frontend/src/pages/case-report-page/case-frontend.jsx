@@ -101,6 +101,77 @@ function CaseFrontend() {
     const [caseRecommendation, setCaseRecommendation] = useState(data?.recommendation || '');
 
     const [editingField, setEditingField] = useState(null);
+    const [drafts, setDrafts] = useState(null);
+
+        // This is the main function that fetches the data from the call and assigns variables
+        useEffect(() => {
+        const fetchCase = async () => {
+            try {
+                setLoading(true);
+                const caseId = "1"; 
+                const response = await fetch(`/api/cases/${caseId}`);
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const caseData = await response.json();
+                //this just sets everything like assigning value to variable
+                setData(caseData);
+                
+                const formattedDate = caseData?.dob ? new Date(caseData.dob).toISOString().split('T')[0] : '';
+                setDob(formattedDate);
+                setAge(calculateAge(caseData?.dob));
+                setCivilStatus(caseData?.civil_status || '');
+                setEducation(caseData?.edu_attainment || '');
+                setSex(caseData?.sex || '');
+                setPob(caseData?.pob || '');
+                setReligion(caseData?.religion || '');
+                setOccupation(caseData?.occupation || '');
+                setPresentAddress(caseData?.present_address || '');
+                setContactNo(caseData?.contact_no || '');
+                setRelationship(caseData?.relationship_to_client || '');
+                        if (caseData.family_members && caseData.family_members.length > 0) {
+                        const formattedMembers = caseData.family_members.map(member => ({
+                    name: `${member.first_name} ${member.last_name}`,
+                    age: calculateAge(member.dob),
+                    income: member.income || 'N/A',
+                    civilStatus: member.civil_status || 'N/A',
+                    occupation: member.occupation || 'N/A',
+                    education: member.edu_attainment || 'N/A',
+                    relationship: member.relationship_to_sm || 'N/A'
+                }));
+                setFamilyMembers(formattedMembers);
+                }
+
+                setProblemPresented(caseData?.problem_presented || '');
+                setObservationFindings(caseData?.observation_findings || '');
+                setHistoryProblem(caseData?.history_problem || '');
+
+                setCaseAssessment(caseData?.assessment || '');
+
+                setCaseEvalutation(caseData?.evaluation || '');
+                setCaseRecommendation(caseData?.recommendation || '');
+
+                // set the drafts
+                setDrafts({
+                    problemPresented: caseData?.problem_presented || '',
+                    historyProblem: caseData?.history_problem || '',
+                    observationFindings: caseData?.observation_findings || '',
+                    caseAssessment: caseData?.assessment || '',
+                    caseEvalutation: caseData?.evaluation || '',
+                    caseRecommendation: caseData?.recommendation || ''
+                });
+            } catch (err) {
+                console.error('Error fetching case:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchCase();
+    }, []);
 
     useEffect(() => {
         setAge(calculateAge(dob));
@@ -125,15 +196,6 @@ function CaseFrontend() {
         setEditingFamilyValue(newMember);
     };
 
-
-    const [drafts, setDrafts] = useState({
-        problemPresented: problemPresented,
-        historyProblem: historyProblem,
-        observationFindings: observationFindings,
-        caseAssessment: caseAssessment,
-        caseRecommendation: caseRecommendation,
-        caseEvalutation: caseEvalutation
-    });
     const handleUpdateProblemsFindings = async () => {
         try {
             setLoading(true);

@@ -29,9 +29,7 @@ app.get('/',(req,res)=>{
 
 app.get('/api/cases', caseController.getCase);
 
-app.post('/api/cases/:id/problem_presented', caseController.editProblemPresented);
-app.post('/api/cases/:id/history_problem', caseController.editHistOfProblem);
-app.post('/api/cases/:id/observation_findings', caseController.editFindings);
-app.post('/api/cases/:id/assessment', caseController.editAssessment);
+app.get('/api/cases/:id', caseController.getCaseById);
 
+app.post('/api/cases/update-problems-findings', caseController.editProblemsAndFindings);
 module.exports = app;

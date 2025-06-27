@@ -26,6 +26,29 @@ const getCase = async (req, res) => {
     }
 }
 
+const getCaseById = async (req, res) => {
+     try {
+          const { id } = req.params; // Assuming the ID is passed as a URL parameter
+          
+          // Find the case by ID
+          const caseData = await Sponsored_Member.findOne({ sm_number: id }).lean();
+          if (!caseData) {
+               return res.status(404).json({ 
+                    message: 'Case not found' 
+               });
+          }
+
+          // Return the case data
+          res.status(200).json(caseData);
+     } catch (error) {
+          console.error('Error fetching case by ID:', error);
+          res.status(500).json({ 
+               message: 'Error retrieving case data by ID',
+               error: error.message 
+          });
+     }
+}
+
 /**
  *   Functions as add a new case
  * 
@@ -184,6 +207,7 @@ const addIntervention = async (req, res) => {
 
 module.exports = {
      getCase,
+     getCaseById,
      editProblemsAndFindings,
      editAssessment,
 }
