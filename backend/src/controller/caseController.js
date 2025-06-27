@@ -151,13 +151,21 @@ const editProblemsAndFindings = async (req, res) => {
 const editAssessment = async (req, res) => {
      try {
           const { sm_number, assessment } = req.body;
-          if (!sm_number || !assessment) {
+
+          // Validate require fields
+          if (!sm_number) {
                return res.status(400).json({ 
-                    message: 'sm_number and assessment are required' 
+                    message: 'sm_number is required' 
                });
           }
 
-          // find the case by sm_number
+          if (!assessment) {
+               return res.status(400).json({
+                    message: 'Assessment is required' 
+               });
+          }
+
+          // Find the case by sm_number
           const caseToUpdate = await Sponsored_Member.findOne({ sm_number });
           if (!caseToUpdate) {
                return res.status(404).json({ 
@@ -165,17 +173,18 @@ const editAssessment = async (req, res) => {
                });
           }
 
-          // update assessment
+          // Update assessment
           caseToUpdate.assessment = assessment;
           await caseToUpdate.save();
           
-          res.status(200).json({ 
+          // Return success response
+          return res.status(200).json({ 
                message: 'Assessment updated successfully', 
                case: caseToUpdate 
           });
      } catch (error) {
           console.error('Error editing assessment:', error);
-          res.status(500).json({ 
+          return res.status(500).json({ 
                message: 'Error editing assessment',
                error: error.message 
           });

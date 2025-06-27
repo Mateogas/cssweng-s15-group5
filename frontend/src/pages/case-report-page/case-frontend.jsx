@@ -103,8 +103,8 @@ function CaseFrontend() {
     const [editingField, setEditingField] = useState(null);
     const [drafts, setDrafts] = useState(null);
 
-        // This is the main function that fetches the data from the call and assigns variables
-        useEffect(() => {
+    // This is the main function that fetches the data from the call and assigns variables
+    useEffect(() => {
         const fetchCase = async () => {
             try {
                 setLoading(true);
@@ -230,6 +230,50 @@ function CaseFrontend() {
         } finally {
             setLoading(false);
         }
+    }
+
+    const handleUpdateAssessment = async () => {
+        try {
+            setLoading(true);
+
+            const response = await fetch('/api/cases/update-assessment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sm_number: data.sm_number,
+                    assessment: drafts.caseAssessment,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update assessment');
+            }
+
+            const result = await response.json();
+            console.log("Assessment updated successfully:", result);
+
+            // Update the state with the new assessment
+            setCaseAssessment(drafts.caseAssessment);
+            setEditingField(null);
+        } catch (error) {
+            console.error("Error updating assessment:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    if (loading) {
+        return <div className="p-4">Loading case data...</div>;
+    }
+
+    if (error) {
+        return <div className="p-4 text-red-500">Error: {error}</div>;
+    }
+
+    if (!data) {
+        return <div className="p-4">No case data found</div>;
     }
 
     return (
@@ -514,10 +558,7 @@ function CaseFrontend() {
 
                 {editingField == "assessment-field" && (
                     <button className="btn-primary font-bold-label drop-shadow-base my-3 mx-auto"
-                        onClick={() => {
-                            setCaseAssessment(drafts.caseAssessment);
-                            setEditingField(null);
-                        }}>
+                        onClick={() => handleUpdateAssessment()}>
                         Submit Changes
                     </button>
                 )}
