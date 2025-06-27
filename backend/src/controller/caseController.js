@@ -192,17 +192,50 @@ const editAssessment = async (req, res) => {
 }
 
 /**  
- *   Edits a case's evaluation
+ *   Edits a case's evaluation and recommendation
  */
-const editEvaluation = async (req, res) => {
-     // code here
-}
+const editEvaluationAndRecommendation = async (req, res) => {
+     try {
+          const { sm_number, evaluation, recommendation } = req.body;
 
-/**  
- *   Edits a case's recommendation
- */
-const editRecommendation = async (req, res) => {
-     // code here
+          // Validate required fields
+          if (!sm_number) {
+               return res.status(400).json({ 
+                    message: 'sm_number is required' 
+               });
+          }
+
+          if (!evaluation || !recommendation) {
+               return res.status(400).json({
+                    message: 'Evaluation and recommendation are required' 
+               });
+          }
+
+          // Find the case by sm_number
+          const caseToUpdate = await Sponsored_Member.findOne({ sm_number });
+          if (!caseToUpdate) {
+               return res.status(404).json({ 
+                    message: 'Case not found' 
+               });
+          }
+
+          // Update evaluation and recommendation
+          caseToUpdate.evaluation = evaluation;
+          caseToUpdate.recommendation = recommendation;
+          await caseToUpdate.save();
+          
+          // Return success response
+          return res.status(200).json({ 
+               message: 'Evaluation and recommendation updated successfully', 
+               case: caseToUpdate 
+          });
+     } catch (error) {
+          console.error('Error editing evaluation and recommendation:', error);
+          return res.status(500).json({ 
+               message: 'Error editing evaluation and recommendation',
+               error: error.message 
+          });
+     }
 }
 
 /**  
@@ -219,4 +252,5 @@ module.exports = {
      getCaseById,
      editProblemsAndFindings,
      editAssessment,
+     editEvaluationAndRecommendation,
 }

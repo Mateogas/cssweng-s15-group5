@@ -264,6 +264,40 @@ function CaseFrontend() {
         }
     }
 
+    const handleUpdateEvaluationRecommendation = async () => {
+        try {
+            setLoading(true);
+
+            const response = await fetch('/api/cases/update-evaluation-recommendation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sm_number: data.sm_number,
+                    evaluation: drafts.caseEvalutation,
+                    recommendation: drafts.caseRecommendation,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update evaluation and recommendation');
+            }
+
+            const result = await response.json();
+            console.log("Evaluation and recommendation updated successfully:", result);
+
+            // Update the state with the new evaluation and recommendation
+            setCaseEvalutation(drafts.caseEvalutation);
+            setCaseRecommendation(drafts.caseRecommendation);
+            setEditingField(null);
+        } catch (error) {
+            console.error("Error updating evaluation and recommendation:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     if (loading) {
         return <div className="p-4">Loading case data...</div>;
     }
@@ -621,11 +655,7 @@ function CaseFrontend() {
 
                 {editingField == "assessment-fields" && (
                     <button className="btn-primary font-bold-label drop-shadow-base my-3 mx-auto"
-                        onClick={() => {
-                            setCaseEvalutation(drafts.caseEvalutation);
-                            setCaseRecommendation(drafts.caseRecommendation);
-                            setEditingField(null);
-                        }}>
+                        onClick={() => handleUpdateEvaluationRecommendation()}>
                         Submit Changes
                     </button>
                 )}
