@@ -1,0 +1,21 @@
+.header-main {
+    @apply font-sans font-semibold text-[3.2rem];
+    color: var(--color-black)
+}
+
+.header-sub {
+    @apply font-sans font-semibold text-[2.4rem];
+    color: var(--color-black)
+}
+
+.font-bold-label {
+    @apply font-sans font-semibold text-[1.6rem];
+    color: var(--color-black)
+}
+
+
+.font-label {
+    @apply font-sans text-[1.6rem];
+    color: var(--color-black);
+}
+
