@@ -77,6 +77,10 @@ const SponsoredMemberSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    assessment: {
+        type: String,
+        required: false
+    },
     evaluation: {
         type: String,
         required: false
