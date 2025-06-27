@@ -26,6 +26,9 @@ function CaseFrontend() {
         is_active: "yes",
         assessment: "Yes, very very qualified to wield firearms in public!"
     });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
 
     const [familyMembers, setFamilyMembers] = useState([
@@ -131,6 +134,41 @@ function CaseFrontend() {
         caseRecommendation: caseRecommendation,
         caseEvalutation: caseEvalutation
     });
+    const handleUpdateProblemsFindings = async () => {
+        try {
+            setLoading(true);
+
+            const response = await fetch('/api/cases/update-problems-findings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sm_number: data.sm_number,
+                    problem_presented: drafts.problemPresented,
+                    observation_findings: drafts.observationFindings,
+                    history_problem: drafts.historyProblem,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update problems and findings');
+            }
+
+            const result = await response.json();
+            console.log("Problems and findings updated successfully:", result);
+            
+            // Update the state with the new drafts
+            setProblemPresented(drafts.problemPresented);
+            setHistoryProblem(drafts.historyProblem);
+            setObservationFindings(drafts.observationFindings);
+            setEditingField(null);
+        } catch (error) {
+            console.error("Error updating problems and findings:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <main className='flex flex-col gap-20'>
@@ -367,12 +405,7 @@ function CaseFrontend() {
 
                 {editingField == "history-fields" && (
                     <button className="btn-primary font-bold-label drop-shadow-base my-3 mx-auto"
-                        onClick={() => {
-                            setProblemPresented(drafts.problemPresented);
-                            setHistoryProblem(drafts.historyProblem);
-                            setObservationFindings(drafts.observationFindings);
-                            setEditingField(null);
-                        }}>
+                        onClick={() => handleUpdateProblemsFindings()}>
                         Submit Changes
                     </button>
                 )}
