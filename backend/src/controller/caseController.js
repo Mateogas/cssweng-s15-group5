@@ -267,6 +267,7 @@ const editCase = async (req, res) => {
     
     try {
         // Validate the updated data
+        /*
         const { error } = caseSchemaValidate.validate(updatedCaseData);
         if (error) {
             return res.status(400).json({
@@ -274,7 +275,7 @@ const editCase = async (req, res) => {
                 details: error.details.map(detail => detail.message)
             });
         }
-        
+        */
         // Update the case
         const updatedCase = await Sponsored_Member.findByIdAndUpdate(
             caseId,

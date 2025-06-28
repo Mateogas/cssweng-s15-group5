@@ -11,7 +11,7 @@ function CaseListing() {
         const fetchCases = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/cases');
+                const response = await fetch('/api/cases/allcases');
                 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
@@ -32,6 +32,12 @@ function CaseListing() {
 
     const handleViewCase = (caseId) => {
         navigate(`/cases/${caseId}`);
+    };
+
+    const handleEditCase = (e, caseId) => {
+         e.stopPropagation();
+        navigate(`/case/edit/${caseId}`); 
+        
     };
 
     if (loading) {
@@ -58,13 +64,23 @@ function CaseListing() {
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                     {cases.map((caseItem) => (
                         <div key={caseItem.id} 
-                             className='border rounded-lg p-6 shadow-md hover:shadow-lg cursor-pointer'
+                             className='border rounded-lg p-6 shadow-md hover:shadow-lg cursor-pointer relative'
                              onClick={() => handleViewCase(caseItem.id)}>
                             <h2 className='text-xl font-bold mb-2'>{caseItem.name}</h2>
                             {caseItem.sm_number && (
                                 <p className='text-gray-600'>ID: {caseItem.sm_number}</p>
                             )}
-                            <p className='mt-4 text-blue-600'>Click to view details</p>
+                            <p className='mt-4 text-blue-600 mb-4'>Click to view details</p>
+                            
+                            {/* Edit Button */}
+                            <div className='flex gap-2 mt-4'>
+                                <button
+                                    onClick={(e) => handleEditCase(e, caseItem.id)}
+                                    className='bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm font-bold-label'
+                                >
+                                    Edit
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
