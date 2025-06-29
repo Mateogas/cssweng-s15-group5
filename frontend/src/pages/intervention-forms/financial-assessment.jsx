@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Signature from "../../Components/Signature";
+import TextArea from "../../Components/TextArea";
 
 function FinancialAssessmentForm() {
     const [data, setData] = useState({
@@ -233,23 +234,9 @@ function FinancialAssessmentForm() {
                 </div>
             </section>
 
-            <section className="flex w-full flex-col gap-3">
-                <h4 className="header-sm">Problem Presented</h4>
-                <textarea
-                    value={problem_presented}
-                    onChange={(e) => setProblemPresented(e.target.value)}
-                    className="text-area"
-                ></textarea>
-            </section>
-
-            <section className="flex w-full flex-col gap-3">
-                <h4 className="header-sm">Recommendation</h4>
-                <textarea
-                    value={recommendation}
-                    onChange={(e) => setRecommendation(e.target.value)}
-                    className="text-area"
-                ></textarea>
-            </section>
+            <TextArea label="Problem Presented" value={problem_presented} setValue={setProblemPresented}></TextArea>
+            
+            <TextArea label="Recommendation" value={recommendation} setValue={setRecommendation}></TextArea>
 
             <section className="flex w-full flex-col gap-10 px-10 pt-16">
                 <div className="flex w-full justify-between">
