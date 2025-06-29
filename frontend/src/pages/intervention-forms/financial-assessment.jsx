@@ -44,6 +44,7 @@ function FinancialAssessmentForm() {
             <h3 className="header-md">
                 Assessment Form for Special Family Assistance
             </h3>
+
             <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Type of Assistance</h4>
                 <div className="flex justify-center gap-20 px-5">
@@ -158,13 +159,13 @@ function FinancialAssessmentForm() {
                 </div>
             </section>
 
-            <section classname="flex flex-col gap-8 w-full">
-                <h4 className="header-sm">Identifying Information</h4>
-                <div className="flex flex-col gap-5 p-5">
-                    <div className="border-b border-[var(--border-color)]">
+            <section className="flex w-full flex-col gap-8 items-center">
+                <h4 className="header-sm w-full">Identifying Information</h4>
+                <div className="flex flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5 w-max">
+                    <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="flex items-center gap-10">
+                    <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
                             <div className="flex items-center gap-10">
                                 <p className="label-base w-44">Last Name</p>
@@ -174,7 +175,7 @@ function FinancialAssessmentForm() {
                                     onChange={(e) =>
                                         setLastName(e.target.value)
                                     }
-                                    className="body-base text-input"
+                                    className="body-base text-input w-64"
                                 />
                             </div>
                             <div className="flex items-center gap-10">
@@ -185,7 +186,7 @@ function FinancialAssessmentForm() {
                                     onChange={(e) =>
                                         setFirstName(e.target.value)
                                     }
-                                    className="body-base text-input"
+                                    className="body-base text-input w-64"
                                 />
                             </div>
                             <div className="flex items-center gap-10">
@@ -196,7 +197,7 @@ function FinancialAssessmentForm() {
                                     onChange={(e) =>
                                         setMiddleName(e.target.value)
                                     }
-                                    className="body-base text-input"
+                                    className="body-base text-input w-64"
                                 />
                             </div>
                         </div>
@@ -209,7 +210,7 @@ function FinancialAssessmentForm() {
                                     onChange={(e) =>
                                         setCHNumber(e.target.value)
                                     }
-                                    className="body-base text-input"
+                                    className="body-base text-input w-64"
                                 />
                             </div>
                             <div className="flex items-center gap-10">
@@ -222,7 +223,7 @@ function FinancialAssessmentForm() {
                                     onChange={(e) =>
                                         setAreaAndSubproject(e.target.value)
                                     }
-                                    className="body-base text-input"
+                                    className="body-base text-input w-64"
                                 />
                             </div>
                         </div>
@@ -239,7 +240,7 @@ function FinancialAssessmentForm() {
                 ></textarea>
             </section>
 
-            <section className="flex w-full flex-col">
+            <section className="flex w-full flex-col gap-3">
                 <h4 className="header-sm">Recommendation</h4>
                 <textarea
                     value={recommendation}
