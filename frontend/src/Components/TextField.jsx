@@ -1,0 +1,30 @@
+import React from "react"
+
+export const TextInput = ({ label, value, setValue }) => {
+    return (
+        <div className="flex items-center gap-10">
+            <p className="label-base w-44">{label}</p>
+            <input
+                type="text"
+                value={value}
+                onChange={(e) =>
+                    setValue(e.target.value)
+                }
+                className="body-base text-input w-64"
+            />
+        </div>
+    )
+};
+
+export const TextArea = ({ label, value, setValue}) => {
+    return (
+        <section className="flex w-full flex-col gap-3">
+            <h4 className="header-sm">{label}</h4>
+            <textarea
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                className="text-area"
+            ></textarea>
+        </section>
+    )
+};

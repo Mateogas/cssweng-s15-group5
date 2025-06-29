@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Signature from "../../Components/Signature";
-import TextArea from "../../Components/TextArea";
+import { TextInput, TextArea } from "../../Components/TextField";
 
 function CounsellingForm() {
     const [data, setData] = useState({
@@ -48,74 +48,14 @@ function CounsellingForm() {
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Last Name</p>
-                                <input
-                                    type="text"
-                                    value={last_name}
-                                    onChange={(e) =>
-                                        setLastName(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">First Name</p>
-                                <input
-                                    type="text"
-                                    value={first_name}
-                                    onChange={(e) =>
-                                        setFirstName(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Middle Name</p>
-                                <input
-                                    type="text"
-                                    value={middle_name}
-                                    onChange={(e) =>
-                                        setMiddleName(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">CH ID #</p>
-                                <input
-                                    type="text"
-                                    value={ch_number}
-                                    onChange={(e) =>
-                                        setCHNumber(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
+                            <TextInput label="Last Name" value={last_name} setValue={setLastName}></TextInput>
+                            <TextInput label="First Name" value={first_name} setValue={setFirstName}></TextInput>
+                            <TextInput label="Middle Name" value={middle_name} setValue={setMiddleName}></TextInput>
+                            <TextInput label="CH ID #" value={ch_number} setValue={setCHNumber}></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Grade/Year Level</p>
-                                <input
-                                    type="text"
-                                    value={grade_year_level}
-                                    onChange={(e) =>
-                                        setGradeYearLevel(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">School</p>
-                                <input
-                                    type="text"
-                                    value={school}
-                                    onChange={(e) =>
-                                        setSchool(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
+                            <TextInput label="Grade/Year Level" value={grade_year_level} setValue={setGradeYearLevel}></TextInput>
+                            <TextInput label="School" value={school} setValue={setSchool}></TextInput>
                             <div className="flex gap-10">
                                 <p className="label-base w-44">Address</p>
                                 <textarea

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Signature from "../../Components/Signature";
-import TextArea from "../../Components/TextArea";
+import { TextInput, TextArea } from "../../Components/TextField";
 
 function FinancialAssessmentForm() {
     const [data, setData] = useState({
@@ -41,9 +41,7 @@ function FinancialAssessmentForm() {
 
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
-            <h4 className="header-sm self-end">
-                Form #: {form_num}
-            </h4>
+            <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 Assessment Form for Special Family Assistance
             </h3>
@@ -170,73 +168,29 @@ function FinancialAssessmentForm() {
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Last Name</p>
-                                <input
-                                    type="text"
-                                    value={last_name}
-                                    onChange={(e) =>
-                                        setLastName(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">First Name</p>
-                                <input
-                                    type="text"
-                                    value={first_name}
-                                    onChange={(e) =>
-                                        setFirstName(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Middle Name</p>
-                                <input
-                                    type="text"
-                                    value={middle_name}
-                                    onChange={(e) =>
-                                        setMiddleName(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
+                            <TextInput label="Last Name" value={last_name} setValue={setLastName}></TextInput>
+                            <TextInput label="First Name" value={first_name} setValue={setFirstName}></TextInput>
+                            <TextInput label="Middle Name" value={middle_name} setValue={setMiddleName}></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">CH ID #</p>
-                                <input
-                                    type="text"
-                                    value={ch_number}
-                                    onChange={(e) =>
-                                        setCHNumber(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">
-                                    Area and Sub-Project
-                                </p>
-                                <input
-                                    type="text"
-                                    value={area_and_subproject}
-                                    onChange={(e) =>
-                                        setAreaAndSubproject(e.target.value)
-                                    }
-                                    className="body-base text-input w-64"
-                                />
-                            </div>
+                            <TextInput label="CH ID #" value={ch_number} setValue={setCHNumber}></TextInput>
+                            <TextInput label="Area and Sub-Project" value={area_and_subproject} setValue={setAreaAndSubproject}></TextInput>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <TextArea label="Problem Presented" value={problem_presented} setValue={setProblemPresented}></TextArea>
-            
-            <TextArea label="Recommendation" value={recommendation} setValue={setRecommendation}></TextArea>
+            <TextArea
+                label="Problem Presented"
+                value={problem_presented}
+                setValue={setProblemPresented}
+            ></TextArea>
+
+            <TextArea
+                label="Recommendation"
+                value={recommendation}
+                setValue={setRecommendation}
+            ></TextArea>
 
             <section className="flex w-full flex-col gap-10 px-10 pt-16">
                 <div className="flex w-full justify-between">
