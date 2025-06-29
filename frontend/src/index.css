@@ -30,4 +30,5 @@ input[type="checkbox"]:disabled {
 
 button {
   transition: all 0.4s ease;
+  cursor: pointer;
 }

@@ -16,7 +16,7 @@ export default function SimpleModal({ isOpen, onClose, title, imageCenter,
 
         <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
 
-        <div className="relative bg-white rounded-lg shadow-lg max-w-[80rem] w-full min-h-[30rem] z-10 overflow-hidden flex flex-col">
+        <div className="relative bg-white rounded-lg drop-shadow-card max-w-[80rem] w-full min-h-[30rem] z-10 overflow-hidden flex flex-col">
           <div className='w-full p-5 drop-shadow-base' style={{ backgroundColor: "var(--accent-white)" }}>
             <h2 className="header-sub">{title}</h2>
           </div>

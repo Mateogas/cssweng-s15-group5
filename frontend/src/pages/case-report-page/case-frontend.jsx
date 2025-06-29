@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useInView } from 'react-intersection-observer';
+
 import FamilyCard from '../../Components/FamilyCard';
 import SimpleModal from '../../Components/SimpleModal';
+import NavLabelButton from '../../Components/NavLabelButton';
 
 function CaseFrontend() {
     const [data, setData] = useState({
@@ -25,7 +28,7 @@ function CaseFrontend() {
         history_problem: "History of relocation, social withdrawal.",
         evaluation: "Initial evaluation suggests mild adjustment disorder.",
         is_active: "yes",
-        assessment: "Yes, very very qualified to wield firearms in public!"
+        assessment: "Yes, very very qualified to wield firearms in public!",
     });
 
     const [familyMembers, setFamilyMembers] = useState([
@@ -82,6 +85,25 @@ function CaseFrontend() {
             deceased: false
         }
     ]);
+
+    const [ref1, inView1] = useInView({ threshold: 0.5 });
+    const [ref2, inView2] = useInView({ threshold: 0.5 });
+    const [ref3, inView3] = useInView({ threshold: 0.5 });
+    const [ref4, inView4] = useInView({ threshold: 0.5 });
+    const [ref5, inView5] = useInView({ threshold: 0.5 });
+    const [ref6, inView6] = useInView({ threshold: 0.5 });
+
+    useEffect(() => {
+        if (inView1) setCurrentSection('identifying-data');
+        else if (inView2) setCurrentSection('family-composition');
+        else if (inView3) setCurrentSection('problems-findings');
+        else if (inView4) setCurrentSection('interventions');
+        else if (inView5) setCurrentSection('assessments');
+        else if (inView6) setCurrentSection('evaluation-recommendation');
+
+
+    }, [inView1, inView2, inView3, inView4, inView5, inView6]);
+
 
     const sliderRef = useRef(null);
 
@@ -158,6 +180,8 @@ function CaseFrontend() {
 
     const [editingField, setEditingField] = useState(null);
 
+    const [currentSection, setCurrentSection] = useState("identifying-data");
+
     useEffect(() => {
         setAge(calculateAge(dob));
     }, [dob]);
@@ -226,24 +250,79 @@ function CaseFrontend() {
                 onConfirm={handleDeleteFamilyMember}
             />
 
+            <main className='flex flex-col gap-20 pt-15'>
+                {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
+                <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
+                items-center bg-white py-3 px-4 '>
+                    <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Back
+                    </button>
 
-            <main className='flex flex-col gap-20'>
-                {/* <button className="flex items-center gap-5 px-4 py-2 font-bold-label">
-                <div className='arrow-left-button'></div>
-                Back
-            </button> */}
+                    <div className="flex gap-5">
+                        <NavLabelButton
+                            title="Identifying Data"
+                            iconClass="identifying-button"
+                            sectionId="identifying-data"
+                            currentSection={currentSection}
+                            setCurrentSection={setCurrentSection}
+                        />
 
-                <button className="arrow-group flex items-center gap-5 px-4 py-2 font-bold-label">
-                    <div className="arrow-left-button"></div>
-                    Back
-                </button>
+                        <NavLabelButton
+                            title="Family Composition"
+                            iconClass="family-button"
+                            sectionId="family-composition"
+                            currentSection={currentSection}
+                            setCurrentSection={setCurrentSection}
+                        />
 
+                        <NavLabelButton
+                            title="Problems and Findings"
+                            iconClass="findings-button"
+                            sectionId="problems-findings"
+                            currentSection={currentSection}
+                            setCurrentSection={setCurrentSection}
+                        />
+
+                        <NavLabelButton
+                            title="Interventions"
+                            iconClass="interventions-button"
+                            sectionId="interventions"
+                            currentSection={currentSection}
+                            setCurrentSection={setCurrentSection}
+                        />
+
+                        <NavLabelButton
+                            title="Assessments"
+                            iconClass="assessment-button"
+                            sectionId="assessments"
+                            currentSection={currentSection}
+                            setCurrentSection={setCurrentSection}
+                        />
+
+                        <NavLabelButton
+                            title="Evaluation and Recommendation"
+                            iconClass="evaluations-button"
+                            sectionId="evaluation-recommendation"
+                            currentSection={currentSection}
+                            setCurrentSection={setCurrentSection}
+                        />
+                    </div>
+
+                </div>
 
                 <header className='flex flex-col gap-5'>
+                    <div className='flex justify-between items-center'>
+                        {data.is_active == "yess" ? 
+                        <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8'
+                        style={{color: "white"}}>Active</div> : 
+                        <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8'
+                        style={{color: "white"}}>Inactive</div>}
+                        <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
+                    </div>
+
                     <div className='flex justify-between'>
                         <h1 className="header-main">{data.first_name} {data.middle_name}, {data.last_name}</h1>
-
-                        <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
                     </div>
 
                     <h2 className='header-sub'>{data.sm_number}</h2>
@@ -251,7 +330,7 @@ function CaseFrontend() {
                     <button className='btn-outline-rounded font-bold-label'>Assign SDW</button>
                 </header>
 
-                <section className='flex flex-col gap-8'>
+                <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <h1 className="header-main">Identifying Data</h1>
 
                     <div className="flex justify-between gap-20">
@@ -377,7 +456,7 @@ function CaseFrontend() {
                     </div>
                 </section>
 
-                <section className='flex flex-col gap-8'>
+                <section className='flex flex-col gap-8' id="family-composition" ref={ref2}>
                     <h1 className="header-main">Family Composition</h1>
 
                     <button className="btn-primary font-bold-label drop-shadow-base"
@@ -426,11 +505,11 @@ function CaseFrontend() {
 
                 </section>
 
-                <section className='flex flex-col gap-8'>
+                <section className='flex flex-col gap-8' id="problems-findings" ref={ref3}>
                     <div className="flex justify-between items-center gap-4">
 
                         <h1 className="header-main">Problems and Findings</h1>
-                        <button className={editingField == 'history-fields' ? "x-button" : 'dots-button'} onClick={() => {
+                        <button className={editingField == 'history-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
                                 setDrafts({
                                     problemPresented,
@@ -507,11 +586,16 @@ function CaseFrontend() {
 
                 </section>
 
-                <section className='flex flex-col gap-8'>
+                <section className='flex flex-col gap-8' id="interventions" ref={ref4}>
+                    <h1 className="header-main">Interventions</h1>
+
+                </section>
+
+                <section className='flex flex-col gap-8' id="assessments" ref={ref5}>
                     <div className="flex justify-between items-center gap-4">
 
                         <h1 className="header-main">Assessment</h1>
-                        <button className={editingField == 'assessment-field' ? "x-button" : 'dots-button'} onClick={() => {
+                        <button className={editingField == 'assessment-field' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
                                 setDrafts({
                                     problemPresented,
@@ -555,11 +639,11 @@ function CaseFrontend() {
                     )}
                 </section>
 
-                <section className='flex flex-col gap-8'>
+                <section className='flex flex-col gap-8' id="evaluation-recommendation" ref={ref6}>
                     <div className="flex justify-between items-center gap-4">
 
                         <h1 className="header-main">Evaluation and Recommendation</h1>
-                        <button className={editingField == 'evaluation-field' ? "x-button" : 'dots-button'} onClick={() => {
+                        <button className={editingField == 'evaluation-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
                                 setDrafts({
                                     problemPresented,

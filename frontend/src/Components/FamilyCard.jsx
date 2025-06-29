@@ -32,7 +32,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                     <h3 className="header-sub">{member.last || '-'}, {member.first || '-'} {member.middle || '-'}</h3>
                 )}
 
-                <button className={isEditing ? "x-button" : 'dots-button'} onClick={() => {
+                <button className={isEditing ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                     if (isEditing) {
                         setSelectedFamily(null)
                     } else {
@@ -85,7 +85,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
 
             {isEditing && (
                 <div className='flex justify-between items-center'>
-                    <button className='mt-5 trash-button'
+                    <button className='mt-5 icon-button-setup trash-button'
                         onClick={() => {
                             setFamilyToDelete(member.id);
                             setFamilyConfirm(true);
