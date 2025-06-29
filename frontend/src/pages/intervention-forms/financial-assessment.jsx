@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Signature from "../../Components/Signature";
 
 function FinancialAssessmentForm() {
     const [data, setData] = useState({
@@ -245,6 +246,23 @@ function FinancialAssessmentForm() {
                     onChange={(e) => setRecommendation(e.target.value)}
                     className="text-area"
                 ></textarea>
+            </section>
+
+            <section className="flex w-full flex-col gap-10 px-10 pt-16">
+                <div className="flex w-full justify-between">
+                    <Signature
+                        label="Prepared by:"
+                        signer="Social Development Worker"
+                    ></Signature>
+                    <Signature
+                        label="Noted by:"
+                        signer="OIC-Cluster Coordinator"
+                    ></Signature>
+                </div>
+                <Signature
+                    label="Checked and reviewed by:"
+                    signer="Finance Staff"
+                ></Signature>
             </section>
         </main>
     );
