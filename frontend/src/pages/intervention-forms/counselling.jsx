@@ -37,9 +37,98 @@ function CounsellingForm() {
     );
 
     return (
-        <main>
-            
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+            <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            <h3 className="header-md">Counselling Form</h3>
+
+            <section className="flex w-full gap-10">
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">Sponsored Member</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <div className="flex items-center gap-10">
+                                <p className="label-base w-44">Last Name</p>
+                                <input
+                                    type="text"
+                                    value={last_name}
+                                    onChange={(e) =>
+                                        setLastName(e.target.value)
+                                    }
+                                    className="body-base text-input w-64"
+                                />
+                            </div>
+                            <div className="flex items-center gap-10">
+                                <p className="label-base w-44">First Name</p>
+                                <input
+                                    type="text"
+                                    value={first_name}
+                                    onChange={(e) =>
+                                        setFirstName(e.target.value)
+                                    }
+                                    className="body-base text-input w-64"
+                                />
+                            </div>
+                            <div className="flex items-center gap-10">
+                                <p className="label-base w-44">Middle Name</p>
+                                <input
+                                    type="text"
+                                    value={middle_name}
+                                    onChange={(e) =>
+                                        setMiddleName(e.target.value)
+                                    }
+                                    className="body-base text-input w-64"
+                                />
+                            </div>
+                            <div className="flex items-center gap-10">
+                                <p className="label-base w-44">CH ID #</p>
+                                <input
+                                    type="text"
+                                    value={ch_number}
+                                    onChange={(e) =>
+                                        setCHNumber(e.target.value)
+                                    }
+                                    className="body-base text-input w-64"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <div className="flex items-center gap-10">
+                                <p className="label-base w-44">Grade/Year Level</p>
+                                <input
+                                    type="text"
+                                    value={grade_year_level}
+                                    onChange={(e) =>
+                                        setGradeYearLevel(e.target.value)
+                                    }
+                                    className="body-base text-input w-64"
+                                />
+                            </div>
+                            <div className="flex items-center gap-10">
+                                <p className="label-base w-44">School</p>
+                                <input
+                                    type="text"
+                                    value={school}
+                                    onChange={(e) =>
+                                        setSchool(e.target.value)
+                                    }
+                                    className="body-base text-input w-64"
+                                />
+                            </div>
+                            <div className="flex gap-10">
+                                <p className="label-base w-44">Address</p>
+                                <textarea
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    className="text-area"
+                                ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
- export default CounsellingForm;
+export default CounsellingForm;
