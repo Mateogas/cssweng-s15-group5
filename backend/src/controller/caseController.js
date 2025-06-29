@@ -299,6 +299,46 @@ const editCase = async (req, res) => {
         });
     }
 }
+const archiveCase = async (req, res) => {
+    const caseId = req.params.id; // Fixed: params not param
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+        return res.status(400).json({ message: 'Invalid case ID format' });
+    }
+    
+    try {
+        // Validate the updated data
+        /*
+        const { error } = caseSchemaValidate.validate(updatedCaseData);
+        if (error) {
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.details.map(detail => detail.message)
+            });
+        }
+        */
+        // Update the case
+        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+            caseId,
+            { isAlive: false },
+            { new: true } // Return the updated document
+        ).lean();
+        
+        if (!updatedCase) {
+            return res.status(404).json({ message: 'Case not found' });
+        }
+        
+        res.status(200).json({
+            message: 'Case updated successfully',
+            case: updatedCase
+        });
+    } catch (error) {
+        console.error('Error updating case:', error);
+        res.status(500).json({ 
+            message: 'Failed to update case', 
+            error: error.message 
+        });
+    }
+}
 const addIdentification = async (req, res) => {
      // code here
 }
