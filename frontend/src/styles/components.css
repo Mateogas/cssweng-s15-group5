@@ -1,3 +1,4 @@
+/* EFFECTS */
 .drop-shadow-base {
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
@@ -7,8 +8,14 @@
 }
 
 .outline-gray {
-    border: 0.1rem solid var(--accent-dark);
+  border: 0.1rem solid var(--accent-dark);
 }
+
+.cursor-grabbing {
+  cursor: grabbing;
+}
+
+/* BUTTONS */
 
 .btn-primary {
   background-color: var(--color-primary);
@@ -24,7 +31,7 @@
 .btn-primary:active {
   filter: brightness(100%);
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25),
-  inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-blue {
@@ -41,12 +48,26 @@
 .btn-blue:active {
   filter: brightness(100%);
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25),
-  inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline {
+  border: 0.1rem solid var(--accent-dark);
+  @apply w-max px-8 py-4 rounded-lg;
+}
+
+.btn-outline:hover {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.btn-outline:active {
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-outline-rounded {
-    border: 0.1rem solid var(--accent-dark);
-    @apply w-max px-8 py-4 rounded-full;
+  border: 0.1rem solid var(--accent-dark);
+  @apply w-max px-8 py-4 rounded-full;
 }
 
 .btn-outline-rounded:hover {
@@ -55,8 +76,25 @@
 
 .btn-outline-rounded:active {
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25),
-  inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+.btn-transparent-rounded {
+  @apply w-max px-8 py-4 rounded-full font-sans font-semibold text-[1.6rem];
+  background-color: var(--color-white);
+  color: var(--color-primary);
+}
+
+.btn-transparent-rounded:hover {
+  filter: brightness(0.9);
+  /* box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); */
+}
+
+.btn-transparent-rounded:active {
+    filter: brightness(0.8);
+}
+
+/* INPUTS */
 
 .text-input {
   border: 0.1rem solid var(--accent-dark);
@@ -68,18 +106,148 @@
   @apply w-full px-4 py-4 rounded-xl;
 }
 
-.transition-collapse {
-  transition: max-height 0.4s ease, opacity 0.4s ease;
-  overflow: hidden;
+/* Regular Icons */
+.warning-icon {
+  width: 5rem;
+  height: 5rem;
+
+  background-color: var(--color-primary);
+
+  mask-image: url("/warning.svg");
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-image: url("/warning.svg");
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 }
 
-.expand {
-  max-height: 500px;
-  opacity: 1;
+/* CLICKABLE ICONS */
+.dots-button {
+  width: 2rem;
+  height: 2rem;
+
+  background-color: var(--color-black);
+
+  mask-image: url("/dots.svg");
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-image: url("/dots.svg");
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 }
 
-.collapse {
-  max-height: 0;
-  opacity: 0;
+.dots-button:hover {
+  transform: scale(1.2);
+  filter: brightness(1);
+  background-color: var(--color-primary);
 }
 
+.dots-button:active {
+  transform: scale(0.9);
+  background-color: var(--color-primary);
+}
+
+.x-button {
+  width: 2rem;
+  height: 2rem;
+
+  background-color: var(--color-black);
+
+  mask-image: url("/x.svg");
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-image: url("/x.svg");
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.x-button:hover {
+  transform: scale(1.2);
+  filter: brightness(1);
+  background-color: var(--color-primary);
+}
+
+.x-button:active {
+  transform: scale(0.9);
+  background-color: var(--color-primary);
+}
+
+.arrow-left-button {
+  width: 2rem;
+  height: 2rem;
+
+  background-color: var(--color-black);
+
+  mask-image: url("/arrow-left.svg");
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-image: url("/arrow-left.svg");
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+
+  transition: 0.4s ease;
+}
+
+.arrow-left-button:hover {
+  transform: scale(1.2);
+  filter: brightness(1);
+  margin-right: 0.5rem;
+  background-color: var(--color-primary);
+}
+
+.arrow-left-button:active {
+  transform: scale(0.9);
+  background-color: var(--color-primary);
+}
+
+.arrow-group:hover .arrow-left-button {
+  transform: scale(1.2);
+  filter: brightness(1);
+  margin-right: 0.5rem;
+  background-color: var(--color-primary);
+}
+
+.arrow-group:active .arrow-left-button {
+  transform: scale(0.9);
+  background-color: var(--color-primary);
+}
+
+.trash-button {
+  width: 2rem;
+  height: 2rem;
+
+  background-color: var(--color-black);
+
+  mask-image: url("/trash.svg");
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-image: url("/trash.svg");
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.trash-button:hover {
+  transform: scale(1.2);
+  filter: brightness(1);
+  background-color: var(--color-primary);
+}
+
+.trash-button:active {
+  transform: scale(0.9);
+  background-color: var(--color-primary);
+}

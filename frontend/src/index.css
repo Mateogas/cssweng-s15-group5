@@ -20,6 +20,14 @@ html {
     --accent-white: #F2F2F2;
 }
 
+input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+
+input[type="checkbox"]:disabled {
+  accent-color: var(--color-black);
+}
+
 button {
   transition: all 0.4s ease;
 }
