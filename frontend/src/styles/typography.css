@@ -1,21 +1,67 @@
 .header-main {
     @apply font-sans font-semibold text-[3.2rem];
-    color: var(--color-black)
+    color: var(--color-black);
 }
 
 .header-sub {
     @apply font-sans font-semibold text-[2.4rem];
-    color: var(--color-black)
+    color: var(--color-black);
+}
+
+.header-xl {
+    @apply font-sans font-semibold text-[4.5rem];
+}
+
+.header-lg {
+    @apply font-sans font-semibold text-[2.5rem];
+}
+
+.header-md {
+    @apply font-sans font-semibold text-[2rem];
+}
+
+.header-sm {
+    @apply font-sans font-medium text-[1.5rem];
+}
+
+.label-lg {
+    @apply font-sans font-semibold text-[1.25rem];
+}
+
+.label-base {
+    @apply font-sans font-semibold text-[1rem];
+}
+
+.label-md {
+    @apply font-sans font-semibold text-[0.875rem];
+}
+
+.label-sm {
+    @apply font-sans font-semibold text-[0.75rem];
+}
+
+.body-lg {
+    @apply font-sans font-normal text-[1.25rem];
+}
+
+.body-base {
+    @apply font-sans font-normal text-[1rem];
+}
+
+.body-md {
+    @apply font-sans font-normal text-[0.875rem];
+}
+
+.body-sm {
+    @apply font-sans font-normal text-[0.75rem];
 }
 
 .font-bold-label {
     @apply font-sans font-semibold text-[1.6rem];
-    color: var(--color-black)
+    color: var(--color-black);
 }
-
 
 .font-label {
     @apply font-sans text-[1.6rem];
     color: var(--color-black);
 }
-
