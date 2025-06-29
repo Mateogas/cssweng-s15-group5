@@ -20,6 +20,10 @@ function FinancialAssessmentForm() {
             "It is recommended to wear colorful socks when attempting to speak with the specimen as it has been proven to have a soothing effect towards them.",
     });
 
+    const [last_name, setLastName] = useState(data?.last_name || "");
+    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
+    const [first_name, setFirstName] = useState(data?.first_name || "");
+    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [area_and_subproject, setAreaAndSubproject] = useState(
         data?.area_and_subproject || ""
@@ -151,6 +155,66 @@ function FinancialAssessmentForm() {
                             placeholder="Form of Assistance"
                             className="text-input w-full"
                         ></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <section classname="flex flex-col gap-8 w-full">
+                <h4 className="header-sm">Identifying Information</h4>
+                <div className="flex flex-col gap-5 p-5">
+                    <div className="border-b border-[var(--border-color)] ">
+                        <h4 className="header-sm">Sponsored Member</h4>
+                    </div>
+                    <div className="flex gap-10 items-center">
+                        <div className="flex flex-col gap-5">
+                            <div className="flex gap-10 items-center">
+                                <p className="label-base w-44">Last Name</p>
+                                <input
+                                    type="text"
+                                    value={last_name}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                    className="body-base text-input"
+                                />
+                            </div>
+                            <div className="flex gap-10 items-center">
+                                <p className="label-base w-44">First Name</p>
+                                <input
+                                    type="text"
+                                    value={first_name}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                    className="body-base text-input"
+                                />
+                            </div>
+                            <div className="flex gap-10 items-center">
+                                <p className="label-base w-44">Middle Name</p>
+                                <input
+                                    type="text"
+                                    value={middle_name}
+                                    onChange={(e) => setMiddleName(e.target.value)}
+                                    className="body-base text-input"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <div className="flex gap-10 items-center">
+                                <p className="label-base w-44">CH ID #</p>
+                                <input
+                                    type="text"
+                                    value={ch_number}
+                                    onChange={(e) => setCHNumber(e.target.value)}
+                                    className="body-base text-input"
+                                />
+                            </div>
+                            <div className="flex gap-10 items-center">
+                                <p className="label-base w-44">Area and Sub-Project</p>
+                                <input
+                                    type="text"
+                                    value={area_and_subproject}
+                                    onChange={(e) => setAreaAndSubproject(e.target.value)}
+                                    className="body-base text-input"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
