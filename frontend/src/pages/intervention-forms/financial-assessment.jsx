@@ -159,9 +159,9 @@ function FinancialAssessmentForm() {
                 </div>
             </section>
 
-            <section className="flex w-full flex-col gap-8 items-center">
+            <section className="flex w-full flex-col items-center gap-8">
                 <h4 className="header-sm w-full">Identifying Information</h4>
-                <div className="flex flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5 w-max">
+                <div className="flex w-max flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
@@ -265,6 +265,11 @@ function FinancialAssessmentForm() {
                     signer="Finance Staff"
                 ></Signature>
             </section>
+
+            <div className="flex w-[22.5rem] justify-between">
+                <button className="btn-outline-rounded">Cancel</button>
+                <button className="btn-primary">Create Intervention</button>
+            </div>
         </main>
     );
 }
