@@ -14,10 +14,8 @@ function FinancialAssessmentForm() {
         last_name: "Tolentino",
         ch_number: "12356473",
         area_and_subproject: "FDQ",
-        problem_presented:
-            "Sponsored member appears to have anger issues and will not hesitate to bite as a defense mechanism. Be cautious when approaching.",
-        recommendation:
-            "It is recommended to wear colorful socks when attempting to speak with the specimen as it has been proven to have a soothing effect towards them.",
+        problem_presented: "",
+        recommendation: "",
     });
 
     const [last_name, setLastName] = useState(data?.last_name || "");
@@ -172,7 +170,9 @@ function FinancialAssessmentForm() {
                                 <input
                                     type="text"
                                     value={last_name}
-                                    onChange={(e) => setLastName(e.target.value)}
+                                    onChange={(e) =>
+                                        setLastName(e.target.value)
+                                    }
                                     className="body-base text-input"
                                 />
                             </div>
@@ -181,7 +181,9 @@ function FinancialAssessmentForm() {
                                 <input
                                     type="text"
                                     value={first_name}
-                                    onChange={(e) => setFirstName(e.target.value)}
+                                    onChange={(e) =>
+                                        setFirstName(e.target.value)
+                                    }
                                     className="body-base text-input"
                                 />
                             </div>
@@ -190,7 +192,9 @@ function FinancialAssessmentForm() {
                                 <input
                                     type="text"
                                     value={middle_name}
-                                    onChange={(e) => setMiddleName(e.target.value)}
+                                    onChange={(e) =>
+                                        setMiddleName(e.target.value)
+                                    }
                                     className="body-base text-input"
                                 />
                             </div>
@@ -201,22 +205,37 @@ function FinancialAssessmentForm() {
                                 <input
                                     type="text"
                                     value={ch_number}
-                                    onChange={(e) => setCHNumber(e.target.value)}
+                                    onChange={(e) =>
+                                        setCHNumber(e.target.value)
+                                    }
                                     className="body-base text-input"
                                 />
                             </div>
                             <div className="flex gap-10 items-center">
-                                <p className="label-base w-44">Area and Sub-Project</p>
+                                <p className="label-base w-44">
+                                    Area and Sub-Project
+                                </p>
                                 <input
                                     type="text"
                                     value={area_and_subproject}
-                                    onChange={(e) => setAreaAndSubproject(e.target.value)}
+                                    onChange={(e) =>
+                                        setAreaAndSubproject(e.target.value)
+                                    }
                                     className="body-base text-input"
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section className="flex flex-col w-full gap-3">
+                <h4 className="header-sm">Problem Presented</h4>
+                <textarea
+                    value={problem_presented}
+                    onChange={(e) => setProblemPresented(e.target.value)}
+                    className="text-area"
+                ></textarea>
             </section>
         </main>
     );
