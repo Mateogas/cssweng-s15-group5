@@ -237,6 +237,15 @@ function FinancialAssessmentForm() {
                     className="text-area"
                 ></textarea>
             </section>
+
+            <section className="flex w-full flex-col">
+                <h4 className="header-sm">Recommendation</h4>
+                <textarea
+                    value={recommendation}
+                    onChange={(e) => setRecommendation(e.target.value)}
+                    className="text-area"
+                ></textarea>
+            </section>
         </main>
     );
 }
