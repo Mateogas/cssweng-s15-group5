@@ -29,6 +29,12 @@ function CaseFrontend() {
         evaluation: "Initial evaluation suggests mild adjustment disorder.",
         is_active: "yes",
         assessment: "Yes, very very qualified to wield firearms in public!",
+
+        sdw_id: 23456789,
+        spu_id: "CEB",
+        sub_id: "CEB-02",
+
+        classifications: ["Solo Parent", "Street Child", "Abandoned Child"]
     });
 
     const [familyMembers, setFamilyMembers] = useState([
@@ -85,6 +91,88 @@ function CaseFrontend() {
             deceased: false
         }
     ]);
+
+    const [projectLocation, setProjectLocation] = useState([
+        {
+            name: "Manila",
+            projectCode: "MNL",
+            subLocations: [
+                { sub_id: "MNL-01", name: "Tondo" },
+                { sub_id: "MNL-02", name: "Sampaloc" },
+                { sub_id: "MNL-03", name: "Ermita" }
+            ]
+        },
+        {
+            name: "Cebu",
+            projectCode: "CEB",
+            subLocations: [
+                { sub_id: "CEB-01", name: "Lapu-Lapu" },
+                { sub_id: "CEB-02", name: "Mandaue" },
+                { sub_id: "CEB-03", name: "Talamban" }
+            ]
+        },
+        {
+            name: "Davao",
+            projectCode: "DVO",
+            subLocations: [
+                { sub_id: "DVO-01", name: "Buhangin" },
+                { sub_id: "DVO-02", name: "Talomo" },
+                { sub_id: "DVO-03", name: "Toril" }
+            ]
+        },
+        {
+            name: "Baguio",
+            projectCode: "BAG",
+            subLocations: [
+                { sub_id: "BAG-01", name: "Loakan" },
+                { sub_id: "BAG-02", name: "Irisan" },
+                { sub_id: "BAG-03", name: "Pacdal" }
+            ]
+        },
+        {
+            name: "Iloilo",
+            projectCode: "ILO",
+            subLocations: [
+                { sub_id: "ILO-01", name: "Jaro" },
+                { sub_id: "ILO-02", name: "Mandurriao" },
+                { sub_id: "ILO-03", name: "Molo" }
+            ]
+        },
+        {
+            name: "Zamboanga",
+            projectCode: "ZAM",
+            subLocations: [
+                { sub_id: "ZAM-01", name: "Ayala" },
+                { sub_id: "ZAM-02", name: "Putik" },
+                { sub_id: "ZAM-03", name: "Tetuan" }
+            ]
+        }
+    ]);
+
+
+    const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([
+        { id: 12345678, username: "juan delacruz", spu_id: "MNL" },
+        { id: 23456789, username: "maria santos", spu_id: "CEB" },
+        { id: 34567890, username: "pedro ramos", spu_id: "DVO" },
+        { id: 45678901, username: "ana reyes", spu_id: "BAG" },
+        { id: 56789012, username: "carlos morales", spu_id: "ILO" },
+        { id: 67890123, username: "lucia rodriguez", spu_id: "ZAM" }
+    ]);
+
+    const [classificationList, setClassificationList] = useState([
+        "Teenage Pregnancy",
+        "Out of School Youth",
+        "Person with Disability",
+        "Senior Citizen",
+        "Solo Parent",
+        "Street Child",
+        "Abandoned Child",
+        "Victim of Abuse",
+        "Indigenous People",
+        "Displaced Individual",
+        "Low Income Family"
+    ]);
+
 
     const [ref1, inView1] = useInView({ threshold: 0.5 });
     const [ref2, inView2] = useInView({ threshold: 0.5 });
@@ -177,6 +265,8 @@ function CaseFrontend() {
 
     const [caseEvalutation, setCaseEvalutation] = useState(data?.evaluation || '');
     const [caseRecommendation, setCaseRecommendation] = useState(data?.recommendation || '');
+
+    const [selectedClassification, setSelectedClassification] = useState("");
 
     const [editingField, setEditingField] = useState(null);
 
@@ -308,16 +398,15 @@ function CaseFrontend() {
                             setCurrentSection={setCurrentSection}
                         />
                     </div>
-
                 </div>
 
                 <header className='flex flex-col gap-5'>
                     <div className='flex justify-between items-center'>
-                        {data.is_active == "yess" ? 
-                        <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8'
-                        style={{color: "white"}}>Active</div> : 
-                        <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8'
-                        style={{color: "white"}}>Inactive</div>}
+                        {data.is_active == "yes" ?
+                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8'
+                                style={{ color: "white" }}>Active</div> :
+                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8'
+                                style={{ color: "white" }}>Inactive</div>}
                         <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
                     </div>
 
@@ -327,7 +416,124 @@ function CaseFrontend() {
 
                     <h2 className='header-sub'>{data.sm_number}</h2>
 
-                    <button className='btn-outline-rounded font-bold-label'>Assign SDW</button>
+                    <div className='flex justify-between gap-10'>
+                        <div className='flex gap-5 items-center w-full'>
+                            <p className='font-bold-label'>SPU Project:</p>
+                            <select
+                                className="text-input font-label flex-1"
+                                value={data.spu_id}
+                                id="spu"
+                                onChange={(e) =>
+                                    setData((prev) => ({
+                                        ...prev,
+                                        spu_id: e.target.value
+                                    }))
+                                }>
+                                <option value="">Select SPU</option>
+                                {projectLocation.map((project) => (
+                                    <option key={project.projectCode} value={project.projectCode}>
+                                        {project.name} ({project.projectCode})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className='flex gap-5 items-center w-full'>
+                            <p className='font-bold-label'>Sub-Project:</p>
+                            <select
+                                className="text-input font-label flex-1"
+                                value={data.sub_id}
+                                id="sub"
+                                onChange={(e) =>
+                                    setData((prev) => ({
+                                        ...prev,
+                                        sub_id: e.target.value
+                                    }))
+                                }>
+                                <option value="">Select Sub-Project</option>
+                                {projectLocation.find((p) => p.projectCode === data.spu_id)?.subLocations.map((sub) => (
+                                    <option key={sub.sub_id} value={sub.sub_id}>
+                                        {sub.name} ({sub.sub_id})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div className='flex justify-between gap-10'>
+                        <div className='flex gap-5 items-center max-w-[65rem] w-full self-start'>
+                            <p className='font-bold-label'>Social Development Worker:</p>
+                            <select
+                                className="text-input font-label flex-1"
+                                value={data.sdw_id}
+                                id="sdw"
+                                onChange={(e) =>
+                                    setData((prev) => ({
+                                        ...prev,
+                                        sdw_id: parseInt(e.target.value, 10)
+                                    }))
+                                }>
+                                <option value="">Select SDW</option>
+
+                                {socialDevelopmentWorkers
+                                    .filter((sdw) => sdw.spu_id === data.spu_id)
+                                    .map((sdw) => (
+                                        <option key={sdw.id} value={sdw.id}>
+                                            {sdw.username} ({sdw.id})
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col w-full">
+                            <p className="font-bold-label mb-2">Classifications:</p>
+
+                            <div className="flex items-center">
+                                <select
+                                    className="text-input font-label"
+                                    value={selectedClassification}
+                                    onChange={(e) => setSelectedClassification(e.target.value)}>
+                                    <option value="">Select Classification</option>
+                                    {classificationList.map((item) => (
+                                        <option key={item} value={item}>{item}</option>
+                                    ))}
+                                </select>
+
+                                <button type="button" className="btn-primary font-bold-label ml-5 !w-[4.5rem] !h-[4.5rem]"
+                                    onClick={() => {
+                                        if (
+                                            selectedClassification &&
+                                            !data.classifications.includes(selectedClassification)
+                                        ) {
+                                            setData((prev) => ({
+                                                ...prev,
+                                                classifications: [...prev.classifications, selectedClassification],
+                                            }));
+                                            setSelectedClassification("");
+                                        }
+                                    }}>+
+                                </button>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 mt-3">
+                                {data.classifications.map((item) => (
+                                    <div key={item} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
+                                        <span className="font-label">{item}</span>
+                                        <button type="button" className="text-red-500 font-bold"
+                                            onClick={() => {
+                                                setData((prev) => ({
+                                                    ...prev,
+                                                    classifications: prev.classifications.filter((c) => c !== item),
+                                                }));
+                                            }}>✕
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                 </header>
 
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
@@ -461,18 +667,6 @@ function CaseFrontend() {
 
                     <button className="btn-primary font-bold-label drop-shadow-base"
                         onClick={handleAddFamilyMember}>Add New Family Member</button>
-
-                    {/* <div className="flex justify-between gap-10">
-                    <div className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto cursor-grab">
-                        {familyMembers.map((member, index) => (
-                            <FamilyCard key={index} index={index} member={member} selectedFamily={selectedFamily}
-                                setSelectedFamily={setSelectedFamily} editingFamilyValue={editingFamilyValue}
-                                setEditingFamilyValue={setEditingFamilyValue} familyMembers={familyMembers}
-                                setFamilyMembers={setFamilyMembers} />
-                        ))}
-
-                    </div>
-                </div> */}
 
                     <div className="flex justify-between gap-10">
                         <div
