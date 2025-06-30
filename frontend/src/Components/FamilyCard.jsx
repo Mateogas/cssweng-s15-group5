@@ -2,7 +2,11 @@ import React from "react"
 
 const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
     editingFamilyValue, setEditingFamilyValue, familyMembers, setFamilyMembers,
-    handleDeleteFamilyMember, setFamilyConfirm, setFamilyToDelete }) => {
+    // handleDeleteFamilyMember, setFamilyToDelete,
+    handleDeleteFamilyMember,
+    setShowModal, setModalTitle, setModalBody, setModalImageCenter,
+    setModalConfirm, setModalOnConfirm
+}) => {
 
     const isEditing = selectedFamily === index
 
@@ -79,7 +83,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                         if (isEditing) {
                             handleInputChange('deceased', e.target.checked);
                         }
-                    }}/>
+                    }} />
 
             </div>
 
@@ -87,8 +91,18 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                 <div className='flex justify-between items-center'>
                     <button className='mt-5 icon-button-setup trash-button'
                         onClick={() => {
-                            setFamilyToDelete(member.id);
-                            setFamilyConfirm(true);
+                            const idToDelete = member.id;
+
+                            setModalTitle("Delete Family Member");
+                            setModalBody("Are you sure you want to delete this family member?");
+                            setModalImageCenter(<div className='warning-icon mx-auto'></div>);
+                            setModalConfirm(true);
+
+                            setModalOnConfirm(() => () => {
+                                handleDeleteFamilyMember(idToDelete);
+                            });
+        
+                            setShowModal(true);
                         }}>
                     </button>
                     <button

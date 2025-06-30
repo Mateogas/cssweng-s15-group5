@@ -47,7 +47,7 @@ export default function SimpleModal({ isOpen, onClose, title, imageCenter,
                 </>
               ) : (
                 <button
-                  className="btn-outline"
+                  className="btn-outline font-bold-label"
                   onClick={onClose}>
                   OK
                 </button>

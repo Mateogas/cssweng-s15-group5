@@ -281,8 +281,74 @@ function CaseFrontend() {
 
     const [familyCounter, setFamilyCounter] = useState(familyMembers.length);
 
-    const [familyConfirm, setFamilyConfirm] = useState(false);
     const [familyToDelete, setFamilyToDelete] = useState(null);
+
+    const [familyConfirm, setFamilyConfirm] = useState(false);
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+    const [modalImageCenter, setModalImageCenter] = useState(null);
+
+    function formatListWithAnd(arr) {
+        if (arr.length === 0) return '';
+        if (arr.length === 1) return arr[0];
+        if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+        const last = arr[arr.length - 1];
+        return `${arr.slice(0, -1).join(', ')}, and ${last}`;
+    }
+
+    const [editedLocale, setEditedLocale] = useState(false);
+
+    const checkNewLocales = () => {
+        const missing = [];
+
+        console.log(data.sub_id);
+
+        if (!data.spu_id) missing.push('SPU Project');
+        if (!data.sub_id) missing.push('Sub-Project');
+        if (!data.sdw_id) missing.push('Social Development Worker');
+        if (!data.classifications || data.classifications.length === 0) missing.push('at least one Classification');
+
+        if (missing.length > 0) {
+            setModalTitle('Invalid Fields');
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className='warning-icon mx-auto'></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        return true;
+    };
+
+    // For validation of the location/sdw details
+    useEffect(() => {
+        const currentSPU = projectLocation.find((p) => p.projectCode === data.spu_id);
+        const validSubIds = currentSPU ? currentSPU.subLocations.map(sub => sub.sub_id) : [];
+
+        if (!validSubIds.includes(data.sub_id)) {
+            setData((prev) => ({
+                ...prev,
+                sub_id: ""
+            }));
+        }
+
+        const validSDWIds = socialDevelopmentWorkers
+            .filter((sdw) => sdw.spu_id === data.spu_id)
+            .map((sdw) => sdw.id);
+
+        if (!validSDWIds.includes(data.sdw_id)) {
+            setData((prev) => ({
+                ...prev,
+                sdw_id: ""
+            }));
+        }
+    }, [data.spu_id, projectLocation, socialDevelopmentWorkers]);
+
 
     const handleAddFamilyMember = () => {
         const newId = familyCounter + 1;
@@ -304,14 +370,12 @@ function CaseFrontend() {
         setFamilyCounter(newId);
     };
 
-    const handleDeleteFamilyMember = () => {
-        if (familyToDelete !== null) {
-            const updated = familyMembers.filter(member => member.id !== familyToDelete);
-            setFamilyMembers(updated);
-            setFamilyToDelete(null);
-            setFamilyConfirm(false);
-            setSelectedFamily(null);
-        }
+    const handleDeleteFamilyMember = (familyToDelete) => {
+        const updated = familyMembers.filter(member => member.id !== familyToDelete);
+        setFamilyMembers(updated);
+        setFamilyToDelete(null);
+        setFamilyConfirm(false);
+        setSelectedFamily(null);
     };
 
     const [drafts, setDrafts] = useState({
@@ -326,19 +390,26 @@ function CaseFrontend() {
     return (
         <>
             <SimpleModal
-                isOpen={familyConfirm}
+                isOpen={showModal}
                 onClose={() => {
-                    setFamilyConfirm(false);
-                    setFamilyToDelete(null);
+                    setShowModal(false);
+                    // Optional: clear states if needed
+                    setModalTitle("");
+                    setModalBody("");
+                    setModalImageCenter(null);
+                    setModalConfirm(false);
+                    setModalOnConfirm(() => { });
                 }}
-                title="Delete Family Member"
-                bodyText="Are you sure you want to delete this family member?"
-                imageCenter={
-                    <div className='warning-icon mx-auto'></div>
-                }
-                confirm={true}
-                onConfirm={handleDeleteFamilyMember}
+                title={modalTitle}
+                bodyText={modalBody}
+                imageCenter={modalImageCenter}
+                confirm={modalConfirm}
+                onConfirm={() => {
+                    modalOnConfirm?.();
+                    setShowModal(false);
+                }}
             />
+
 
             <main className='flex flex-col gap-20 pt-15'>
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
@@ -423,11 +494,12 @@ function CaseFrontend() {
                                 className="text-input font-label flex-1"
                                 value={data.spu_id}
                                 id="spu"
-                                onChange={(e) =>
+                                onChange={(e) =>{
+                                    setEditedLocale(true);
                                     setData((prev) => ({
                                         ...prev,
                                         spu_id: e.target.value
-                                    }))
+                                    }))}
                                 }>
                                 <option value="">Select SPU</option>
                                 {projectLocation.map((project) => (
@@ -444,11 +516,12 @@ function CaseFrontend() {
                                 className="text-input font-label flex-1"
                                 value={data.sub_id}
                                 id="sub"
-                                onChange={(e) =>
+                                onChange={(e) =>{
+                                    setEditedLocale(true);
                                     setData((prev) => ({
                                         ...prev,
                                         sub_id: e.target.value
-                                    }))
+                                    }))}
                                 }>
                                 <option value="">Select Sub-Project</option>
                                 {projectLocation.find((p) => p.projectCode === data.spu_id)?.subLocations.map((sub) => (
@@ -468,14 +541,14 @@ function CaseFrontend() {
                                 className="text-input font-label flex-1"
                                 value={data.sdw_id}
                                 id="sdw"
-                                onChange={(e) =>
+                                onChange={(e) =>{
+                                    setEditedLocale(true);
                                     setData((prev) => ({
                                         ...prev,
                                         sdw_id: parseInt(e.target.value, 10)
-                                    }))
+                                    }))}
                                 }>
                                 <option value="">Select SDW</option>
-
                                 {socialDevelopmentWorkers
                                     .filter((sdw) => sdw.spu_id === data.spu_id)
                                     .map((sdw) => (
@@ -506,6 +579,7 @@ function CaseFrontend() {
                                             selectedClassification &&
                                             !data.classifications.includes(selectedClassification)
                                         ) {
+                                            setEditedLocale(true);
                                             setData((prev) => ({
                                                 ...prev,
                                                 classifications: [...prev.classifications, selectedClassification],
@@ -534,6 +608,15 @@ function CaseFrontend() {
                         </div>
                     </div>
 
+                    {editedLocale && <button className="btn-transparent-rounded my-3"
+                        onClick={() => {
+                            if (checkNewLocales()) {
+                                setEditedLocale(false);
+                                console.log('Valid, go update db');
+                            }
+                        }}>
+                        Submit Changes
+                    </button>}
                 </header>
 
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
@@ -690,8 +773,14 @@ function CaseFrontend() {
                                     setFamilyMembers={setFamilyMembers}
 
                                     handleDeleteFamilyMember={handleDeleteFamilyMember}
-                                    setFamilyConfirm={setFamilyConfirm}
-                                    setFamilyToDelete={setFamilyToDelete}
+                                    // setFamilyToDelete={setFamilyToDelete}
+
+                                    setShowModal={setShowModal}
+                                    setModalTitle={setModalTitle}
+                                    setModalBody={setModalBody}
+                                    setModalImageCenter={setModalImageCenter}
+                                    setModalConfirm={setModalConfirm}
+                                    setModalOnConfirm={setModalOnConfirm}
                                 />
                             ))}
                         </div>
