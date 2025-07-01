@@ -149,6 +149,11 @@ function CorrespondenceForm() {
                     value={assessment}
                     setValue={setAssessment}
                 ></TextArea>
+                <TextArea
+                    label="Objective/s"
+                    value={objective}
+                    setValue={setObjective}
+                ></TextArea>
             </section>
         </main>
     );
