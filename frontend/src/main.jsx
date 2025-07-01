@@ -9,6 +9,7 @@ import CounsellingForm from "./pages/intervention-forms/counselling.jsx";
 import CorrespondenceForm from "./pages/intervention-forms/correspondence.jsx";
 import HomeVisitationForm from "./pages/intervention-forms/home-visitation.jsx";
 import ProgressReport from "./pages/progress-report.jsx";
+import CaseClosure from "./pages/case-closure.jsx";
 import "./index.css";
 
 //we need to add routes pa here for going to other pages so the actual routes are here we add the module Case to load that page
@@ -38,6 +39,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route
                     path="/progress-report"
                     element={<ProgressReport />}
+                />
+                <Route
+                    path="/case-closure"
+                    element={<CaseClosure />}
                 />
             </Routes>
         </BrowserRouter>
