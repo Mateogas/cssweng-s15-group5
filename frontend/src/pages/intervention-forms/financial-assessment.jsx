@@ -224,17 +224,21 @@ function FinancialAssessmentForm() {
                 </div>
             </section>
 
-            <TextArea
-                label="Problem Presented"
-                value={problem_presented}
-                setValue={setProblemPresented}
-            ></TextArea>
+            <section className="flex w-full">
+                <TextArea
+                    label="Problem Presented"
+                    value={problem_presented}
+                    setValue={setProblemPresented}
+                ></TextArea>
+            </section>
 
-            <TextArea
-                label="Recommendation"
-                value={recommendation}
-                setValue={setRecommendation}
-            ></TextArea>
+            <section className="flex w-full">
+                <TextArea
+                    label="Recommendation"
+                    value={recommendation}
+                    setValue={setRecommendation}
+                ></TextArea>
+            </section>
 
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
