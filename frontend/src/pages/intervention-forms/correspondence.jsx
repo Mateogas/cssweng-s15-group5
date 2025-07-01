@@ -44,12 +44,8 @@ function CorrespondenceForm() {
     const [identified_problem, setIdentifiedProblem] = useState(
         data?.identified_problem || "",
     );
-    const [assessment, setAssessment] = useState(
-        data?.assessment || "",
-    );
-    const [objective, setObjective] = useState(
-        data?.objective || "",
-    );
+    const [assessment, setAssessment] = useState(data?.assessment || "");
+    const [objective, setObjective] = useState(data?.objective || "");
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
     );
@@ -137,6 +133,14 @@ function CorrespondenceForm() {
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section>
+                <TextArea
+                    label="SM's Identified/Expressed Problem or Need"
+                    value={identified_problem}
+                    setValue={setIdentifiedProblem}
+                ></TextArea>
             </section>
         </main>
     );
