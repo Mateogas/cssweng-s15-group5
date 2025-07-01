@@ -154,6 +154,11 @@ function CounsellingForm() {
                     value={recommendation}
                     setValue={setRecommendation}
                 ></TextArea>
+                <TextArea
+                    label="SM's Comments/Remarks"
+                    value={sm_comments}
+                    setValue={setSMComments}
+                ></TextArea>
             </section>
         </main>
     );
