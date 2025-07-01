@@ -19,14 +19,29 @@ function CorrespondenceForm() {
         identified_problem: "",
         assessment: "",
         objective: "",
-        intervention_plan: {
-            action: ["action 1", "action 2", "action 3"],
-            time_frame: ["7 Days", "2 Months", "3 Weeks"],
-            results: ["results 1", "results 2", "results 3"],
-            person_responsible: ["SDW 1", "SDW 2", "SDW 3"],
-        },
         recommendation: "",
     });
+
+    const [intervention_plan, setInterventionPlan] = useState([
+        {
+            action: "action 1",
+            time_frame: "7 Days",
+            results: "results 1",
+            person_responsible: "SDW 1",
+        },
+        {
+            action: "action 2",
+            time_frame: "2 Months",
+            results: "results 2",
+            person_responsible: "SDW 2",
+        },
+        {
+            action: "action 3",
+            time_frame: "3 Weeks",
+            results: "results 3",
+            person_responsible: "SDW 3",
+        },
+    ]);
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
