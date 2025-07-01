@@ -501,197 +501,231 @@ function CaseFrontend() {
                     </div>
                 </div>
 
-                <section className='flex flex-col gap-5' id="core-fields">
-                    <div className='flex justify-between items-center'>
-                        {data.is_active === "yes" ? (
-                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8 !text-white'>Active</div>
-                        ) : (
-                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8 !text-white'>Inactive</div>
-                        )}
+<section className='flex flex-col gap-5' id="core-fields">
+  <div className='flex justify-between items-center'>
+    {data.is_active === "yes" ? (
+      <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8 !text-white'>Active</div>
+    ) : (
+      <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8 !text-white'>Inactive</div>
+    )}
+    <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
+  </div>
 
-                        <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
-                    </div>
+    {editingField === "core-fields" && (
+          <div className='flex justify-between items-center'>
 
-                    <div className='flex justify-between items-center'>
-                        <h1 className="header-main">
-                            {editingField === "core-fields" ? (
-                                <>
-                                    <input
-                                        type="text"
-                                        value={drafts.first_name}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
-                                        className="text-input font-label mr-2"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={drafts.middle_name}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
-                                        className="text-input font-label mr-2"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={drafts.last_name}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
-                                        className="text-input font-label"
-                                    />
-                                </>
-                            ) : (
-                                `${data.first_name} ${data.middle_name} ${data.last_name}`
-                            )}
-                        </h1>
+      <h1 className="header-main">Core Details</h1>
+    <button
+      className={editingField === "core-fields" ? "icon-button-setup x-button" : "icon-button-setup dots-button"}
+      onClick={() => {
+        if (editingField) {
+          resetFields();
+        } else {
+          setEditingField("core-fields");
+        }
+      }}
+    ></button>
+        </div>
+    )}
 
-                        <button
-                            className={editingField === "core-fields" ? "icon-button-setup x-button" : "icon-button-setup dots-button"}
-                            onClick={() => {
-                                if (editingField) {
-                                    resetFields();
-                                } else {
-                                    setEditingField("core-fields");
-                                }
-                            }}
-                        ></button>
-                    </div>
+  {editingField === "core-fields" ? (
+    <>
+    <div className="flex gap-5 w-full">
+      <div className="flex flex-col gap-5 w-full">
+        <label className="font-bold-label">First Name</label>
+        <input
+          type="text"
+          value={drafts.first_name}
+          onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
+          className="text-input font-label w-full"
+        />
+      </div>
 
-                    <h2 className='header-sub'>
-                        {editingField === "core-fields" ? (
-                            <input
-                                type="text"
-                                value={drafts.sm_number}
-                                onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
-                                className="text-input font-label"
-                            />
-                        ) : (
-                            data.sm_number
-                        )}
-                    </h2>
+      <div className="flex flex-col gap-5 w-full">
+        <label className="font-bold-label">Middle Name</label>
+        <input
+          type="text"
+          value={drafts.middle_name}
+          onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
+          className="text-input font-label w-full"
+        />
+      </div>
 
-                    <div className='flex justify-between gap-10 flex-wrap'>
-                        <div className='flex gap-5 items-center w-full md:w-[48%]'>
-                            <p className='font-bold-label'>SPU Project:</p>
-                            {editingField === "core-fields" ? (
-                                <select
-                                    className="text-input font-label flex-1"
-                                    value={drafts.spu_id}
-                                    onChange={(e) => setDrafts(prev => ({ ...prev, spu_id: e.target.value }))}
-                                >
-                                    <option value="">Select SPU</option>
-                                    {projectLocation.map((project) => (
-                                        <option key={project.projectCode} value={project.projectCode}>
-                                            {project.name} ({project.projectCode})
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <span className="font-label">
-                                    {projectLocation.find(p => p.projectCode === data.spu_id)?.name || "—"}
-                                </span>
-                            )}
-                        </div>
+      <div className="flex flex-col gap-5 w-full">
+        <label className="font-bold-label">Last Name</label>
+        <input
+          type="text"
+          value={drafts.last_name}
+          onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
+          className="text-input font-label w-full"
+        />
+      </div>
+      </div>
 
-                        <div className='flex gap-5 items-center w-full md:w-[48%]'>
-                            <p className='font-bold-label'>Social Development Worker:</p>
-                            {editingField === "core-fields" ? (
-                                <select
-                                    className="text-input font-label flex-1"
-                                    value={drafts.sdw_id}
-                                    onChange={(e) => setDrafts(prev => ({ ...prev, sdw_id: parseInt(e.target.value, 10) }))}
-                                >
-                                    <option value="">Select SDW</option>
-                                    {socialDevelopmentWorkers
-                                        .filter((sdw) => sdw.spu_id === drafts.spu_id)
-                                        .map((sdw) => (
-                                            <option key={sdw.id} value={sdw.id}>
-                                                {sdw.username} ({sdw.id})
-                                            </option>
-                                        ))}
-                                </select>
-                            ) : (
-                                <span className="font-label">
-                                    {socialDevelopmentWorkers.find(w => w.id === data.sdw_id)?.username || "—"}
-                                </span>
-                            )}
-                        </div>
-                    </div>
+      <div className="flex flex-col gap-5 w-full">
+        <label className="font-bold-label">SM Number</label>
+        <input
+          type="text"
+          value={drafts.sm_number}
+          onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
+          className="text-input font-label w-full max-w-[30rem]"
+        />
+      </div>
+    </>
+  ) : (
+    <>
+    <div className='flex justify-between items-center'>
+      <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
+    <button
+      className={editingField === "core-fields" ? "icon-button-setup x-button" : "icon-button-setup dots-button"}
+      onClick={() => {
+        if (editingField) {
+          resetFields();
+        } else {
+          setEditingField("core-fields");
+        }
+      }}
+    ></button>
+    </div>
+      <h2 className='header-sub'>{data.sm_number}</h2>
+    </>
+  )}
 
-                    <div className='flex flex-col w-full'>
-                        <p className="font-bold-label mb-2">Classifications:</p>
-                        {editingField === "core-fields" ? (
-                            <>
-                                <div className="flex items-center max-w-[65rem] w-full self-start">
-                                    <select
-                                        className="text-input font-label"
-                                        value={selectedClassification}
-                                        onChange={(e) => setSelectedClassification(e.target.value)}
-                                    >
-                                        <option value="">Select Classification</option>
-                                        {classificationList.map((item) => (
-                                            <option key={item} value={item}>{item}</option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        type="button"
-                                        className="btn-primary font-bold-label ml-5 !w-[4.5rem] !h-[4.5rem]"
-                                        onClick={() => {
-                                            if (selectedClassification && !drafts.classifications.includes(selectedClassification)) {
-                                                setDrafts(prev => ({
-                                                    ...prev,
-                                                    classifications: [...prev.classifications, selectedClassification],
-                                                }));
-                                                setSelectedClassification("");
-                                            }
-                                        }}
-                                    >+</button>
-                                </div>
+<div className='flex justify-between gap-10 flex-wrap'>
+  {/* SPU Project */}
+  <div className='flex flex-col w-full md:w-[48%]'>
+    {editingField === "core-fields" ? (
+      <>
+        <label className='font-bold-label'>SPU Project</label>
+        <select
+          className="text-input font-label"
+          value={drafts.spu_id}
+          onChange={(e) => setDrafts(prev => ({ ...prev, spu_id: e.target.value }))}
+        >
+          <option value="">Select SPU</option>
+          {projectLocation.map((project) => (
+            <option key={project.projectCode} value={project.projectCode}>
+              {project.name} ({project.projectCode})
+            </option>
+          ))}
+        </select>
+      </>
+    ) : (
+      <p className="font-label">
+        <span className="font-bold-label">SPU Project:</span>{" "}
+        {projectLocation.find(p => p.projectCode === data.spu_id)?.name || "—"}
+      </p>
+    )}
+  </div>
 
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    {drafts.classifications.map((item) => (
-                                        <div key={item} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
-                                            <span className="font-label">{item}</span>
-                                            <button
-                                                type="button"
-                                                className="text-red-500 font-bold"
-                                                onClick={() => {
-                                                    setDrafts(prev => ({
-                                                        ...prev,
-                                                        classifications: prev.classifications.filter(c => c !== item),
-                                                    }));
-                                                }}
-                                            >✕</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex flex-wrap gap-2">
-                                {data.classifications.map((item) => (
-                                    <span key={item} className="font-label bg-gray-200 px-3 py-1 rounded-full">{item}</span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+  {/* Social Development Worker */}
+  <div className='flex flex-col w-full md:w-[48%]'>
+    {editingField === "core-fields" ? (
+      <>
+        <label className='font-bold-label'>Social Development Worker</label>
+        <select
+          className="text-input font-label"
+          value={drafts.sdw_id}
+          onChange={(e) => setDrafts(prev => ({ ...prev, sdw_id: parseInt(e.target.value, 10) }))}
+        >
+          <option value="">Select SDW</option>
+          {socialDevelopmentWorkers
+            .filter((sdw) => sdw.spu_id === drafts.spu_id)
+            .map((sdw) => (
+              <option key={sdw.id} value={sdw.id}>
+                {sdw.username} ({sdw.id})
+              </option>
+            ))}
+        </select>
+      </>
+    ) : (
+      <p className="font-label">
+        <span className="font-bold-label">Social Development Worker:</span>{" "}
+        {socialDevelopmentWorkers.find(w => w.id === data.sdw_id)?.username || "—"}
+      </p>
+    )}
+  </div>
+</div>
 
-                    {editingField === "core-fields" && (
-                        <button
-                            className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
-                                setData(prev => ({
-                                    ...prev,
-                                    first_name: drafts.first_name,
-                                    middle_name: drafts.middle_name,
-                                    last_name: drafts.last_name,
-                                    sm_number: drafts.sm_number,
-                                    spu_id: drafts.spu_id,
-                                    sdw_id: drafts.sdw_id,
-                                    classifications: drafts.classifications || [],
-                                }));
-                                setEditingField(null);
-                            }}
-                        >
-                            Submit Changes
-                        </button>
-                    )}
-                </section>
 
+  <div className='flex flex-col w-full'>
+    <label className="font-bold-label mb-2">Classifications</label>
+    {editingField === "core-fields" ? (
+      <>
+        <div className="flex items-center max-w-[65rem] w-full self-start">
+          <select
+            className="text-input font-label"
+            value={selectedClassification}
+            onChange={(e) => setSelectedClassification(e.target.value)}
+          >
+            <option value="">Select Classification</option>
+            {classificationList.map((item) => (
+              <option key={item} value={item}>{item}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn-primary font-bold-label ml-5 !w-[4.5rem] !h-[4.5rem]"
+            onClick={() => {
+              if (selectedClassification && !drafts.classifications.includes(selectedClassification)) {
+                setDrafts(prev => ({
+                  ...prev,
+                  classifications: [...prev.classifications, selectedClassification],
+                }));
+                setSelectedClassification("");
+              }
+            }}
+          >+</button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-3">
+          {drafts.classifications.map((item) => (
+            <div key={item} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
+              <span className="font-label">{item}</span>
+              <button
+                type="button"
+                className="text-red-500 font-bold"
+                onClick={() => {
+                  setDrafts(prev => ({
+                    ...prev,
+                    classifications: prev.classifications.filter(c => c !== item),
+                  }));
+                }}
+              >✕</button>
+            </div>
+          ))}
+        </div>
+      </>
+    ) : (
+      <div className="flex flex-wrap gap-2">
+        {data.classifications.map((item) => (
+          <span key={item} className="font-label bg-gray-200 px-3 py-1 rounded-full">{item}</span>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {editingField === "core-fields" && (
+    <button
+      className="btn-transparent-rounded my-3 ml-auto"
+      onClick={() => {
+        setData(prev => ({
+          ...prev,
+          first_name: drafts.first_name,
+          middle_name: drafts.middle_name,
+          last_name: drafts.last_name,
+          sm_number: drafts.sm_number,
+          spu_id: drafts.spu_id,
+          sdw_id: drafts.sdw_id,
+          classifications: drafts.classifications || [],
+        }));
+        setEditingField(null);
+      }}
+    >
+      Submit Changes
+    </button>
+  )}
+</section>
 
 
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
