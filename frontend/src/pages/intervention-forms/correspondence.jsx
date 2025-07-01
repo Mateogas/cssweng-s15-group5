@@ -16,6 +16,16 @@ function CorrespondenceForm() {
         sponsor_name: "",
         subproject: "",
         sponsorship_date: "",
+        identified_problem: "",
+        assessment: "",
+        objective: "",
+        intervention_plan: {
+            action: ["action 1", "action 2", "action 3"],
+            time_frame: ["7 Days", "2 Months", "3 Weeks"],
+            results: ["results 1", "results 2", "results 3"],
+            person_responsible: ["SDW 1", "SDW 2", "SDW 3"],
+        },
+        recommendation: "",
     });
 
     const [last_name, setLastName] = useState(data?.last_name || "");
@@ -30,6 +40,18 @@ function CorrespondenceForm() {
     const [subproject, setSubproject] = useState(data?.subproject || "");
     const [sponsorship_date, setSponsorshipDate] = useState(
         data?.sponsorship_date || "",
+    );
+    const [identified_problem, setIdentifiedProblem] = useState(
+        data?.identified_problem || "",
+    );
+    const [assessment, setAssessment] = useState(
+        data?.assessment || "",
+    );
+    const [objective, setObjective] = useState(
+        data?.objective || "",
+    );
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
     );
 
     return (
