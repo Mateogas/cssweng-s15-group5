@@ -20,6 +20,12 @@ function FinancialAssessmentForm() {
         recommendation: "",
     });
 
+    const [type_of_assistance, setTypeOfAssistance] = useState([
+        "Food Assistance",
+        "IGP Capital",
+        "Medical Assistance to the Sponsored Member",
+    ]);
+
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -27,9 +33,6 @@ function FinancialAssessmentForm() {
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [area_and_subproject, setAreaAndSubproject] = useState(
         data?.area_and_subproject || "",
-    );
-    const [type_of_assistance, setTypeOfAssistance] = useState(
-        data?.type_of_assistance || "",
     );
     const [other_assistance, setOtherAssistance] = useState("");
     const [problem_presented, setProblemPresented] = useState(
@@ -168,13 +171,33 @@ function FinancialAssessmentForm() {
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
-                            <TextInput label="Last Name" value={last_name} setValue={setLastName}></TextInput>
-                            <TextInput label="First Name" value={first_name} setValue={setFirstName}></TextInput>
-                            <TextInput label="Middle Name" value={middle_name} setValue={setMiddleName}></TextInput>
+                            <TextInput
+                                label="Last Name"
+                                value={last_name}
+                                setValue={setLastName}
+                            ></TextInput>
+                            <TextInput
+                                label="First Name"
+                                value={first_name}
+                                setValue={setFirstName}
+                            ></TextInput>
+                            <TextInput
+                                label="Middle Name"
+                                value={middle_name}
+                                setValue={setMiddleName}
+                            ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput label="CH ID #" value={ch_number} setValue={setCHNumber}></TextInput>
-                            <TextInput label="Area and Sub-Project" value={area_and_subproject} setValue={setAreaAndSubproject}></TextInput>
+                            <TextInput
+                                label="CH ID #"
+                                value={ch_number}
+                                setValue={setCHNumber}
+                            ></TextInput>
+                            <TextInput
+                                label="Area and Sub-Project"
+                                value={area_and_subproject}
+                                setValue={setAreaAndSubproject}
+                            ></TextInput>
                         </div>
                     </div>
                 </div>
