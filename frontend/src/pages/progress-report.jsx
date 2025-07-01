@@ -218,6 +218,11 @@ function ProgressReport() {
                     ))}
                 </div>
             </section>
+
+            <div className="flex w-[22.5rem] justify-between mt-10">
+                <button className="btn-outline-rounded">Cancel</button>
+                <button className="btn-primary">Create Progress Report</button>
+            </div>
         </main>
     );
 }
