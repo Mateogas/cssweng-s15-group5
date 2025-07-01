@@ -32,7 +32,7 @@ function CaseFrontend() {
 
         sdw_id: 23456789,
         spu_id: "CEB",
-        sub_id: "CEB-02",
+        // sub_id: "CEB-02",
 
         classifications: ["Solo Parent", "Street Child", "Abandoned Child"]
     });
@@ -96,59 +96,58 @@ function CaseFrontend() {
         {
             name: "Manila",
             projectCode: "MNL",
-            subLocations: [
-                { sub_id: "MNL-01", name: "Tondo" },
-                { sub_id: "MNL-02", name: "Sampaloc" },
-                { sub_id: "MNL-03", name: "Ermita" }
-            ]
+            // subLocations: [
+            //     { sub_id: "MNL-01", name: "Tondo" },
+            //     { sub_id: "MNL-02", name: "Sampaloc" },
+            //     { sub_id: "MNL-03", name: "Ermita" }
+            // ]
         },
         {
             name: "Cebu",
             projectCode: "CEB",
-            subLocations: [
-                { sub_id: "CEB-01", name: "Lapu-Lapu" },
-                { sub_id: "CEB-02", name: "Mandaue" },
-                { sub_id: "CEB-03", name: "Talamban" }
-            ]
+            // subLocations: [
+            //     { sub_id: "CEB-01", name: "Lapu-Lapu" },
+            //     { sub_id: "CEB-02", name: "Mandaue" },
+            //     { sub_id: "CEB-03", name: "Talamban" }
+            // ]
         },
         {
             name: "Davao",
             projectCode: "DVO",
-            subLocations: [
-                { sub_id: "DVO-01", name: "Buhangin" },
-                { sub_id: "DVO-02", name: "Talomo" },
-                { sub_id: "DVO-03", name: "Toril" }
-            ]
+            // subLocations: [
+            //     { sub_id: "DVO-01", name: "Buhangin" },
+            //     { sub_id: "DVO-02", name: "Talomo" },
+            //     { sub_id: "DVO-03", name: "Toril" }
+            // ]
         },
         {
             name: "Baguio",
             projectCode: "BAG",
-            subLocations: [
-                { sub_id: "BAG-01", name: "Loakan" },
-                { sub_id: "BAG-02", name: "Irisan" },
-                { sub_id: "BAG-03", name: "Pacdal" }
-            ]
+            // subLocations: [
+            //     { sub_id: "BAG-01", name: "Loakan" },
+            //     { sub_id: "BAG-02", name: "Irisan" },
+            //     { sub_id: "BAG-03", name: "Pacdal" }
+            // ]
         },
         {
             name: "Iloilo",
             projectCode: "ILO",
-            subLocations: [
-                { sub_id: "ILO-01", name: "Jaro" },
-                { sub_id: "ILO-02", name: "Mandurriao" },
-                { sub_id: "ILO-03", name: "Molo" }
-            ]
+            // subLocations: [
+            //     { sub_id: "ILO-01", name: "Jaro" },
+            //     { sub_id: "ILO-02", name: "Mandurriao" },
+            //     { sub_id: "ILO-03", name: "Molo" }
+            // ]
         },
         {
             name: "Zamboanga",
             projectCode: "ZAM",
-            subLocations: [
-                { sub_id: "ZAM-01", name: "Ayala" },
-                { sub_id: "ZAM-02", name: "Putik" },
-                { sub_id: "ZAM-03", name: "Tetuan" }
-            ]
+            // subLocations: [
+            //     { sub_id: "ZAM-01", name: "Ayala" },
+            //     { sub_id: "ZAM-02", name: "Putik" },
+            //     { sub_id: "ZAM-03", name: "Tetuan" }
+            // ]
         }
     ]);
-
 
     const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([
         { id: 12345678, username: "juan delacruz", spu_id: "MNL" },
@@ -306,10 +305,10 @@ function CaseFrontend() {
     const checkNewLocales = () => {
         const missing = [];
 
-        console.log(data.sub_id);
+        // console.log(data.sub_id);
 
         if (!data.spu_id) missing.push('SPU Project');
-        if (!data.sub_id) missing.push('Sub-Project');
+        // if (!data.sub_id) missing.push('Sub-Project');
         if (!data.sdw_id) missing.push('Social Development Worker');
         if (!data.classifications || data.classifications.length === 0) missing.push('at least one Classification');
 
@@ -328,14 +327,14 @@ function CaseFrontend() {
     // For validation of the location/sdw details
     useEffect(() => {
         const currentSPU = projectLocation.find((p) => p.projectCode === data.spu_id);
-        const validSubIds = currentSPU ? currentSPU.subLocations.map(sub => sub.sub_id) : [];
+        // const validSubIds = currentSPU ? currentSPU.subLocations.map(sub => sub.sub_id) : [];
 
-        if (!validSubIds.includes(data.sub_id)) {
-            setData((prev) => ({
-                ...prev,
-                sub_id: ""
-            }));
-        }
+        // if (!validSubIds.includes(data.sub_id)) {
+        //     setData((prev) => ({
+        //         ...prev,
+        //         sub_id: ""
+        //     }));
+        // }
 
         const validSDWIds = socialDevelopmentWorkers
             .filter((sdw) => sdw.spu_id === data.spu_id)
@@ -511,31 +510,6 @@ function CaseFrontend() {
                         </div>
 
                         <div className='flex gap-5 items-center w-full'>
-                            <p className='font-bold-label'>Sub-Project:</p>
-                            <select
-                                className="text-input font-label flex-1"
-                                value={data.sub_id}
-                                id="sub"
-                                onChange={(e) =>{
-                                    setEditedLocale(true);
-                                    setData((prev) => ({
-                                        ...prev,
-                                        sub_id: e.target.value
-                                    }))}
-                                }>
-                                <option value="">Select Sub-Project</option>
-                                {projectLocation.find((p) => p.projectCode === data.spu_id)?.subLocations.map((sub) => (
-                                    <option key={sub.sub_id} value={sub.sub_id}>
-                                        {sub.name} ({sub.sub_id})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div className='flex justify-between gap-10'>
-                        <div className='flex gap-5 items-center max-w-[65rem] w-full self-start'>
                             <p className='font-bold-label'>Social Development Worker:</p>
                             <select
                                 className="text-input font-label flex-1"
@@ -559,10 +533,35 @@ function CaseFrontend() {
                             </select>
                         </div>
 
+                        {/* <div className='flex gap-5 items-center w-full'>
+                            <p className='font-bold-label'>Sub-Project:</p>
+                            <select
+                                className="text-input font-label flex-1"
+                                value={data.sub_id}
+                                id="sub"
+                                onChange={(e) =>{
+                                    setEditedLocale(true);
+                                    setData((prev) => ({
+                                        ...prev,
+                                        sub_id: e.target.value
+                                    }))}
+                                }>
+                                <option value="">Select Sub-Project</option>
+                                {projectLocation.find((p) => p.projectCode === data.spu_id)?.subLocations.map((sub) => (
+                                    <option key={sub.sub_id} value={sub.sub_id}>
+                                        {sub.name} ({sub.sub_id})
+                                    </option>
+                                ))}
+                            </select>
+                        </div> */}
+
+                    </div>
+
+                    <div className='flex justify-between gap-10'>
                         <div className="flex flex-col w-full">
                             <p className="font-bold-label mb-2">Classifications:</p>
 
-                            <div className="flex items-center">
+                            <div className="flex items-center max-w-[65rem] w-full self-start">
                                 <select
                                     className="text-input font-label"
                                     value={selectedClassification}

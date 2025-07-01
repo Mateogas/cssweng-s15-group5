@@ -1,8 +1,11 @@
 @import "@fontsource/inter"; 
 @import "tailwindcss";
 
+
 @import './styles/typography.css';
 @import './styles/components.css';
+@import './styles/icons.css';
+@import './styles/navigation.css';
 
 html {
   font-size: 62.5%; /* Makes 1 rem = 10px, this is good for accessility if ever */
