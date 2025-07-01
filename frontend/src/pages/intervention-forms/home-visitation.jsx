@@ -318,6 +318,23 @@ function HomeVisitationForm() {
                     ></TextArea>
                 </div>
             </section>
+
+            <section className="flex flex-col w-full gap-5">
+                <div className="flex w-full gap-10">
+                    <TextArea
+                        label="Recommendations"
+                        value={recommendation}
+                        setValue={setRecommendation}
+                    ></TextArea>
+                    <TextArea
+                        label="Agreement (if any)"
+                        value={agreement}
+                        setValue={setAgreement}
+                    ></TextArea>
+                </div>
+            </section>
+
+
         </main>
     );
 }
