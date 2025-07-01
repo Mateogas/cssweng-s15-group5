@@ -264,6 +264,7 @@ function HomeVisitationForm() {
                         </div>
                     </div>
                 </div>
+
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Mother</h4>
@@ -297,6 +298,24 @@ function HomeVisitationForm() {
                             ></TextInput>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section className="flex flex-col w-full gap-5">
+                <h3 className="header-md">
+                    Progress in the Family based on their Family Goals
+                </h3>
+                <div className="flex w-full gap-10">
+                    <TextArea
+                        label="SM"
+                        value={sm_progress}
+                        setValue={setSMProgress}
+                    ></TextArea>
+                    <TextArea
+                        label="Family"
+                        value={family_progress}
+                        setValue={setFamilyProgress}
+                    ></TextArea>
                 </div>
             </section>
         </main>
