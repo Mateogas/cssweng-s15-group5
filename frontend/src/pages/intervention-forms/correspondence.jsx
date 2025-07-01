@@ -164,6 +164,11 @@ function CorrespondenceForm() {
                     setValue={setRecommendation}
                 ></TextArea>
             </section>
+
+            <div className="flex w-[22.5rem] justify-between">
+                <button className="btn-outline-rounded">Cancel</button>
+                <button className="btn-primary">Create Intervention</button>
+            </div>
         </main>
     );
 }
