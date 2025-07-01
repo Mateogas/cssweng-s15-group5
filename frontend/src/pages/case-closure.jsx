@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Signature from "../Components/Signature";
 import { TextInput, TextArea } from "../Components/TextField";
 
 function CaseClosure() {
