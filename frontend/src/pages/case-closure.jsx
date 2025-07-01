@@ -87,6 +87,24 @@ function CaseClosure() {
                         </div>
                     </div>
                 </div>
+
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">General Information</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <TextInput
+                            label="Name of SPU/Cluster"
+                            value={spu}
+                            setValue={setSPU}
+                        ></TextInput>
+                        <TextInput
+                            label="Date of Closure"
+                            value={closure_date}
+                            setValue={setClosureDate}
+                        ></TextInput>
+                    </div>
+                </div>
             </section>
         </main>
     );
