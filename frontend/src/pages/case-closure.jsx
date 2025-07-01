@@ -162,8 +162,30 @@ function CaseClosure() {
                             </label>
                         </div>
                     </div>
-                    <TextArea sublabel="If yes, how was the client notified"></TextArea>
+                    <TextArea
+                        sublabel="If yes, how was the client notified"
+                        value={sm_notification}
+                        setValue={setSMNotification}
+                    ></TextArea>
                 </div>
+            </section>
+
+            <section className="flex w-full">
+                <TextArea
+                    label="Evaluation"
+                    sublabel="Based on the intervention plans including Case Management Results"
+                    value={evaluation}
+                    setValue={setEvaluation}
+                ></TextArea>
+            </section>
+
+            <section className="flex w-full">
+                <TextArea
+                    label="Recommendation"
+                    sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
+                    value={evaluation}
+                    setValue={setEvaluation}
+                ></TextArea>
             </section>
         </main>
     );
