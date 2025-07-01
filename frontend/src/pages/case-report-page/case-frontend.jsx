@@ -243,37 +243,11 @@ function CaseFrontend() {
         return age;
     }
 
-    const [dob, setDob] = useState(data?.dob || '');
-    const [age, setAge] = useState(calculateAge(data?.dob));
-    const [civilStatus, setCivilStatus] = useState(data?.civil_status || '');
-    const [education, setEducation] = useState(data?.edu_attainment || '');
-
-    const [sex, setSex] = useState(data?.sex || '');
-    const [pob, setPob] = useState(data?.pob || '');
-    const [religion, setReligion] = useState(data?.religion || '');
-    const [occupation, setOccupation] = useState(data?.occupation || '');
-
-    const [presentAddress, setPresentAddress] = useState(data?.present_address || '');
-    const [contactNo, setContactNo] = useState(data?.contact_no || '');
-    const [relationship, setRelationship] = useState(data?.relationship_to_client || '');
-
-    const [problemPresented, setProblemPresented] = useState(data?.problem_presented || '');
-    const [observationFindings, setObservationFindings] = useState(data?.observation_findings || '');
-    const [historyProblem, setHistoryProblem] = useState(data?.history_problem || '');
-    const [caseAssessment, setCaseAssessment] = useState(data?.assessment || '');
-
-    const [caseEvalutation, setCaseEvalutation] = useState(data?.evaluation || '');
-    const [caseRecommendation, setCaseRecommendation] = useState(data?.recommendation || '');
-
     const [selectedClassification, setSelectedClassification] = useState("");
 
     const [editingField, setEditingField] = useState(null);
 
     const [currentSection, setCurrentSection] = useState("identifying-data");
-
-    useEffect(() => {
-        setAge(calculateAge(dob));
-    }, [dob]);
 
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [editingFamilyValue, setEditingFamilyValue] = useState({})
@@ -377,14 +351,73 @@ function CaseFrontend() {
         setSelectedFamily(null);
     };
 
+    const [age, setAge] = useState(calculateAge(data?.dob));
+
     const [drafts, setDrafts] = useState({
-        problemPresented: problemPresented,
-        historyProblem: historyProblem,
-        observationFindings: observationFindings,
-        caseAssessment: caseAssessment,
-        caseRecommendation: caseRecommendation,
-        caseEvalutation: caseEvalutation
+        first_name: data.first_name || "",
+        middle_name: data.middle_name || "",
+        last_name: data.last_name || "",
+        sm_number: data.sm_number || "",
+        spu_id: data.spu_id || "",
+        sdw_id: data.sdw_id || "",
+        classifications: data.classifications || [],
+
+        dob: data.dob || "",
+        civilStatus: data.civil_status || "",
+        education: data.edu_attainment || "",
+        sex: data.sex || "",
+        pob: data.pob || "",
+        religion: data.religion || "",
+        occupation: data.occupation || "",
+        presentAddress: data.present_address || "",
+        contactNo: data.contact_no || "",
+        relationship: data.relationship_to_client || "",
+
+        problemPresented: data.problem_presented || "",
+        historyProblem: data.history_problem || "",
+        observationFindings: data.observation_findings || "",
+        caseAssessment: data.assessment || "",
+        caseRecommendation: data.recommendation || "",
+        caseEvalutation: data.evaluation || ""
     });
+
+
+    const resetFields = () => {
+        setDrafts({
+            first_name: data.first_name || "",
+            middle_name: data.middle_name || "",
+            last_name: data.last_name || "",
+            sm_number: data.sm_number || "",
+            spu_id: data.spu_id || "",
+            sdw_id: data.sdw_id || "",
+            classifications: data.classifications || [],
+
+            dob: data.dob || "",
+            civilStatus: data.civil_status || "",
+            education: data.edu_attainment || "",
+            sex: data.sex || "",
+            pob: data.pob || "",
+            religion: data.religion || "",
+            occupation: data.occupation || "",
+            presentAddress: data.present_address || "",
+            contactNo: data.contact_no || "",
+            relationship: data.relationship_to_client || "",
+
+            problemPresented: data.problem_presented || "",
+            historyProblem: data.history_problem || "",
+            observationFindings: data.observation_findings || "",
+            caseAssessment: data.assessment || "",
+            caseRecommendation: data.recommendation || "",
+            caseEvalutation: data.evaluation || ""
+        });
+        setEditingField(null);
+    };
+
+
+    useEffect(() => {
+        setAge(calculateAge(drafts.dob));
+    }, [drafts.dob]);
+
 
     return (
         <>
@@ -392,7 +425,6 @@ function CaseFrontend() {
                 isOpen={showModal}
                 onClose={() => {
                     setShowModal(false);
-                    // Optional: clear states if needed
                     setModalTitle("");
                     setModalBody("");
                     setModalImageCenter(null);
@@ -408,7 +440,6 @@ function CaseFrontend() {
                     setShowModal(false);
                 }}
             />
-
 
             <main className='flex flex-col gap-20 pt-15'>
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
@@ -470,279 +501,387 @@ function CaseFrontend() {
                     </div>
                 </div>
 
-                <header className='flex flex-col gap-5'>
+                <section className='flex flex-col gap-5' id="core-fields">
                     <div className='flex justify-between items-center'>
-                        {data.is_active == "yes" ?
-                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8'
-                                style={{ color: "white" }}>Active</div> :
-                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8'
-                                style={{ color: "white" }}>Inactive</div>}
+                        {data.is_active === "yes" ? (
+                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8 text-white'>Active</div>
+                        ) : (
+                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8 text-white'>Inactive</div>
+                        )}
+
                         <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
                     </div>
 
-                    <div className='flex justify-between'>
-                        <h1 className="header-main">{data.first_name} {data.middle_name}, {data.last_name}</h1>
+                    <div className='flex justify-between items-center'>
+                        <h1 className="header-main">
+                            {editingField === "core-fields" ? (
+                                <>
+                                    <input
+                                        type="text"
+                                        value={drafts.first_name}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
+                                        className="text-input font-label mr-2"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={drafts.middle_name}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
+                                        className="text-input font-label mr-2"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={drafts.last_name}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
+                                        className="text-input font-label"
+                                    />
+                                </>
+                            ) : (
+                                `${data.first_name} ${data.middle_name} ${data.last_name}`
+                            )}
+                        </h1>
+
+                        <button
+                            className={editingField === "core-fields" ? "icon-button-setup x-button" : "icon-button-setup dots-button"}
+                            onClick={() => {
+                                if (editingField) {
+                                    resetFields();
+                                } else {
+                                    setEditingField("core-fields");
+                                }
+                            }}
+                        ></button>
                     </div>
 
-                    <h2 className='header-sub'>{data.sm_number}</h2>
+                    <h2 className='header-sub'>
+                        {editingField === "core-fields" ? (
+                            <input
+                                type="text"
+                                value={drafts.sm_number}
+                                onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
+                                className="text-input font-label"
+                            />
+                        ) : (
+                            data.sm_number
+                        )}
+                    </h2>
 
-                    <div className='flex justify-between gap-10'>
-                        <div className='flex gap-5 items-center w-full'>
+                    <div className='flex justify-between gap-10 flex-wrap'>
+                        <div className='flex gap-5 items-center w-full md:w-[48%]'>
                             <p className='font-bold-label'>SPU Project:</p>
-                            <select
-                                className="text-input font-label flex-1"
-                                value={data.spu_id}
-                                id="spu"
-                                onChange={(e) =>{
-                                    setEditedLocale(true);
-                                    setData((prev) => ({
-                                        ...prev,
-                                        spu_id: e.target.value
-                                    }))}
-                                }>
-                                <option value="">Select SPU</option>
-                                {projectLocation.map((project) => (
-                                    <option key={project.projectCode} value={project.projectCode}>
-                                        {project.name} ({project.projectCode})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className='flex gap-5 items-center w-full'>
-                            <p className='font-bold-label'>Social Development Worker:</p>
-                            <select
-                                className="text-input font-label flex-1"
-                                value={data.sdw_id}
-                                id="sdw"
-                                onChange={(e) =>{
-                                    setEditedLocale(true);
-                                    setData((prev) => ({
-                                        ...prev,
-                                        sdw_id: parseInt(e.target.value, 10)
-                                    }))}
-                                }>
-                                <option value="">Select SDW</option>
-                                {socialDevelopmentWorkers
-                                    .filter((sdw) => sdw.spu_id === data.spu_id)
-                                    .map((sdw) => (
-                                        <option key={sdw.id} value={sdw.id}>
-                                            {sdw.username} ({sdw.id})
+                            {editingField === "core-fields" ? (
+                                <select
+                                    className="text-input font-label flex-1"
+                                    value={drafts.spu_id}
+                                    onChange={(e) => setDrafts(prev => ({ ...prev, spu_id: e.target.value }))}
+                                >
+                                    <option value="">Select SPU</option>
+                                    {projectLocation.map((project) => (
+                                        <option key={project.projectCode} value={project.projectCode}>
+                                            {project.name} ({project.projectCode})
                                         </option>
                                     ))}
-                            </select>
-                        </div>
-
-                        {/* <div className='flex gap-5 items-center w-full'>
-                            <p className='font-bold-label'>Sub-Project:</p>
-                            <select
-                                className="text-input font-label flex-1"
-                                value={data.sub_id}
-                                id="sub"
-                                onChange={(e) =>{
-                                    setEditedLocale(true);
-                                    setData((prev) => ({
-                                        ...prev,
-                                        sub_id: e.target.value
-                                    }))}
-                                }>
-                                <option value="">Select Sub-Project</option>
-                                {projectLocation.find((p) => p.projectCode === data.spu_id)?.subLocations.map((sub) => (
-                                    <option key={sub.sub_id} value={sub.sub_id}>
-                                        {sub.name} ({sub.sub_id})
-                                    </option>
-                                ))}
-                            </select>
-                        </div> */}
-
-                    </div>
-
-                    <div className='flex justify-between gap-10'>
-                        <div className="flex flex-col w-full">
-                            <p className="font-bold-label mb-2">Classifications:</p>
-
-                            <div className="flex items-center max-w-[65rem] w-full self-start">
-                                <select
-                                    className="text-input font-label"
-                                    value={selectedClassification}
-                                    onChange={(e) => setSelectedClassification(e.target.value)}>
-                                    <option value="">Select Classification</option>
-                                    {classificationList.map((item) => (
-                                        <option key={item} value={item}>{item}</option>
-                                    ))}
                                 </select>
+                            ) : (
+                                <span className="font-label">
+                                    {projectLocation.find(p => p.projectCode === data.spu_id)?.name || "—"}
+                                </span>
+                            )}
+                        </div>
 
-                                <button type="button" className="btn-primary font-bold-label ml-5 !w-[4.5rem] !h-[4.5rem]"
-                                    onClick={() => {
-                                        if (
-                                            selectedClassification &&
-                                            !data.classifications.includes(selectedClassification)
-                                        ) {
-                                            setEditedLocale(true);
-                                            setData((prev) => ({
-                                                ...prev,
-                                                classifications: [...prev.classifications, selectedClassification],
-                                            }));
-                                            setSelectedClassification("");
-                                        }
-                                    }}>+
-                                </button>
-                            </div>
-
-                            <div className="flex flex-wrap gap-2 mt-3">
-                                {data.classifications.map((item) => (
-                                    <div key={item} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
-                                        <span className="font-label">{item}</span>
-                                        <button type="button" className="text-red-500 font-bold"
-                                            onClick={() => {
-                                                setData((prev) => ({
-                                                    ...prev,
-                                                    classifications: prev.classifications.filter((c) => c !== item),
-                                                }));
-                                            }}>✕
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
+                        <div className='flex gap-5 items-center w-full md:w-[48%]'>
+                            <p className='font-bold-label'>Social Development Worker:</p>
+                            {editingField === "core-fields" ? (
+                                <select
+                                    className="text-input font-label flex-1"
+                                    value={drafts.sdw_id}
+                                    onChange={(e) => setDrafts(prev => ({ ...prev, sdw_id: parseInt(e.target.value, 10) }))}
+                                >
+                                    <option value="">Select SDW</option>
+                                    {socialDevelopmentWorkers
+                                        .filter((sdw) => sdw.spu_id === drafts.spu_id)
+                                        .map((sdw) => (
+                                            <option key={sdw.id} value={sdw.id}>
+                                                {sdw.username} ({sdw.id})
+                                            </option>
+                                        ))}
+                                </select>
+                            ) : (
+                                <span className="font-label">
+                                    {socialDevelopmentWorkers.find(w => w.id === data.sdw_id)?.username || "—"}
+                                </span>
+                            )}
                         </div>
                     </div>
 
-                    {editedLocale && <button className="btn-transparent-rounded my-3"
-                        onClick={() => {
-                            if (checkNewLocales()) {
-                                setEditedLocale(false);
-                                console.log('Valid, go update db');
-                            }
-                        }}>
-                        Submit Changes
-                    </button>}
-                </header>
+                    <div className='flex flex-col w-full'>
+                        <p className="font-bold-label mb-2">Classifications:</p>
+                        {editingField === "core-fields" ? (
+                            <>
+                                <div className="flex items-center max-w-[65rem] w-full self-start">
+                                    <select
+                                        className="text-input font-label"
+                                        value={selectedClassification}
+                                        onChange={(e) => setSelectedClassification(e.target.value)}
+                                    >
+                                        <option value="">Select Classification</option>
+                                        {classificationList.map((item) => (
+                                            <option key={item} value={item}>{item}</option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        className="btn-primary font-bold-label ml-5 !w-[4.5rem] !h-[4.5rem]"
+                                        onClick={() => {
+                                            if (selectedClassification && !drafts.classifications.includes(selectedClassification)) {
+                                                setDrafts(prev => ({
+                                                    ...prev,
+                                                    classifications: [...prev.classifications, selectedClassification],
+                                                }));
+                                                setSelectedClassification("");
+                                            }
+                                        }}
+                                    >+</button>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {drafts.classifications.map((item) => (
+                                        <div key={item} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
+                                            <span className="font-label">{item}</span>
+                                            <button
+                                                type="button"
+                                                className="text-red-500 font-bold"
+                                                onClick={() => {
+                                                    setDrafts(prev => ({
+                                                        ...prev,
+                                                        classifications: prev.classifications.filter(c => c !== item),
+                                                    }));
+                                                }}
+                                            >✕</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {data.classifications.map((item) => (
+                                    <span key={item} className="font-label bg-gray-200 px-3 py-1 rounded-full">{item}</span>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {editingField === "core-fields" && (
+                        <button
+                            className="btn-transparent-rounded my-3 ml-auto"
+                            onClick={() => {
+                                setData(prev => ({
+                                    ...prev,
+                                    first_name: drafts.first_name,
+                                    middle_name: drafts.middle_name,
+                                    last_name: drafts.last_name,
+                                    sm_number: drafts.sm_number,
+                                    spu_id: drafts.spu_id,
+                                    sdw_id: drafts.sdw_id,
+                                    classifications: drafts.classifications || [],
+                                }));
+                                setEditingField(null);
+                            }}
+                        >
+                            Submit Changes
+                        </button>
+                    )}
+                </section>
+
+
 
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
-                    <h1 className="header-main">Identifying Data</h1>
-
-                    <div className="flex justify-between gap-20">
-                        <div className="flex flex-col gap-5 w-full">
-                            <label className="font-label" htmlFor="age">Age</label>
-                            <input
-                                type="number"
-                                id="age"
-                                value={age}
-                                readOnly
-                                className="text-input font-label"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-5 w-full">
-                            <label className="font-label" htmlFor="dob">Date of Birth</label>
-                            <input
-                                type="date"
-                                id="dob"
-                                value={dob}
-                                onChange={(e) => setDob(e.target.value)}
-                                className="text-input font-label"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-5 w-full">
-                            <label className="font-label" htmlFor="civil">Civil Status</label>
-                            <input
-                                type="text"
-                                id="civil"
-                                value={civilStatus}
-                                onChange={(e) => setCivilStatus(e.target.value)}
-                                className="text-input font-label"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-5 w-full">
-                            <label className="font-label" htmlFor="education">Educational Attainment</label>
-                            <input
-                                type="text"
-                                id="education"
-                                value={education}
-                                onChange={(e) => setEducation(e.target.value)}
-                                className="text-input font-label"
-                            />
-                        </div>
+                    <div className="flex justify-between items-center">
+                        <h1 className="header-main">Identifying Data</h1>
+                        <button
+                            className={
+                                editingField === 'identifying-fields'
+                                    ? "icon-button-setup x-button"
+                                    : 'icon-button-setup dots-button'
+                            }
+                            onClick={() => {
+                                if (editingField) {
+                                    resetFields();
+                                } else {
+                                    setEditingField('identifying-fields');
+                                }
+                            }}
+                        ></button>
                     </div>
 
-                    <div className='flex justify-between gap-20'>
-                        <div className='flex flex-col gap-5 w-full'>
-                            <p className='font-label'>Sex</p>
-                            <input
-                                type="text"
-                                value={sex}
-                                onChange={(e) => setSex(e.target.value)}
-                                className='text-input font-label'
-                            />
-                        </div>
+                    {editingField === 'identifying-fields' ? (
+                        <>
+                            <div className="flex justify-between gap-20">
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label" htmlFor="age">Age</label>
+                                    <input
+                                        type="number"
+                                        id="age"
+                                        value={age}
+                                        readOnly
+                                        className="text-input font-label"
+                                    />
+                                </div>
 
-                        <div className='flex flex-col gap-5 w-full'>
-                            <p className='font-label'>Place of Birth</p>
-                            <input
-                                type="text"
-                                value={pob}
-                                onChange={(e) => setPob(e.target.value)}
-                                className='text-input font-label'
-                            />
-                        </div>
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label" htmlFor="dob">Date of Birth</label>
+                                    <input
+                                        type="date"
+                                        id="dob"
+                                        value={drafts.dob || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
+                                        className="text-input font-label"
+                                    />
+                                </div>
 
-                        <div className='flex flex-col gap-5 w-full'>
-                            <p className='font-label'>Religion</p>
-                            <input
-                                type="text"
-                                value={religion}
-                                onChange={(e) => setReligion(e.target.value)}
-                                className='text-input font-label'
-                            />
-                        </div>
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label" htmlFor="civil">Civil Status</label>
+                                    <input
+                                        type="text"
+                                        id="civil"
+                                        value={drafts.civilStatus || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
+                                        className="text-input font-label"
+                                    />
+                                </div>
 
-                        <div className='flex flex-col gap-5 w-full'>
-                            <p className='font-label'>Occupation</p>
-                            <input
-                                type="text"
-                                value={occupation}
-                                onChange={(e) => setOccupation(e.target.value)}
-                                className='text-input font-label'
-                            />
-                        </div>
-                    </div>
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label" htmlFor="education">Educational Attainment</label>
+                                    <input
+                                        type="text"
+                                        id="education"
+                                        value={drafts.education || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, education: e.target.value }))}
+                                        className="text-input font-label"
+                                    />
+                                </div>
+                            </div>
 
-                    <div className="flex justify-between gap-20">
-                        <div className="flex flex-col gap-5 w-full">
-                            <p className="font-label">Present Address</p>
-                            <textarea
-                                className="text-input font-label"
-                                placeholder="Taft. Avenue, Metro Manila"
-                                value={presentAddress}
-                                onChange={(e) => setPresentAddress(e.target.value)}
-                            ></textarea>
-                        </div>
+                            <div className='flex justify-between gap-20'>
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Sex</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.sex || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
+                                        className='text-input font-label'
+                                    />
+                                </div>
 
-                        <div className="flex flex-col gap-5 w-full">
-                            <p className="font-label">Contact No.</p>
-                            <input
-                                type="text"
-                                className="text-input font-label"
-                                placeholder="0000 000 0000"
-                                value={contactNo}
-                                onChange={(e) => setContactNo(e.target.value)}
-                            />
-                        </div>
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Place of Birth</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.pob || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
+                                        className='text-input font-label'
+                                    />
+                                </div>
 
-                        <div className="flex flex-col gap-5 w-full">
-                            <p className="font-label">Relationship to Client</p>
-                            <input
-                                type="text"
-                                className="text-input font-label"
-                                placeholder="Sister"
-                                value={relationship}
-                                onChange={(e) => setRelationship(e.target.value)}
-                            />
-                        </div>
-                    </div>
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Religion</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.religion || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
+                                        className='text-input font-label'
+                                    />
+                                </div>
+
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Occupation</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.occupation || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
+                                        className='text-input font-label'
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between gap-20">
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label">Present Address</label>
+                                    <textarea
+                                        className="text-input font-label"
+                                        placeholder="Taft Avenue, Metro Manila"
+                                        value={drafts.presentAddress || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, presentAddress: e.target.value }))}
+                                    ></textarea>
+                                </div>
+
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label">Contact No.</label>
+                                    <input
+                                        type="text"
+                                        className="text-input font-label"
+                                        placeholder="0000 000 0000"
+                                        value={drafts.contactNo || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, contactNo: e.target.value }))}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label">Relationship to Client</label>
+                                    <input
+                                        type="text"
+                                        className="text-input font-label"
+                                        placeholder="Sister"
+                                        value={drafts.relationship || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, relationship: e.target.value }))}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button
+                                    className="btn-transparent-rounded my-3 ml-auto"
+                                    onClick={() => {
+                                        setData(prev => ({
+                                            ...prev,
+                                            dob: drafts.dob,
+                                            civilStatus: drafts.civilStatus,
+                                            education: drafts.education,
+                                            sex: drafts.sex,
+                                            pob: drafts.pob,
+                                            religion: drafts.religion,
+                                            occupation: drafts.occupation,
+                                            presentAddress: drafts.presentAddress,
+                                            contactNo: drafts.contactNo,
+                                            relationship: drafts.relationship,
+                                        }));
+                                        // setAge(calculateAge(drafts.dob));
+                                        setEditingField(null);
+                                    }}
+                                >
+                                    Submit Changes
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6 font-label">
+                                <p><span className="font-bold-label">Age:</span> {age || "—"}</p>
+                                <p><span className="font-bold-label">Date of Birth:</span> {drafts.dob || "—"}</p>
+                                <p><span className="font-bold-label">Sex:</span> {drafts.sex || "—"}</p>
+                                <p><span className="font-bold-label">Contact No.:</span> {drafts.contactNo || "—"}</p>
+                                <p><span className="font-bold-label">Educational Attainment:</span> {drafts.education || "—"}</p>
+                                <p><span className="font-bold-label">Occupation:</span> {drafts.occupation || "—"}</p>
+                                <p><span className="font-bold-label">Civil Status:</span> {drafts.civilStatus || "—"}</p>
+                                <p><span className="font-bold-label">Religion:</span> {drafts.religion || "—"}</p>
+                                <p><span className="font-bold-label">Relationship to Client:</span> {drafts.relationship || "—"}</p>
+                                <p><span className="font-bold-label">Present Address:</span> {drafts.presentAddress || "—"}</p>
+                                <p><span className="font-bold-label">Place of Birth:</span> {drafts.pob || "—"}</p>
+                            </div>
+
+                        </>
+                    )}
                 </section>
+
 
                 <section className='flex flex-col gap-8' id="family-composition" ref={ref2}>
                     <h1 className="header-main">Family Composition</h1>
@@ -793,15 +932,7 @@ function CaseFrontend() {
                         <h1 className="header-main">Problems and Findings</h1>
                         <button className={editingField == 'history-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
-                                setDrafts({
-                                    problemPresented,
-                                    historyProblem,
-                                    observationFindings,
-                                    caseAssessment,
-                                    caseEvalutation,
-                                    caseRecommendation
-                                });
-                                setEditingField(null);
+                                resetFields();
                             } else {
                                 setEditingField('history-fields');
                             }
@@ -821,7 +952,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, problemPresented: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{problemPresented || '-'}</p>
+                                <p className='font-label'>{data.problem_presented || '-'}</p>
                             )}
                         </div>
 
@@ -835,7 +966,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, historyProblem: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{historyProblem || '-'}</p>
+                                <p className='font-label'>{data.history_problem || '-'}</p>
                             )}
                         </div>
 
@@ -848,7 +979,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, observationFindings: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{observationFindings || '-'}</p>
+                                <p className='font-label'>{data.observation_findings || '-'}</p>
                             )}
                         </div>
 
@@ -857,10 +988,14 @@ function CaseFrontend() {
                     {editingField == "history-fields" && (
                         <button className="btn-transparent-rounded my-3 ml-auto"
                             onClick={() => {
-                                setProblemPresented(drafts.problemPresented);
-                                setHistoryProblem(drafts.historyProblem);
-                                setObservationFindings(drafts.observationFindings);
+                                setData(prev => ({
+                                    ...prev,
+                                    problem_presented: drafts.problemPresented,
+                                    history_problem: drafts.historyProblem,
+                                    observation_findings: drafts.observationFindings
+                                }));
                                 setEditingField(null);
+
                             }}>
                             Submit Changes
                         </button>
@@ -879,15 +1014,7 @@ function CaseFrontend() {
                         <h1 className="header-main">Assessment</h1>
                         <button className={editingField == 'assessment-field' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
-                                setDrafts({
-                                    problemPresented,
-                                    historyProblem,
-                                    observationFindings,
-                                    caseAssessment,
-                                    caseEvalutation,
-                                    caseRecommendation
-                                });
-                                setEditingField(null);
+                                resetFields();
                             } else {
                                 setEditingField('assessment-field');
                             }
@@ -905,7 +1032,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseAssessment: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{caseAssessment || '-'}</p>
+                                <p className='font-label'>{data.assessment || '-'}</p>
                             )}
                         </div>
                     </div>
@@ -913,11 +1040,15 @@ function CaseFrontend() {
                     {editingField == "assessment-field" && (
                         <button className="btn-transparent-rounded my-3 ml-auto"
                             onClick={() => {
-                                setCaseAssessment(drafts.caseAssessment);
+                                setData(prev => ({
+                                    ...prev,
+                                    assessment: drafts.caseAssessment
+                                }));
                                 setEditingField(null);
                             }}>
                             Submit Changes
                         </button>
+
                     )}
                 </section>
 
@@ -927,15 +1058,7 @@ function CaseFrontend() {
                         <h1 className="header-main">Evaluation and Recommendation</h1>
                         <button className={editingField == 'evaluation-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
-                                setDrafts({
-                                    problemPresented,
-                                    historyProblem,
-                                    observationFindings,
-                                    caseAssessment,
-                                    caseEvalutation,
-                                    caseRecommendation
-                                });
-                                setEditingField(null);
+                                resetFields()
                             } else {
                                 setEditingField('evaluation-fields');
                             }
@@ -955,7 +1078,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseEvalutation: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{caseEvalutation || '-'}</p>
+                                <p className='font-label'>{data.evaluation || '-'}</p>
                             )}
                         </div>
 
@@ -969,7 +1092,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseRecommendation: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{caseRecommendation || '-'}</p>
+                                <p className='font-label'>{data.recommendation || '-'}</p>
                             )}
                         </div>
 
@@ -978,12 +1101,17 @@ function CaseFrontend() {
                     {editingField == "evaluation-fields" && (
                         <button className="btn-transparent-rounded my-3 ml-auto"
                             onClick={() => {
-                                setCaseEvalutation(drafts.caseEvalutation);
-                                setCaseRecommendation(drafts.caseRecommendation);
+                                setData(prev => ({
+                                    ...prev,
+                                    evaluation: drafts.caseEvalutation,
+                                    recommendation: drafts.caseRecommendation
+                                }));
                                 setEditingField(null);
                             }}>
                             Submit Changes
                         </button>
+
+
                     )}
 
                 </section>

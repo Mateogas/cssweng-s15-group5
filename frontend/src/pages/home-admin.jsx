@@ -1,168 +1,103 @@
 import { useState, useEffect } from "react";
 import SideItem from "../Components/SideItem"
-import ClientEntry from "../Components/ClientEntry";
+import WorkerEntry from "../Components/WorkerEntry";
+import RegisterWorker from "../Components/RegisterWorker";
 
-function HomeSDW() {
+function HomeAdmin() {
     const [allData, setAllData] = useState([
-        {
-            first_name: "Hephzi-Bah",
-            middle_name: "Gamac",
-            last_name: "Tolentino",
-            sm_number: 12356473,
-            is_active: "yes",
-            sdw_id: 900001,
-            spu_id: "MNL",
-        },
-        {
-            first_name: "John",
-            middle_name: "David",
-            last_name: "Santos",
-            sm_number: 22356474,
-            is_active: "no",
-            sdw_id: 900002,
-            spu_id: "CEB",
-        },
-        {
-            first_name: "Maria",
-            middle_name: "Clara",
-            last_name: "Reyes",
-            sm_number: 32356475,
-            is_active: "yes",
-            sdw_id: 900003,
-            spu_id: "DVO",
-        },
-        {
-            first_name: "Miguel",
-            middle_name: "Luis",
-            last_name: "Gonzales",
-            sm_number: 42356476,
-            is_active: "no",
-            sdw_id: 900004,
-            spu_id: "BAG",
-        },
-        {
-            first_name: "Sophia",
-            middle_name: "Isabel",
-            last_name: "Mendoza",
-            sm_number: 52356477,
-            is_active: "yes",
-            sdw_id: 900005,
-            spu_id: "ILO",
-        },
-        {
-            first_name: "Enrico",
-            middle_name: "Jose",
-            last_name: "Lopez",
-            sm_number: 62356478,
-            is_active: "no",
-            sdw_id: 900001,
-            spu_id: "ZAM",
-        },
-        {
-            first_name: "Althea",
-            middle_name: "Rose",
-            last_name: "Cruz",
-            sm_number: 72356479,
-            is_active: "yes",
-            sdw_id: 900002,
-            spu_id: "MNL",
-        },
-        {
-            first_name: "Gabriel",
-            middle_name: "Santos",
-            last_name: "Delos Reyes",
-            sm_number: 82356480,
-            is_active: "yes",
-            sdw_id: 900003,
-            spu_id: "CEB",
-        },
-        {
-            first_name: "Diana",
-            middle_name: "Mae",
-            last_name: "Fernandez",
-            sm_number: 92356481,
-            is_active: "no",
-            sdw_id: 900004,
-            spu_id: "DVO",
-        },
-        {
-            first_name: "Patrick",
-            middle_name: "Joseph",
-            last_name: "Garcia",
-            sm_number: 10235648,
-            is_active: "yes",
-            sdw_id: 900005,
-            spu_id: "BAG",
-        },
-        {
-            first_name: "Andrea",
-            middle_name: "Marie",
-            last_name: "Valdez",
-            sm_number: 11235648,
-            is_active: "no",
-            sdw_id: 900001,
-            spu_id: "ILO",
-        },
-        {
-            first_name: "Samuel",
-            middle_name: "Noel",
-            last_name: "Torres",
-            sm_number: 12235648,
-            is_active: "yes",
-            sdw_id: 900002,
-            spu_id: "ZAM",
-        },
-        {
-            first_name: "Cassandra",
-            middle_name: "Faith",
-            last_name: "Martinez",
-            sm_number: 13235648,
-            is_active: "no",
-            sdw_id: 900003,
-            spu_id: "MNL",
-        },
-        {
-            first_name: "Nathan",
-            middle_name: "Allan",
-            last_name: "Ramos",
-            sm_number: 14235648,
-            is_active: "yes",
-            sdw_id: 900004,
-            spu_id: "CEB",
-        },
-        {
-            first_name: "Bianca",
-            middle_name: "Grace",
-            last_name: "Gutierrez",
-            sm_number: 15235648,
-            is_active: "yes",
-            sdw_id: 900005,
-            spu_id: "DVO",
-        },
-    ]);
-
-    const [socialDevWorkers, setSocialDevWorkers] = useState([
         {
             sdw_id: 900001,
             username: "gmadisonkelsey",
+            role: "admin",
+            spu_id: "MNL",
         },
         {
             sdw_id: 900002,
             username: "alexander.cortez",
+            role: "super",
+            spu_id: "CEB",
         },
         {
             sdw_id: 900003,
             username: "rachelle.mendez",
+            role: "sdw",
+            spu_id: "DVO",
         },
         {
             sdw_id: 900004,
             username: "marklouis_torres",
+            role: "sdw",
+            spu_id: "BAG",
         },
         {
             sdw_id: 900005,
             username: "sophia.luna",
+            role: "super",
+            spu_id: "ILO",
+        },
+        {
+            sdw_id: 900006,
+            username: "lucas.martinez",
+            role: "sdw",
+            spu_id: "ZAM",
+        },
+        {
+            sdw_id: 900007,
+            username: "natalie.bautista",
+            role: "sdw",
+            spu_id: "MNL",
+        },
+        {
+            sdw_id: 900008,
+            username: "elijah.dominguez",
+            role: "super",
+            spu_id: "CEB",
+        },
+        {
+            sdw_id: 900009,
+            username: "kristine.velasquez",
+            role: "admin",
+            spu_id: "DVO",
+        },
+        {
+            sdw_id: 900010,
+            username: "noah.torralba",
+            role: "sdw",
+            spu_id: "BAG",
+        },
+        {
+            sdw_id: 900011,
+            username: "camille.delacruz",
+            role: "sdw",
+            spu_id: "ILO",
+        },
+        {
+            sdw_id: 900012,
+            username: "ethan.monteverde",
+            role: "super",
+            spu_id: "ZAM",
+        },
+        {
+            sdw_id: 900013,
+            username: "alyssa.gutierrez",
+            role: "sdw",
+            spu_id: "MNL",
+        },
+        {
+            sdw_id: 900014,
+            username: "ian.reyes",
+            role: "admin",
+            spu_id: "CEB",
+        },
+        {
+            sdw_id: 900015,
+            username: "mia.rodriguez",
+            role: "sdw",
+            spu_id: "DVO",
         },
     ]);
+
+
 
     const [projectLocation, setProjectLocation] = useState([
         {
@@ -197,36 +132,41 @@ function HomeSDW() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [searchQuery, setSearchQuery] = useState("");
 
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
     useEffect(() => {
         let filtered = [...allData];
 
-        filtered = filtered.filter((client) => client.is_active === "yes");
-
-
         if (currentSPU !== "") {
-            filtered = filtered.filter((client) => client.spu_id === currentSPU);
+            filtered = filtered.filter((worker) => worker.spu_id === currentSPU);
         }
 
         if (searchQuery.trim() !== "") {
             const query = searchQuery.toLowerCase();
-            filtered = filtered.filter((client) => {
-                const fullName = `${client.first_name} ${client.middle_name} ${client.last_name}`.toLowerCase();
-                const smNumberStr = client.sm_number.toString();
+            filtered = filtered.filter((worker) => {
+                const username = `${worker.username}`.toLowerCase();
+                const sdwNumberStr = worker.sdw_id.toString();
                 return (
-                    fullName.includes(query) ||
-                    smNumberStr.includes(query)
+                    username.includes(query) ||
+                    sdwNumberStr.includes(query)
                 );
             });
         }
 
         if (sortBy === "name") {
             filtered.sort((a, b) => {
-                const nameA = `${a.first_name} ${a.middle_name} ${a.last_name}`.toLowerCase();
-                const nameB = `${b.first_name} ${b.middle_name} ${b.last_name}`.toLowerCase();
+                const nameA = `${a.username}`.toLowerCase();
+                const nameB = `${b.username}`.toLowerCase();
                 return nameA.localeCompare(nameB);
             });
-        } else if (sortBy === "sm_number") {
-            filtered.sort((a, b) => a.sm_number - b.sm_number);
+        } else if (sortBy === "sdw_id") {
+            filtered.sort((a, b) => a.sdw_id - b.sdw_id);
+        } else if (sortBy === "role") {
+            filtered.sort((a, b) => {
+                const nameA = `${a.role}`.toLowerCase();
+                const nameB = `${b.role}`.toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
         }
 
         if (sortOrder === "desc") {
@@ -239,6 +179,17 @@ function HomeSDW() {
 
     return (
         <>
+            <RegisterWorker
+                isOpen={isRegisterOpen}
+                onClose={() => setIsRegisterOpen(false)}
+                onRegister={(newWorker) => {
+                    console.log("New worker data:", newWorker);
+                }}
+                projectLocations={projectLocation}
+            />
+
+
+
             <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
                 items-center py-5 px-8 bg-white">
                 <a href="/home-sdw" className="main-logo main-logo-text-nav">
@@ -323,9 +274,9 @@ function HomeSDW() {
                                 >
                                     <option value="">Filter By</option>
                                     <option value="name">Name</option>
-                                    <option value="sm_number">SM Number</option>
+                                    <option value="sdw_id">SDW ID</option>
+                                    <option value="role">Role</option>
                                 </select>
-
 
                                 <button
                                     className="btn-outline font-bold-label"
@@ -334,31 +285,33 @@ function HomeSDW() {
                                 </button>
                             </div>
 
-                            <button className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
+                            <button
+                                className="btn-outline font-bold-label flex gap-4 whitespace-nowrap"
+                                onClick={() => setIsRegisterOpen(true)}
+                            >
                                 <p>+</p>
-                                <p>New Case</p>
+                                <p>Add Account</p>
                             </button>
+
                         </div>
                     </div>
 
                     <div className="flex flex-col w-full gap-3">
                         <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                            <p className="font-bold-label ml-[20%]">Name</p>
-                            <p className="font-bold-label text-center">CH Number</p>
-                            <p className="font-bold-label text-center">SDW Assigned</p>
+                            <p className="font-bold-label ml-[20%]">Worker</p>
+                            <p className="font-bold-label text-center">Type</p>
+                            <p className="font-bold-label text-center">SPU</p>
                         </div>
 
-                        {currentData.map((client) => (
-                            <ClientEntry
-                                key={client.sm_number}
-                                id={client.sm_number}
-                                smNumber={client.sm_number}
-                                firstName={client.first_name}
-                                middleName={client.middle_name}
-                                lastName={client.last_name}
-                                chNumber={client.sm_number}
-                                sdwAssigned={
-                                    socialDevWorkers.find(w => w.sdw_id === client.sdw_id)?.username || "Unassigned"
+                        {currentData.map((worker) => (
+                            <WorkerEntry
+                                key={worker.sdw_id}
+                                id={worker.sdw_id}
+                                spu_id={worker.spu_id}
+                                username={worker.username}
+                                role={worker.role}
+                                spuAssigned={
+                                    projectLocation.find(spu => spu.projectCode === worker.spu_id)?.name || "Unassigned"
                                 }
                             />
                         ))}
@@ -373,4 +326,4 @@ function HomeSDW() {
     )
 }
 
-export default HomeSDW
+export default HomeAdmin

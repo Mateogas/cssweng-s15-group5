@@ -30,30 +30,20 @@ function getTextColorForBackground(hsl) {
   return luminance > 0.5 ? "black" : "white";
 }
 
-export default function ClientEntry({
+export default function WorkerEntry({
   id,
-  smNumber,
-  firstName,
-  middleName,
-  lastName,
-  chNumber,
-  sdwAssigned,
-  archive = false
+  username,
+  role,
+  spuAssigned
 }) {
-  const initials = firstName.charAt(0).toUpperCase();
-  const name = `${firstName} ${middleName} ${lastName}`;
+  const initials = username.charAt(0).toUpperCase();
 
-  let bgColor = getColorFromId(name);
+  let bgColor = getColorFromId(username);
   let textColor = getTextColorForBackground(bgColor);
-
-  if (archive) {
-    bgColor = "#6b6c6e";
-    textColor = "#ffffff";
-  }
 
   return (
     <a
-      href={`/case/${id}`}
+      href={`/workers/${id}`}
       className="client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 bg-white rounded-lg font-bold-label"
     >
       <div className="flex items-center gap-6">
@@ -63,10 +53,13 @@ export default function ClientEntry({
         >
           {initials}
         </div>
-        <p>{name}</p>
+        <div className="flex flex-col gap-2">
+        <p>{username}</p>
+        <p>{id}</p>
+        </div>
       </div>
-      <p className="text-center">{chNumber}</p>
-      <p className="text-center">{sdwAssigned}</p>
+      <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Admin"}</p>
+      <p className="text-center">{spuAssigned}</p>
     </a>
   );
 }
