@@ -25,6 +25,14 @@ function FinancialAssessmentForm() {
         "Medical Assistance to the Sponsored Member",
     ]);
 
+    const handleCheckboxChange = (value) => {
+        setTypeOfAssistance((prev) =>
+            prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value],
+        );
+    };
+
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -52,101 +60,115 @@ function FinancialAssessmentForm() {
                 <h4 className="header-sm">Type of Assistance</h4>
                 <div className="flex justify-center gap-20 px-5">
                     <div className="flex flex-col gap-4">
-                        <label
-                            htmlFor="funeral_assist_family"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="funeral_assist_family"
-                                name="type_of_assistance"
                                 value="Funeral Assistance to the Family Member"
+                                checked={type_of_assistance.includes(
+                                    "Funeral Assistance to the Family Member",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Funeral Assistance to the Family Member
                         </label>
-                        <label
-                            htmlFor="medical_assist_family"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="medical_assist_family"
-                                name="type_of_assistance"
                                 value="Medical Assistance to the Family Member"
+                                checked={type_of_assistance.includes(
+                                    "Medical Assistance to the Family Member",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Medical Assistance to the Family Member
                         </label>
-                        <label
-                            htmlFor="food_assist"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="food_assist"
-                                name="type_of_assistance"
                                 value="Food Assistance"
+                                checked={type_of_assistance.includes(
+                                    "Food Assistance",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Food Assistance
                         </label>
-                        <label
-                            htmlFor="igp_cap"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="igp_cap"
-                                name="type_of_assistance"
                                 value="IGP Capital"
+                                checked={type_of_assistance.includes(
+                                    "IGP Capital",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             IGP Capital
                         </label>
                     </div>
                     <div className="flex flex-col gap-4">
-                        <label
-                            htmlFor="funeral_assist_sponsored"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="funeral_assist_sponsored"
-                                name="type_of_assistance"
                                 value="Funeral Assistance to the Sponsored Member"
+                                checked={type_of_assistance.includes(
+                                    "Funeral Assistance to the Sponsored Member",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Funeral Assistance to the Sponsored Member
                         </label>
-                        <label
-                            htmlFor="medical_assist_sponsored"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="medical_assist_sponsored"
-                                name="type_of_assistance"
                                 value="Medical Assistance to the Sponsored Member"
+                                checked={type_of_assistance.includes(
+                                    "Medical Assistance to the Sponsored Member",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Medical Assistance to the Sponsored Member
                         </label>
-                        <label
-                            htmlFor="home_improve"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="home_improve"
-                                name="type_of_assistance"
                                 value="Home Improvement/Needs"
+                                checked={type_of_assistance.includes(
+                                    "Home Improvement/Needs",
+                                )}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Home Improvement/Needs
                         </label>
-                        <label
-                            htmlFor="other_assist"
-                            className="body-base flex gap-2.5"
-                        >
+                        <label className="body-base flex gap-2.5">
                             <input
                                 type="checkbox"
                                 id="other_assist"
-                                name="type_of_assistance"
                                 value="Other"
+                                checked={type_of_assistance.includes("Other")}
+                                onChange={(e) =>
+                                    handleCheckboxChange(e.target.value)
+                                }
                             />
                             Other: Please Indicate Below
                         </label>
