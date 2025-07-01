@@ -15,7 +15,7 @@ function CorrespondenceForm() {
         address: "",
         sponsor_name: "",
         subproject: "",
-        date_of_sponsorship: "",
+        sponsorship_date: "",
     });
 
     const [last_name, setLastName] = useState(data?.last_name || "");
@@ -28,8 +28,8 @@ function CorrespondenceForm() {
     const [address, setAddress] = useState(data?.address || "");
     const [sponsor_name, setSponsorName] = useState(data?.sponsor_name || "");
     const [subproject, setSubproject] = useState(data?.subproject || "");
-    const [date_of_sponsorship, setDateOfSponsorship] = useState(
-        data?.date_of_sponsorship || "",
+    const [sponsorship_date, setSponsorshipDate] = useState(
+        data?.sponsorship_date || "",
     );
 
     return (
@@ -86,6 +86,32 @@ function CorrespondenceForm() {
                                     className="text-area"
                                 ></textarea>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">General Information</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Name of Sponsor"
+                                value={sponsor_name}
+                                setValue={setSponsorName}
+                            ></TextInput>
+                            <TextInput
+                                label="Sub-Project"
+                                value={subproject}
+                                setValue={setSubproject}
+                            ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Date of Sponsorship"
+                                value={sponsorship_date}
+                                setValue={setSponsorshipDate}
+                            ></TextInput>
                         </div>
                     </div>
                 </div>
