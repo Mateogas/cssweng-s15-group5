@@ -16,6 +16,10 @@ function CounsellingForm() {
         subproject: "",
         area_self_help: "",
         counselling_date: "",
+        reason_for_counselling: "",
+        corrective_action: "",
+        recommendation: "",
+        sm_comments: "",
     });
 
     const [last_name, setLastName] = useState(data?.last_name || "");
@@ -35,27 +39,61 @@ function CounsellingForm() {
     const [counselling_date, setCounsellingDate] = useState(
         data?.counselling_date || "",
     );
+    const [reason_for_counselling, setReasonForCounselling] = useState(
+        data?.reason_for_counselling || "",
+    );
+    const [corrective_action, setCorrectiveAction] = useState(
+        data?.corrective_action || "",
+    );
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
+    const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
 
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
-            <section className="flex flex-col w-full gap-10">
+            <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
-                            <TextInput label="Last Name" value={last_name} setValue={setLastName}></TextInput>
-                            <TextInput label="First Name" value={first_name} setValue={setFirstName}></TextInput>
-                            <TextInput label="Middle Name" value={middle_name} setValue={setMiddleName}></TextInput>
-                            <TextInput label="CH ID #" value={ch_number} setValue={setCHNumber}></TextInput>
+                            <TextInput
+                                label="Last Name"
+                                value={last_name}
+                                setValue={setLastName}
+                            ></TextInput>
+                            <TextInput
+                                label="First Name"
+                                value={first_name}
+                                setValue={setFirstName}
+                            ></TextInput>
+                            <TextInput
+                                label="Middle Name"
+                                value={middle_name}
+                                setValue={setMiddleName}
+                            ></TextInput>
+                            <TextInput
+                                label="CH ID #"
+                                value={ch_number}
+                                setValue={setCHNumber}
+                            ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput label="Grade/Year Level" value={grade_year_level} setValue={setGradeYearLevel}></TextInput>
-                            <TextInput label="School" value={school} setValue={setSchool}></TextInput>
+                            <TextInput
+                                label="Grade/Year Level"
+                                value={grade_year_level}
+                                setValue={setGradeYearLevel}
+                            ></TextInput>
+                            <TextInput
+                                label="School"
+                                value={school}
+                                setValue={setSchool}
+                            ></TextInput>
                             <div className="flex gap-10">
                                 <p className="label-base w-44">Address</p>
                                 <textarea
@@ -73,14 +111,34 @@ function CounsellingForm() {
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
-                            <TextInput label="Sub-Project" value={subproject} setValue={setSubproject}></TextInput>
-                            <TextInput label="Area/Self-Help Group" value={area_self_help} setValue={setAreaSelfHelp}></TextInput>
+                            <TextInput
+                                label="Sub-Project"
+                                value={subproject}
+                                setValue={setSubproject}
+                            ></TextInput>
+                            <TextInput
+                                label="Area/Self-Help Group"
+                                value={area_self_help}
+                                setValue={setAreaSelfHelp}
+                            ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput label="Date of Counselling" value={counselling_date} setValue={setCounsellingDate}></TextInput>
+                            <TextInput
+                                label="Date of Counselling"
+                                value={counselling_date}
+                                setValue={setCounsellingDate}
+                            ></TextInput>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section>
+                <TextArea
+                    label="Purpose/Reason for Counselling"
+                    value={reason_for_counselling}
+                    setValue={setReasonForCounselling}
+                ></TextArea>
             </section>
         </main>
     );
