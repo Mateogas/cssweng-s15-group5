@@ -160,6 +160,14 @@ function ProgressReport() {
                     ></TextArea>
                 </div>
             </section>
+
+            <section className="flex w-full">
+                <TextArea
+                    label="Services Rendered to the Family"
+                    value={services_to_family}
+                    setValue={setServicesToFamily}
+                ></TextArea>
+            </section>
         </main>
     );
 }
