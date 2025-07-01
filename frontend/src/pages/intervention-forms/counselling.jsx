@@ -133,9 +133,14 @@ function CounsellingForm() {
                 </div>
             </section>
 
-            <section>
+            <section className="flex w-full gap-10 items-end">
                 <TextArea
                     label="Purpose/Reason for Counselling"
+                    value={reason_for_counselling}
+                    setValue={setReasonForCounselling}
+                ></TextArea>
+                <TextArea
+                    label="Corrective and/or Disciplinary Action To Be Taken"
                     value={reason_for_counselling}
                     setValue={setReasonForCounselling}
                 ></TextArea>
