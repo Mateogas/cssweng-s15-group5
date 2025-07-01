@@ -192,23 +192,6 @@ function FinancialAssessmentForm() {
                 setValue={setRecommendation}
             ></TextArea>
 
-            <section className="flex w-full flex-col gap-10 px-10 pt-16">
-                <div className="flex w-full justify-between">
-                    <Signature
-                        label="Prepared by:"
-                        signer="Social Development Worker"
-                    ></Signature>
-                    <Signature
-                        label="Noted by:"
-                        signer="OIC-Cluster Coordinator"
-                    ></Signature>
-                </div>
-                <Signature
-                    label="Checked and reviewed by:"
-                    signer="Finance Staff"
-                ></Signature>
-            </section>
-
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Intervention</button>
