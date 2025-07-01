@@ -155,6 +155,15 @@ function CorrespondenceForm() {
                     setValue={setObjective}
                 ></TextArea>
             </section>
+
+            <section className="flex w-full items-end">
+                <TextArea
+                    label="Recommendation"
+                    sublabel="(Indicate if SM's case needs a Case Conference)"
+                    value={recommendation}
+                    setValue={setRecommendation}
+                ></TextArea>
+            </section>
         </main>
     );
 }
