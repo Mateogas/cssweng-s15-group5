@@ -187,6 +187,11 @@ function CaseClosure() {
                     setValue={setEvaluation}
                 ></TextArea>
             </section>
+
+            <div className="flex w-[22.5rem] justify-between mt-10">
+                <button className="btn-outline-rounded">Cancel</button>
+                <button className="btn-primary">Close Case</button>
+            </div>
         </main>
     );
 }
