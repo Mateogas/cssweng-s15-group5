@@ -41,7 +41,7 @@ function CounsellingForm() {
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
-            <section className="flex w-full gap-10">
+            <section className="flex flex-col w-full gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
@@ -64,6 +64,20 @@ function CounsellingForm() {
                                     className="text-area"
                                 ></textarea>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">General Information</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput label="Sub-Project" value={subproject} setValue={setSubproject}></TextInput>
+                            <TextInput label="Area/Self-Help Group" value={area_self_help} setValue={setAreaSelfHelp}></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <TextInput label="Date of Counselling" value={counselling_date} setValue={setCounsellingDate}></TextInput>
                         </div>
                     </div>
                 </div>
