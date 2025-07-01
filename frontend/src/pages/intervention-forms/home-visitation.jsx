@@ -167,18 +167,40 @@ function HomeVisitationForm() {
                                     name="family_type"
                                     id="family_type"
                                     value={family_type}
-                                    onChange={(e) => setFamilyType(e.target.value)}
+                                    onChange={(e) =>
+                                        setFamilyType(e.target.value)
+                                    }
                                     className="label-base text-input"
                                 >
-                                    <option value="" className="body-base">Select</option>
-                                    <option value="nuclear" className="body-base">Nuclear</option>
-                                    <option value="extended" className="body-base">Extended</option>
-                                    <option value="blended" className="body-base">Blended</option>
+                                    <option value="" className="body-base">
+                                        Select
+                                    </option>
+                                    <option
+                                        value="nuclear"
+                                        className="body-base"
+                                    >
+                                        Nuclear
+                                    </option>
+                                    <option
+                                        value="extended"
+                                        className="body-base"
+                                    >
+                                        Extended
+                                    </option>
+                                    <option
+                                        value="blended"
+                                        className="body-base"
+                                    >
+                                        Blended
+                                    </option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
@@ -201,6 +223,77 @@ function HomeVisitationForm() {
                                 label="Sponsor Name"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
+                            ></TextInput>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="flex w-full gap-10">
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">Father</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Last Name"
+                                value={father_last_name}
+                                setValue={setFatherLastName}
+                            ></TextInput>
+                            <TextInput
+                                label="First Name"
+                                value={father_first_name}
+                                setValue={setFatherFirstName}
+                            ></TextInput>
+                            <TextInput
+                                label="Middle Name"
+                                value={father_middle_name}
+                                setValue={setFatherMiddleName}
+                            ></TextInput>
+                            <TextInput
+                                label="Work"
+                                value={father_work}
+                                setValue={setFatherWork}
+                            ></TextInput>
+                            <TextInput
+                                label="Income"
+                                value={father_income}
+                                setValue={setFatherIncome}
+                            ></TextInput>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">Mother</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Last Name"
+                                value={mother_last_name}
+                                setValue={setMotherLastName}
+                            ></TextInput>
+                            <TextInput
+                                label="First Name"
+                                value={mother_first_name}
+                                setValue={setMotherFirstName}
+                            ></TextInput>
+                            <TextInput
+                                label="Middle Name"
+                                value={mother_middle_name}
+                                setValue={setMotherMiddleName}
+                            ></TextInput>
+                            <TextInput
+                                label="Work"
+                                value={mother_work}
+                                setValue={setMotherWork}
+                            ></TextInput>
+                            <TextInput
+                                label="Income"
+                                value={mother_income}
+                                setValue={setMotherIncome}
                             ></TextInput>
                         </div>
                     </div>
