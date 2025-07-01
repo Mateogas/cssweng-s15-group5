@@ -20,10 +20,28 @@ function ProgressReport() {
         family_update: "",
         services_to_family: "",
         participation: "",
-        know_sponsor: "",
-        cooperative: "",
-        writes_letters: "",
     });
+
+    const relation_to_sponsor = [
+        { id: "q1", text: "Knows his/her sponsor's name?" },
+        { id: "q2", text: "Cooperative with the program?" },
+        { id: "q3", text: "Writes personalized letters in a timely manner?" },
+    ];
+
+    const options = ["Yes", "Sometimes", "No"];
+
+    const [responses, setResponses] = useState({
+        q1: "",
+        q2: "",
+        q3: "",
+    });
+
+    const handleCheckboxChange = (questionID, value) => {
+        setResponses((prev) => ({
+            ...prev,
+            [questionID]: value,
+        }));
+    };
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -51,11 +69,6 @@ function ProgressReport() {
     );
     const [participation, setParticipation] = useState(
         data?.participation || "",
-    );
-    const [know_sponsor, setKnowSponsor] = useState(data?.know_sponsor || "");
-    const [cooperative, setCooperative] = useState(data?.cooperative || "");
-    const [writes_letters, setWritesLetters] = useState(
-        data?.writes_letters || "",
     );
 
     return (
@@ -176,6 +189,34 @@ function ProgressReport() {
                     value={participation}
                     setValue={setParticipation}
                 ></TextArea>
+            </section>
+
+            <section className="flex w-full flex-col gap-5">
+                <h4 className="header-sm">Relationship to Sponsor & Unbound</h4>
+                <div className="flex gap-24">
+                    {relation_to_sponsor.map((q) => (
+                        <div key={q.id} className="flex flex-col gap-5 justify-end">
+                            <p className="body-base">{q.text}</p>
+                            <div className="flex gap-8">
+                                {options.map((option) => (
+                                    <label
+                                        key={option}
+                                        className="flex items-center gap-2.5"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            name={q.id}
+                                            value={option}
+                                            checked={responses[q.id] === option}
+                                            onChange={() => handleCheckboxChange(q.id, option)}
+                                        />
+                                        {option}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </section>
         </main>
     );
