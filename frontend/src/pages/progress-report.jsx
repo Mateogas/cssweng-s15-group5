@@ -168,6 +168,15 @@ function ProgressReport() {
                     setValue={setServicesToFamily}
                 ></TextArea>
             </section>
+
+            <section className="flex w-full">
+                <TextArea
+                    label="Participation in the Community"
+                    sublabel="Include care for the environment"
+                    value={participation}
+                    setValue={setParticipation}
+                ></TextArea>
+            </section>
         </main>
     );
 }
