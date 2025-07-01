@@ -100,6 +100,7 @@ function ProgressReport() {
                         </div>
                     </div>
                 </div>
+
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
@@ -135,6 +136,28 @@ function ProgressReport() {
                             ></TextInput>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section className="flex w-full flex-col gap-10">
+                <div className="flex w-full flex-col gap-5">
+                    <h3 className="header-md">Update/Development</h3>
+                    <h4 className="header-sm">
+                        e.g. Education, Health, Socio-Economic, Behavioral,
+                        Social, etc.
+                    </h4>
+                </div>
+                <div className="flex w-full gap-10">
+                    <TextArea
+                        label="Sponsored Member (observation)"
+                        value={sm_update}
+                        setValue={setSMUpdate}
+                    ></TextArea>
+                    <TextArea
+                        label="Family"
+                        value={family_update}
+                        setValue={setFamilyUpdate}
+                    ></TextArea>
                 </div>
             </section>
         </main>
