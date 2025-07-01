@@ -32,22 +32,111 @@ function ProgressReport() {
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState(data?.dob || "");
     const [sponsor_name, setSponsorName] = useState(data?.sponsor_name || "");
-    const [sponsorship_date, setSponsorshipDate] = useState(data?.sponsorship_date || "");
+    const [sponsorship_date, setSponsorshipDate] = useState(
+        data?.sponsorship_date || "",
+    );
     const [subproject, setSubproject] = useState(data?.subproject || "");
-    const [date_accomplished, setDateAccomplished] = useState(data?.date_accomplished || "");
-    const [period_covered, setPeriodCovered] = useState(data?.period_covered || "");
+    const [date_accomplished, setDateAccomplished] = useState(
+        data?.date_accomplished || "",
+    );
+    const [period_covered, setPeriodCovered] = useState(
+        data?.period_covered || "",
+    );
     const [sm_update, setSMUpdate] = useState(data?.sm_update || "");
-    const [family_update, setFamilyUpdate] = useState(data?.family_update || "");
-    const [services_to_family, setServicesToFamily] = useState(data?.services_to_family || "");
-    const [participation, setParticipation] = useState(data?.participation || "");
+    const [family_update, setFamilyUpdate] = useState(
+        data?.family_update || "",
+    );
+    const [services_to_family, setServicesToFamily] = useState(
+        data?.services_to_family || "",
+    );
+    const [participation, setParticipation] = useState(
+        data?.participation || "",
+    );
     const [know_sponsor, setKnowSponsor] = useState(data?.know_sponsor || "");
     const [cooperative, setCooperative] = useState(data?.cooperative || "");
-    const [writes_letters, setWritesLetters] = useState(data?.writes_letters || "");
+    const [writes_letters, setWritesLetters] = useState(
+        data?.writes_letters || "",
+    );
 
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Individual Progress Report</h3>
+
+            <section className="flex w-full flex-col gap-10">
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">Sponsored Member</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Last Name"
+                                value={last_name}
+                                setValue={setLastName}
+                            ></TextInput>
+                            <TextInput
+                                label="First Name"
+                                value={first_name}
+                                setValue={setFirstName}
+                            ></TextInput>
+                            <TextInput
+                                label="Middle Name"
+                                value={middle_name}
+                                setValue={setMiddleName}
+                            ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="CH ID #"
+                                value={ch_number}
+                                setValue={setCHNumber}
+                            ></TextInput>
+                            <TextInput
+                                label="Date of Birth"
+                                value={dob}
+                                setValue={setDOB}
+                            ></TextInput>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">General Information</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Sub-Project"
+                                value={subproject}
+                                setValue={setSubproject}
+                            ></TextInput>
+                            <TextInput
+                                label="Date Accomplished"
+                                value={date_accomplished}
+                                setValue={setDateAccomplished}
+                            ></TextInput>
+                            <TextInput
+                                label="Period Covered"
+                                value={period_covered}
+                                setValue={setPeriodCovered}
+                            ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Name of Sponsor"
+                                value={sponsor_name}
+                                setValue={setSponsorName}
+                            ></TextInput>
+                            <TextInput
+                                label="Sponsorship Begin Date"
+                                value={sponsorship_date}
+                                setValue={setSponsorshipDate}
+                            ></TextInput>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
