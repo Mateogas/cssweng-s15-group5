@@ -135,11 +135,19 @@ function CorrespondenceForm() {
                 </div>
             </section>
 
-            <section>
+            <section className="flex w-full items-end">
                 <TextArea
                     label="SM's Identified/Expressed Problem or Need"
                     value={identified_problem}
                     setValue={setIdentifiedProblem}
+                ></TextArea>
+            </section>
+
+            <section className="flex w-full gap-10">
+                <TextArea
+                    label="SDW's Assessment"
+                    value={assessment}
+                    setValue={setAssessment}
                 ></TextArea>
             </section>
         </main>
