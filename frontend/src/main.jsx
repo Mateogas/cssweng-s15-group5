@@ -6,6 +6,7 @@ import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import FinancialAssessmentForm from "./pages/intervention-forms/financial-assessment.jsx";
 import CounsellingForm from "./pages/intervention-forms/counselling.jsx";
+import CorrespondenceForm from "./pages/intervention-forms/correspondence.jsx";
 import "./index.css";
 
 //we need to add routes pa here for going to other pages so the actual routes are here we add the module Case to load that page
@@ -24,6 +25,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 />
 
                 <Route path="/counselling-form" element={<CounsellingForm />} />
+                <Route
+                    path="/correspondence-form"
+                    element={<CorrespondenceForm />}
+                />
             </Routes>
         </BrowserRouter>
     </React.StrictMode>,
