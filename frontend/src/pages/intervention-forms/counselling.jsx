@@ -133,7 +133,7 @@ function CounsellingForm() {
                 </div>
             </section>
 
-            <section className="flex w-full gap-10 items-end">
+            <section className="flex w-full items-end gap-10">
                 <TextArea
                     label="Purpose/Reason for Counselling"
                     value={reason_for_counselling}
@@ -143,6 +143,16 @@ function CounsellingForm() {
                     label="Corrective and/or Disciplinary Action To Be Taken"
                     value={corrective_action}
                     setValue={setCorrectiveAction}
+                ></TextArea>
+            </section>
+
+            <section className="flex w-full flex-col gap-15">
+                <TextArea
+                    label="Recommendation for Improvement (Intervention)"
+                    sublabel="Sponsor Member (SM) Please Note:"
+                    description="Failure to improve performance or further violation of policy will result in additional disciplinary action up to and possible retirement."
+                    value={recommendation}
+                    setValue={setRecommendation}
                 ></TextArea>
             </section>
         </main>
