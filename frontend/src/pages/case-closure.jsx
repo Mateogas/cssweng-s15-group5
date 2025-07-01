@@ -26,12 +26,31 @@ function CaseClosure() {
         setSMAwareness(value);
     };
 
+    function calculateAge(dateValue) {
+        const birthday = new Date(dateValue);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthday.getFullYear();
+
+        const birthdayDone =
+            today.getMonth() > birthday.getMonth() ||
+            (today.getMonth() === birthday.getMonth() &&
+                today.getDate() >= birthday.getDate());
+
+        if (!birthdayDone) {
+            age--;
+        }
+
+        return age;
+    }
+
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
     const [ch_number, setCHNumber] = useState(data?.ch_number || "");
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState(data?.dob || "");
+    const [age, setAge] = useState(calculateAge(data?.dob));
     const [religion, setReligion] = useState(data?.religion || "");
     const [address, setAddress] = useState(data?.address || "");
     const [spu, setSPU] = useState(data?.spu || "");
@@ -85,6 +104,11 @@ function CaseClosure() {
                                 label="Date of Birth"
                                 value={dob}
                                 setValue={setDOB}
+                            ></TextInput>
+                            <TextInput
+                                label="Age"
+                                value={age}
+                                setValue={setAge}
                             ></TextInput>
                             <TextInput
                                 label="Religion"
@@ -187,7 +211,7 @@ function CaseClosure() {
                 ></TextArea>
             </section>
 
-            <div className="flex w-[22.5rem] justify-between mt-10">
+            <div className="mt-10 flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Close Case</button>
             </div>
