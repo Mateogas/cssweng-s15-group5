@@ -21,6 +21,12 @@ function CaseClosure() {
         recommendation: "",
     });
 
+    const [sm_awareness, setSMAwareness] = useState("");
+
+    const handleCheckboxChange = (value) => {
+        setSMAwareness(value);
+    };
+
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -31,12 +37,22 @@ function CaseClosure() {
     const [address, setAddress] = useState(data?.address || "");
     const [spu, setSPU] = useState(data?.spu || "");
     const [closure_date, setClosureDate] = useState(data?.closure_date || "");
+    const [reason_for_retirement, setReasonForRetirement] = useState(
+        data?.reason_for_retirement || "",
+    );
+    const [sm_notification, setSMNotification] = useState(
+        data?.sm_notification || "",
+    );
+    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
 
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Case Closure Report</h3>
-            
+
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -104,6 +120,49 @@ function CaseClosure() {
                             setValue={setClosureDate}
                         ></TextInput>
                     </div>
+                </div>
+            </section>
+
+            <section className="flex w-full flex-col gap-5">
+                <TextArea
+                    label="Reasons for Retirement"
+                    sublabel="Indicate reason based on the result of the case conference"
+                    value={reason_for_retirement}
+                    setValue={setReasonForRetirement}
+                ></TextArea>
+                <div className="flex w-full items-center gap-12">
+                    <div className="flex min-w-80 flex-col gap-5">
+                        <p className="body-base">
+                            Is the client or SM aware of case closure?
+                        </p>
+                        <div className="flex gap-8">
+                            <label className="flex items-center gap-2.5">
+                                <input
+                                    type="checkbox"
+                                    name="sm_awareness"
+                                    value="yes"
+                                    checked={sm_awareness === "yes"}
+                                    onChange={(e) =>
+                                        handleCheckboxChange(e.target.value)
+                                    }
+                                />
+                                Yes
+                            </label>
+                            <label className="flex items-center gap-2.5">
+                                <input
+                                    type="checkbox"
+                                    name="sm_awareness"
+                                    value="no"
+                                    checked={sm_awareness === "no"}
+                                    onChange={(e) =>
+                                        handleCheckboxChange(e.target.value)
+                                    }
+                                />
+                                No
+                            </label>
+                        </div>
+                    </div>
+                    <TextArea sublabel="If yes, how was the client notified"></TextArea>
                 </div>
             </section>
         </main>
