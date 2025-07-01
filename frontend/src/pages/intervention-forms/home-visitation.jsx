@@ -126,6 +126,45 @@ function HomeVisitationForm() {
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
+
+            <section className="flex w-full flex-col gap-10">
+                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex border-b border-[var(--border-color)]">
+                        <h4 className="header-sm">Sponsored Member</h4>
+                    </div>
+                    <div className="inline-flex items-center justify-center gap-10">
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Last Name"
+                                value={last_name}
+                                setValue={setLastName}
+                            ></TextInput>
+                            <TextInput
+                                label="First Name"
+                                value={first_name}
+                                setValue={setFirstName}
+                            ></TextInput>
+                            <TextInput
+                                label="Middle Name"
+                                value={middle_name}
+                                setValue={setMiddleName}
+                            ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Grade/Year Course"
+                                value={grade_year_course}
+                                setValue={setGradeYearCourse}
+                            ></TextInput>
+                            <TextInput
+                                label="Year/s in the Program"
+                                value={years_in_program}
+                                setValue={setYearsInProgram}
+                            ></TextInput>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
