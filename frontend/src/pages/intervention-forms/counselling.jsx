@@ -141,8 +141,8 @@ function CounsellingForm() {
                 ></TextArea>
                 <TextArea
                     label="Corrective and/or Disciplinary Action To Be Taken"
-                    value={reason_for_counselling}
-                    setValue={setReasonForCounselling}
+                    value={corrective_action}
+                    setValue={setCorrectiveAction}
                 ></TextArea>
             </section>
         </main>
