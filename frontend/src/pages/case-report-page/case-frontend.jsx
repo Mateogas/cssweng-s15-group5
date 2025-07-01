@@ -504,9 +504,9 @@ function CaseFrontend() {
                 <section className='flex flex-col gap-5' id="core-fields">
                     <div className='flex justify-between items-center'>
                         {data.is_active === "yes" ? (
-                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8 text-white'>Active</div>
+                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8 !text-white'>Active</div>
                         ) : (
-                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8 text-white'>Inactive</div>
+                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8 !text-white'>Inactive</div>
                         )}
 
                         <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
