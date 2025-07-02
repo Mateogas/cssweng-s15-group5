@@ -10,6 +10,11 @@ const SponsoredMemberSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    spu: {
+        type: String,
+        enum: ['AMP', 'FDQ', 'MPH', 'MS'], // Add other SPUs as needed
+        required: true
+    },
     last_name: {
         type: String,
         required: true,
@@ -73,10 +78,18 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     interventions: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Intervention',
-        default: [],
-        required: false
+        refPath: 'interventionType',
+        required: false,
+        intervention_number: {
+            type: Number,
+            required: true
+        }
     }],
+    interventionType: { // Reference to the type of intervention schema
+        type: String,
+        enum: ['Intervention Correspondence', 'Intervention Counseling', 'Intervention Financial Assessment', 'Intervention Home Visitation'], // Add other intervention types as needed
+        required: false
+    },
     history_problem: {
         type: String,
         required: false
@@ -106,9 +119,18 @@ const SponsoredMemberSchema = new mongoose.Schema({
     }
 });
 
+// Automatically assign intervention numbers before saving
+SponsoredMemberSchema.pre('save', function(next) {
+    if (this.isModified('interventions')) {
+        // For new interventions that don't have a number yet
+        this.interventions.forEach((intervention, index) => {
+            if (!intervention.intervention_number) {
+                intervention.intervention_number = index + 1;
+            }
+        });
+    }
+    next();
+});
+
 const Sponsored_Member = mongoose.model('Sponsored Member', SponsoredMemberSchema);
-
-// Add methods here
-
-
-module.exports =Sponsored_Member;
+module.exports = Sponsored_Member;
