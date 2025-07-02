@@ -13,7 +13,9 @@ import {    fetchCaseData,
             editAssessment, 
             editEvalReco,
             updateCoreCaseData,
-            updateIdentifyingCaseData   }
+            updateIdentifyingCaseData,
+            fetchSDWs,   
+}
 from '../../fetch-connections/case-connection'; 
 
 function CaseFrontend() {
@@ -126,14 +128,15 @@ function CaseFrontend() {
         }
     ]);
 
-    const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([
-        { id: 12345678, username: "juan delacruz", spu_id: "MNL" },
-        { id: 23456789, username: "maria santos", spu_id: "CEB" },
-        { id: 34567890, username: "pedro ramos", spu_id: "DVO" },
-        { id: 45678901, username: "ana reyes", spu_id: "BAG" },
-        { id: 56789012, username: "carlos morales", spu_id: "ILO" },
-        { id: 67890123, username: "lucia rodriguez", spu_id: "ZAM" }
-    ]);
+    const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
+
+    useEffect(() => {
+        const loadSDWs = async () => {
+            const sdws = await fetchSDWs();
+            setSocialDevelopmentWorkers(sdws);
+        };
+        loadSDWs();
+    }, []);
 
     const [classificationList, setClassificationList] = useState([
         "Teenage Pregnancy",
@@ -657,14 +660,14 @@ function CaseFrontend() {
                                     <select
                                         className="text-input font-label"
                                         value={drafts.sdw_id}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, sdw_id: parseInt(e.target.value, 10) }))}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, sdw_id: e.target.value }))}
                                     >
                                         <option value="">Select SDW</option>
                                         {socialDevelopmentWorkers
                                             .filter((sdw) => sdw.spu_id === drafts.spu_id)
                                             .map((sdw) => (
                                                 <option key={sdw.id} value={sdw.id}>
-                                                    {sdw.username} ({sdw.id})
+                                                    {sdw.username} 
                                                 </option>
                                             ))}
                                     </select>

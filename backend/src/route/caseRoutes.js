@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const caseController = require('../controller/caseController'); // Changed from controllers to controller
 
+//Employees specific routes
+router.get('/getsdw',caseController.getAllSDWs);
+
 // Case-Specific Routes
 router.get('/allCases', caseController.getAllCases);
 router.get('/:id', caseController.getCaseById);
@@ -20,5 +23,8 @@ router.put(`/delete-family-member/:caseID/:famID`, caseController.deleteFamilyMe
 router.put('/update-problems-findings/:caseID', caseController.editProblemsAndFindings);
 router.put('/update-assessment/:caseID', caseController.editAssessment);
 router.put('/update-evaluation-recommendation/:caseID', caseController.editEvaluationAndRecommendation);
+
+
+
 
 module.exports = router;

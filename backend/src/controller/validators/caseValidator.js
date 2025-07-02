@@ -1,6 +1,13 @@
 const Joi = require('joi');
 
+/*
+//THIS IS FOR ALL
 
+
+
+
+
+*/
 const caseSchemaValidate = Joi.object({
   sm_number: Joi.number().required(),
 
@@ -22,33 +29,8 @@ const caseSchemaValidate = Joi.object({
   'string.hex': 'Assigned SDW must be a valid 24-character hex ObjectId.',
   'string.length': 'Assigned SDW must be exactly 24 characters long.',
   'any.required': 'Assigned SDW is required.'
-}),
-is_active: Joi.boolean().required()
-});
-
-const caseCoreValidate = Joi.object({
-  sm_number: Joi.number().required(),
-
-  last_name: Joi.string().min(1).pattern(/^[^0-9]*$/).required().messages({
-    'string.empty': 'Last name cannot be empty'
   }),
-  first_name: Joi.string().min(1).pattern(/^[^0-9]*$/).required().messages({
-    'string.empty': 'First name cannot be empty'
-  }),
-  middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).optional(),
-  spu: Joi.string()
-  .valid('MNL', 'CEB', 'DVO', 'BAG', 'ILO', 'ZAM')
-  .required()
-  .messages({
-    'any.only': 'SPU must be one of MNL, CEB, DVO, BAG, ILO, or ZAM',
-    'any.required': 'SPU is required'
-  }),
-  assigned_sdw: Joi.string().hex().length(24).required().messages({
-  'string.hex': 'Assigned SDW must be a valid 24-character hex ObjectId.',
-  'string.length': 'Assigned SDW must be exactly 24 characters long.',
-  'any.required': 'Assigned SDW is required.'
-}),
-is_active: Joi.boolean().required(),
+  is_active: Joi.boolean().required(),
 
 present_address: Joi.string().min(1).required().messages({
     'string.empty': 'Present address cannot be empty',
@@ -87,9 +69,48 @@ present_address: Joi.string().min(1).required().messages({
   }).empty('').optional(),
 
   relationship_to_client: Joi.string().empty('').optional()
+});
+/*
+//THIS IS FOR CORE ONLY
+
+
+
+
+
+*/
+const caseCoreValidate = Joi.object({
+  sm_number: Joi.number().required(),
+
+  last_name: Joi.string().min(1).pattern(/^[^0-9]*$/).required().messages({
+    'string.empty': 'Last name cannot be empty'
+  }),
+  first_name: Joi.string().min(1).pattern(/^[^0-9]*$/).required().messages({
+    'string.empty': 'First name cannot be empty'
+  }),
+  middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).optional(),
+  spu: Joi.string()
+  .valid('MNL', 'CEB', 'DVO', 'BAG', 'ILO', 'ZAM')
+  .required()
+  .messages({
+    'any.only': 'SPU must be one of MNL, CEB, DVO, BAG, ILO, or ZAM',
+    'any.required': 'SPU is required'
+  }),
+  assigned_sdw: Joi.string().hex().length(24).required().messages({
+  'string.hex': 'Assigned SDW must be a valid 24-character hex ObjectId.',
+  'string.length': 'Assigned SDW must be exactly 24 characters long.',
+  'any.required': 'Assigned SDW is required.'
+}),
+is_active: Joi.boolean().required()
 
 });
+/*
+//THIS IS FOR IDENTIFYING DATA ONLY
 
+
+
+
+
+*/
 const caseIdentifyingValidate = Joi.object({
   present_address: Joi.string().min(1).required().messages({
     'string.empty': 'Present address cannot be empty',

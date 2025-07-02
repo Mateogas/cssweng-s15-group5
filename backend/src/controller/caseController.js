@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
+const { Employee } = require('../model/employee');
 
 const [caseSchemaValidate,caseCoreValidate,caseIdentifyingValidate] = require('./validators/caseValidator')
 
@@ -43,7 +44,9 @@ const getCaseById = async (req, res) => {
 
      try {
           //finds an id in our mongo
-          const caseItem = await Sponsored_Member.findById(id).lean();  
+          const caseItem = await Sponsored_Member.findById(id).lean().populate(
+              'assigned_sdw' 
+          );  
           res.json(caseItem);
      } catch (error) {
 
@@ -54,7 +57,15 @@ const getCaseById = async (req, res) => {
           });
      }
 }
-
+const getAllSDWs = async (req, res) => {
+    try {
+        // If you filter by role, adjust as needed
+        const sdws = await Employee.find({ role: 'sdw' }).lean();
+        res.json(sdws);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
+    }
+};
 /**  
  *   Gets all cases that are viable to be seen based on user priveleges
  */
@@ -749,4 +760,5 @@ module.exports = {
      editEvaluationAndRecommendation,
      editCaseCore,
      editCaseIdentifyingData,
+     getAllSDWs,
 }

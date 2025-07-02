@@ -36,7 +36,7 @@ var localID
 export const fetchCaseData = async(caseID) => {
      try {
      const response = await fetch(`/api/cases/${caseID}`);
-     if (!response.ok) throw new Error('API error');
+     if (!response.ok) throw new Error('Failed to fetch case data');
 
      const rawData = await response.json();
      localID = rawData._id
@@ -50,6 +50,7 @@ export const fetchCaseData = async(caseID) => {
           ...defaultCaseData,
           ...rawData,
           dob: formattedDob,
+          sdw_id: rawData.assigned_sdw?._id || rawData.assigned_sdw || '', 
      };
      } catch (err) {
           console.error('Error fetching case data:', err);
@@ -68,7 +69,7 @@ export const updateCoreCaseData = async(updatedData, caseID) => {
           
        
           if (typeof preparedData.sdw_id === 'number' || preparedData.sdw_id) {
-               preparedData.assigned_sdw = '6849646feaa08161083d1ad8'; // Always use a valid ObjectId
+               preparedData.assigned_sdw = preparedData.sdw_id; // Always use a valid ObjectId
                delete preparedData.sdw_id;
           }
  
@@ -104,7 +105,7 @@ export const updateCoreCaseData = async(updatedData, caseID) => {
                delete preparedData.classifications;
           }
 
-          console.log("Sending data:", preparedData);
+          //console.log("Sending data:", preparedData);
 
           const response = await fetch(`/api/cases/edit/core/${targetID}`, {
                method: 'PUT',
@@ -139,7 +140,7 @@ export const updateIdentifyingCaseData = async(updatedData, caseID) => {
        
           
 
-          console.log("Sending data:", preparedData);
+          //console.log("Sending data:", preparedData);
 
           const response = await fetch(`/api/cases/edit/identifyingdata/${targetID}`, {
                method: 'PUT',
@@ -160,6 +161,22 @@ export const updateIdentifyingCaseData = async(updatedData, caseID) => {
           console.error('Error updating case:', error);
           throw error;
      }
+};
+export const fetchSDWs = async () => {
+    try {
+        const response = await fetch('/api/cases/getsdw');
+        if (!response.ok) throw new Error('Failed to fetch SDWs');
+        const data = await response.json();
+        // Map to expected format
+        return data.map(sdw => ({
+            id: sdw._id,
+            username: `${sdw.first_name} ${sdw.last_name}`,
+            spu_id: sdw.spu_id || '', // Adjust as needed
+        }));
+    } catch (err) {
+        console.error('Error fetching SDWs:', err);
+        return [];
+    }
 };
 /**
  *   Fetches all family members

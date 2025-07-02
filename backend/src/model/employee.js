@@ -44,6 +44,11 @@ const EmployeeSchema = new mongoose.Schema({
         default: null,
         required: false
     },
+    spu_id: {
+        type: String,
+        enum: ['MNL', 'CEB', 'DVO', 'BAG','ILO','ZAM'], // Add other SPUs as needed
+        required: true
+    }
 });
 
 const Employee = mongoose.model('Employee', EmployeeSchema);
