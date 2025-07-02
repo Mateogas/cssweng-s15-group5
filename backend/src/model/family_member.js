@@ -19,6 +19,16 @@ const FamilyMemberSchema = new Schema ({
           default: null,
           required: false
      },
+     age: {
+          type: Number, 
+
+          required: true
+     },
+     civil_status: {
+          type: String, 
+
+          required: true
+     },
      edu_attainment: {
           type: String, 
 
@@ -30,10 +40,16 @@ const FamilyMemberSchema = new Schema ({
           required: true
      },
      income: {
-          type: String, 
+          type: Number,
 
           required: true
      },
+     status: {
+          type: String,
+
+          default: "Living",
+          required: true,
+     }
 }, { timestamps: true });
 
 const Family_Member = mongoose.model('Family Member', FamilyMemberSchema);

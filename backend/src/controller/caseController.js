@@ -3,20 +3,95 @@
  *        > handles creating, editing, and terminating of case
  */
 
+const mongoose = require('mongoose');
+const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
+const Family_Member = require('../model/family_member')
+
+const caseSchemaValidate = require('./validators/caseValidator')
 
 // ================================================== //
 
-/**  
- *   Gets a case
+/**
+ * @route   GET /api/cases/:id
+ * @desc    Retrieves a Sponsored Member case by its ObjectId, including its related family members
+ * 
+ * @required
+ *    - :id URL parameter: ObjectId of the Sponsored Member case to retrieve
+ * 
+ * @notes
+ *    - Validates if the provided id is a valid Mongo ObjectId
+ *    - Fetches the case by its _id
+ *    - Looks up all family relationships for the given case via sponsor_id
+ *    - For each family relationship, retrieves the corresponding family member details by family_id
+ *    - Combines each family member’s info with their relationship_to_sm
+ * 
+ * @returns
+ *    - 200 OK: case data with its family members (even if none found)
+ *    - 400 Bad Request: if the provided id is invalid
+ *    - 500 Internal Server Error: if something goes wrong during the process
  */
-const getCase = async (req, res) => {
+
+const getCaseById = async (req, res) => {
+     //for now lets do static but replace with req.params.id
+
+     //checks if its a valid ObjectId
+     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+          return res.status(400).json({ message: 'Invalid case' });
+     }  
+     const id = req.params.id;
+
      try {
-        const cases = await Sponsored_Member.find({})
-        .limit(2) 
+          //finds an id in our mongo
+          const caseItem = await Sponsored_Member.findById(id).lean();  
+          res.json(caseItem);
+     } catch (error) {
+
+          console.error('Error fetching cases:', error);
+          res.status(500).json({ 
+          message: 'Error retrieving case data',
+          error: error.message 
+          });
+     }
+}
+
+/**  
+ *   Gets all cases that are viable to be seen based on user priveleges
+ */
+const getAllCaseViable = async (req,res) =>{
+     const userPriv = req.userId 
+      try {
+        const cases = await Sponsored_Member.find({
+          assigned_sdw: userPriv,
+          isActive:"true"
+        }) 
+
         .lean();  
         
         res.json(cases);
+     } catch (error) {
+          console.error('Error fetching cases:', error);
+          res.status(500).json({ 
+          message: 'Error retrieving case data',
+          error: error.message 
+          });
+     }
+}
+
+/**  
+ *   Gets all cases returns name and id only
+ */
+const getAllCases = async(req,res)=>{
+      try {
+        const cases = await Sponsored_Member.find({}) 
+        .lean();  
+          
+        const simplifiedCases = cases.map(c =>({
+          id: c._id,
+          name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`
+        }));
+
+        res.json(simplifiedCases);
     } catch (error) {
         console.error('Error fetching cases:', error);
         res.status(500).json({ 
@@ -27,82 +102,615 @@ const getCase = async (req, res) => {
 }
 
 /**
- *   Functions as add a new case
+ * @route   POST /api/cases/reassign-sdw
+ * @desc    Assigns a Social Development Worker (SDW) to an existing Sponsored Member case
  * 
- *   Required Fields -- do note that these fields are required based on the DB structure:
- *        > sm_number
- *        > last name, first name, middle name
- *        > sex, pob, dob
- *        > civil status
- *        > problem presented
- *        > assigned sdw (must be the same sdw logged in)
- *        > by default, is_active must be set to true
+ * @required
+ *    - caseId: ObjectId of the Sponsored Member case to update
+ *    - assigned_sdw: ObjectId of the Employee to assign as SDW
+ * 
+ * @notes
+ *    - Both caseId and assigned_sdw must be valid Mongo ObjectIds
+ *    - The request should use Content-Type: application/json
+ *    - Populates the assigned_sdw field to return full Employee details in the response
+ * 
+ * @returns
+ *    - 200 OK: if SDW assignment is successful
+ *    - 400 Bad Request: if caseId or assigned_sdw is invalid
+ *    - 404 Not Found: if the case is not found
+ *    - 500 Internal Server Error: if something else goes wrong
  */
-const addIdentification = async (req, res) => {
-     // code here
+
+const reassignSDW = async(req,res) => {
+     //this gets the case and also the assigned_sdw ids
+     const { caseId, assigned_sdw } = req.body;
+     if (!mongoose.Types.ObjectId.isValid(caseId) || !mongoose.Types.ObjectId.isValid(assigned_sdw)) {
+          return res.status(400).json({ message: 'Invalid case or sdw' });
+     }
+
+     try{
+          const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+               caseId, 
+               {assigned_sdw},
+               {new: true}
+          ).populate('assigned_sdw')
+          .lean()
+          if(!updatedCase){
+               return res.status(404).json({message:"Case not found xD"});
+          }
+          res.status(200).json(
+               {
+                    message: "SDW Assigned Succsefully",
+                    updatedCase
+               }
+          );
+
+
+     }catch(error){
+          console.error('Error assigning SDW:', error);
+          res.status(500).json({ message: 'Error assigning SDW', error });
+     }
+     
+}
+
+/**
+ * @route   POST /api/case/case-create(note this can change )
+ * @desc    Adds a new Sponsored Member case
+ * 
+ * @required
+ *    - last_name
+ *    - first_name
+ *    - sex
+ *    - present_address
+ *    - dob
+ *    - pob
+ *    - civil_status
+ *    - problem_presented
+ *    - is_active
+ *    - assigned_sdw: valid Employee ObjectId
+ * 
+ * @notes
+ *    - sm_number is auto-generated (no need to pass)
+ *    - use application/json for request body
+ *    - interventions optional (array of ObjectIds)
+ */
+
+const addNewCase = async(req,res) => {
+     const newCaseData = req.body;
+     const sdwId = '6849646feaa08161083d1ad8' // ||req.session.userId should be session id but static for now
+     if(!newCaseData){
+          return res.status(400).json({ message: 'Invalid case' });
+     }
+
+     try{
+          const latestCase = await Sponsored_Member.findOne().sort({ sm_number: -1 }).lean();
+          let smNewNumber = latestCase ? Number(latestCase.sm_number) + 1 : 1;
+          //assigns newCase with our current newData
+          
+          const newCase = new Sponsored_Member({
+          ...newCaseData,
+          sm_number: smNewNumber,
+          assigned_sdw : sdwId
+          });
+          //here we just validate the newCase before saving it doesnt work lol
+          /*const { error } = caseSchemaValidate.validate(newCase);
+
+          if (error) {
+          return res.status(400).json({
+               message: 'Validation error',
+               details: error.details.map(detail => detail.message)
+          });
+          }*/
+          
+          const savedCase = await newCase.save();
+          res.status(201).json({
+               message: 'New case created successfully',
+               case: savedCase
+          });
+
+     }catch(error){
+          console.error('Error creating new case:', error);
+          res.status(500).json({ message: 'Failed to create case', error });
+     }
+}
+
+/**
+ * @route   PUT /api/cases/edit/:id
+ * @desc    Updates a Sponsored Member case by ID
+ * 
+ * @required
+ *    - :id parameter: ObjectId of the case to update
+ *    - Request body: Updated case data
+ * 
+ * @returns
+ *    - 200 OK: Updated case data
+ *    - 400 Bad Request: Invalid ID or validation error
+ *    - 404 Not Found: Case not found
+ *    - 500 Internal Server Error: Server error
+ */
+const editCase = async (req, res) => {
+    const updatedCaseData = req.body;
+    const caseId = req.params.id; // Fixed: params not param
+    
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+        return res.status(400).json({ message: 'Invalid case ID format' });
+    }
+    
+    try {
+        // Validate the updated data
+        /*
+        const { error } = caseSchemaValidate.validate(updatedCaseData);
+        if (error) {
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.details.map(detail => detail.message)
+            });
+        }
+        */
+        // Update the case
+        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+            caseId,
+            updatedCaseData,
+            { new: true } // Return the updated document
+        ).lean();
+        
+        if (!updatedCase) {
+            return res.status(404).json({ message: 'Case not found' });
+        }
+        
+        res.status(200).json({
+            message: 'Case updated successfully',
+            case: updatedCase
+        });
+    } catch (error) {
+        console.error('Error updating case:', error);
+        res.status(500).json({ 
+            message: 'Failed to update case', 
+            error: error.message 
+        });
+    }
+}
+
+const archiveCase = async (req, res) => {
+    const caseId = req.params.id; // Fixed: params not param
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+        return res.status(400).json({ message: 'Invalid case ID format' });
+    }
+    
+    try {
+        // Validate the updated data
+        /*
+        const { error } = caseSchemaValidate.validate(updatedCaseData);
+        if (error) {
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.details.map(detail => detail.message)
+            });
+        }
+        */
+        // Update the case
+        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+            caseId,
+            { isAlive: false },
+            { new: true } // Return the updated document
+        ).lean();
+        
+        if (!updatedCase) {
+            return res.status(404).json({ message: 'Case not found' });
+        }
+        
+        res.status(200).json({
+            message: 'Case updated successfully',
+            case: updatedCase
+        });
+    } catch (error) {
+        console.error('Error updating case:', error);
+        res.status(500).json({ 
+            message: 'Failed to update case', 
+            error: error.message 
+        });
+    }
 }
 
 /**  
- *   Edits a case's identification
+ *   Gets the family member/s
  */
-const editIdentification = async (req, res) => {
-     // code here
+const getFamilyMembers = async (req, res) => {
+     try {
+          const caseSelected = req.params.caseID;
+          
+          // Match family IDs and relationship to client
+          const relationships = await Family_Relationship.find({ sponsor_id: caseSelected });
+          const familyData = relationships.map(rel => ({
+               id: rel.family_id._id.toString(),
+               relationship_to_sm: rel.relationship_to_sm
+          }));
+          const familyMembers = await Family_Member.find({
+               _id: { $in: familyData.map(fam => fam.id) }
+          });
+          const FamilyRelationshipMap = familyMembers.map(member => {
+               const rel = familyData.find(fam => fam.id === member._id.toString());
+               return {
+                    ...member.toObject(),
+                    relationship_to_sm: rel.relationship_to_sm
+               };
+          });
+
+          // Transform so it would match the HTML variables
+          const formattedFamilyMembers = FamilyRelationshipMap.map((member) => ({
+               id: member._id.toString(),
+
+               first: member.first_name || '',
+               middle: member.middle_name || '',
+               last: member.last_name || '',
+               name: fullname_Formatter(member) || '',
+               
+               age: member.age || '',
+               income: member.income || '',
+               civilStatus: member.civil_status || '',
+               occupation: member.occupation || '',
+               education: member.edu_attainment || '',
+               relationship: member.relationship_to_sm || '',
+
+               deceased: member.status === "Deceased"
+          }));
+
+          // Return response
+          res.status(200).json(formattedFamilyMembers);
+     } catch (error) {
+          console.error('Error fetching:', error);
+          res.status(500).json({ 
+               message: 'Error retrieving family composition',
+               error: error.message 
+          });
+     }
 }
 
 /**  
  *   Adds a family member
  */
 const addFamilyMember = async (req, res) => {
-     // code here
+     try {
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID);
+          const updateDetails = req.body;
+
+          console.log(updateDetails)
+
+          for (const [key, value] of Object.entries(updateDetails)) {
+               if (key === "middle" || key === "income" || key === "name" || key === "id") continue;
+
+               if (value === null || value === undefined || value === "") {
+                    console.log("Empty field found.")
+                    return res.status(200).json("Empty field found.");
+               }
+          }
+
+          var status = "Living"
+          if (updateDetails.deceased)
+               status = "Deceased"
+
+          const newMember = new Family_Member({
+               first_name: updateDetails.first,
+               middle_name: updateDetails.middle || "",
+               last_name: updateDetails.last,
+               age: updateDetails.age,
+               income: updateDetails.income || 0,
+               civil_status: updateDetails.civilStatus,
+               occupation: updateDetails.occupation,
+               edu_attainment: updateDetails.education,
+               status: status
+          })
+          console.log(newMember);
+          await newMember.validate();
+
+          const newRelationship = new Family_Relationship({
+               family_id: newMember._id,
+               sponsor_id: caseSelected._id,
+               relationship_to_sm: updateDetails.relationship
+          });
+          console.log(newRelationship)
+          await newRelationship.validate();
+
+          await newMember.save();
+          await newRelationship.save();
+
+          // Format the return data again
+          const returnData = {
+               id: newMember._id.toString(),
+               
+               first: newMember.first_name,
+               middle: newMember.middle_name || '',
+               last: newMember.last_name,
+               name: fullname_Formatter(newMember),
+
+               age: newMember.age,
+               income: newMember.income,
+               civilStatus: newMember.civil_status,
+               occupation: newMember.occupation,
+               education: newMember.edu_attainment,
+               relationship: updateDetails.relationship,
+
+               deceased: newMember.status === "Deceased"
+          }
+          console.log(returnData);
+
+          // Response
+          res.status(200).json(returnData);
+     } catch (error) {
+        console.error("Error adding family member:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+/**  
+ *   Deletes a family member
+ */
+const deleteFamilyMember = async (req, res) => {
+     try {
+          const familySelected = await Family_Member.findById(req.params.famID);
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID);
+
+          console.log("delete")
+
+          if (!familySelected || !caseSelected) {
+               return res.status(400).json({ message: `Cannot proceed action, missing IDs.` });
+          }
+
+          await Family_Relationship.deleteOne({
+               family_id: familySelected, 
+               sponsor_id: caseSelected
+          })
+
+          var flag = await Family_Relationship.findOne({ family_id: familySelected })
+          if (!flag) {
+               await Family_Member.deleteOne({
+                    _id: familySelected
+               })
+          }
+
+          return getFamilyMembers(req, res);
+     } catch (error) {
+        console.error("Error deleting family member:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 }
 
 /**  
  *   Edits a chosen family member
  */
 const editFamilyMember = async (req, res) => {
-     // code here
+     try {
+          const updateDetails = req.body;
+
+          const familySelected = await Family_Member.findById(req.params.famID);
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID);
+          const relationshipSelected = await Family_Relationship.findOne({
+               family_id: familySelected, 
+               sponsor_id: caseSelected
+          })
+
+          if (!familySelected || !caseSelected || !relationshipSelected)
+               throw error;
+
+          var status = "Living"
+          if (updateDetails.deceased)
+               status = "Deceased"
+
+          /**
+           *   Updating part
+           * 
+           *   In case that the updateDetails is an empty string, the default value is retrieved
+           */
+          const updatedData = {
+               firstName: updateDetails.first || familySelected.first_name,
+               middleName: updateDetails.middle || familySelected.middle_name,
+               last_name: updateDetails.last || familySelected.last_name,
+
+               age: parseInt(updateDetails.age, 10) || familySelected.age,
+               income: updateDetails.income || familySelected.income,
+               civil_status: updateDetails.civilStatus || familySelected.civil_status,
+               occupation: updateDetails.occupation || familySelected.occupation,
+               edu_attainment: updateDetails.education || familySelected.edu_attainment,
+               status: status || familySelected.status
+          };
+          const updatedFam = await Family_Member.findByIdAndUpdate(familySelected, updatedData, { new: true });
+
+          const updatedRel = await Family_Relationship.findByIdAndUpdate(
+               relationshipSelected._id, 
+               { $set: {relationship_to_sm: updateDetails.relationship || relationshipSelected.relationship_to_sm} },
+               { new: true }
+          );
+
+          // Format the return data again
+          const returnData = {
+               id: updatedFam._id,
+               
+               first: updatedFam.first_name,
+               middle: updatedFam.middle_name,
+               last: updatedFam.last_name,
+               name: fullname_Formatter(updatedFam),
+
+               age: updatedFam.age,
+               income: updatedFam.income,
+               civilStatus: updatedFam.civil_status,
+               occupation: updatedFam.occupation,
+               education: updatedFam.edu_attainment,
+               relationship: updatedRel.relationship_to_sm,
+
+               deceased: updatedFam.status === "Deceased"
+          }
+
+          // Response
+          res.status(200).json(returnData);
+     } catch (error) {
+        console.error("Error updating family member:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 }
 
-/**  
- *   Edits a case's problem presented
+/**
+ *   Edits a case's problems and findings
  */
-const editProblemPresented = async (req, res) => {
-     // code here
-}
+const editProblemsAndFindings = async (req, res) => {
+     try {
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          const updateDetails = req.body;
+          
+          // Validate required fields
+          if (!caseSelected) {
+               return res.status(400).json({
+                    message: 'Case is required'
+               });
+          }
+          
+          // At least one of the fields can't be empty
+          const problem_presented = updateDetails.problemPresented
+          const history_problem = updateDetails.historyProblem
+          const observation_findings = updateDetails.observationFindings
 
-/**  
- *   Edits a case's history of problem
- */
-const editHistOfProblem = async (req, res) => {
-     // code here
-}
+          if ( problem_presented === undefined && 
+               history_problem === undefined && 
+               observation_findings === undefined) {
+               return res.status(400).json({
+                    message: 'At least one of the fields is updated'
+               });
+          }
 
-/**  
- *   Edits a case's findings
- */
-const editFindings = async (req, res) => {
-     // code here
+          // Find the case by sm_number
+          const caseToUpdate = caseSelected
+          if (!caseToUpdate) {
+               return res.status(404).json({ 
+                    message: 'Case not found' 
+               });
+          }
+
+          // Update fields if provided
+          if (problem_presented !== undefined) {
+               caseToUpdate.problem_presented = problem_presented;
+          }
+          if (history_problem !== undefined) {
+               caseToUpdate.history_problem = history_problem;
+          }
+          if (observation_findings !== undefined) {
+               caseToUpdate.observation_findings = observation_findings;
+          }
+
+          // Save the updated case
+          await caseToUpdate.save();
+
+          // Return success response
+          return res.status(200).json({
+               message: 'Problems and findings updated successfully',
+               case: caseToUpdate
+          });
+     } catch (error) {
+          console.error('Error editing problems and findings:', error);
+          return res.status(500).json({ 
+               message: 'Error editing problems and findings',
+               error: error.message 
+          });
+     }
 }
 
 /**  
  *   Edits a case's assessment
  */
 const editAssessment = async (req, res) => {
-     // code here
+     try {
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          const updateDetails = req.body;
+
+          // Validate require fields
+          if (!caseSelected) {
+               return res.status(400).json({ 
+                    message: 'sm_number is required' 
+               });
+          }
+
+          const assessment = updateDetails.caseAssessment
+          if (!assessment) {
+               return res.status(400).json({
+                    message: 'Assessment is required' 
+               });
+          }
+
+          // Find the case by sm_number
+          const caseToUpdate = caseSelected
+          if (!caseToUpdate) {
+               return res.status(404).json({ 
+                    message: 'Case not found' 
+               });
+          }
+
+          // Update assessment
+          caseToUpdate.assessment = assessment;
+          await caseToUpdate.save();
+          
+          // Return success response
+          return res.status(200).json({ 
+               message: 'Assessment updated successfully', 
+               case: caseToUpdate 
+          });
+     } catch (error) {
+          console.error('Error editing assessment:', error);
+          return res.status(500).json({ 
+               message: 'Error editing assessment',
+               error: error.message 
+          });
+     }
 }
 
 /**  
- *   Edits a case's evaluation
+ *   Edits a case's evaluation and recommendation
  */
-const editEvaluation = async (req, res) => {
-     // code here
-}
+const editEvaluationAndRecommendation = async (req, res) => {
+     try {
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          const updateDetails = req.body;
+          console.log(updateDetails)
 
-/**  
- *   Edits a case's recommendation
- */
-const editRecommendation = async (req, res) => {
-     // code here
+          // Validate required fields
+          if (!caseSelected) {
+               return res.status(400).json({ 
+                    message: 'sm_number is required' 
+               });
+          }
+
+          const evaluation = updateDetails.caseEvalutation;
+          const recommendation = updateDetails.caseRecommendation;
+
+          console.log(evaluation, recommendation)
+          if (!evaluation || !recommendation) {
+               return res.status(400).json({
+                    message: 'Evaluation and recommendation are required' 
+               });
+          }
+
+          // Find the case by sm_number
+          const caseToUpdate = caseSelected;
+          if (!caseToUpdate) {
+               return res.status(404).json({ 
+                    message: 'Case not found' 
+               });
+          }
+
+          // Update evaluation and recommendation
+          caseToUpdate.evaluation = evaluation;
+          caseToUpdate.recommendation = recommendation;
+          await caseToUpdate.save();
+          
+          // Return success response
+          return res.status(200).json({ 
+               message: 'Evaluation and recommendation updated successfully', 
+               case: caseToUpdate 
+          });
+     } catch (error) {
+          console.error('Error editing evaluation and recommendation:', error);
+          return res.status(500).json({ 
+               message: 'Error editing evaluation and recommendation',
+               error: error.message 
+          });
+     }
 }
 
 /**  
@@ -114,6 +722,33 @@ const addIntervention = async (req, res) => {
 
 // ================================================== //
 
+/**
+ *   Formats full names
+ *   @param {*} member : Object to be updated
+ *   @returns : The formatted full name
+ */
+function fullname_Formatter(member) {
+     const first = member.first_name || '';
+     const middle = member.middle_name ? ` ${member.middle_name}` : '';
+     const last = member.last_name || '';
+
+     return `${first}${middle} ${last}`.trim();
+}
+
+// ================================================== //
+
 module.exports = {
-     getCase
+     getCaseById,
+     getFamilyMembers,
+     editFamilyMember,
+     deleteFamilyMember,
+     addFamilyMember,
+     getAllCases,
+     getAllCaseViable,
+     reassignSDW,
+     editCase,  // Add this line
+     addNewCase, // Also add this if needed
+     editProblemsAndFindings,
+     editAssessment,
+     editEvaluationAndRecommendation,
 }

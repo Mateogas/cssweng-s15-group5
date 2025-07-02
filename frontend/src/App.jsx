@@ -12,7 +12,7 @@ function App() {
       <h1 style={{color: 'red', fontSize: '32px'}}>TEST HEADER</h1>
       <div>
         <button 
-          onClick={() => navigate('/testcase')}
+          onClick={() => navigate('/')}
           style={{ 
             padding: '20px', 
             backgroundColor: 'blue', 

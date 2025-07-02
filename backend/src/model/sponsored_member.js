@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
  */
 const SponsoredMemberSchema = new mongoose.Schema({
     sm_number: {
-        type: String,
+        type: Number,
         required: true,
     },
     last_name: {
@@ -24,6 +24,10 @@ const SponsoredMemberSchema = new mongoose.Schema({
         required: false,
     },
     sex: {
+        type: String,
+        required: true
+    },
+    present_address:{
         type: String,
         required: true
     },
@@ -77,6 +81,10 @@ const SponsoredMemberSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    assessment: {
+        type: String,
+        required: false
+    },
     evaluation: {
         type: String,
         required: false
@@ -88,9 +96,14 @@ const SponsoredMemberSchema = new mongoose.Schema({
         required: true
     },
     is_active: {
-        type: String,
+        type: Boolean,
         required: true
     },
+    classifications: {
+        type: [String],
+        default: [],
+        required: false
+    }
 });
 
 const Sponsored_Member = mongoose.model('Sponsored Member', SponsoredMemberSchema);
