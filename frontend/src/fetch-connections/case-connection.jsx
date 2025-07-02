@@ -56,6 +56,32 @@ export const fetchCaseData = async(caseID) => {
           return defaultCaseData;
      }
 };
+/**
+ *   Edits chosen data
+ * 
+ *   @returns updated case data
+ */
+export const updateCaseData = async(updatedData) => {
+     try {
+          const response = await fetch(`/api/cases/edit/${localID}`, {
+               method: 'PUT',
+               headers: {
+               'Content-Type': 'application/json',
+               },
+               body: JSON.stringify(updatedData),
+          });
+
+          if (!response.ok) {
+               throw new Error('Failed to update case');
+          }
+
+          const updated = await response.json(); 
+          return updated
+     } catch (error) {
+          console.error('Error updating case:', error);
+          throw error;
+     }
+};
 
 /**
  *   Fetches all family members

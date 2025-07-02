@@ -11,7 +11,8 @@ import {    fetchCaseData,
             fetchFamilyMembers, 
             editProblemsFindings, 
             editAssessment, 
-            editEvalReco    }
+            editEvalReco,
+            updateCaseData    }
 from '../../fetch-connections/case-connection'; 
 
 function CaseFrontend() {
@@ -737,20 +738,37 @@ function CaseFrontend() {
                     {editingField === "core-fields" && (
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
+                            onClick={async () => {
                                 if (!checkNewLocales()) return;
 
-                                setData(prev => ({
-                                    ...prev,
-                                    first_name: drafts.first_name,
-                                    middle_name: drafts.middle_name,
-                                    last_name: drafts.last_name,
-                                    sm_number: drafts.sm_number,
-                                    spu_id: drafts.spu_id,
-                                    sdw_id: drafts.sdw_id,
-                                    classifications: drafts.classifications || [],
-                                }));
-                                setEditingField(null);
+                                try {
+                                    const updatedFields = {
+                                        first_name: drafts.first_name,
+                                        middle_name: drafts.middle_name,
+                                        last_name: drafts.last_name,
+                                        sm_number: drafts.sm_number,
+                                        spu_id: drafts.spu_id,
+                                        sdw_id: drafts.sdw_id,
+                                        classifications: drafts.classifications || [],
+                                    };
+
+                                    const updated = await updateCaseData(updatedFields);
+
+                                    setData(prev => ({
+                                        ...prev,
+                                        first_name: drafts.first_name,
+                                        middle_name: drafts.middle_name,
+                                        last_name: drafts.last_name,
+                                        sm_number: drafts.sm_number,
+                                        spu_id: drafts.spu_id,
+                                        sdw_id: drafts.sdw_id,
+                                        classifications: drafts.classifications || [],
+                                    }));
+                                    setEditingField(null);
+                                } catch (error) {
+                                    console.error('Error updating case data:', error);
+                                    // You might want to show an error message to the user here
+                                }
                             }}
                         >
                             Submit Changes
@@ -798,7 +816,7 @@ function CaseFrontend() {
                                     <input
                                         type="date"
                                         id="dob"
-                                        value={dob || ""}
+                                        value={drafts.dob || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
                                         className="text-input font-label"
                                     />
@@ -809,7 +827,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         id="civil"
-                                        value={civilStatus || ""}
+                                        value={drafts.civilStatus || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
                                         className="text-input font-label"
                                     />
@@ -820,7 +838,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         id="education"
-                                        value={education || ""}
+                                        value={drafts.education || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, education: e.target.value }))}
                                         className="text-input font-label"
                                     />
@@ -832,7 +850,7 @@ function CaseFrontend() {
                                     <label className="font-bold-label">Sex</label>
                                     <input
                                         type="text"
-                                        value={sex || ""}
+                                        value={drafts.sex || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -842,7 +860,7 @@ function CaseFrontend() {
                                     <label className="font-bold-label">Place of Birth</label>
                                     <input
                                         type="text"
-                                        value={pob || ""}
+                                        value={drafts.pob || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -852,7 +870,7 @@ function CaseFrontend() {
                                     <label className="font-bold-label">Religion</label>
                                     <input
                                         type="text"
-                                        value={religion || ""}
+                                        value={drafts.religion || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -862,7 +880,7 @@ function CaseFrontend() {
                                     <label className="font-bold-label">Occupation</label>
                                     <input
                                         type="text"
-                                        value={occupation || ""}
+                                        value={drafts.occupation || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -875,7 +893,7 @@ function CaseFrontend() {
                                     <textarea
                                         className="text-input font-label"
                                         placeholder="No address added"
-                                        value={presentAddress || ""}
+                                        value={drafts.presentAddress || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, presentAddress: e.target.value }))}
                                     ></textarea>
                                 </div>
@@ -886,7 +904,7 @@ function CaseFrontend() {
                                         type="text"
                                         className="text-input font-label"
                                         placeholder="No contact number added"
-                                        value={contactNo || ""}
+                                        value={drafts.contactNo || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, contactNo: e.target.value }))}
                                     />
                                 </div>
@@ -897,7 +915,7 @@ function CaseFrontend() {
                                         type="text"
                                         className="text-input font-label"
                                         placeholder="No relationship added"
-                                        value={relationship || ""}
+                                        value={drafts.relationship || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, relationship: e.target.value }))}
                                     />
                                 </div>
@@ -906,22 +924,41 @@ function CaseFrontend() {
                             <div className="flex justify-end">
                                 <button
                                     className="btn-transparent-rounded my-3 ml-auto"
-                                    onClick={() => {
-                                        setData(prev => ({
-                                            ...prev,
-                                            dob: drafts.dob,
-                                            civilStatus: drafts.civilStatus,
-                                            education: drafts.education,
-                                            sex: drafts.sex,
-                                            pob: drafts.pob,
-                                            religion: drafts.religion,
-                                            occupation: drafts.occupation,
-                                            presentAddress: drafts.presentAddress,
-                                            contactNo: drafts.contactNo,
-                                            relationship: drafts.relationship,
-                                        }));
-                                        // setAge(calculateAge(drafts.dob));
-                                        setEditingField(null);
+                                    onClick={async () => {
+                                        try {
+                                            const updatedFields = {
+                                                dob: drafts.dob,
+                                                civil_status: drafts.civilStatus,
+                                                edu_attainment: drafts.education,
+                                                sex: drafts.sex,
+                                                pob: drafts.pob,
+                                                religion: drafts.religion,
+                                                occupation: drafts.occupation,
+                                                present_address: drafts.presentAddress,
+                                                contact_no: drafts.contactNo,
+                                                relationship_to_client: drafts.relationship,
+                                            };
+
+                                            const updated = await updateCaseData(updatedFields);
+                                            
+                                            setData(prev => ({
+                                                ...prev,
+                                                dob: drafts.dob,
+                                                civil_status: drafts.civilStatus,
+                                                edu_attainment: drafts.education,
+                                                sex: drafts.sex,
+                                                pob: drafts.pob,
+                                                religion: drafts.religion,
+                                                occupation: drafts.occupation,
+                                                present_address: drafts.presentAddress,
+                                                contact_no: drafts.contactNo,
+                                                relationship_to_client: drafts.relationship,
+                                            }));
+                                            setEditingField(null);
+                                        } catch (error) {
+                                            console.error('Error updating case data:', error);
+                                            
+                                        }
                                     }}
                                 >
                                     Submit Changes
