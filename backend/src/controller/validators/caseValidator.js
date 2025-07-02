@@ -14,7 +14,7 @@ const caseSchemaValidate = Joi.object({
   religion: Joi.string().optional(),
   occupation: Joi.string().optional(),
   contact_no: Joi.string().pattern(/^[0-9]{11}$/).optional(),
-  problem_presented: Joi.string().required(),
+  problem_presented: Joi.string().optional(),
   observation_findings: Joi.string().optional(),
   recommendation: Joi.string().optional(),
   interventions: Joi.array().items(Joi.string().hex().length(24)).optional(),

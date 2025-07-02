@@ -553,47 +553,20 @@ const editFamilyMember = async (req, res) => {
  */
 const editProblemsAndFindings = async (req, res) => {
      try {
-          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          const caseToUpdate = await Sponsored_Member.findById(req.params.caseID)
           const updateDetails = req.body;
           
           // Validate required fields
-          if (!caseSelected) {
-               return res.status(400).json({
-                    message: 'Case is required'
-               });
-          }
-          
-          // At least one of the fields can't be empty
-          const problem_presented = updateDetails.problemPresented
-          const history_problem = updateDetails.historyProblem
-          const observation_findings = updateDetails.observationFindings
-
-          if ( problem_presented === undefined && 
-               history_problem === undefined && 
-               observation_findings === undefined) {
-               return res.status(400).json({
-                    message: 'At least one of the fields is updated'
-               });
-          }
-
-          // Find the case by sm_number
-          const caseToUpdate = caseSelected
           if (!caseToUpdate) {
-               return res.status(404).json({ 
-                    message: 'Case not found' 
+               return res.status(400).json({
+                    message: 'Cannot find case'
                });
           }
 
-          // Update fields if provided
-          if (problem_presented !== undefined) {
-               caseToUpdate.problem_presented = problem_presented;
-          }
-          if (history_problem !== undefined) {
-               caseToUpdate.history_problem = history_problem;
-          }
-          if (observation_findings !== undefined) {
-               caseToUpdate.observation_findings = observation_findings;
-          }
+          // Update problems and findings
+          caseToUpdate.problem_presented = updateDetails.problemPresented || '';
+          caseToUpdate.history_problem = updateDetails.historyProblem || '';
+          caseToUpdate.observation_findings = updateDetails.observationFindings || '';
 
           // Save the updated case
           await caseToUpdate.save();
@@ -617,33 +590,18 @@ const editProblemsAndFindings = async (req, res) => {
  */
 const editAssessment = async (req, res) => {
      try {
-          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          const caseToUpdate = await Sponsored_Member.findById(req.params.caseID)
           const updateDetails = req.body;
 
           // Validate require fields
-          if (!caseSelected) {
-               return res.status(400).json({ 
-                    message: 'sm_number is required' 
-               });
-          }
-
-          const assessment = updateDetails.caseAssessment
-          if (!assessment) {
-               return res.status(400).json({
-                    message: 'Assessment is required' 
-               });
-          }
-
-          // Find the case by sm_number
-          const caseToUpdate = caseSelected
           if (!caseToUpdate) {
-               return res.status(404).json({ 
-                    message: 'Case not found' 
+               return res.status(400).json({ 
+                    message: 'Cannot find case' 
                });
           }
 
           // Update assessment
-          caseToUpdate.assessment = assessment;
+          caseToUpdate.assessment = updateDetails.caseAssessment || '';
           await caseToUpdate.save();
           
           // Return success response
@@ -665,38 +623,19 @@ const editAssessment = async (req, res) => {
  */
 const editEvaluationAndRecommendation = async (req, res) => {
      try {
-          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          const caseToUpdate = await Sponsored_Member.findById(req.params.caseID)
           const updateDetails = req.body;
-          console.log(updateDetails)
 
           // Validate required fields
-          if (!caseSelected) {
-               return res.status(400).json({ 
-                    message: 'sm_number is required' 
-               });
-          }
-
-          const evaluation = updateDetails.caseEvalutation;
-          const recommendation = updateDetails.caseRecommendation;
-
-          console.log(evaluation, recommendation)
-          if (!evaluation || !recommendation) {
-               return res.status(400).json({
-                    message: 'Evaluation and recommendation are required' 
-               });
-          }
-
-          // Find the case by sm_number
-          const caseToUpdate = caseSelected;
           if (!caseToUpdate) {
-               return res.status(404).json({ 
-                    message: 'Case not found' 
+               return res.status(400).json({ 
+                    message: 'Cannot find case' 
                });
           }
 
           // Update evaluation and recommendation
-          caseToUpdate.evaluation = evaluation;
-          caseToUpdate.recommendation = recommendation;
+          caseToUpdate.evaluation = updateDetails.caseEvalutation || '';
+          caseToUpdate.recommendation = updateDetails.caseRecommendation || '';
           await caseToUpdate.save();
           
           // Return success response

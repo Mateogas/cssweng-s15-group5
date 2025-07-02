@@ -61,7 +61,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     problem_presented: {
         type: String,
-        required: true
+        required: false
     },
     observation_findings: {
         type: String,
