@@ -7,8 +7,8 @@ router.get('/allCases', caseController.getAllCases);
 router.get('/:id', caseController.getCaseById);
 router.get('/',caseController.getAllCases);
 router.post('/case-create',caseController.addNewCase);
-router.put('/edit/:id', caseController.editCase);
-router.get('/edit/:id', caseController.getCaseById);
+router.put('/edit/core/:id', caseController.editCaseCore);
+router.put('/edit/identifyingdata/:id', caseController.editCaseIdentifyingData);
 
 // Family Composition Routes
 router.get('/get-family-compositon/:caseID', caseController.getFamilyMembers);

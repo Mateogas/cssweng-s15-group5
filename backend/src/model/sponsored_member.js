@@ -12,7 +12,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     spu: {
         type: String,
-        enum: ['AMP', 'FDQ', 'MPH', 'MS'], // Add other SPUs as needed
+        enum: ['MNL', 'CEB', 'DVO', 'BAG','ILO','ZAM'], // Add other SPUs as needed
         required: true
     },
     last_name: {
@@ -30,6 +30,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     sex: {
         type: String,
+        enum:['Male','Female'],
         required: true
     },
     present_address:{
@@ -46,6 +47,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     civil_status: {
         type: String,
+        enum: ['Single','Married','Divorced','Widowed','Seperated'],//just add more if you want
         required: true
     },
     edu_attainment: {
@@ -61,6 +63,10 @@ const SponsoredMemberSchema = new mongoose.Schema({
         required: false
     },
     contact_no: {
+        type: String,
+        required: false
+    },
+    relationship_to_client: {
         type: String,
         required: false
     },
@@ -117,6 +123,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
         default: [],
         required: false
     }
+
 });
 
 // Automatically assign intervention numbers before saving

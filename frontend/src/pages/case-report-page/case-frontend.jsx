@@ -12,7 +12,8 @@ import {    fetchCaseData,
             editProblemsFindings, 
             editAssessment, 
             editEvalReco,
-            updateCaseData    }
+            updateCoreCaseData,
+            updateIdentifyingCaseData   }
 from '../../fetch-connections/case-connection'; 
 
 function CaseFrontend() {
@@ -752,7 +753,7 @@ function CaseFrontend() {
                                         classifications: drafts.classifications || [],
                                     };
 
-                                    const updated = await updateCaseData(updatedFields);
+                                    const updated = await updateCoreCaseData(updatedFields,data._id);
 
                                     setData(prev => ({
                                         ...prev,
@@ -939,7 +940,7 @@ function CaseFrontend() {
                                                 relationship_to_client: drafts.relationship,
                                             };
 
-                                            const updated = await updateCaseData(updatedFields);
+                                            const updated = await updateIdentifyingCaseData(updatedFields,data._id);
                                             
                                             setData(prev => ({
                                                 ...prev,
