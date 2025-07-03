@@ -77,19 +77,21 @@ const SponsoredMemberSchema = new mongoose.Schema({
         required: false
     },
     interventions: [{
-        type: mongoose.Schema.Types.ObjectId,
-        refPath: 'interventionType',
-        required: false,
+        intervention: {
+            type: mongoose.Schema.Types.ObjectId,
+            refPath: 'interventionType',
+            required: true,
+        },
+        interventionType: { // Reference to the type of intervention schema
+            type: String,
+            enum: ['Intervention Correspondence', 'Intervention Counseling', 'Intervention Financial Assessment', 'Intervention Home Visitation'], // Add other intervention types as needed
+            required: true
+        },
         intervention_number: {
             type: Number,
             required: true
-        }
+        },
     }],
-    interventionType: { // Reference to the type of intervention schema
-        type: String,
-        enum: ['Intervention Correspondence', 'Intervention Counseling', 'Intervention Financial Assessment', 'Intervention Home Visitation'], // Add other intervention types as needed
-        required: false
-    },
     history_problem: {
         type: String,
         required: false
