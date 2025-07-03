@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
+import FamilyCard from "../../Components/FamilyCard";
 
 function HomeVisitationForm() {
     const [data, setData] = useState({
@@ -120,6 +121,25 @@ function HomeVisitationForm() {
         data?.recommendation || "",
     );
     const [agreement, setAgreement] = useState(data?.agreement || "");
+
+    const [selectedFamily, setSelectedFamily] = useState(null);
+    const [editingFamilyValue, setEditingFamilyValue] = useState({})
+
+    const handleAddFamilyMember = () => {
+        const newMember = {
+            name: '',
+            age: '',
+            income: '',
+            civilStatus: '',
+            occupation: '',
+            education: '',
+            relationship: ''
+        };
+
+        setFamilyMembers(prev => [newMember, ...prev]);
+        setSelectedFamily(0);
+        setEditingFamilyValue(newMember);
+    };
 
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
@@ -298,6 +318,26 @@ function HomeVisitationForm() {
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section className='flex flex-col gap-8'>
+                <h1 className="header-main">Members and/or Other Members of the Family</h1>
+
+                <button className="btn-primary font-bold-label drop-shadow-base"
+                    onClick={handleAddFamilyMember}>Add Family Member</button>
+
+                <div className="flex justify-between gap-10">
+                    <div className="flex gap-8 flex-wrap">
+                        {familyMembers.map((member, index) => (
+                            <FamilyCard key={index} index={index} member={member} selectedFamily={selectedFamily}
+                                setSelectedFamily={setSelectedFamily} editingFamilyValue={editingFamilyValue}
+                                setEditingFamilyValue={setEditingFamilyValue} familyMembers={familyMembers}
+                                setFamilyMembers={setFamilyMembers} />
+                        ))}
+
+                    </div>
+                </div>
+
             </section>
 
             <section className="flex flex-col w-full gap-5">
