@@ -141,8 +141,32 @@ function HomeVisitationForm() {
         setEditingFamilyValue(newMember);
     };
 
-    const handleAddObservation = (item) => {
-        setObservationFindings((prev) => [...prev, item]);
+    const handleAddObservation = () => {
+        const newObservation = ""
+
+        setObservationFindings((prev) => [...prev, newObservation]);
+    };
+
+    const updateObservations = (index, value) => {
+        setObservationFindings((prev) => 
+            prev.map((item, i) => 
+                i === index ? [...item, value] : item
+            )
+        );
+    };
+
+    const handleAddIntervention = () => {
+        const newIntervention = ""
+
+        setInterventions((prev) => [...prev, newIntervention]);
+    };
+
+    const updateInterventions = (index, value) => {
+        setInterventions((prev) => 
+            prev.map((item, i) => 
+                i === index ? [...item, value] : item
+            )
+        );
     };
 
     return (
@@ -375,6 +399,28 @@ function HomeVisitationForm() {
 
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
+                {observation_findings.map((item, index) => (
+                    <input
+                        type="text"
+                        value={`${index + 1}. ${item}`}
+                        onChange={(e) => updateObservations(index, e.target.value)}
+                        className="body-base w-full"
+                    />
+                ))}
+                <button className="btn-primary" onClick={handleAddObservation}>Add Observation/Findings</button>
+            </section>
+
+            <section className="flex w-full flex-col gap-5">
+                <h4 className="header-sm">Interventions Made</h4>
+                {interventions.map((item, index) => (
+                    <input
+                        type="text"
+                        value={`${index + 1}. ${item}`}
+                        onChange={(e) => updateInterventions(index, e.target.value)}
+                        className="body-base w-full"
+                    />
+                ))}
+                <button className="btn-primary" onClick={handleAddIntervention}>Add Intervention</button>
             </section>
 
             <section className="flex w-full flex-col gap-5">
