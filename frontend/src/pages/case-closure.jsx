@@ -56,6 +56,14 @@ function CaseClosure() {
         );
     };
 
+    const updateDescription = (index, value) => {
+        setServicesProvided((prev) =>
+            prev.map((item, i) =>
+                i === index ? { ...item, description: value } : item,
+            ),
+        );
+    };
+
     const [sm_awareness, setSMAwareness] = useState("");
 
     const handleCheckboxChange = (value) => {
@@ -277,6 +285,9 @@ function CaseClosure() {
                                 key={index}
                                 label={item.service}
                                 value={item.description}
+                                onChange={(e) =>
+                                    updateDescription(index, e.target.value)
+                                }
                             ></TextArea>
                         ))}
                     </div>
