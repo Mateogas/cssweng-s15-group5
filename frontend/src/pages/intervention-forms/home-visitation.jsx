@@ -142,30 +142,26 @@ function HomeVisitationForm() {
     };
 
     const handleAddObservation = () => {
-        const newObservation = ""
+        const newObservation = "";
 
         setObservationFindings((prev) => [...prev, newObservation]);
     };
 
     const updateObservations = (index, value) => {
-        setObservationFindings((prev) => 
-            prev.map((item, i) => 
-                i === index ? [...item, value] : item
-            )
+        setObservationFindings((prev) =>
+            prev.map((item, i) => (i === index ? value : item)),
         );
     };
 
     const handleAddIntervention = () => {
-        const newIntervention = ""
+        const newIntervention = "";
 
         setInterventions((prev) => [...prev, newIntervention]);
     };
 
     const updateInterventions = (index, value) => {
-        setInterventions((prev) => 
-            prev.map((item, i) => 
-                i === index ? [...item, value] : item
-            )
+        setInterventions((prev) =>
+            prev.map((item, i) => (i === index ? value : item)),
         );
     };
 
@@ -400,27 +396,41 @@ function HomeVisitationForm() {
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
                 {observation_findings.map((item, index) => (
-                    <input
-                        type="text"
-                        value={`${index + 1}. ${item}`}
-                        onChange={(e) => updateObservations(index, e.target.value)}
-                        className="body-base w-full"
-                    />
+                    <div key={index} className="flex">
+                        <p className="body-base pr-2.5">{index + 1}.</p>
+                        <input
+                            type="text"
+                            value={item}
+                            onChange={(e) =>
+                                updateObservations(index, e.target.value)
+                            }
+                            className="body-base w-full"
+                        />
+                    </div>
                 ))}
-                <button className="btn-primary" onClick={handleAddObservation}>Add Observation/Findings</button>
+                <button className="btn-primary" onClick={handleAddObservation}>
+                    Add Observation/Findings
+                </button>
             </section>
 
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Interventions Made</h4>
                 {interventions.map((item, index) => (
-                    <input
-                        type="text"
-                        value={`${index + 1}. ${item}`}
-                        onChange={(e) => updateInterventions(index, e.target.value)}
-                        className="body-base w-full"
-                    />
+                    <div key={index} className="flex">
+                        <p className="body-base pr-2.5">{index + 1}.</p>
+                        <input
+                            type="text"
+                            value={item}
+                            onChange={(e) =>
+                                updateInterventions(index, e.target.value)
+                            }
+                            className="body-base w-full"
+                        />
+                    </div>
                 ))}
-                <button className="btn-primary" onClick={handleAddIntervention}>Add Intervention</button>
+                <button className="btn-primary" onClick={handleAddIntervention}>
+                    Add Intervention
+                </button>
             </section>
 
             <section className="flex w-full flex-col gap-5">
