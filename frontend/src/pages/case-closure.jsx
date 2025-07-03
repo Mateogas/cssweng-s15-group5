@@ -14,6 +14,7 @@ function CaseClosure() {
         address: "",
         spu: "FDQ",
         closure_date: "",
+        sponsorship_date: "",
         reason_for_retirement: "",
         sm_notification: "",
         evaluation: "",
@@ -55,6 +56,9 @@ function CaseClosure() {
     const [address, setAddress] = useState(data?.address || "");
     const [spu, setSPU] = useState(data?.spu || "");
     const [closure_date, setClosureDate] = useState(data?.closure_date || "");
+    const [sponsorship_date, setSponsorshipDate] = useState(
+        data?.sponsorship_date || "",
+    );
     const [reason_for_retirement, setReasonForRetirement] = useState(
         data?.reason_for_retirement || "",
     );
@@ -132,16 +136,25 @@ function CaseClosure() {
                         <h4 className="header-sm">General Information</h4>
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
-                        <TextInput
-                            label="Name of SPU/Cluster"
-                            value={spu}
-                            setValue={setSPU}
-                        ></TextInput>
-                        <TextInput
-                            label="Date of Closure"
-                            value={closure_date}
-                            setValue={setClosureDate}
-                        ></TextInput>
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Name of SPU/Cluster"
+                                value={spu}
+                                setValue={setSPU}
+                            ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                            <TextInput
+                                label="Date of Closure"
+                                value={closure_date}
+                                setValue={setClosureDate}
+                            ></TextInput>
+                            <TextInput
+                                label="Date Sponsored"
+                                value={sponsorship_date}
+                                setValue={setSponsorshipDate}
+                            ></TextInput>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -206,8 +219,8 @@ function CaseClosure() {
                 <TextArea
                     label="Recommendation"
                     sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
-                    value={evaluation}
-                    setValue={setEvaluation}
+                    value={recommendation}
+                    setValue={setRecommendation}
                 ></TextArea>
             </section>
 
