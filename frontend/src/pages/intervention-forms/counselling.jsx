@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 function CounsellingForm() {
+
+    /********** TEST DATA **********/
+
     const [data, setData] = useState({
         form_num: "4",
         first_name: "Hephzi-Bah",
@@ -20,6 +23,10 @@ function CounsellingForm() {
         recommendation: "",
         sm_comments: "",
     });
+
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -49,11 +56,14 @@ function CounsellingForm() {
     );
     const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
 
+    /********** USE STATES **********/
+
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
+            {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -132,6 +142,7 @@ function CounsellingForm() {
                 </div>
             </section>
 
+            {/* Reason for Counselling and Corrective Action */}
             <section className="flex w-full items-end gap-10">
                 <TextArea
                     label="Purpose/Reason for Counselling"
@@ -145,6 +156,7 @@ function CounsellingForm() {
                 ></TextArea>
             </section>
 
+            {/* Recommendation and Comments */}
             <section className="flex w-full flex-col gap-15">
                 <TextArea
                     label="Recommendation for Improvement (Intervention)"
@@ -160,6 +172,7 @@ function CounsellingForm() {
                 ></TextArea>
             </section>
 
+            {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Intervention</button>

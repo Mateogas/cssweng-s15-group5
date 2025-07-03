@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 function CorrespondenceForm() {
+    
+    /********** TEST DATA **********/
+
     const [data, setData] = useState({
         form_num: "7",
         first_name: "Hephzi-Bah",
@@ -42,6 +45,10 @@ function CorrespondenceForm() {
         },
     ]);
 
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
+
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -64,6 +71,8 @@ function CorrespondenceForm() {
         data?.recommendation || "",
     );
 
+    /********** USE STATES **********/
+
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
@@ -71,6 +80,7 @@ function CorrespondenceForm() {
                 SMs, Families, and SHGs Intervention Plan
             </h3>
 
+            {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -149,6 +159,7 @@ function CorrespondenceForm() {
                 </div>
             </section>
 
+            {/* Identified Problem */}
             <section className="flex w-full items-end">
                 <TextArea
                     label="SM's Identified/Expressed Problem or Need"
@@ -157,6 +168,7 @@ function CorrespondenceForm() {
                 ></TextArea>
             </section>
 
+            {/* Assessment and Objective */}
             <section className="flex w-full gap-10">
                 <TextArea
                     label="SDW's Assessment"
@@ -170,6 +182,7 @@ function CorrespondenceForm() {
                 ></TextArea>
             </section>
 
+            {/* Recommendation */}
             <section className="flex w-full items-end">
                 <TextArea
                     label="Recommendation"
@@ -179,6 +192,7 @@ function CorrespondenceForm() {
                 ></TextArea>
             </section>
 
+            {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Intervention</button>
