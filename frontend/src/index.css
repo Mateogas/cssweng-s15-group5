@@ -21,6 +21,16 @@ html {
 
     --accent-dark: #93989E;
     --accent-white: #F2F2F2;
+
+    --text-color: hsl(0, 0%, 5%);
+    --text-color-muted: hsl(0, 0%, 30%);
+
+    --bg-color-dark: hsl(0, 0%, 90%);
+    --bg-color: hsl(0, 0%, 95%);
+    --bg-color-light: hsl(0, 0%, 100%);
+
+    --border-color: hsl(0, 0%, 70%);
+    --border-color-muted: hsl(0, 0%, 90%);
 }
 
 input[type="checkbox"] {
