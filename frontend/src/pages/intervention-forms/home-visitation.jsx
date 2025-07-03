@@ -123,22 +123,26 @@ function HomeVisitationForm() {
     const [agreement, setAgreement] = useState(data?.agreement || "");
 
     const [selectedFamily, setSelectedFamily] = useState(null);
-    const [editingFamilyValue, setEditingFamilyValue] = useState({})
+    const [editingFamilyValue, setEditingFamilyValue] = useState({});
 
     const handleAddFamilyMember = () => {
         const newMember = {
-            name: '',
-            age: '',
-            income: '',
-            civilStatus: '',
-            occupation: '',
-            education: '',
-            relationship: ''
+            name: "",
+            age: "",
+            income: "",
+            civilStatus: "",
+            occupation: "",
+            education: "",
+            relationship: "",
         };
 
-        setFamilyMembers(prev => [newMember, ...prev]);
+        setFamilyMembers((prev) => [newMember, ...prev]);
         setSelectedFamily(0);
         setEditingFamilyValue(newMember);
+    };
+
+    const handleAddObservation = (item) => {
+        setObservationFindings((prev) => [...prev, item]);
     };
 
     return (
@@ -320,27 +324,38 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
-            <section className='flex flex-col gap-8'>
-                <h1 className="header-main">Members and/or Other Members of the Family</h1>
+            <section className="flex flex-col gap-8">
+                <h1 className="header-main">
+                    Members and/or Other Members of the Family
+                </h1>
 
-                <button className="btn-primary font-bold-label drop-shadow-base"
-                    onClick={handleAddFamilyMember}>Add Family Member</button>
+                <button
+                    className="btn-primary font-bold-label drop-shadow-base"
+                    onClick={handleAddFamilyMember}
+                >
+                    Add Family Member
+                </button>
 
                 <div className="flex justify-between gap-10">
-                    <div className="flex gap-8 flex-wrap">
+                    <div className="flex flex-wrap gap-8">
                         {familyMembers.map((member, index) => (
-                            <FamilyCard key={index} index={index} member={member} selectedFamily={selectedFamily}
-                                setSelectedFamily={setSelectedFamily} editingFamilyValue={editingFamilyValue}
-                                setEditingFamilyValue={setEditingFamilyValue} familyMembers={familyMembers}
-                                setFamilyMembers={setFamilyMembers} />
+                            <FamilyCard
+                                key={index}
+                                index={index}
+                                member={member}
+                                selectedFamily={selectedFamily}
+                                setSelectedFamily={setSelectedFamily}
+                                editingFamilyValue={editingFamilyValue}
+                                setEditingFamilyValue={setEditingFamilyValue}
+                                familyMembers={familyMembers}
+                                setFamilyMembers={setFamilyMembers}
+                            />
                         ))}
-
                     </div>
                 </div>
-
             </section>
 
-            <section className="flex flex-col w-full gap-5">
+            <section className="flex w-full flex-col gap-5">
                 <h3 className="header-md">
                     Progress in the Family based on their Family Goals
                 </h3>
@@ -358,7 +373,11 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
-            <section className="flex flex-col w-full gap-5">
+            <section className="flex w-full flex-col gap-5">
+                <h4 className="header-sm">Worker's Observation/Findings</h4>
+            </section>
+
+            <section className="flex w-full flex-col gap-5">
                 <div className="flex w-full gap-10">
                     <TextArea
                         label="Recommendations"
