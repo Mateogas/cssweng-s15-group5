@@ -21,6 +21,41 @@ function CaseClosure() {
         recommendation: "",
     });
 
+    const services = [
+        "Sponsorship Program",
+        "Social Development Program",
+        "Home Visitation",
+        "Counselling",
+        "Financial Assistance",
+        "Correspondence",
+    ];
+
+    const [services_provided, setServicesProvided] = useState([
+        {
+            service: "Sponsorship Program",
+            description: "",
+        },
+        {
+            service: "Social Development Program",
+            description: "",
+        },
+    ]);
+
+    const [service_selected, setServiceSelected] = useState("");
+
+    const handleAddService = (item) => {
+        const new_service = {
+            service: item,
+            description: "",
+        };
+
+        setServicesProvided((prev) =>
+            prev.some((entry) => entry.service === item)
+                ? prev
+                : [...prev, new_service],
+        );
+    };
+
     const [sm_awareness, setSMAwareness] = useState("");
 
     const handleCheckboxChange = (value) => {
@@ -203,6 +238,48 @@ function CaseClosure() {
                         value={sm_notification}
                         setValue={setSMNotification}
                     ></TextArea>
+                </div>
+            </section>
+
+            <section className="flex w-full flex-col gap-10">
+                <div className="flex w-full flex-col gap-5">
+                    <h3 className="header-md">
+                        Services Provided and Progress Toward SM's/Family Goals
+                    </h3>
+                    <h4 className="header-sm">
+                        Did the foundation religiously provide the holistic
+                        development to each sponsored member through its
+                        program?
+                    </h4>
+                    <select
+                        name="services"
+                        id="services"
+                        value={service_selected}
+                        onChange={(e) => handleAddService(e.target.value)}
+                        className="label-base text-input max-w-96"
+                    >
+                        <option value="" className="body-base">
+                            Add Service
+                        </option>
+                        {services.slice(2).map((service, index) => (
+                            <option
+                                key={index}
+                                value={service}
+                                className="body-base"
+                            >
+                                {service}
+                            </option>
+                        ))}
+                    </select>
+                    <div className="flex w-full gap-10">
+                        {services_provided.map((item, index) => (
+                            <TextArea
+                                key={index}
+                                label={item.service}
+                                value={item.description}
+                            ></TextArea>
+                        ))}
+                    </div>
                 </div>
             </section>
 

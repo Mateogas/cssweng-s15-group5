@@ -14,7 +14,14 @@ export const TextInput = ({ label, value, setValue }) => {
     );
 };
 
-export const TextArea = ({ label, sublabel, description, value, setValue }) => {
+export const TextArea = ({
+    label,
+    sublabel,
+    description,
+    value,
+    setValue,
+    handleChange,
+}) => {
     return (
         <section className="flex w-full flex-col gap-3">
             <h4 className="header-sm">{label}</h4>
@@ -28,7 +35,7 @@ export const TextArea = ({ label, sublabel, description, value, setValue }) => {
             ) : null}
             <textarea
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={handleChange || ((e) => setValue?.(e.target.value))}
                 className="text-area"
             ></textarea>
         </section>
