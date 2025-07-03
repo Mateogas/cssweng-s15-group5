@@ -179,7 +179,7 @@ function HomeVisitationForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
