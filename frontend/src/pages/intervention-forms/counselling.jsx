@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../../Components/TextField";
+import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 function CounsellingForm() {
     const [data, setData] = useState({
@@ -122,11 +122,11 @@ function CounsellingForm() {
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput
+                            <DateInput
                                 label="Date of Counselling"
                                 value={counselling_date}
                                 setValue={setCounsellingDate}
-                            ></TextInput>
+                            ></DateInput>
                         </div>
                     </div>
                 </div>

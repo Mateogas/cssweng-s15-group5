@@ -14,6 +14,20 @@ export const TextInput = ({ label, value, setValue }) => {
     );
 };
 
+export const DateInput = ({ label, value, setValue }) => {
+    return (
+        <div className="flex items-center gap-10">
+            <p className="label-base w-44">{label}</p>
+            <input
+                type="date"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                className="body-base text-input w-64"
+            />
+        </div>
+    );
+};
+
 export const TextArea = ({
     label,
     sublabel,

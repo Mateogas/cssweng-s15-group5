@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../../Components/TextField";
+import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 function CorrespondenceForm() {
     const [data, setData] = useState({
@@ -100,11 +100,11 @@ function CorrespondenceForm() {
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput
+                            <DateInput
                                 label="Date of Birth"
                                 value={dob}
                                 setValue={setDOB}
-                            ></TextInput>
+                            ></DateInput>
                             <TextInput
                                 label="School"
                                 value={school}
@@ -139,11 +139,11 @@ function CorrespondenceForm() {
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput
+                            <DateInput
                                 label="Date of Sponsorship"
                                 value={sponsorship_date}
                                 setValue={setSponsorshipDate}
-                            ></TextInput>
+                            ></DateInput>
                         </div>
                     </div>
                 </div>

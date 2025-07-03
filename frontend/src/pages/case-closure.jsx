@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../Components/TextField";
+import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 function CaseClosure() {
     const [data, setData] = useState({
@@ -139,11 +139,11 @@ function CaseClosure() {
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput
+                            <DateInput
                                 label="Date of Birth"
                                 value={dob}
                                 setValue={setDOB}
-                            ></TextInput>
+                            ></DateInput>
                             <TextInput
                                 label="Age"
                                 value={age}
@@ -179,16 +179,16 @@ function CaseClosure() {
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
-                            <TextInput
+                            <DateInput
                                 label="Date of Closure"
                                 value={closure_date}
                                 setValue={setClosureDate}
-                            ></TextInput>
-                            <TextInput
+                            ></DateInput>
+                            <DateInput
                                 label="Date Sponsored"
                                 value={sponsorship_date}
                                 setValue={setSponsorshipDate}
-                            ></TextInput>
+                            ></DateInput>
                         </div>
                     </div>
                 </div>

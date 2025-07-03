@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../../Components/TextField";
+import { TextInput, DateInput, TextArea } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
 
 function HomeVisitationForm() {
@@ -230,11 +230,11 @@ function HomeVisitationForm() {
                     </div>
                     <div className="inline-flex items-center justify-center gap-10">
                         <div className="flex flex-col gap-5">
-                            <TextInput
+                            <DateInput
                                 label="Date"
                                 value={date}
                                 setValue={setDate}
-                            ></TextInput>
+                            ></DateInput>
                             <TextInput
                                 label="Community"
                                 value={community}
