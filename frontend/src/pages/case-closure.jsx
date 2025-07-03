@@ -279,7 +279,7 @@ function CaseClosure() {
                             </option>
                         ))}
                     </select>
-                    <div className="flex w-full gap-10">
+                    <div className="flex flex-wrap gap-10">
                         {services_provided.map((item, index) => (
                             <TextArea
                                 key={index}
