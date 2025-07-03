@@ -78,18 +78,29 @@ export const updateCoreCaseData = async(updatedData, caseID) => {
                delete preparedData.spu_id;
           }
           
+          
 
-          if (preparedData.sm_number) {
-               if (typeof preparedData.sm_number === 'string') {
-                    preparedData.sm_number = parseInt(preparedData.sm_number, 10);
-                    if (isNaN(preparedData.sm_number)) {
-                         preparedData.sm_number = 0;
-                    }
-               }
-          } else {
-               preparedData.sm_number = 0;
+          if (preparedData.sm_number === undefined || preparedData.sm_number === null || preparedData.sm_number === '') {
+          throw new Error('sm_number must be a numeric value.');
+          }
+
+          if (typeof preparedData.sm_number === 'string') {
+          preparedData.sm_number = preparedData.sm_number.trim();
+          if (preparedData.sm_number === '') {
+               throw new Error('sm_number must be a numeric value.');
+          }
+          preparedData.sm_number = Number(preparedData.sm_number);
+          }
+
+          if (
+          typeof preparedData.sm_number !== 'number' ||
+          !Number.isInteger(preparedData.sm_number) ||
+          isNaN(preparedData.sm_number)
+          ) {
+          throw new Error('sm_number must be a whole numeric value.');
           }
           
+         
 
           if (!preparedData.middle_name) {
                preparedData.middle_name = ''; 

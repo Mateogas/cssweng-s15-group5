@@ -79,7 +79,7 @@ present_address: Joi.string().min(1).required().messages({
 
 */
 const caseCoreValidate = Joi.object({
-  sm_number: Joi.number().required(),
+  sm_number: Joi.number().integer().min(0).required(),
 
   last_name: Joi.string().min(1).pattern(/^[^0-9]*$/).required().messages({
     'string.empty': 'Last name cannot be empty'
