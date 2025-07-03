@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-/*
-     UPDATE: 
-        > Added sm_number
-        > Changed intervention to of type array
- */
 const SponsoredMemberSchema = new mongoose.Schema({
     sm_number: {
         type: Number,

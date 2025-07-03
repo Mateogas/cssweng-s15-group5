@@ -8,7 +8,7 @@ const interventionCounselingController = require('../controller/interventionCoun
 router.get('/counseling/:id', caseController.getCaseById);
 router.post('/counseling/add/:id', interventionCounselingController.addCounselingIntervention);
 router.delete('/counseling/delete/:id', interventionCounselingController.deleteCounselingIntervention);
-
+router.put('/counseling/edit/:id', interventionCounselingController.editCounselingIntervention);
 
 // Home Visitation Routes
 

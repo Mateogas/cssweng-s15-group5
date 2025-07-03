@@ -146,7 +146,68 @@ const deleteCounselingIntervention = async (req, res) => {
     }
 }
 
+const editCounselingIntervention = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const intervention = await Intervention_Counseling.findById(id);
+        if (!intervention) {
+            return res.status(404).json({ error: 'Counseling intervention not found' });
+        }
+
+        // Validate the required fields
+        const requiredFields = [
+            'grade_year_level', 
+            'school',
+            'area_self_help',
+            'counseling_date',
+            'reason_for_counseling',
+            'corrective_action',
+            'recommendation'
+        ];
+
+        // Check for missing fields
+        const missingFields = requiredFields.filter(field => !req.body[field]);
+        if (missingFields.length > 0) {
+            return res.status(400).json({ 
+                error: 'Missing required fields', 
+                missingFields 
+            });
+        }
+        
+        // Check if counseling date is valid
+        const counselingDate = new Date(req.body.counseling_date).setHours(0, 0, 0, 0);
+        const currentDate = new Date().setHours(0, 0, 0, 0);
+        if (counselingDate > currentDate) {
+            return res.status(400).json({
+                error: 'Invalid counseling date',
+                message: 'Counseling date cannot be in the future.'
+            });
+        }
+        
+        // Update the intervention with the new data
+        intervention.grade_year_level = req.body.grade_year_level;
+        intervention.school = req.body.school;
+        intervention.area_self_help = req.body.area_self_help;
+        intervention.counseling_date = req.body.counseling_date;
+        intervention.reason_for_counseling = req.body.reason_for_counseling;
+        intervention.corrective_action = req.body.corrective_action;
+        intervention.recommendation = req.body.recommendation;
+        intervention.sm_comments = req.body.sm_comments || '';
+        await intervention.save();
+        
+        // Return success response
+        return res.status(200).json({
+            message: 'Counseling intervention updated successfully',
+            intervention: intervention,
+        });
+    } catch (error) {
+        console.error('Error editing counseling intervention:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 module.exports = {
     addCounselingIntervention,
     deleteCounselingIntervention,
+    editCounselingIntervention,
 }
