@@ -925,12 +925,12 @@ function CaseFrontend() {
 
                     <div className="flex justify-between gap-10">
                         <div
-                            ref={sliderRef}
-                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto cursor-grab"
-                            onMouseDown={handleMouseDown}
-                            onMouseLeave={handleMouseLeave}
-                            onMouseUp={handleMouseUp}
-                            onMouseMove={handleMouseMove}
+                            // ref={sliderRef}
+                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto"
+                            // onMouseDown={handleMouseDown}
+                            // onMouseLeave={handleMouseLeave}
+                            // onMouseUp={handleMouseUp}
+                            // onMouseMove={handleMouseMove}
                         >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard
