@@ -33,7 +33,7 @@ function CaseClosure() {
     const [services_provided, setServicesProvided] = useState([
         {
             service: "Sponsorship Program",
-            description: "",
+            description: "hi",
         },
         {
             service: "Social Development Program",
@@ -285,7 +285,7 @@ function CaseClosure() {
                                 key={index}
                                 label={item.service}
                                 value={item.description}
-                                onChange={(e) =>
+                                handleChange={(e) =>
                                     updateDescription(index, e.target.value)
                                 }
                             ></TextArea>
