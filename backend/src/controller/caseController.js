@@ -565,6 +565,13 @@ const editFamilyMember = async (req, res) => {
           if (updateDetails.deceased)
                status = "Deceased"
 
+          console.log(updateDetails)
+
+          if (updateDetails.income < 0)
+               updateDetails.income = familySelected.income
+          if (parseInt(updateDetails.age))
+               updateDetails.age = familySelected.age
+
           /**
            *   Updating part
            * 
@@ -575,7 +582,10 @@ const editFamilyMember = async (req, res) => {
                middleName: updateDetails.middle || familySelected.middle_name,
                last_name: updateDetails.last || familySelected.last_name,
 
-               age: parseInt(updateDetails.age, 10) || familySelected.age,
+               age: updateDetails.age !== undefined && updateDetails.age !== ""
+                    ? parseInt(updateDetails.age)
+                    : familySelected.age,
+                    
                income: updateDetails.income || familySelected.income,
                civil_status: updateDetails.civilStatus || familySelected.civil_status,
                occupation: updateDetails.occupation || familySelected.occupation,
