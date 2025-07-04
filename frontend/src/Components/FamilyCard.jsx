@@ -5,7 +5,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
     // handleDeleteFamilyMember, setFamilyToDelete,
     handleDeleteFamilyMember,
     setShowModal, setModalTitle, setModalBody, setModalImageCenter,
-    setModalConfirm, setModalOnConfirm
+    setModalConfirm, setModalOnConfirm, editable , className = ""
 }) => {
 
     const isEditing = selectedFamily === index
@@ -28,7 +28,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
     }
 
     return (
-        <div className="flex flex-col gap-5 min-w-[45rem] drop-shadow-card px-[2rem] py-[3rem] rounded-xl outline-gray">
+        <div className={`flex flex-col gap-5 min-w-[45rem] drop-shadow-card px-[2rem] py-[3rem] rounded-xl outline-gray ${className}`}>
             <div className="flex justify-between items-center gap-4">
                 {isEditing ? (
                     <h3 className="header-sub">Editing Member</h3>
@@ -36,15 +36,17 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                     <h3 className="header-sub">{member.last || '-'}, {member.first || '-'} {member.middle || '-'}</h3>
                 )}
 
-                <button className={isEditing ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
-                    if (isEditing) {
-                        setSelectedFamily(null)
-                    } else {
-                        setEditingFamilyValue({ ...member })
-                        setSelectedFamily(index)
-                    }
-                }}>
-                </button>
+                { editable && (
+                    <button className={isEditing ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
+                        if (isEditing) {
+                            setSelectedFamily(null)
+                        } else {
+                            setEditingFamilyValue({ ...member })
+                            setSelectedFamily(index)
+                        }
+                    }}>
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-[max-content_1fr] gap-5 text-sm font-label">

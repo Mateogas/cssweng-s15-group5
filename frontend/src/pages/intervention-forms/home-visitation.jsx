@@ -35,31 +35,56 @@ function HomeVisitationForm() {
 
     const [familyMembers, setFamilyMembers] = useState([
         {
-            name: "Ana Victoria Angat",
+            id: 1,
+            first: "Ana",
+            middle: "Victoria",
+            last: "Angat",
             age: 20,
             income: 100000.0,
             civilStatus: "Single",
             occupation: "Software Developer",
             education: "Undergraduate",
             relationship: "Sister",
+            deceased: false,
         },
         {
-            name: "Marvin Ivan Mangubat",
+            id: 2,
+            first: "Marvin",
+            middle: "Ivan",
+            last: "Mangubat",
             age: 21,
             income: 0.0,
             civilStatus: "Divorced",
             occupation: "Unemployed",
             education: "Undergraduate",
             relationship: "Sister",
+            deceased: false,
         },
         {
-            name: "Jose Miguel Espinosa",
+            id: 3,
+            first: "Jose",
+            middle: "Miguel",
+            last: "Espinosa",
             age: 21,
             income: 100000.0,
             civilStatus: "Single",
             occupation: "Producer",
             education: "Undergraduate",
             relationship: "Brother",
+            deceased: false,
+        },
+        {
+            id: 4,
+            first: "Jose2",
+            middle: "Miguel2",
+            last: "Espinosa2",
+            age: 21,
+            income: 100000.0,
+            civilStatus: "Single",
+            occupation: "Producer",
+            education: "Undergraduate",
+            relationship: "Brother",
+            deceased: false,
         },
     ]);
 
@@ -133,6 +158,18 @@ function HomeVisitationForm() {
 
     /********** USE STATES **********/
 
+    /********** MODALS **********/
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => {});
+    const [modalImageCenter, setModalImageCenter] = useState(null);
+
+    /********** MODALS **********/
+
     /********** FUNCTIONS **********/
 
     const handleAddFamilyMember = () => {
@@ -188,7 +225,7 @@ function HomeVisitationForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
@@ -370,31 +407,35 @@ function HomeVisitationForm() {
             </section>
 
             {/* Family Members */}
-            <section className="flex flex-col gap-8">
-                <h1 className="header-main">
+            <section className="flex flex-col gap-10">
+                <h3 className="header-md">
                     Members and/or Other Members of the Family
-                </h1>
+                </h3>
 
                 <button
-                    className="btn-primary font-bold-label drop-shadow-base"
+                    className="btn-primary label-base drop-shadow-base"
                     onClick={handleAddFamilyMember}
                 >
                     Add Family Member
                 </button>
 
                 <div className="flex justify-between gap-10">
-                    <div className="flex flex-wrap gap-8">
+                    <div className="outline-gray flex w-full flex-wrap gap-8 overflow-x-auto rounded-lg p-6">
                         {familyMembers.map((member, index) => (
                             <FamilyCard
                                 key={index}
                                 index={index}
                                 member={member}
                                 selectedFamily={selectedFamily}
-                                setSelectedFamily={setSelectedFamily}
                                 editingFamilyValue={editingFamilyValue}
-                                setEditingFamilyValue={setEditingFamilyValue}
                                 familyMembers={familyMembers}
-                                setFamilyMembers={setFamilyMembers}
+                                setShowModal={setShowModal}
+                                setModalTitle={setModalTitle}
+                                setModalBody={setModalBody}
+                                setModalImageCenter={setModalImageCenter}
+                                setModalConfirm={setModalConfirm}
+                                setModalOnConfirm={setModalOnConfirm}
+                                editable={false}
                             />
                         ))}
                     </div>
