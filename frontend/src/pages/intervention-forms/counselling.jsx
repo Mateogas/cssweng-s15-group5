@@ -58,7 +58,7 @@ function CounsellingForm() {
     /********** USE STATES **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
