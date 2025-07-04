@@ -1,6 +1,6 @@
 import React from "react";
 
-export const TextInput = ({ label, value, setValue }) => {
+export const TextInput = ({ label, value, setValue, disabled = false }) => {
     return (
         <div className="flex items-center gap-10">
             <p className="label-base w-44">{label}</p>
@@ -8,13 +8,14 @@ export const TextInput = ({ label, value, setValue }) => {
                 type="text"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                className="body-base text-input w-64"
+                disabled={disabled}
+                className={`body-base text-input w-64 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
         </div>
     );
 };
 
-export const DateInput = ({ label, value, setValue }) => {
+export const DateInput = ({ label, value, setValue, disabled = false }) => {
     return (
         <div className="flex items-center gap-10">
             <p className="label-base w-44">{label}</p>
@@ -22,7 +23,8 @@ export const DateInput = ({ label, value, setValue }) => {
                 type="date"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                className="body-base text-input w-64"
+                disabled={disabled}
+                className={`body-base text-input w-64 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
         </div>
     );
@@ -35,6 +37,7 @@ export const TextArea = ({
     value,
     setValue,
     handleChange,
+    disabled = false,
 }) => {
     return (
         <section className="flex w-full flex-col gap-3">
@@ -50,7 +53,7 @@ export const TextArea = ({
             <textarea
                 value={value}
                 onChange={handleChange || ((e) => setValue?.(e.target.value))}
-                className="text-area"
+                className={`text-area ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
             ></textarea>
         </section>
     );

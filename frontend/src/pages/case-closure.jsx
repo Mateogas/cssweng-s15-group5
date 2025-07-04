@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 function CaseClosure() {
-
     /********** TEST DATA **********/
 
     const [data, setData] = useState({
@@ -125,7 +124,7 @@ function CaseClosure() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Case Closure Report</h3>
 
@@ -140,46 +139,46 @@ function CaseClosure() {
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
-                                setValue={setDOB}
+                                disabled={true}
                             ></DateInput>
                             <TextInput
                                 label="Age"
                                 value={age}
-                                setValue={setAge}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Religion"
                                 value={religion}
-                                setValue={setReligion}
+                                disabled={true}
                             ></TextInput>
                             <div className="flex gap-10">
                                 <p className="label-base w-44">Address</p>
                                 <textarea
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
+                                    disabled={true}
+                                    className="text-area cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
@@ -195,7 +194,7 @@ function CaseClosure() {
                             <TextInput
                                 label="Name of SPU/Cluster"
                                 value={spu}
-                                setValue={setSPU}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
