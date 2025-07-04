@@ -413,7 +413,7 @@ function CaseFrontend() {
         setFamilyConfirm(false);
         setSelectedFamily(null);
     };
-    
+
     const [intervention_selected, setInterventionSelected] = useState("");
 
     const [home_visitations, setHomeVisitations] = useState([
@@ -482,6 +482,21 @@ function CaseFrontend() {
         "Financial Assistance": financial_assistances,
         Correspondences: correspondences,
     };
+
+    const [progress_reports, setProgressReports] = useState([
+        {
+            name: "Progress Report",
+            date: "May 16, 2025",
+        },
+        {
+            name: "Progress Report",
+            date: "June 17, 2025",
+        },
+        {
+            name: "Progress Report",
+            date: "July 02, 2025",
+        },
+    ]);
 
     return (
         <>
@@ -1458,6 +1473,49 @@ function CaseFrontend() {
                                     >
                                         <p className="label-base w-80">
                                             {item.intervention} {index + 1}
+                                        </p>
+                                        <p className="label-base w-80">
+                                            {item.date}
+                                        </p>
+                                    </button>
+                                ),
+                            )}
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    className="flex flex-col gap-8"
+                    id="interventions"
+                    ref={ref4}
+                >
+                    <div className="flex justify-between">
+                        <h1 className="header-main">Progress Reports</h1>
+                    </div>
+                    <button
+                        name="add_progress_report"
+                        id="add_progress_report"
+                        onClick={() => navigate("/progress-report")}
+                        className="btn-primary self-center"
+                    >
+                        New Progress Report
+                    </button>
+                    <div className="flex w-full flex-col">
+                        <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
+                            <div className="flex justify-between px-2.5">
+                                <p className="label-base w-80">Progress Report</p>
+                                <p className="label-base w-80">Date</p>
+                            </div>
+                        </div>
+                        <div className="flex w-full flex-col flex-wrap gap-2.5">
+                            {progress_reports?.map(
+                                (item, index) => (
+                                    <button
+                                        key={index}
+                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                    >
+                                        <p className="label-base w-80">
+                                            {item.name} {index + 1}
                                         </p>
                                         <p className="label-base w-80">
                                             {item.date}
