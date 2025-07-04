@@ -6,8 +6,6 @@ import FinancialAssessmentForm from "./financial-assessment";
 import CounsellingForm from "./counselling";
 import CorrespondenceForm from "./correspondence";
 import HomeVisitationForm from "./home-visitation";
-import ProgressReport from "../progress-report";
-import CaseClosure from "../case-closure";
 
 function InterventionForm() {
     /********** TEST DATA **********/
