@@ -1,8 +1,11 @@
 @import "@fontsource/inter"; 
 @import "tailwindcss";
 
+
 @import './styles/typography.css';
 @import './styles/components.css';
+@import './styles/icons.css';
+@import './styles/navigation.css';
 
 html {
   font-size: 62.5%; /* Makes 1 rem = 10px, this is good for accessility if ever */
@@ -18,6 +21,16 @@ html {
 
     --accent-dark: #93989E;
     --accent-white: #F2F2F2;
+
+    --text-color: hsl(0, 0%, 5%);
+    --text-color-muted: hsl(0, 0%, 30%);
+
+    --bg-color-dark: hsl(0, 0%, 90%);
+    --bg-color: hsl(0, 0%, 95%);
+    --bg-color-light: hsl(0, 0%, 100%);
+
+    --border-color: hsl(0, 0%, 70%);
+    --border-color-muted: hsl(0, 0%, 90%);
 }
 
 input[type="checkbox"] {

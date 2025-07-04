@@ -1,31 +1,11 @@
 import React from "react"
 
-import { updateFamilyMember, addFamilyMember, deleteFamilyMember } from '../fetch-connections/case-connection'; 
-
-/**
- *   Formats the currency
- * 
- *   @param {*} value : Value to be formatted (assumed Number)
- *   @returns : The formatted string
- * 
- *   [NOTE]: Applied this in income display; changed the income input to of type number
- */
-function currency_Formatter(value) {
-    if (typeof value !== "number") return "PHP0.00";
-    return value.toLocaleString("en-PH", {
-        style: "currency",
-        currency: "PHP",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
 const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
     editingFamilyValue, setEditingFamilyValue, familyMembers, setFamilyMembers,
     // handleDeleteFamilyMember, setFamilyToDelete,
     handleDeleteFamilyMember,
     setShowModal, setModalTitle, setModalBody, setModalImageCenter,
-    setModalConfirm, setModalOnConfirm, data
+    setModalConfirm, setModalOnConfirm
 }) => {
 
     const isEditing = selectedFamily === index
@@ -34,26 +14,11 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
         setEditingFamilyValue({ ...editingFamilyValue, [field]: value })
     }
 
-    const handleSave = async() => {
-        var updatedMember
-        if (!familyMembers[selectedFamily].id) { 
-            updatedMember = await addFamilyMember(editingFamilyValue);
-        }
-        else {
-            updatedMember = await updateFamilyMember(familyMembers[selectedFamily].id, editingFamilyValue);
-        }
-
-        if (typeof updatedMember === 'string') {
-            const updated = familyMembers.filter((_, i) => i !== index);
-            setFamilyMembers(updated);
-            setSelectedFamily(null);
-        } else {
-            const updated = [...familyMembers]
-            updated[selectedFamily] = updatedMember
-
-            setFamilyMembers(updated)
-            setSelectedFamily(null)
-        }
+    const handleSave = () => {
+        const updated = [...familyMembers]
+        updated[index] = { ...editingFamilyValue }
+        setFamilyMembers(updated)
+        setSelectedFamily(null)
     }
 
     const handleDelete = () => {
@@ -68,15 +33,11 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                 {isEditing ? (
                     <h3 className="header-sub">Editing Member</h3>
                 ) : (
-                    <h3 className="header-sub">{member.last || '-'}, {member.first || '-'} {member.middle}</h3>
+                    <h3 className="header-sub">{member.last || '-'}, {member.first || '-'} {member.middle || '-'}</h3>
                 )}
 
                 <button className={isEditing ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                     if (isEditing) {
-                        if (member.unsaved) {
-                            const updated = familyMembers.filter((_, i) => i !== index);
-                            setFamilyMembers(updated);
-                        }
                         setSelectedFamily(null)
                     } else {
                         setEditingFamilyValue({ ...member })
@@ -92,7 +53,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                     { label: 'Middle Name', key: 'middle', type: 'text' },
                     { label: 'Last Name', key: 'last', type: 'text' },
                     { label: 'Age', key: 'age', type: 'number' },
-                    { label: 'Income', key: 'income', type: 'number' },
+                    { label: 'Income', key: 'income', type: 'text' },
                     { label: 'Civil Status', key: 'civilStatus', type: 'text' },
                     { label: 'Occupation', key: 'occupation', type: 'text' },
                     { label: 'Educational Attainment', key: 'education', type: 'text' },
@@ -108,11 +69,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                                 onChange={(e) => handleInputChange(key, e.target.value)}
                             />
                         ) : (
-                            `: ${
-                                key === 'income'
-                                    ? currency_Formatter(member[key])
-                                    : member[key] || '-'
-                            }`
+                            `: ${member[key] || '-'}`
                         )}
                     </React.Fragment>
                 ))}
@@ -141,12 +98,8 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                             setModalImageCenter(<div className='warning-icon mx-auto'></div>);
                             setModalConfirm(true);
 
-                            setModalOnConfirm(() => async () => {
+                            setModalOnConfirm(() => () => {
                                 handleDeleteFamilyMember(idToDelete);
-
-                                const updated = await deleteFamilyMember(familyMembers[selectedFamily].id)
-                                setFamilyMembers(updated)
-                                setSelectedFamily(null)
                             });
         
                             setShowModal(true);
@@ -154,9 +107,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                     </button>
                     <button
                         className='btn-transparent-rounded'
-                        onClick={async() => { 
-                            await handleSave() 
-                        }}>
+                        onClick={handleSave}>
                         Save Changes
                     </button>
                 </div>
