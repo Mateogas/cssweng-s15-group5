@@ -203,29 +203,29 @@ function HomeVisitationForm() {
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
                             <TextInput
                                 label="Grade/Year Course"
                                 value={grade_year_course}
-                                setValue={setGradeYearCourse}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Year/s in the Program"
                                 value={years_in_program}
-                                setValue={setYearsInProgram}
+                                disabled={true}
                             ></TextInput>
                             <div className="flex items-center gap-10">
                                 <p className="label-base w-44">Family Type</p>
@@ -307,27 +307,27 @@ function HomeVisitationForm() {
                             <TextInput
                                 label="Last Name"
                                 value={father_last_name}
-                                setValue={setFatherLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={father_first_name}
-                                setValue={setFatherFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={father_middle_name}
-                                setValue={setFatherMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Work"
                                 value={father_work}
-                                setValue={setFatherWork}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Income"
                                 value={father_income}
-                                setValue={setFatherIncome}
+                                disabled={true}
                             ></TextInput>
                         </div>
                     </div>
@@ -342,27 +342,27 @@ function HomeVisitationForm() {
                             <TextInput
                                 label="Last Name"
                                 value={mother_last_name}
-                                setValue={setMotherLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={mother_first_name}
-                                setValue={setMotherFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={mother_middle_name}
-                                setValue={setMotherMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Work"
                                 value={mother_work}
-                                setValue={setMotherWork}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Income"
                                 value={mother_income}
-                                setValue={setMotherIncome}
+                                disabled={true}
                             ></TextInput>
                         </div>
                     </div>
