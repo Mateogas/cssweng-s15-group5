@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 function FinancialAssessmentForm() {
-
     /********** TEST DATA **********/
 
     const [data, setData] = useState({
@@ -63,7 +62,7 @@ function FinancialAssessmentForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 Assessment Form for Special Family Assistance
@@ -210,29 +209,29 @@ function FinancialAssessmentForm() {
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Area and Sub-Project"
                                 value={area_and_subproject}
-                                setValue={setAreaAndSubproject}
+                                disabled={true}
                             ></TextInput>
                         </div>
                     </div>
