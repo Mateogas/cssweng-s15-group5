@@ -4,7 +4,7 @@ import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 // API Imports
 import {
-    fetchCounselingInformation,
+    fetchCaseData,
     addCounselingIntervention,
 } from "../../fetch-connections/intervention-connection";
 
@@ -61,7 +61,7 @@ function CounsellingForm() {
     useEffect(() => {
         const loadData = async () => {
             // setLoading(true);
-            const fetchedData = await fetchCounselingInformation('685e536add2b486dad9efd88');
+            const fetchedData = await fetchCaseData('685e536add2b486dad9efd88');
             setData(fetchedData);
             // setLoading(false);
 
@@ -75,8 +75,8 @@ function CounsellingForm() {
             setAddress(fetchedData.address || "");
             setSubproject(fetchedData.subproject || "");
             setAreaSelfHelp(fetchedData.area_self_help || "");
-            setCounselingDate(fetchedData.counselling_date || "");
-            setReasonForCounseling(fetchedData.reason_for_counselling || "");
+            setCounselingDate(fetchedData.counseling_date || "");
+            setReasonForCounseling(fetchedData.reason_for_counseling || "");
             setCorrectiveAction(fetchedData.corrective_action || "");
             setRecommendation(fetchedData.recommendation || "");
             setSMComments(fetchedData.sm_comments || "");

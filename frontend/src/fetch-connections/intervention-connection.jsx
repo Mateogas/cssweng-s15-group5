@@ -1,7 +1,7 @@
 // ========== COUNSELING INTERVENTION CONNECTION ==========
-export const fetchCounselingInformation = async (caseID) => {
+export const fetchCaseData = async (caseID) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/${caseID}`, {
+        const response = await fetch(`/api/intervention/counseling/add/${caseID}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -29,6 +29,38 @@ export const fetchCounselingInformation = async (caseID) => {
         throw error;
     }
 };
+
+export const fetchCounselingIntervention = async (interventionID) => {
+    try {
+        const response = await fetch(`/api/intervention/counseling/intervention/${interventionID}`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch counseling intervention");
+        }
+
+        const intervention = await response.json();
+        return intervention;
+    } catch (error) {
+        console.error("Error fetching counseling intervention:", error);
+        throw error;
+    }
+}
+
+export const fetchAllCounselingInterventionsByMemberId = async (memberID) => {
+    try {
+        const response = await fetch(`/api/intervention/counseling/member/${memberID}`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch counseling interventions");
+        }
+
+        const interventions = await response.json();
+        return interventions;
+    } catch (error) {
+        console.error("Error fetching counseling interventions:", error);
+        throw error;
+    }
+}
 
 export const addCounselingIntervention = async (data, caseID) => {
     try {

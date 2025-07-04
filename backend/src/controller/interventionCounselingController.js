@@ -2,6 +2,84 @@ const mongoose = require('mongoose');
 const Sponsored_Member = require('../model/sponsored_member');
 const Intervention_Counseling = require('../model/intervention_counseling');
 
+const getCounselingInterventionById = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Find the counseling intervention by ID
+        const intervention = await Intervention_Counseling.findById(id);
+        if (!intervention) {
+            console.log('Intervention not found');
+            return res.status(404).json({ error: 'Counseling intervention not found' });
+        }
+
+        // Populate the sponsored member details
+        const sponsored_member = await Sponsored_Member.findOne({
+            'interventions.intervention': id
+        }).populate('interventions.intervention');
+
+        if (!sponsored_member) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
+        }
+
+        return res.status(200).json({
+            message: 'Counseling intervention retrieved successfully',
+            grade_year_level: intervention.grade_year_level,
+            school: intervention.school,
+            area_self_help: intervention.area_self_help,
+            counseling_date: new Date(intervention.counseling_date).toISOString().split('T')[0],
+            reason_for_counseling: intervention.reason_for_counseling,
+            corrective_action: intervention.corrective_action,
+            recommendation: intervention.recommendation,
+            sm_comments: intervention.sm_comments,
+            progress_reports: intervention.progress_reports,
+            first_name: sponsored_member.first_name,
+            middle_name: sponsored_member.middle_name,
+            last_name: sponsored_member.last_name,
+            ch_number: sponsored_member.sm_number,
+            subproject: sponsored_member.spu,
+            address: sponsored_member.present_address,
+        });
+    } catch (error) {
+        console.error('Error fetching counseling intervention:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+const getAllCounselingInterventionsByMemberId = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Find the sponsored member by ID
+        const sponsored_member = await Sponsored_Member.findById(id).populate('interventions.intervention');
+        if (!sponsored_member) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
+        }
+
+        // Filter interventions of type 'Intervention Counseling'
+        const counselingInterventions = sponsored_member.interventions.filter(intervention => 
+            intervention.interventionType === 'Intervention Counseling'
+        );
+
+        return res.status(200).json({
+            message: 'Counseling interventions retrieved successfully',
+            interventions: counselingInterventions,
+            sponsored_member: {
+                id: sponsored_member._id,
+                first_name: sponsored_member.first_name,
+                middle_name: sponsored_member.middle_name,
+                last_name: sponsored_member.last_name,
+                ch_number: sponsored_member.sm_number,
+                subproject: sponsored_member.spu,
+                address: sponsored_member.present_address,
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching counseling interventions:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 /**
  * Adds a new counseling intervention record to the database.
  */
@@ -207,6 +285,8 @@ const editCounselingIntervention = async (req, res) => {
 }
 
 module.exports = {
+    getCounselingInterventionById,
+    getAllCounselingInterventionsByMemberId,
     addCounselingIntervention,
     deleteCounselingIntervention,
     editCounselingIntervention,
