@@ -19,7 +19,7 @@ app.use(express.json());
  */
 const caseController = require("./controller/caseController");
 const caseRoutes = require('./route/caseRoutes')
-
+const interventFinRoutes = require('./route/interventFinRoute.js');
 /**
  *  ============ Routes ==============
  */
@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 
 // all case routes
 app.use('/api/cases', caseRoutes);
-
+app.use('/api/interventions/financial',interventFinRoutes);
 /*
 Code below was added by gpt as a bug fix to when you reload it turns into json, this happens because of routing issues with
 vite+react to be able to use this tho you first need to build the front end
