@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../Components/TextField";
+import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 function ProgressReport() {
-
     /********** TEST DATA **********/
 
     const [data, setData] = useState({
@@ -90,7 +89,8 @@ function ProgressReport() {
 
         const birthdayDone =
             today.getMonth() > birthday.getMonth() ||
-            (today.getMonth() === birthday.getMonth() && today.getDate() >= birthday.getDate());
+            (today.getMonth() === birthday.getMonth() &&
+                today.getDate() >= birthday.getDate());
 
         if (!birthdayDone) {
             age--;
@@ -102,7 +102,7 @@ function ProgressReport() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Individual Progress Report</h3>
 
@@ -136,11 +136,11 @@ function ProgressReport() {
                                 value={ch_number}
                                 setValue={setCHNumber}
                             ></TextInput>
-                            <TextInput
+                            <DateInput
                                 label="Date of Birth"
                                 value={dob}
                                 setValue={setDOB}
-                            ></TextInput>
+                            ></DateInput>
                             <TextInput
                                 label="Age"
                                 value={age}
@@ -161,11 +161,11 @@ function ProgressReport() {
                                 value={subproject}
                                 setValue={setSubproject}
                             ></TextInput>
-                            <TextInput
+                            <DateInput
                                 label="Date Accomplished"
                                 value={date_accomplished}
                                 setValue={setDateAccomplished}
-                            ></TextInput>
+                            ></DateInput>
                             <TextInput
                                 label="Period Covered"
                                 value={period_covered}
@@ -178,11 +178,11 @@ function ProgressReport() {
                                 value={sponsor_name}
                                 setValue={setSponsorName}
                             ></TextInput>
-                            <TextInput
+                            <DateInput
                                 label="Sponsorship Begin Date"
                                 value={sponsorship_date}
                                 setValue={setSponsorshipDate}
-                            ></TextInput>
+                            ></DateInput>
                         </div>
                     </div>
                 </div>
@@ -235,7 +235,10 @@ function ProgressReport() {
                 <h4 className="header-sm">Relationship to Sponsor & Unbound</h4>
                 <div className="flex gap-24">
                     {relation_to_sponsor.map((q) => (
-                        <div key={q.id} className="flex flex-col gap-5 justify-end">
+                        <div
+                            key={q.id}
+                            className="flex flex-col justify-end gap-5"
+                        >
                             <p className="body-base">{q.text}</p>
                             <div className="flex gap-8">
                                 {options.map((option) => (
@@ -248,7 +251,12 @@ function ProgressReport() {
                                             name={q.id}
                                             value={option}
                                             checked={responses[q.id] === option}
-                                            onChange={() => handleCheckboxChange(q.id, option)}
+                                            onChange={() =>
+                                                handleCheckboxChange(
+                                                    q.id,
+                                                    option,
+                                                )
+                                            }
                                         />
                                         {option}
                                     </label>
@@ -260,7 +268,7 @@ function ProgressReport() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between mt-10">
+            <div className="mt-10 flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Progress Report</button>
             </div>
