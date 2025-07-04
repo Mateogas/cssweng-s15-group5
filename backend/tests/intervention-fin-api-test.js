@@ -3,7 +3,7 @@ const axios = require('axios');
 // Configuration
 const BASE_URL = 'http://localhost:3000/api/interventions/financial';
 // Replace with a valid MongoDB ObjectId from your database
-const STATIC_SPONSORED_MEMBER_ID = '6849646feaa08161083d1aec'; 
+const STATIC_SPONSORED_MEMBER_ID = '685e536add2b486dad9efd88'; 
 
 // Test data for creating a financial intervention
 const testInterventionData = {
@@ -115,12 +115,11 @@ async function testGetAllForms() {
     console.log('✅ All forms retrieved successfully!');
     console.log('Status:', response.status);
     console.log('Number of Forms:', response.data.length);
-    console.log('Form IDs:', response.data.map(form => form._id));
+    console.log('Form IDs:', response.data.map(form => form.id)); // CHANGED: _id → id
   } catch (error) {
     console.error('❌ Error retrieving all forms:', error.response?.data || error.message);
   }
 }
-
 // Run the tests
 async function runTests() {
   console.log('=== STARTING API TESTS ===');

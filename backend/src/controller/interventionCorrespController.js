@@ -96,7 +96,6 @@ const getAllCorrespondenceInterventions = async (req, res) => {
     }
 
     try {
-        // Find the sponsored member and populate only interventions of the correct type
         const sponsoredMember = await Sponsored_Member.findById(sponsored_id)
             .populate({
                 path: 'interventions.intervention',
@@ -108,14 +107,13 @@ const getAllCorrespondenceInterventions = async (req, res) => {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
 
-        // Filter out nulls (if any interventions are not of the correct type)
-        const correspondenceInterventions = (sponsoredMember.interventions || [])
-            .map(i => i.intervention)
-            .filter(i => i)
-            .map(i => ({
-                id: i._id,
-                intervention_number: i.intervention_number,
-            }));
+        // Return both id and intervention_number for each correspondence intervention
+       const correspondenceInterventions = (sponsoredMember.interventions || [])
+        .filter(i => i.interventionType === 'Intervention Correspondence')
+        .map(i => ({
+            id: i.intervention ? i.intervention._id : i.intervention, // could be null
+            intervention_number: i.intervention_number
+        }));
 
         return res.status(200).json(correspondenceInterventions);
     } catch (error) {

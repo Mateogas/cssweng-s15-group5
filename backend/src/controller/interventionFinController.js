@@ -158,25 +158,18 @@ const getAllFinancialInterventions = async (req, res) => {
     }
 
     try {
-        // Find the sponsored member and populate only interventions of the correct type
-        const sponsoredMember = await Sponsored_Member.findById(sponsored_id)
-            .populate({
-                path: 'interventions.intervention',
-                match: { interventionType: 'Intervention Financial Assessment' }
-            })
-            .lean();
+        const sponsoredMember = await Sponsored_Member.findById(sponsored_id).lean();
 
         if (!sponsoredMember) {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
 
-        // Filter out nulls (if any interventions are not of the correct type)
+        // Filter interventions in memory instead
         const financialInterventions = (sponsoredMember.interventions || [])
-            .map(i => i.intervention)
-            .filter(i => i)
+            .filter(i => i.interventionType === 'Intervention Financial Assessment')
             .map(i => ({
-                id: i._id,
-                intervention_number: i.intervention_number,
+                id: i.intervention,
+                intervention_number: i.intervention_number
             }));
 
         return res.status(200).json(financialInterventions);
