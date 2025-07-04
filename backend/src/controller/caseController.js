@@ -458,6 +458,16 @@ const addFamilyMember = async (req, res) => {
           if (updateDetails.deceased)
                status = "Deceased"
 
+          if (updateDetails.income < 0)
+               updateDetails.income = 0
+
+          if (parseInt(updateDetails.age) == 0)
+               updateDetails.age = 0
+          else if (!parseInt(updateDetails.age))
+               updateDetails.age = 0
+          else if (parseInt(updateDetails.age) < 0)
+               updateDetails.age = 0
+          
           const newMember = new Family_Member({
                first_name: updateDetails.first,
                middle_name: updateDetails.middle || "",
@@ -565,11 +575,14 @@ const editFamilyMember = async (req, res) => {
           if (updateDetails.deceased)
                status = "Deceased"
 
-          console.log(updateDetails)
-
           if (updateDetails.income < 0)
                updateDetails.income = familySelected.income
-          if (parseInt(updateDetails.age))
+
+          if (parseInt(updateDetails.age) == 0)
+               updateDetails.age = 0
+          else if (!parseInt(updateDetails.age))
+               updateDetails.age = familySelected.age
+          else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = familySelected.age
 
           /**
@@ -578,21 +591,21 @@ const editFamilyMember = async (req, res) => {
            *   In case that the updateDetails is an empty string, the default value is retrieved
            */
           const updatedData = {
-               firstName: updateDetails.first || familySelected.first_name,
-               middleName: updateDetails.middle || familySelected.middle_name,
+               first_name: updateDetails.first || familySelected.first_name,
+               middle_name: updateDetails.middle || "",
                last_name: updateDetails.last || familySelected.last_name,
 
                age: updateDetails.age !== undefined && updateDetails.age !== ""
                     ? parseInt(updateDetails.age)
                     : familySelected.age,
                     
-               income: updateDetails.income || familySelected.income,
+               income: updateDetails.income || 0,
                civil_status: updateDetails.civilStatus || familySelected.civil_status,
                occupation: updateDetails.occupation || familySelected.occupation,
                edu_attainment: updateDetails.education || familySelected.edu_attainment,
                status: status || familySelected.status
           };
-          const updatedFam = await Family_Member.findByIdAndUpdate(familySelected, updatedData, { new: true });
+          const updatedFam = await Family_Member.findByIdAndUpdate(familySelected._id, updatedData, { new: true });
 
           const updatedRel = await Family_Relationship.findByIdAndUpdate(
                relationshipSelected._id, 
