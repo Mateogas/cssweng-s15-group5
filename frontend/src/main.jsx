@@ -2,11 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
+
+import Login from "./pages/login.jsx";
 import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
 import HomeAdmin from "./pages/home-admin.jsx";
 import Archive from "./pages/archive.jsx";
+import WorkerProfile from "./pages/WorkerProfile.jsx";
 
 import ProgressReport from "./pages/progress-report.jsx";
 import CaseClosure from "./pages/case-closure.jsx";
@@ -19,14 +22,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<App />} />
+                <Route path="/login" element={<Login />} />
+
                 <Route path="/testcase" element={<Case />} />
 
                 <Route path="/case-frontend" element={<CaseFrontend />} />
 
-
                 <Route path="/home-sdw" element={<HomeSDW />} />
                 <Route path="/home-admin" element={<HomeAdmin />} />
                 <Route path="/archive" element={<Archive />} />
+
+                <Route path="/worker-profile" element={<WorkerProfile />} />
 
                 <Route
                     path="/intervention-form"

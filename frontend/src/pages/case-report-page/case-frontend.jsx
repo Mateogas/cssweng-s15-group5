@@ -7,6 +7,8 @@ import SimpleModal from "../../Components/SimpleModal";
 import NavLabelButton from "../../Components/NavLabelButton";
 
 function CaseFrontend() {
+    const navigate = useNavigate();
+
     const [data, setData] = useState({
         first_name: "Hephzi-Bah",
         middle_name: "Gamac",
@@ -411,8 +413,7 @@ function CaseFrontend() {
         setFamilyConfirm(false);
         setSelectedFamily(null);
     };
-
-    const navigate = useNavigate();
+    
     const [intervention_selected, setInterventionSelected] = useState("");
 
     const [home_visitations, setHomeVisitations] = useState([
@@ -506,8 +507,12 @@ function CaseFrontend() {
 
             <main className="flex flex-col gap-20 pt-15">
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
-                <div className="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1280px] items-center justify-between bg-white px-4 py-3">
-                    <button className="font-bold-label arrow-group flex items-center gap-5 px-4 py-2">
+                <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
+                items-center bg-white py-3 px-4 '>
+                    <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
+                        onClick={() => {
+                            navigate('/home-sdw');
+                        }}>
                         <div className="arrow-left-button"></div>
                         Back
                     </button>
@@ -1252,11 +1257,11 @@ function CaseFrontend() {
                     <div className="flex justify-between gap-10">
                         <div
                             // ref={sliderRef}
-                            className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
-                            // onMouseDown={handleMouseDown}
-                            // onMouseLeave={handleMouseLeave}
-                            // onMouseUp={handleMouseUp}
-                            // onMouseMove={handleMouseMove}
+                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto"
+                        // onMouseDown={handleMouseDown}
+                        // onMouseLeave={handleMouseLeave}
+                        // onMouseUp={handleMouseUp}
+                        // onMouseMove={handleMouseMove}
                         >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard

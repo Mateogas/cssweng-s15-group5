@@ -8,6 +8,11 @@
     color: var(--color-black);
 }
 
+.header-plain {
+    @apply font-sans text-[2.4rem];
+    color: var(--color-black);
+}
+
 .header-xl {
     @apply font-sans font-semibold text-[4.5rem];
 }
