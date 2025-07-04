@@ -117,34 +117,34 @@ function ProgressReport() {
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
-                                setValue={setDOB}
+                                disabled={true}
                             ></DateInput>
                             <TextInput
                                 label="Age"
                                 value={age}
-                                setValue={setAge}
+                                disabled={true}
                             ></TextInput>
                         </div>
                     </div>
@@ -159,7 +159,7 @@ function ProgressReport() {
                             <TextInput
                                 label="Sub-Project"
                                 value={subproject}
-                                setValue={setSubproject}
+                                disabled={true}
                             ></TextInput>
                             <DateInput
                                 label="Date Accomplished"
