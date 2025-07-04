@@ -412,13 +412,6 @@ function HomeVisitationForm() {
                     Members and/or Other Members of the Family
                 </h3>
 
-                <button
-                    className="btn-primary label-base drop-shadow-base"
-                    onClick={handleAddFamilyMember}
-                >
-                    Add Family Member
-                </button>
-
                 <div className="flex justify-between gap-10">
                     <div className="outline-gray flex w-full flex-wrap gap-8 overflow-x-auto rounded-lg p-6">
                         {familyMembers.map((member, index) => (
