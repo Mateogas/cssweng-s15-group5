@@ -75,12 +75,12 @@ export default function ProfileModal({ isOpen, onClose }) {
     const bgColor = getColorFromId(userData.username || '');
     const textColor = getTextColorForBackground(bgColor);
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    onClose();
-    navigate('/login'); 
-  };
+    const handleLogout = () => {
+        onClose();
+        navigate('/login');
+    };
 
     return (
         <AnimatePresence>
@@ -107,13 +107,25 @@ export default function ProfileModal({ isOpen, onClose }) {
                                     {initials}
                                 </div>
 
-                                <div className='flex flex-col'>
-                                    <p className='header-plain'><span className="header-sub">Username:</span> {userData.username}</p>
-                                    <p className='header-plain'><span className="header-sub">SDW ID:</span> {userData.id}</p>
-                                    <p className='header-plain'><span className="header-sub">Email:</span> {userData.email}</p>
-                                    <p className='header-plain'><span className="header-sub">Contact Number:</span> {userData.contact_number}</p>
+<div className="grid grid-cols-2 gap-x-10 gap-y-4">
+  <div className="flex flex-col">
+    <p className="header-sub">Username:</p>
+    <p className="header-plain">{userData.username}</p>
+  </div>
+  <div className="flex flex-col">
+    <p className="header-sub">SDW ID:</p>
+    <p className="header-plain">{userData.id}</p>
+  </div>
+  <div className="flex flex-col">
+    <p className="header-sub">Email:</p>
+    <p className="header-plain">{userData.email}</p>
+  </div>
+  <div className="flex flex-col">
+    <p className="header-sub">Contact Number:</p>
+    <p className="header-plain">{userData.contact_number}</p>
+  </div>
+</div>
 
-                                </div>
 
                             </div>
                             <div className="w-full flex gap-3 justify-around">
