@@ -104,8 +104,8 @@ function ProgressReport() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex justify-center">
-            <div className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex justify-center px-20 py-20">
+            <div className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
                 <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 <h3 className="header-md">Individual Progress Report</h3>
 
@@ -237,7 +237,7 @@ function ProgressReport() {
                     <h4 className="header-sm">
                         Relationship to Sponsor & Unbound
                     </h4>
-                    <div className="flex gap-24">
+                    <div className="flex gap-x-24 gap-y-10 flex-wrap">
                         {relation_to_sponsor.map((q) => (
                             <div
                                 key={q.id}
