@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const InterventionCorrespondenceSchema = new Schema ({
-     intervention_type: {
-          type: mongoose.Schema.Types.ObjectId, 
-          ref: 'Intervention Type',
+    interventionType:{
+        type:String,
+        default:'Intervention Correspondence',
+        required:true
+    },
 
-          required: true
-     },
      name_of_sponsor: {
           type: String,
           required: true

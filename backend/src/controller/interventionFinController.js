@@ -173,7 +173,11 @@ const getAllFinancialInterventions = async (req, res) => {
         // Filter out nulls (if any interventions are not of the correct type)
         const financialInterventions = (sponsoredMember.interventions || [])
             .map(i => i.intervention)
-            .filter(i => i);
+            .filter(i => i)
+            .map(i => ({
+                id: i._id,
+                intervention_number: i.intervention_number,
+            }));
 
         return res.status(200).json(financialInterventions);
     } catch (error) {
@@ -181,8 +185,48 @@ const getAllFinancialInterventions = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+
+
+const editFinancialForm = async(req,res) =>{
+    const formId = req.params.formId
+    const newData = req.body
+    if (!mongoose.Types.ObjectId.isValid(formId)) {
+        return res.status(400).json({ message: 'Invalid Form ID' });
+    }    
+
+    try{
+        interFinSchemaValidator.validate(newData);
+
+        const updatedForm = await Intervention_Financial.findByIdAndUpdate(
+            formId,
+            newData,
+            {
+                new:true
+            }).lean();
+        
+        if (!updatedForm) {
+            return res.status(404).json({ message: 'Form not found' });
+        }        
+
+        res.status(200).json({
+            message:'Form updated succesfully',
+            form: updatedForm,
+        })
+
+    }catch(error){
+
+        console.error('Error updating form:', error);
+        res.status(500).json({ 
+            message: 'Failed to update form', 
+            error: error.message 
+        });
+    }
+
+}
 module.exports = {
     createFinForm,
     getFinancialForm,
     getAllFinancialInterventions,
+    editFinancialForm,
 }
