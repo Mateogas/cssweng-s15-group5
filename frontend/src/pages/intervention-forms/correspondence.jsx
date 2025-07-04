@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 function CorrespondenceForm() {
-    
     /********** TEST DATA **********/
 
     const [data, setData] = useState({
@@ -73,8 +72,31 @@ function CorrespondenceForm() {
 
     /********** USE STATES **********/
 
+    /********** FUNCTIONS **********/
+
+    const handleAddIntervention = () => {
+        const new_intervention = {
+            action: "",
+            time_frame: "",
+            results: "",
+            person_responsible: "",
+        };
+
+        setInterventionPlan((prev) => [...prev, new_intervention]);
+    };
+
+    const updateIntervention = (index, key, value) => {
+        setInterventionPlan((prev) =>
+            prev.map((item, i) =>
+                i === index ? { ...item, [key]: value } : item,
+            ),
+        );
+    };
+
+    /********** FUNCTIONS **********/
+
     return (
-        <main className="flex w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 SMs, Families, and SHGs Intervention Plan
@@ -180,6 +202,87 @@ function CorrespondenceForm() {
                     value={objective}
                     setValue={setObjective}
                 ></TextArea>
+            </section>
+
+            <section className="flex w-full flex-col gap-10">
+                <h3 className="header-md">Intervention Plan</h3>
+                <div className="flex flex-col gap-5">
+                    <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
+                        <div className="flex justify-between px-2.5">
+                            <p className="label-base w-80">Actions</p>
+                            <p className="label-base w-32">Time Frame</p>
+                            <p className="label-base w-80">Results</p>
+                            <p className="label-base w-80">
+                                Person Responsible
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col flex-wrap gap-2.5">
+                        {intervention_plan.map((item, index) => (
+                            <div
+                                key={index}
+                                className="flex w-full items-center justify-between"
+                            >
+                                <div className="flex w-80">
+                                    <TextArea
+                                        value={item.action}
+                                        handleChange={(e) =>
+                                            updateIntervention(
+                                                index,
+                                                "action",
+                                                e.target.value,
+                                            )
+                                        }
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-32">
+                                    <TextArea
+                                        value={item.time_frame}
+                                        handleChange={(e) =>
+                                            updateIntervention(
+                                                index,
+                                                "time_frame",
+                                                e.target.value,
+                                            )
+                                        }
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-80">
+                                    <TextArea
+                                        value={item.results}
+                                        handleChange={(e) =>
+                                            updateIntervention(
+                                                index,
+                                                "results",
+                                                e.target.value,
+                                            )
+                                        }
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-80">
+                                    <TextArea
+                                        value={item.person_responsible}
+                                        handleChange={(e) =>
+                                            updateIntervention(
+                                                index,
+                                                "person_responsible",
+                                                e.target.value,
+                                            )
+                                        }
+                                    ></TextArea>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <button
+                    name="add_intervention"
+                    id="add_intervention"
+                    onClick={handleAddIntervention}
+                    className="btn-primary"
+                >
+                    Add Intervention
+                </button>
             </section>
 
             {/* Recommendation */}

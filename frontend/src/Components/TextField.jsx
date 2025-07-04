@@ -1,13 +1,13 @@
 import React from "react";
 
-export const TextInput = ({ label, value, setValue, disabled = false }) => {
+export const TextInput = ({ label, value, setValue, handleChange, disabled = false }) => {
     return (
         <div className="flex items-center gap-10">
             <p className="label-base w-44">{label}</p>
             <input
                 type="text"
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={handleChange || ((e) => setValue?.(e.target.value))}
                 disabled={disabled}
                 className={`body-base text-input w-64 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
