@@ -498,6 +498,10 @@ function CaseFrontend() {
         },
     ]);
 
+    const handleInterventionNavigation = (key) => {
+        navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
     return (
         <>
             <SimpleModal
@@ -522,12 +526,13 @@ function CaseFrontend() {
 
             <main className="flex flex-col gap-20 pt-15">
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
-                <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
-                items-center bg-white py-3 px-4 '>
-                    <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
+                <div className="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1280px] items-center justify-between bg-white px-4 py-3">
+                    <button
+                        className="font-bold-label arrow-group flex items-center gap-5 px-4 py-2"
                         onClick={() => {
-                            navigate('/home-sdw');
-                        }}>
+                            navigate("/home-sdw");
+                        }}
+                    >
                         <div className="arrow-left-button"></div>
                         Back
                     </button>
@@ -1272,11 +1277,11 @@ function CaseFrontend() {
                     <div className="flex justify-between gap-10">
                         <div
                             // ref={sliderRef}
-                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto"
-                        // onMouseDown={handleMouseDown}
-                        // onMouseLeave={handleMouseLeave}
-                        // onMouseUp={handleMouseUp}
-                        // onMouseMove={handleMouseMove}
+                            className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
+                            // onMouseDown={handleMouseDown}
+                            // onMouseLeave={handleMouseLeave}
+                            // onMouseUp={handleMouseUp}
+                            // onMouseMove={handleMouseMove}
                         >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard
@@ -1469,6 +1474,11 @@ function CaseFrontend() {
                                 (item, index) => (
                                     <button
                                         key={index}
+                                        onClick={() =>
+                                            handleInterventionNavigation(
+                                                item.intervention,
+                                            )
+                                        }
                                         className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
                                     >
                                         <p className="label-base w-80">
@@ -1503,26 +1513,27 @@ function CaseFrontend() {
                     <div className="flex w-full flex-col">
                         <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
                             <div className="flex justify-between px-2.5">
-                                <p className="label-base w-80">Progress Report</p>
+                                <p className="label-base w-80">
+                                    Progress Report
+                                </p>
                                 <p className="label-base w-80">Date</p>
                             </div>
                         </div>
                         <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {progress_reports?.map(
-                                (item, index) => (
-                                    <button
-                                        key={index}
-                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                    >
-                                        <p className="label-base w-80">
-                                            {item.name} {index + 1}
-                                        </p>
-                                        <p className="label-base w-80">
-                                            {item.date}
-                                        </p>
-                                    </button>
-                                ),
-                            )}
+                            {progress_reports?.map((item, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => navigate("/progress-report")}
+                                    className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                >
+                                    <p className="label-base w-80">
+                                        {item.name} {index + 1}
+                                    </p>
+                                    <p className="label-base w-80">
+                                        {item.date}
+                                    </p>
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </section>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 import FinancialAssessmentForm from "./financial-assessment";
@@ -21,7 +21,9 @@ function InterventionForm() {
 
     /********** USE STATES **********/
 
-    const [intervention_selected, setInterventionSelected] = useState("");
+    const [searchParams] = useSearchParams();
+    const defaultSelection = searchParams.get("selected") || "";
+    const [intervention_selected, setInterventionSelected] = useState(defaultSelection);
 
     /********** USE STATES **********/
 
