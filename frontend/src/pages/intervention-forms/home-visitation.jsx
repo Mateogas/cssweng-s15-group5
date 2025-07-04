@@ -4,7 +4,6 @@ import { TextInput, DateInput, TextArea } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
 
 function HomeVisitationForm() {
-
     /********** TEST DATA **********/
 
     const [data, setData] = useState({
@@ -164,6 +163,12 @@ function HomeVisitationForm() {
         );
     };
 
+    const deleteObservation = (indexToDelete) => {
+        setObservationFindings((prev) =>
+            prev.filter((_, i) => i !== indexToDelete),
+        );
+    };
+
     const handleAddIntervention = () => {
         const newIntervention = "";
 
@@ -176,10 +181,14 @@ function HomeVisitationForm() {
         );
     };
 
+    const deleteIntervention = (indexToDelete) => {
+        setInterventions((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
+
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
@@ -423,9 +432,12 @@ function HomeVisitationForm() {
                             onChange={(e) =>
                                 updateObservations(index, e.target.value)
                             }
-                            className="body-base w-full text-area"
+                            className="body-base text-area w-full"
                         />
-                        <button className=' px-10 icon-button-setup trash-button'></button>
+                        <button
+                            onClick={() => deleteObservation(index)}
+                            className="icon-button-setup trash-button px-10"
+                        ></button>
                     </div>
                 ))}
                 <button className="btn-primary" onClick={handleAddObservation}>
@@ -445,9 +457,12 @@ function HomeVisitationForm() {
                             onChange={(e) =>
                                 updateInterventions(index, e.target.value)
                             }
-                            className="body-base w-full text-area"
+                            className="body-base text-area w-full"
                         />
-                        <button className=' px-10 icon-button-setup trash-button'></button>
+                        <button
+                            onClick={() => deleteIntervention(index)}
+                            className="icon-button-setup trash-button px-10"
+                        ></button>
                     </div>
                 ))}
                 <button className="btn-primary" onClick={handleAddIntervention}>
