@@ -43,7 +43,8 @@ export default function WorkerEntry({
 
   return (
     <a
-      href={`/workers/${id}`}
+      href={`/worker-profile`}
+      // href={`/workers/${id}`}
       className="client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 bg-white rounded-lg font-bold-label"
     >
       <div className="flex items-center gap-6">

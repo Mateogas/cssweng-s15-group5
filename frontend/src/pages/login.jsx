@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const original = document.body.style.backgroundColor;
@@ -12,6 +16,27 @@ export default function Login() {
             document.body.style.backgroundColor = original;
         };
     }, []);
+
+
+    const handleLogin = () => {
+        const users = [
+            { email: "admin@email.com", password: "123" },
+            { email: "sdw@email.com", password: "123" },
+            { email: "super@email.com", password: "123" },
+        ];
+
+        const foundUser = users.find(
+            (user) => user.email === email && user.password === password
+        );
+
+        if (foundUser) {
+            setErrorMessage('');
+            console.log('Login successful:', foundUser);
+            navigate('/home-sdw');
+        } else {
+            setErrorMessage('Email and password do not match.');
+        }
+    };
 
     return (
         <>
@@ -62,7 +87,15 @@ export default function Login() {
                     </div>
                 </div>
 
+                {errorMessage && (
+                    <p className="font-label !text-red-500">
+                        {errorMessage}
+                    </p>
+                )}
+
+
                 <button
+                    onClick={handleLogin}
                     className="btn-primary font-bold-label drop-shadow-base !text-[2.5rem] !py-5 !px-30 m-4"
                 >
                     Login

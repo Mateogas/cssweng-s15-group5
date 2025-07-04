@@ -7,6 +7,8 @@ import SimpleModal from '../../Components/SimpleModal';
 import NavLabelButton from '../../Components/NavLabelButton';
 
 function CaseFrontend() {
+    const navigate = useNavigate();
+
     const [data, setData] = useState({
         first_name: "Hephzi-Bah",
         middle_name: "Gamac",
@@ -442,7 +444,10 @@ function CaseFrontend() {
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
                 <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
                 items-center bg-white py-3 px-4 '>
-                    <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group">
+                    <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
+                    onClick={() => {
+                        navigate('/home-sdw'); 
+                    }}>
                         <div className="arrow-left-button"></div>
                         Back
                     </button>

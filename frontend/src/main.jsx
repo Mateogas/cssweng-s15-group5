@@ -9,6 +9,7 @@ import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
 import HomeAdmin from "./pages/home-admin.jsx";
 import Archive from "./pages/archive.jsx";
+import WorkerProfile from "./pages/WorkerProfile.jsx";
 
 import FinancialAssessmentForm from "./pages/intervention-forms/financial-assessment.jsx";
 import CounsellingForm from "./pages/intervention-forms/counselling.jsx";
@@ -30,10 +31,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
                 <Route path="/case-frontend" element={<CaseFrontend />} />
 
-
                 <Route path="/home-sdw" element={<HomeSDW />} />
                 <Route path="/home-admin" element={<HomeAdmin />} />
                 <Route path="/archive" element={<Archive />} />
+
+                <Route path="/worker-profile" element={<WorkerProfile />} />
 
                 <Route
                     path="/financial-assessment-form"
