@@ -1684,7 +1684,7 @@ function CaseFrontend() {
                     )}
                 </section>
 
-                <button className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto">
+                <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto">
                     Terminate Case
                 </button>
             </main>
