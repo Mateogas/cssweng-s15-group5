@@ -106,6 +106,7 @@ function ProgressReport() {
             <div className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
                 <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 <h3 className="header-md">Individual Progress Report</h3>
+                
                 {/* Sponsored Member and General Info */}
                 <section className="flex w-full flex-col gap-10">
                     <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
@@ -186,6 +187,7 @@ function ProgressReport() {
                         </div>
                     </div>
                 </section>
+                
                 {/* Update/Developmert */}
                 <section className="flex w-full flex-col gap-10">
                     <div className="flex w-full flex-col gap-5">
@@ -208,6 +210,7 @@ function ProgressReport() {
                         ></TextArea>
                     </div>
                 </section>
+                
                 {/* Services to Family */}
                 <section className="flex w-full">
                     <TextArea
@@ -216,6 +219,7 @@ function ProgressReport() {
                         setValue={setServicesToFamily}
                     ></TextArea>
                 </section>
+                
                 {/* Participation */}
                 <section className="flex w-full">
                     <TextArea
@@ -225,9 +229,12 @@ function ProgressReport() {
                         setValue={setParticipation}
                     ></TextArea>
                 </section>
+                
                 {/* Relationship to Sponsor and Unbound */}
                 <section className="flex w-full flex-col gap-5">
-                    <h4 className="header-sm">Relationship to Sponsor & Unbound</h4>
+                    <h4 className="header-sm">
+                        Relationship to Sponsor & Unbound
+                    </h4>
                     <div className="flex gap-24">
                         {relation_to_sponsor.map((q) => (
                             <div
@@ -245,7 +252,9 @@ function ProgressReport() {
                                                 type="checkbox"
                                                 name={q.id}
                                                 value={option}
-                                                checked={responses[q.id] === option}
+                                                checked={
+                                                    responses[q.id] === option
+                                                }
                                                 onChange={() =>
                                                     handleCheckboxChange(
                                                         q.id,
@@ -261,10 +270,13 @@ function ProgressReport() {
                         ))}
                     </div>
                 </section>
+                
                 {/* Buttons */}
                 <div className="mt-10 flex w-[22.5rem] justify-between">
                     <button className="btn-outline-rounded">Cancel</button>
-                    <button className="btn-primary">Create Progress Report</button>
+                    <button className="btn-primary">
+                        Create Progress Report
+                    </button>
                 </div>
             </div>
         </main>
