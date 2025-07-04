@@ -415,7 +415,7 @@ function HomeVisitationForm() {
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
                 {observation_findings.map((item, index) => (
-                    <div key={index} className="flex">
+                    <div key={index} className="flex items-center">
                         <p className="body-base pr-2.5">{index + 1}.</p>
                         <input
                             type="text"
@@ -423,7 +423,7 @@ function HomeVisitationForm() {
                             onChange={(e) =>
                                 updateObservations(index, e.target.value)
                             }
-                            className="body-base w-full"
+                            className="body-base w-full text-area"
                         />
                     </div>
                 ))}
@@ -436,7 +436,7 @@ function HomeVisitationForm() {
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Interventions Made</h4>
                 {interventions.map((item, index) => (
-                    <div key={index} className="flex">
+                    <div key={index} className="flex items-center">
                         <p className="body-base pr-2.5">{index + 1}.</p>
                         <input
                             type="text"
@@ -444,7 +444,7 @@ function HomeVisitationForm() {
                             onChange={(e) =>
                                 updateInterventions(index, e.target.value)
                             }
-                            className="body-base w-full"
+                            className="body-base w-full text-area"
                         />
                     </div>
                 ))}
