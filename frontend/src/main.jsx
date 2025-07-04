@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
+
+import Login from "./pages/login.jsx";
 import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
@@ -22,6 +24,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<App />} />
+                <Route path="/login" element={<Login />} />
+
                 <Route path="/testcase" element={<Case />} />
 
                 <Route path="/case-frontend" element={<CaseFrontend />} />
