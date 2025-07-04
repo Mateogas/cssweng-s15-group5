@@ -467,11 +467,11 @@ function CaseFrontend() {
             date: "June 03, 2025",
         },
         {
-            intervention: "Financial Assistance",
+            intervention: "Correspondence",
             date: "June 19, 2025",
         },
         {
-            intervention: "Financial Assistance",
+            intervention: "Correspondence",
             date: "July 04, 2025",
         },
     ]);
