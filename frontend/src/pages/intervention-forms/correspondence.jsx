@@ -91,29 +91,29 @@ function CorrespondenceForm() {
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
-                                setValue={setDOB}
+                                disabled={true}
                             ></DateInput>
                             <TextInput
                                 label="School"
@@ -124,8 +124,8 @@ function CorrespondenceForm() {
                                 <p className="label-base w-44">Address</p>
                                 <textarea
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
+                                    disabled={true}
+                                    className="text-area cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>

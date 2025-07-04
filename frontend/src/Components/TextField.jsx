@@ -15,7 +15,7 @@ export const TextInput = ({ label, value, setValue, disabled = false }) => {
     );
 };
 
-export const DateInput = ({ label, value, setValue }) => {
+export const DateInput = ({ label, value, setValue, disabled = false }) => {
     return (
         <div className="flex items-center gap-10">
             <p className="label-base w-44">{label}</p>
@@ -23,7 +23,8 @@ export const DateInput = ({ label, value, setValue }) => {
                 type="date"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                className="body-base text-input w-64"
+                disabled={disabled}
+                className={`body-base text-input w-64 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
         </div>
     );
