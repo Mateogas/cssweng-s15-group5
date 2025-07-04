@@ -279,7 +279,7 @@ function CorrespondenceForm() {
                     name="add_intervention"
                     id="add_intervention"
                     onClick={handleAddIntervention}
-                    className="btn-primary"
+                    className="btn-primary self-center"
                 >
                     Add Intervention
                 </button>
