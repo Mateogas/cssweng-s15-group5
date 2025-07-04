@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 function CounsellingForm() {
-
     /********** TEST DATA **********/
 
     const [data, setData] = useState({
@@ -59,7 +58,7 @@ function CounsellingForm() {
     /********** USE STATES **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
@@ -74,22 +73,22 @@ function CounsellingForm() {
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-5">
@@ -107,8 +106,8 @@ function CounsellingForm() {
                                 <p className="label-base w-44">Address</p>
                                 <textarea
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
+                                    disabled={true}
+                                    className="text-area cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
@@ -123,7 +122,7 @@ function CounsellingForm() {
                             <TextInput
                                 label="Sub-Project"
                                 value={subproject}
-                                setValue={setSubproject}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Area/Self-Help Group"
