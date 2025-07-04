@@ -225,7 +225,7 @@ function HomeVisitationForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
@@ -407,30 +407,34 @@ function HomeVisitationForm() {
             </section>
 
             {/* Family Members */}
-            <section className="flex flex-col gap-10">
+            <section className="flex w-full flex-col gap-10">
                 <h3 className="header-md">
                     Members and/or Other Members of the Family
                 </h3>
 
-                <div className="flex justify-between gap-10">
-                    <div className="outline-gray flex w-full flex-wrap gap-8 overflow-x-auto rounded-lg p-6">
-                        {familyMembers.map((member, index) => (
-                            <FamilyCard
-                                key={index}
-                                index={index}
-                                member={member}
-                                selectedFamily={selectedFamily}
-                                editingFamilyValue={editingFamilyValue}
-                                familyMembers={familyMembers}
-                                setShowModal={setShowModal}
-                                setModalTitle={setModalTitle}
-                                setModalBody={setModalBody}
-                                setModalImageCenter={setModalImageCenter}
-                                setModalConfirm={setModalConfirm}
-                                setModalOnConfirm={setModalOnConfirm}
-                                editable={false}
-                            />
-                        ))}
+                <div className="flex w-full justify-between gap-10">
+                    <div className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6">
+                        <div className="flex gap-8" style={{ minWidth: 'max-content' }}>
+
+                            {familyMembers.map((member, index) => (
+                                <FamilyCard
+                                    key={index}
+                                    index={index}
+                                    member={member}
+                                    selectedFamily={selectedFamily}
+                                    editingFamilyValue={editingFamilyValue}
+                                    familyMembers={familyMembers}
+                                    setShowModal={setShowModal}
+                                    setModalTitle={setModalTitle}
+                                    setModalBody={setModalBody}
+                                    setModalImageCenter={setModalImageCenter}
+                                    setModalConfirm={setModalConfirm}
+                                    setModalOnConfirm={setModalOnConfirm}
+                                    editable={false}
+                                />
+                            ))}
+
+                        </div>
                     </div>
                 </div>
             </section>
