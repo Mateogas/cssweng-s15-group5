@@ -57,6 +57,8 @@ function CounsellingForm() {
 
     /********** USE STATES **********/
 
+    const navigate = useNavigate();
+
     return (
         <main className="flex w-7xl flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
@@ -173,8 +175,15 @@ function CounsellingForm() {
 
             {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+                <button
+                    className="btn-outline-rounded"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button className="btn-primary" onClick={() => navigate(-1)}>
+                    Create Intervention
+                </button>
             </div>
         </main>
     );

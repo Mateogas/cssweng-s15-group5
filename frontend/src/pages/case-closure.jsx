@@ -78,6 +78,8 @@ function CaseClosure() {
 
     /********** FUNCTIONS **********/
 
+    const navigate = useNavigate();
+
     const handleAddService = (item) => {
         const new_service = {
             service: item,
@@ -329,8 +331,15 @@ function CaseClosure() {
 
             {/* Buttons */}
             <div className="mt-10 flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Close Case</button>
+                <button
+                    className="btn-outline-rounded"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button className="btn-primary" onClick={() => navigate(-1)}>
+                    Close Case
+                </button>
             </div>
         </main>
     );

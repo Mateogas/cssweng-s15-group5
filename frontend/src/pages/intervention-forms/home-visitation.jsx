@@ -172,6 +172,8 @@ function HomeVisitationForm() {
 
     /********** FUNCTIONS **********/
 
+    const navigate = useNavigate();
+
     const handleAddFamilyMember = () => {
         const newMember = {
             name: "",
@@ -414,8 +416,10 @@ function HomeVisitationForm() {
 
                 <div className="flex w-full justify-between gap-10">
                     <div className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6">
-                        <div className="flex gap-8" style={{ minWidth: 'max-content' }}>
-
+                        <div
+                            className="flex gap-8"
+                            style={{ minWidth: "max-content" }}
+                        >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard
                                     key={index}
@@ -433,7 +437,6 @@ function HomeVisitationForm() {
                                     editable={false}
                                 />
                             ))}
-
                         </div>
                     </div>
                 </div>
@@ -526,8 +529,15 @@ function HomeVisitationForm() {
 
             {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+                <button
+                    className="btn-outline-rounded"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button className="btn-primary" onClick={() => navigate(-1)}>
+                    Create Intervention
+                </button>
             </div>
         </main>
     );

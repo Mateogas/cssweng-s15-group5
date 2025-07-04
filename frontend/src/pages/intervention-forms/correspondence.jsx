@@ -74,6 +74,8 @@ function CorrespondenceForm() {
 
     /********** FUNCTIONS **********/
 
+    const navigate = useNavigate();
+
     const handleAddIntervention = () => {
         const new_intervention = {
             action: "",
@@ -297,8 +299,15 @@ function CorrespondenceForm() {
 
             {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+                <button
+                    className="btn-outline-rounded"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button className="btn-primary" onClick={() => navigate(-1)}>
+                    Create Intervention
+                </button>
             </div>
         </main>
     );
