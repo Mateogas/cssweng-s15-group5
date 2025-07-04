@@ -26,7 +26,7 @@ export default function WorkerProfile() {
             username: data.username || "",
             spu_id: data.spu_id || "",
             super_id: data.spu_id || "",
-            
+
             sdw_id: data.sdw_id || "",
         });
         setEditingField(null);

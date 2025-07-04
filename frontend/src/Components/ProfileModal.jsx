@@ -107,24 +107,24 @@ export default function ProfileModal({ isOpen, onClose }) {
                                     {initials}
                                 </div>
 
-<div className="grid grid-cols-2 gap-x-10 gap-y-4">
-  <div className="flex flex-col">
-    <p className="header-sub">Username:</p>
-    <p className="header-plain">{userData.username}</p>
-  </div>
-  <div className="flex flex-col">
-    <p className="header-sub">SDW ID:</p>
-    <p className="header-plain">{userData.id}</p>
-  </div>
-  <div className="flex flex-col">
-    <p className="header-sub">Email:</p>
-    <p className="header-plain">{userData.email}</p>
-  </div>
-  <div className="flex flex-col">
-    <p className="header-sub">Contact Number:</p>
-    <p className="header-plain">{userData.contact_number}</p>
-  </div>
-</div>
+                                <div className="grid grid-cols-2 gap-x-10 gap-y-4">
+                                    <div className="flex flex-col">
+                                        <p className="header-sub">Username:</p>
+                                        <p className="header-plain">{userData.username}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="header-sub">SDW ID:</p>
+                                        <p className="header-plain">{userData.id}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="header-sub">Email:</p>
+                                        <p className="header-plain">{userData.email}</p>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="header-sub">Contact Number:</p>
+                                        <p className="header-plain">{userData.contact_number}</p>
+                                    </div>
+                                </div>
 
 
                             </div>

@@ -445,9 +445,9 @@ function CaseFrontend() {
                 <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
                 items-center bg-white py-3 px-4 '>
                     <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
-                    onClick={() => {
-                        navigate('/home-sdw'); 
-                    }}>
+                        onClick={() => {
+                            navigate('/home-sdw');
+                        }}>
                         <div className="arrow-left-button"></div>
                         Back
                     </button>
@@ -932,10 +932,10 @@ function CaseFrontend() {
                         <div
                             // ref={sliderRef}
                             className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto"
-                            // onMouseDown={handleMouseDown}
-                            // onMouseLeave={handleMouseLeave}
-                            // onMouseUp={handleMouseUp}
-                            // onMouseMove={handleMouseMove}
+                        // onMouseDown={handleMouseDown}
+                        // onMouseLeave={handleMouseLeave}
+                        // onMouseUp={handleMouseUp}
+                        // onMouseMove={handleMouseMove}
                         >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard
