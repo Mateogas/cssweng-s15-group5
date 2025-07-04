@@ -425,6 +425,7 @@ function HomeVisitationForm() {
                             }
                             className="body-base w-full text-area"
                         />
+                        <button className=' px-10 icon-button-setup trash-button'></button>
                     </div>
                 ))}
                 <button className="btn-primary" onClick={handleAddObservation}>
@@ -446,6 +447,7 @@ function HomeVisitationForm() {
                             }
                             className="body-base w-full text-area"
                         />
+                        <button className=' px-10 icon-button-setup trash-button'></button>
                     </div>
                 ))}
                 <button className="btn-primary" onClick={handleAddIntervention}>
