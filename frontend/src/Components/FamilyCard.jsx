@@ -89,7 +89,7 @@ const FamilyCard = ({
     }
 
     return (
-        <div className="flex flex-col gap-5 min-w-[45rem] drop-shadow-card px-[2rem] py-[3rem] rounded-xl outline-gray">
+        <div className={`flex flex-col gap-5 min-w-[45rem] drop-shadow-card px-[2rem] py-[3rem] rounded-xl outline-gray`}>
             <div className="flex justify-between items-center gap-4">
                 {isEditing ? (
                     <h3 className="header-sub">Editing Member</h3>

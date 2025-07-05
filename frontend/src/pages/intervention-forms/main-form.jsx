@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 import FinancialAssessmentForm from "./financial-assessment";
@@ -21,12 +21,14 @@ function InterventionForm() {
 
     /********** USE STATES **********/
 
-    const [intervention_selected, setInterventionSelected] = useState("");
+    const [searchParams] = useSearchParams();
+    const defaultSelection = searchParams.get("selected") || "";
+    const [intervention_selected, setInterventionSelected] = useState(defaultSelection);
 
     /********** USE STATES **********/
 
     return (
-        <main className="flex flex-col items-center justify-center gap-10 rounded-lg px-32 py-20">
+        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg px-20 py-20">
             <section className="flex w-full justify-between">
                 <h3 className="header-md self-start">
                     Intervention/Helping Plan
