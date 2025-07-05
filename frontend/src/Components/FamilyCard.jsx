@@ -109,6 +109,7 @@ const FamilyCard = ({
                             setSelectedFamily(index)
                         }
                     }}
+                    data-cy={`edit-family-${index}`}
                 ></button>
             </div>
 
@@ -143,6 +144,7 @@ const FamilyCard = ({
                                     className="text-input"
                                     value={editingFamilyValue[key] || ''}
                                     onChange={(e) => handleInputChange(key, e.target.value)}
+                                    data-cy={`family-select-${key}-${index}`}
                                 >
                                     <option value="">Select Civil Status</option>
                                     <option value="Single">Single</option>
@@ -158,12 +160,15 @@ const FamilyCard = ({
                                     className="text-input"
                                     value={editingFamilyValue[key] || ''}
                                     onChange={(e) => handleInputChange(key, e.target.value)}
+                                    data-cy={`family-input-${key}-${index}`}
                                 />
                             )
                         ) : (
-                            key === 'status' || key === 'civilStatus'
+                            <span data-cy={`disp-family-${key}-${index}`}>
+                            {key === 'status' || key === 'civilStatus'
                                 ? `: ${member[key] ? member[key][0].toUpperCase() + member[key].slice(1) : '-'}`
-                                : `: ${member[key] || '-'}`
+                                : `: ${member[key] || '-'}`}
+                            </span>
                         )}
                     </React.Fragment>
                 ))}
@@ -187,10 +192,12 @@ const FamilyCard = ({
 
                             setShowModal(true);
                         }}
+                        data-cy={`delete-family-${index}`}
                     ></button>
                     <button
                         className='btn-transparent-rounded'
-                        onClick={handleSave}>
+                        onClick={handleSave}
+                        data-cy={`save-family-${index}`}>
                         Save Changes
                     </button>
                 </div>
