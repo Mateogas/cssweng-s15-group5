@@ -50,10 +50,9 @@ const loadHomeVisitationForm = async(req, res) => {
                member.relationship_to_sm === "Mother" || member.relationship_to_sm === "mother"
           );
           const otherFamilyMembers = FamilyRelationshipMap.filter(member => {
-               return (
-                    member._id.toString() !== fatherData._id.toString() &&
-                    member._id.toString() !== motherData._id.toString()
-               );
+               if (fatherData && member._id.toString() === fatherData._id.toString()) return false;
+               if (motherData && member._id.toString() === motherData._id.toString()) return false;
+               return true;
           });
 
           return res.status(200).json({ case: caseSelected, 
@@ -169,6 +168,13 @@ const editHomeVis = async(req, res) => {
           const interventionSelected = await InterventionHomeVisit.findById(req.params.homeVisID)
           const formData = req.body
 
+          if (!caseSelected) {
+               return res.status(404).json({ message: "Case not found" });
+          }
+          if (!interventionSelected) {
+               return res.status(404).json({ message: "Intervention not found" });
+          }
+
           // run through the family data again if ever there are changes
           const relationships = await Family_Relationship.find({ sponsor_id: caseSelected });
           const familyData = relationships.map(rel => ({
@@ -195,13 +201,11 @@ const editHomeVis = async(req, res) => {
                member.relationship_to_sm === "Mother" || member.relationship_to_sm === "mother"
           );
           const otherFamilyMembers = FamilyRelationshipMap.filter(member => {
-               return (
-                    member._id.toString() !== fatherData._id.toString() &&
-                    member._id.toString() !== motherData._id.toString()
-               );
+               if (fatherData && member._id.toString() === fatherData._id.toString()) return false;
+               if (motherData && member._id.toString() === motherData._id.toString()) return false;
+               return true;
           });
-
-           const familyMembersArray = otherFamilyMembers.map(member => ({
+          const familyMembersArray = otherFamilyMembers.map(member => ({
                family_member_details: member._id,
                family_member_relationship: member.relationship_id
           }));
@@ -238,7 +242,7 @@ const editHomeVis = async(req, res) => {
           const updatedIntervention = await InterventionHomeVisit.findByIdAndUpdate(
                interventionSelected._id,
                updatedData,
-               { new: true }
+               { new: true, runValidators: true }
           );
 
           return res.status(200).json(updatedIntervention)
