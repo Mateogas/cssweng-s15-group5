@@ -646,7 +646,8 @@ function CaseFrontend() {
                                 Inactive
                             </div>
                         )}
-                        <button className="btn-blue font-bold-label drop-shadow-base">
+                        <button className="btn-blue font-bold-label drop-shadow-base"
+                        data-cy='download-case'>
                             Download
                         </button>
                     </div>
@@ -682,6 +683,7 @@ function CaseFrontend() {
                                         placeholder='First Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
                                         className="text-input font-label w-full"
+                                        data-cy='fname'
                                     />
                                 </div>
 
@@ -693,6 +695,7 @@ function CaseFrontend() {
                                         placeholder='Middle Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
                                         className="text-input font-label w-full"
+                                        data-cy='mname'
                                     />
                                 </div>
 
@@ -704,6 +707,7 @@ function CaseFrontend() {
                                         placeholder='Last Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
                                         className="text-input font-label w-full"
+                                        data-cy='lname'
                                     />
                                 </div>
                             </div>
@@ -716,6 +720,7 @@ function CaseFrontend() {
                                     placeholder='SM Number'
                                     onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
                                     className="text-input font-label w-full max-w-[30rem]"
+                                    data-cy='sm-number'
                                 />
                             </div>
                         </>
@@ -736,6 +741,7 @@ function CaseFrontend() {
                                             setEditingField("core-fields");
                                         }
                                     }}
+                                    data-cy='edit-core-details-section'
                                 ></button>
                             </div>
                             <h2 className="header-sub">{data.sm_number}</h2>
@@ -757,6 +763,7 @@ function CaseFrontend() {
                                                 spu_id: e.target.value,
                                             }))
                                         }
+                                        data-cy='spu'
                                     >
                                         <option value="">Select SPU</option>
                                         {projectLocation.map((project) => (
@@ -799,6 +806,7 @@ function CaseFrontend() {
                                                 ),
                                             }))
                                         }
+                                        data-cy='assigned-sdw'
                                     >
                                         <option value="">Select SDW</option>
                                         {socialDevelopmentWorkers
@@ -901,6 +909,7 @@ function CaseFrontend() {
                                                             ),
                                                     }));
                                                 }}
+                                                data-cy='cancel-core-details-section'
                                             >
                                                 ✕
                                             </button>
@@ -943,7 +952,8 @@ function CaseFrontend() {
 
                                 showSuccess('Core details were successfully updated!');
                             }}
-                        >
+                             data-cy='submit-core-details-section'
+                        >  
                             Submit Changes
                         </button>
                     )}
@@ -965,6 +975,7 @@ function CaseFrontend() {
                                     setEditingField("identifying-fields");
                                 }
                             }}
+                            data-cy='edit-identifying-data-section'
                         ></button>
                     </div>
 
@@ -984,6 +995,7 @@ function CaseFrontend() {
                                         value={age}
                                         readOnly
                                         className="text-input font-label"
+                                        data-cy='age'
                                     />
                                 </div>
 
@@ -1000,6 +1012,7 @@ function CaseFrontend() {
                                             }))
                                         }
                                         className="text-input font-label"
+                                        data-cy='dob'
                                     />
                                 </div>
 
@@ -1010,6 +1023,7 @@ function CaseFrontend() {
                                         id="civil"
                                         value={drafts.civilStatus || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
+                                        data-cy='civil-status'
                                     >
                                         <option value="">Select Civil Status</option>
                                         <option value="Single">Single</option>
@@ -1034,6 +1048,7 @@ function CaseFrontend() {
                                                 education: e.target.value,
                                             }))
                                         }
+                                        data-cy='educational-attainment'
                                         className="text-input font-label"
                                     />
                                 </div>
@@ -1046,6 +1061,7 @@ function CaseFrontend() {
                                         className='text-input font-label'
                                         value={drafts.sex || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
+                                        data-cy='sex'
                                     >
                                         <option value="">Select Sex</option>
                                         <option value="M">Male</option>
@@ -1061,6 +1077,7 @@ function CaseFrontend() {
                                         placeholder='Place of Birth'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
                                         className='text-input font-label'
+                                        data-cy='pob'
                                     />
                                 </div>
 
@@ -1072,6 +1089,7 @@ function CaseFrontend() {
                                         placeholder='Religion'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
                                         className='text-input font-label'
+                                        data-cy='religion'
                                     />
                                 </div>
 
@@ -1083,6 +1101,7 @@ function CaseFrontend() {
                                         placeholder='Occupation'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
                                         className='text-input font-label'
+                                        data-cy='occupation'
                                     />
                                 </div>
                             </div>
@@ -1102,6 +1121,7 @@ function CaseFrontend() {
                                                 presentAddress: e.target.value,
                                             }))
                                         }
+                                        data-cy='address'
                                     ></textarea>
                                 </div>
 
@@ -1120,6 +1140,7 @@ function CaseFrontend() {
                                                 contactNo: e.target.value,
                                             }))
                                         }
+                                        data-cy='contact-num'
                                     />
                                 </div>
 
@@ -1138,6 +1159,7 @@ function CaseFrontend() {
                                                 relationship: e.target.value,
                                             }))
                                         }
+                                        data-cy='relationship'
                                     />
                                 </div>
                             </div>
@@ -1166,6 +1188,7 @@ function CaseFrontend() {
                                         setEditingField(null);
                                         showSuccess('Identifying data was successfully updated!');
                                     }}
+                                    data-cy='submit-identifying-data-section'
                                 >
                                     Submit Changes
                                 </button>
@@ -1174,67 +1197,67 @@ function CaseFrontend() {
                     ) : (
                         <>
                             <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
-                                <p>
+                                <p data-cy='disp-age'>
                                     <span className="font-bold-label">
                                         Age:
                                     </span>{" "}
                                     {age || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-dob'>
                                     <span className="font-bold-label">
                                         Date of Birth:
                                     </span>{" "}
                                     {drafts.dob || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-sex'>
                                     <span className="font-bold-label">
                                         Sex:
                                     </span>{" "}
                                     {drafts.sex || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-contact-num'>
                                     <span className="font-bold-label">
                                         Contact No.:
                                     </span>{" "}
                                     {drafts.contactNo || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-educational-attainment'>
                                     <span className="font-bold-label">
                                         Educational Attainment:
                                     </span>{" "}
                                     {drafts.education || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-occupation'>
                                     <span className="font-bold-label">
                                         Occupation:
                                     </span>{" "}
                                     {drafts.occupation || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-civil-status'>
                                     <span className="font-bold-label">
                                         Civil Status:
                                     </span>{" "}
                                     {drafts.civilStatus || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-religion'>
                                     <span className="font-bold-label">
                                         Religion:
                                     </span>{" "}
                                     {drafts.religion || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-relationship'>
                                     <span className="font-bold-label">
                                         Relationship to Client:
                                     </span>{" "}
                                     {drafts.relationship || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-address'>
                                     <span className="font-bold-label">
                                         Present Address:
                                     </span>{" "}
                                     {drafts.presentAddress || "-"}
                                 </p>
-                                <p>
+                                <p data-cy='disp-pob'>
                                     <span className="font-bold-label">
                                         Place of Birth:
                                     </span>{" "}
@@ -1255,6 +1278,7 @@ function CaseFrontend() {
                     <button
                         className="btn-primary font-bold-label drop-shadow-base"
                         onClick={handleAddFamilyMember}
+                        data-cy='add-family-member'
                     >
                         Add New Family Member
                     </button>
@@ -1318,6 +1342,7 @@ function CaseFrontend() {
                                     setEditingField("history-fields");
                                 }
                             }}
+                            data-cy='edit-problems-findings-section'
                         ></button>
                     </div>
 
@@ -1336,9 +1361,10 @@ function CaseFrontend() {
                                             problemPresented: e.target.value,
                                         }))
                                     }
+                                    data-cy='problem'
                                 />
                             ) : (
-                                <p className="font-label">
+                                <p className="font-label" data-cy='disp-problem'>
                                     {data.problem_presented || "-"}
                                 </p>
                             )}
@@ -1357,9 +1383,10 @@ function CaseFrontend() {
                                             historyProblem: e.target.value,
                                         }))
                                     }
+                                    data-cy='problem-history'
                                 />
                             ) : (
-                                <p className="font-label">
+                                <p className="font-label" data-cy='disp-problem-history'>
                                     {data.history_problem || "-"}
                                 </p>
                             )}
@@ -1378,9 +1405,10 @@ function CaseFrontend() {
                                             observationFindings: e.target.value,
                                         }))
                                     }
+                                    data-cy='finding'
                                 />
                             ) : (
-                                <p className="font-label">
+                                <p className="font-label" data-cy='disp-finding'>
                                     {data.observation_findings || "-"}
                                 </p>
                             )}
@@ -1400,8 +1428,8 @@ function CaseFrontend() {
                                 }));
                                 setEditingField(null);
                                 showSuccess("Problems and Findings were successfully updated.")
-
-                            }}>
+                            }}
+                            data-cy='submit-problems-findings-section'>
                             Submit Changes
                         </button>
                     )}
@@ -1418,6 +1446,7 @@ function CaseFrontend() {
                         id="add_intervention"
                         onClick={() => navigate("/intervention-form")}
                         className="btn-primary self-center"
+                        data-cy='add-intervention'
                     >
                         New Intervention
                     </button>
@@ -1430,6 +1459,7 @@ function CaseFrontend() {
                                 setInterventionSelected(e.target.value)
                             }
                             className="label-base text-input max-w-96"
+                            data-cy='intervention-type'
                         >
                             <option value="" className="body-base">
                                 Select Intervention
@@ -1465,6 +1495,7 @@ function CaseFrontend() {
                                             )
                                         }
                                         className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                        data-cy={`intervention-item-${item.intervention}-${index}`}
                                     >
                                         <p className="label-base w-80">
                                             {item.intervention} {index + 1}
@@ -1492,6 +1523,7 @@ function CaseFrontend() {
                         id="add_progress_report"
                         onClick={() => navigate("/progress-report")}
                         className="btn-primary self-center"
+                        data-cy='add-progress-report'
                     >
                         New Progress Report
                     </button>
@@ -1510,8 +1542,9 @@ function CaseFrontend() {
                                     key={index}
                                     onClick={() => navigate("/progress-report")}
                                     className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                    data-cy={`progress-report-item-${item.name}-${index}`}
                                 >
-                                    <p className="label-base w-80">
+                                    <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
                                         {item.name} {index + 1}
                                     </p>
                                     <p className="label-base w-80">
@@ -1543,6 +1576,7 @@ function CaseFrontend() {
                                     setEditingField("assessment-field");
                                 }
                             }}
+                            data-cy='assessment-section'
                         ></button>
                     </div>
 
@@ -1559,9 +1593,10 @@ function CaseFrontend() {
                                             caseAssessment: e.target.value,
                                         }))
                                     }
+                                    data-cy='assessment'
                                 />
                             ) : (
-                                <p className="font-label">
+                                <p className="font-label" data-cy='disp-assessment'>
                                     {data.assessment || "-"}
                                 </p>
                             )}
@@ -1578,7 +1613,9 @@ function CaseFrontend() {
                                 }));
                                 setEditingField(null);
                                 showSuccess("Assessment was successfully updated");
-                            }}>
+                            }}
+                            data-cy='submit-assessment-section'
+                            >
                             Submit Changes
                         </button>
                     )}
@@ -1606,6 +1643,7 @@ function CaseFrontend() {
                                     setEditingField("evaluation-fields");
                                 }
                             }}
+                            data-cy='edit-evaluation-recommendation-section'
                         ></button>
                     </div>
 
@@ -1625,9 +1663,10 @@ function CaseFrontend() {
                                             caseEvalutation: e.target.value,
                                         }))
                                     }
+                                    data-cy='evaluation'
                                 />
                             ) : (
-                                <p className="font-label">
+                                <p className="font-label" data-cy='disp-evaluation'>
                                     {data.evaluation || "-"}
                                 </p>
                             )}
@@ -1647,9 +1686,10 @@ function CaseFrontend() {
                                             caseRecommendation: e.target.value,
                                         }))
                                     }
+                                    data-cy='recommendation'
                                 />
                             ) : (
-                                <p className="font-label">
+                                <p className="font-label" data-cy='disp-recommendation'>
                                     {data.recommendation || "-"}
                                 </p>
                             )}
@@ -1667,13 +1707,15 @@ function CaseFrontend() {
                                 }));
                                 setEditingField(null);
                                 showSuccess("Evaluation and Recommendation were successfully updated.");
-                            }}>
+                            }}
+                            data-cy='submit-evaluation-recommendation-section'>
                             Submit Changes
                         </button>
                     )}
                 </section>
 
-                <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto">
+                <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                    data-cy='terminate-case'>
                     Terminate Case
                 </button>
             </main>
