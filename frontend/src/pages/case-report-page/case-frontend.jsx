@@ -51,7 +51,7 @@ function CaseFrontend() {
             occupation: 'Software Developer',
             education: 'Undergraduate',
             relationship: 'Sister',
-            deceased: false
+            status: "living"
         },
         {
             id: 2,
@@ -64,7 +64,7 @@ function CaseFrontend() {
             occupation: 'Unemployed',
             education: 'Undergraduate',
             relationship: 'Sister',
-            deceased: false
+            status: "deceased"
         },
         {
             id: 3,
@@ -77,7 +77,7 @@ function CaseFrontend() {
             occupation: 'Producer',
             education: 'Undergraduate',
             relationship: 'Brother',
-            deceased: false
+            status: "living"
         },
         {
             id: 4,
@@ -90,7 +90,7 @@ function CaseFrontend() {
             occupation: 'Producer',
             education: 'Undergraduate',
             relationship: 'Brother',
-            deceased: false
+            status: "deceased"
         }
     ]);
 
@@ -173,8 +173,6 @@ function CaseFrontend() {
         "Displaced Individual",
         "Low Income Family"
     ]);
-
-
 
     const [age, setAge] = useState(calculateAge(data?.dob));
 
@@ -345,8 +343,22 @@ function CaseFrontend() {
         return `${arr.slice(0, -1).join(', ')}, and ${last}`;
     }
 
-    const checkNewLocales = () => {
+    function showSuccess(message) {
+        setModalTitle('Success!');
+        setModalBody(message);
+        setModalImageCenter(<div className='success-icon mx-auto'></div>);
+        setModalConfirm(false);
+        setShowModal(true);
+    }
+
+    const checkCore = () => {
         const missing = [];
+
+        if (!drafts.first_name || drafts.first_name.trim() === "") missing.push('First Name');
+        if (!drafts.middle_name || drafts.middle_name.trim() === "") missing.push('Middle Name');
+        if (!drafts.last_name || drafts.last_name.trim() === "") missing.push('Last Name');
+
+        if (!drafts.sm_number || drafts.sm_number.trim() === "") missing.push('SM Number');
 
         if (!drafts.spu_id) missing.push('SPU Project');
         // if (!drafts.sub_id) missing.push('Sub-Project'); // if needed
@@ -387,7 +399,38 @@ function CaseFrontend() {
         }
     }, [drafts.spu_id, drafts.sdw_id, socialDevelopmentWorkers]);
 
+    function checkIdentifying() {
+        const missing = [];
 
+        if (!drafts.dob) {
+            missing.push('Date of Birth');
+        } else {
+            const selectedDate = new Date(drafts.dob);
+            const today = new Date();
+            if (selectedDate > today) {
+                missing.push('Date of Birth cannot be in the future');
+            }
+        }
+
+        if (!drafts.sex || drafts.sex === "") {
+            missing.push('Sex');
+        }
+
+        if (!drafts.civilStatus || drafts.civilStatus === "") {
+            missing.push('Civil Status');
+        }
+
+        if (missing.length > 0) {
+            setModalTitle('Invalid Fields');
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className='warning-icon mx-auto'></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        return true;
+    }
 
     const handleAddFamilyMember = () => {
         const newId = familyCounter + 1;
@@ -534,30 +577,33 @@ function CaseFrontend() {
                         <>
                             <div className="flex gap-5 w-full">
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">First Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
                                         type="text"
                                         value={drafts.first_name}
+                                        placeholder='First Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
                                         className="text-input font-label w-full"
                                     />
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Middle Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Middle Name</label>
                                     <input
                                         type="text"
                                         value={drafts.middle_name}
+                                        placeholder='Middle Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
                                         className="text-input font-label w-full"
                                     />
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Last Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
                                         type="text"
                                         value={drafts.last_name}
+                                        placeholder='Last Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
                                         className="text-input font-label w-full"
                                     />
@@ -565,10 +611,11 @@ function CaseFrontend() {
                             </div>
 
                             <div className="flex flex-col gap-5 w-full">
-                                <label className="font-bold-label">SM Number</label>
+                                <label className="font-bold-label"><span className='text-red-500'>*</span> SM Number</label>
                                 <input
                                     type="text"
                                     value={drafts.sm_number}
+                                    placeholder='SM Number'
                                     onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
                                     className="text-input font-label w-full max-w-[30rem]"
                                 />
@@ -598,7 +645,7 @@ function CaseFrontend() {
                         <div className='flex flex-col w-full md:w-[48%]'>
                             {editingField === "core-fields" ? (
                                 <>
-                                    <label className='font-bold-label'>SPU Project</label>
+                                    <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
                                     <select
                                         className="text-input font-label"
                                         value={drafts.spu_id}
@@ -624,7 +671,7 @@ function CaseFrontend() {
                         <div className='flex flex-col w-full md:w-[48%]'>
                             {editingField === "core-fields" ? (
                                 <>
-                                    <label className='font-bold-label'>Social Development Worker</label>
+                                    <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
                                     <select
                                         className="text-input font-label"
                                         value={drafts.sdw_id}
@@ -651,7 +698,7 @@ function CaseFrontend() {
 
 
                     <div className='flex flex-col w-full'>
-                        <label className="font-bold-label mb-2">Classifications</label>
+                        <label className="font-bold-label mb-2"><span className='text-red-500'>*</span> Classifications</label>
                         {editingField === "core-fields" ? (
                             <>
                                 <div className="flex items-center max-w-[65rem] w-full self-start">
@@ -711,7 +758,7 @@ function CaseFrontend() {
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
                             onClick={() => {
-                                if (!checkNewLocales()) return;
+                                if (!checkCore()) return;
 
                                 setData(prev => ({
                                     ...prev,
@@ -724,6 +771,8 @@ function CaseFrontend() {
                                     classifications: drafts.classifications || [],
                                 }));
                                 setEditingField(null);
+
+                                showSuccess('Core details were successfully updated!');
                             }}
                         >
                             Submit Changes
@@ -731,7 +780,6 @@ function CaseFrontend() {
 
                     )}
                 </section>
-
 
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <div className="flex justify-between items-center">
@@ -767,7 +815,7 @@ function CaseFrontend() {
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="dob">Date of Birth</label>
+                                    <label className="font-bold-label" htmlFor="dob"><span className='text-red-500'>*</span> Date of Birth</label>
                                     <input
                                         type="date"
                                         id="dob"
@@ -778,21 +826,29 @@ function CaseFrontend() {
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="civil">Civil Status</label>
-                                    <input
-                                        type="text"
+                                    <label className="font-bold-label" htmlFor="civil"><span className='text-red-500'>*</span> Civil Status</label>
+                                    <select
+                                        className="text-input font-label"
                                         id="civil"
                                         value={drafts.civilStatus || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
-                                        className="text-input font-label"
-                                    />
+                                    >
+                                        <option value="">Select Civil Status</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Divorced">Divorced</option>
+                                        <option value="Separated">Separated</option>
+                                        <option value="Widowed">Widowed</option>
+                                    </select>
                                 </div>
+
 
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label" htmlFor="education">Educational Attainment</label>
                                     <input
                                         type="text"
                                         id="education"
+                                        placeholder='Educational Attainment'
                                         value={drafts.education || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, education: e.target.value }))}
                                         className="text-input font-label"
@@ -802,13 +858,16 @@ function CaseFrontend() {
 
                             <div className='flex justify-between gap-20'>
                                 <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Sex</label>
-                                    <input
-                                        type="text"
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
+                                    <select
+                                        className='text-input font-label'
                                         value={drafts.sex || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
-                                        className='text-input font-label'
-                                    />
+                                    >
+                                        <option value="">Select Sex</option>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
                                 </div>
 
                                 <div className='flex flex-col gap-5 w-full'>
@@ -816,6 +875,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         value={drafts.pob || ""}
+                                        placeholder='Place of Birth'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -826,6 +886,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         value={drafts.religion || ""}
+                                        placeholder='Religion'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -836,6 +897,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         value={drafts.occupation || ""}
+                                        placeholder='Occupation'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
                                         className='text-input font-label'
                                     />
@@ -847,7 +909,7 @@ function CaseFrontend() {
                                     <label className="font-bold-label">Present Address</label>
                                     <textarea
                                         className="text-input font-label"
-                                        placeholder="Taft Avenue, Metro Manila"
+                                        placeholder="Present Address"
                                         value={drafts.presentAddress || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, presentAddress: e.target.value }))}
                                     ></textarea>
@@ -858,7 +920,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         className="text-input font-label"
-                                        placeholder="0000 000 0000"
+                                        placeholder="Contact No."
                                         value={drafts.contactNo || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, contactNo: e.target.value }))}
                                     />
@@ -869,7 +931,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         className="text-input font-label"
-                                        placeholder="Sister"
+                                        placeholder="Relationship to Client"
                                         value={drafts.relationship || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, relationship: e.target.value }))}
                                     />
@@ -880,6 +942,8 @@ function CaseFrontend() {
                                 <button
                                     className="btn-transparent-rounded my-3 ml-auto"
                                     onClick={() => {
+                                        if (!checkIdentifying()) return;
+
                                         setData(prev => ({
                                             ...prev,
                                             dob: drafts.dob,
@@ -895,6 +959,7 @@ function CaseFrontend() {
                                         }));
                                         // setAge(calculateAge(drafts.dob));
                                         setEditingField(null);
+                                        showSuccess('Identifying data was successfully updated!');
                                     }}
                                 >
                                     Submit Changes
@@ -988,6 +1053,7 @@ function CaseFrontend() {
                             {editingField === 'history-fields' ? (
                                 <textarea className="text-input font-label"
                                     value={drafts.problemPresented}
+                                    placeholder='Problem Presented'
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, problemPresented: e.target.value }))} />
                             ) : (
@@ -1001,6 +1067,7 @@ function CaseFrontend() {
 
                             {editingField === 'history-fields' ? (
                                 <textarea className="text-input font-label"
+                                placeholder='History of the Problem'
                                     value={drafts.historyProblem}
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, historyProblem: e.target.value }))} />
@@ -1014,6 +1081,7 @@ function CaseFrontend() {
 
                             {editingField === 'history-fields' ? (
                                 <textarea className="text-input font-label"
+                                placeholder='Findings'
                                     value={drafts.observationFindings}
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, observationFindings: e.target.value }))} />
@@ -1034,6 +1102,7 @@ function CaseFrontend() {
                                     observation_findings: drafts.observationFindings
                                 }));
                                 setEditingField(null);
+                                showSuccess("Problems and Findings were successfully updated.")
 
                             }}>
                             Submit Changes
@@ -1068,6 +1137,7 @@ function CaseFrontend() {
                             {editingField === 'assessment-field' ? (
                                 <textarea className="text-input font-label"
                                     value={drafts.caseAssessment}
+                                    placeholder='Assessment'
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseAssessment: e.target.value }))} />
                             ) : (
@@ -1084,6 +1154,7 @@ function CaseFrontend() {
                                     assessment: drafts.caseAssessment
                                 }));
                                 setEditingField(null);
+                                showSuccess("Assessment was successfully updated");
                             }}>
                             Submit Changes
                         </button>
@@ -1114,6 +1185,8 @@ function CaseFrontend() {
                             {editingField === 'evaluation-fields' ? (
                                 <textarea className="text-input font-label"
                                     value={drafts.caseEvalutation}
+
+                                    placeholder='Evaluation'
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseEvalutation: e.target.value }))} />
                             ) : (
@@ -1128,6 +1201,7 @@ function CaseFrontend() {
                             {editingField === 'evaluation-fields' ? (
                                 <textarea className="text-input font-label"
                                     value={drafts.caseRecommendation}
+                                    placeholder='Recommendation'
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseRecommendation: e.target.value }))} />
                             ) : (
@@ -1146,6 +1220,7 @@ function CaseFrontend() {
                                     recommendation: drafts.caseRecommendation
                                 }));
                                 setEditingField(null);
+                                showSuccess("Evaluation and Recommendation were successfully updated.");
                             }}>
                             Submit Changes
                         </button>
