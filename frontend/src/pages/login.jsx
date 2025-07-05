@@ -58,6 +58,7 @@ export default function Login() {
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        data-cy='login-username'
                     />
 
                     <input
@@ -66,6 +67,7 @@ export default function Login() {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        data-cy='login-password'
                     />
 
                     <div className="flex justify-between w-full">
@@ -76,6 +78,7 @@ export default function Login() {
                                 className="w-5 h-5"
                                 checked={rememberMe}
                                 onChange={() => setRememberMe(!rememberMe)}
+                                data-cy='login-remember'
                             />
 
                             <label htmlFor="remember" className="font-label">Remember me</label>
@@ -97,6 +100,7 @@ export default function Login() {
                 <button
                     onClick={handleLogin}
                     className="btn-primary font-bold-label drop-shadow-base !text-[2.5rem] !py-5 !px-30 m-4"
+                    data-cy='login-button'
                 >
                     Login
                 </button>
