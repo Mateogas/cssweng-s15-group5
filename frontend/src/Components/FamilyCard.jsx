@@ -60,6 +60,16 @@ const FamilyCard = ({
             }
         }
 
+        if (editingFamilyValue.income !== undefined) {
+            const incomeValue = parseFloat(editingFamilyValue.income);
+            if (isNaN(incomeValue)) {
+                missing.push('Income must be numeric');
+            } else if (incomeValue < 0) {
+                missing.push('Income cannot be negative');
+            }
+        }
+
+
         if (missing.length > 0) {
             setModalTitle('Invalid Fields');
             setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);

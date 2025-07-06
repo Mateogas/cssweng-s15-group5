@@ -355,7 +355,13 @@ function CaseFrontend() {
         if (!drafts.middle_name || drafts.middle_name.trim() === "") missing.push('Middle Name');
         if (!drafts.last_name || drafts.last_name.trim() === "") missing.push('Last Name');
 
-        if (!drafts.sm_number || drafts.sm_number.trim() === "") missing.push('SM Number');
+        if (!drafts.sm_number || drafts.sm_number.trim() === "") {
+            missing.push('SM Number');
+        } else if (isNaN(Number(drafts.sm_number))) {
+            missing.push('SM Number must be numeric');
+        } else if (Number(drafts.sm_number) < 0) {
+            missing.push('SM Number cannot be negative');
+        }
 
         if (!drafts.spu_id) missing.push('SPU Project');
         // if (!drafts.sub_id) missing.push('Sub-Project'); // if needed
@@ -414,6 +420,15 @@ function CaseFrontend() {
         if (!drafts.sex || drafts.sex === "") {
             missing.push('Sex');
         }
+
+        if (drafts.contactNo) {
+            if (isNaN(Number(drafts.contactNo))) {
+                missing.push('Contact Number must be numeric');
+            } else if (Number(drafts.contactNo) < 0) {
+                missing.push('Contact Number cannot be negative');
+            }
+        }
+
 
         if (!drafts.civilStatus || drafts.civilStatus === "") {
             missing.push('Civil Status');
@@ -983,6 +998,7 @@ function CaseFrontend() {
                                         id="age"
                                         value={age}
                                         readOnly
+                                        disabled
                                         className="text-input font-label"
                                     />
                                 </div>
@@ -1003,43 +1019,6 @@ function CaseFrontend() {
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="civil"><span className='text-red-500'>*</span> Civil Status</label>
-                                    <select
-                                        className="text-input font-label"
-                                        id="civil"
-                                        value={drafts.civilStatus || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
-                                    >
-                                        <option value="">Select Civil Status</option>
-                                        <option value="Single">Single</option>
-                                        <option value="Married">Married</option>
-                                        <option value="Divorced">Divorced</option>
-                                        <option value="Separated">Separated</option>
-                                        <option value="Widowed">Widowed</option>
-                                    </select>
-                                </div>
-
-
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="education">Educational Attainment</label>
-                                    <input
-                                        type="text"
-                                        id="education"
-                                        placeholder='Educational Attainment'
-                                        value={drafts.education || ""}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({
-                                                ...prev,
-                                                education: e.target.value,
-                                            }))
-                                        }
-                                        className="text-input font-label"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className='flex justify-between gap-20'>
                                 <div className='flex flex-col gap-5 w-full'>
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
                                     <select
@@ -1051,58 +1030,6 @@ function CaseFrontend() {
                                         <option value="M">Male</option>
                                         <option value="F">Female</option>
                                     </select>
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Place of Birth</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.pob || ""}
-                                        placeholder='Place of Birth'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
-                                        className='text-input font-label'
-                                    />
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Religion</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.religion || ""}
-                                        placeholder='Religion'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
-                                        className='text-input font-label'
-                                    />
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Occupation</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.occupation || ""}
-                                        placeholder='Occupation'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
-                                        className='text-input font-label'
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between gap-20">
-                                <div className="flex w-full flex-col gap-5">
-                                    <label className="font-bold-label">
-                                        Present Address
-                                    </label>
-                                    <textarea
-                                        className="text-input font-label"
-                                        placeholder="Present Address"
-                                        value={drafts.presentAddress || ""}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({
-                                                ...prev,
-                                                presentAddress: e.target.value,
-                                            }))
-                                        }
-                                    ></textarea>
                                 </div>
 
                                 <div className="flex w-full flex-col gap-5">
@@ -1122,7 +1049,67 @@ function CaseFrontend() {
                                         }
                                     />
                                 </div>
+                            </div>
 
+                            <div className='flex justify-between gap-20'>
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label" htmlFor="education">Educational Attainment</label>
+                                    <input
+                                        type="text"
+                                        id="education"
+                                        placeholder='Educational Attainment'
+                                        value={drafts.education || ""}
+                                        onChange={(e) =>
+                                            setDrafts((prev) => ({
+                                                ...prev,
+                                                education: e.target.value,
+                                            }))
+                                        }
+                                        className="text-input font-label"
+                                    />
+                                </div>
+
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Occupation</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.occupation || ""}
+                                        placeholder='Occupation'
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
+                                        className='text-input font-label'
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label" htmlFor="civil"><span className='text-red-500'>*</span> Civil Status</label>
+                                    <select
+                                        className="text-input font-label"
+                                        id="civil"
+                                        value={drafts.civilStatus || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
+                                    >
+                                        <option value="">Select Civil Status</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Divorced">Divorced</option>
+                                        <option value="Separated">Separated</option>
+                                        <option value="Widowed">Widowed</option>
+                                    </select>
+                                </div>
+
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Religion</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.religion || ""}
+                                        placeholder='Religion'
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
+                                        className='text-input font-label'
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between gap-20">
                                 <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label">
                                         Relationship to Client
@@ -1138,6 +1125,34 @@ function CaseFrontend() {
                                                 relationship: e.target.value,
                                             }))
                                         }
+                                    />
+                                </div>
+
+                                <div className="flex w-full flex-col gap-5">
+                                    <label className="font-bold-label">
+                                        Present Address
+                                    </label>
+                                    <textarea
+                                        className="text-input font-label"
+                                        placeholder="Present Address"
+                                        value={drafts.presentAddress || ""}
+                                        onChange={(e) =>
+                                            setDrafts((prev) => ({
+                                                ...prev,
+                                                presentAddress: e.target.value,
+                                            }))
+                                        }
+                                    ></textarea>
+                                </div>
+
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Place of Birth</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.pob || ""}
+                                        placeholder='Place of Birth'
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
+                                        className='text-input font-label'
                                     />
                                 </div>
                             </div>
@@ -1178,7 +1193,7 @@ function CaseFrontend() {
                                     <span className="font-bold-label">
                                         Age:
                                     </span>{" "}
-                                    {age || "-"}
+                                    {age == 0 ? 0 : age || "-"}
                                 </p>
                                 <p>
                                     <span className="font-bold-label">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -20,13 +20,13 @@ export default function Login() {
 
     const handleLogin = () => {
         const users = [
-            { email: "admin@email.com", password: "123" },
-            { email: "sdw@email.com", password: "123" },
-            { email: "super@email.com", password: "123" },
+            { username: "admin", password: "123" },
+            { username: "sdw", password: "123" },
+            { username: "super", password: "123" },
         ];
 
         const foundUser = users.find(
-            (user) => user.email === email && user.password === password
+            (user) => user.username === username && user.password === password
         );
 
         if (foundUser) {
@@ -34,7 +34,7 @@ export default function Login() {
             console.log('Login successful:', foundUser);
             navigate('/home-sdw');
         } else {
-            setErrorMessage('Email and password do not match.');
+            setErrorMessage('Username and password do not match.');
         }
     };
 
@@ -55,9 +55,9 @@ export default function Login() {
                     <input
                         type="text"
                         className="text-input font-label w-full"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                     />
 
                     <input
