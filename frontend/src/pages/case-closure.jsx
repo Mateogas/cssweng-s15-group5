@@ -100,6 +100,8 @@ function CaseClosure() {
         );
     };
 
+    const [sm_awareness, setSMAwareness] = useState("");
+
     const handleCheckboxChange = (value) => {
         setSMAwareness(value);
     };

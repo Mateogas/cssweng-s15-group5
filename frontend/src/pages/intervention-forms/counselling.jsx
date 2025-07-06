@@ -2,16 +2,21 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
-function CounsellingForm() {
+// API Imports
+import {
+    fetchCaseData,
+    addCounselingIntervention,
+} from "../../fetch-connections/intervention-connection";
 
-    /********** TEST DATA **********/
+function CounsellingForm() {
+    const navigate = useNavigate();
 
     const [data, setData] = useState({
-        form_num: "4",
-        first_name: "Hephzi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
+        form_num: "",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        ch_number: "",
         grade_year_level: "",
         school: "",
         address: "",
@@ -23,10 +28,6 @@ function CounsellingForm() {
         recommendation: "",
         sm_comments: "",
     });
-
-    /********** TEST DATA **********/
-
-    /********** USE STATES **********/
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -42,10 +43,10 @@ function CounsellingForm() {
     const [area_self_help, setAreaSelfHelp] = useState(
         data?.area_self_help || "",
     );
-    const [counselling_date, setCounsellingDate] = useState(
+    const [counseling_date, setCounselingDate] = useState(
         data?.counselling_date || "",
     );
-    const [reason_for_counselling, setReasonForCounselling] = useState(
+    const [reason_for_counseling, setReasonForCounseling] = useState(
         data?.reason_for_counselling || "",
     );
     const [corrective_action, setCorrectiveAction] = useState(
@@ -55,15 +56,40 @@ function CounsellingForm() {
         data?.recommendation || "",
     );
     const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
+    
+    // LOAD DATA
+    useEffect(() => {
+        const loadData = async () => {
+            // setLoading(true);
+            const fetchedData = await fetchCaseData('685e536add2b486dad9efd88');
+            setData(fetchedData);
+            // setLoading(false);
 
-    /********** USE STATES **********/
+            setLastName(fetchedData.last_name || "");
+            setMiddleName(fetchedData.middle_name || "");
+            setFirstName(fetchedData.first_name || "");
+            setCHNumber(fetchedData.ch_number || "");
+            setFormNum(fetchedData.form_num || "");
+            setGradeYearLevel(fetchedData.grade_year_level || "");
+            setSchool(fetchedData.school || "");
+            setAddress(fetchedData.address || "");
+            setSubproject(fetchedData.subproject || "");
+            setAreaSelfHelp(fetchedData.area_self_help || "");
+            setCounselingDate(fetchedData.counseling_date || "");
+            setReasonForCounseling(fetchedData.reason_for_counseling || "");
+            setCorrectiveAction(fetchedData.corrective_action || "");
+            setRecommendation(fetchedData.recommendation || "");
+            setSMComments(fetchedData.sm_comments || "");
+        };
+        
+        loadData();
+    }, []);
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
-            {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -134,20 +160,19 @@ function CounsellingForm() {
                         <div className="flex flex-col gap-5">
                             <DateInput
                                 label="Date of Counselling"
-                                value={counselling_date}
-                                setValue={setCounsellingDate}
+                                value={counseling_date}
+                                setValue={setCounselingDate}
                             ></DateInput>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Reason for Counselling and Corrective Action */}
             <section className="flex w-full items-end gap-10">
                 <TextArea
                     label="Purpose/Reason for Counselling"
-                    value={reason_for_counselling}
-                    setValue={setReasonForCounselling}
+                    value={reason_for_counseling}
+                    setValue={setReasonForCounseling}
                 ></TextArea>
                 <TextArea
                     label="Corrective and/or Disciplinary Action To Be Taken"
@@ -175,7 +200,43 @@ function CounsellingForm() {
             {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+
+                <button 
+                    className="btn-primary"
+                    onClick={async (e) => {
+                        e.preventDefault();
+
+                        const counselingData = {
+                            first_name,
+                            middle_name,
+                            last_name,
+                            ch_number,
+                            grade_year_level,
+                            school,
+                            address,
+                            subproject,
+                            area_self_help,
+                            counseling_date,
+                            reason_for_counseling,
+                            corrective_action,
+                            recommendation,
+                            sm_comments
+                        };
+                        
+                        try {
+                            const response = await addCounselingIntervention(counselingData, '685e536add2b486dad9efd88'); // Replace with actual ID
+                            console.log("Intervention created successfully:", response);
+                            
+                            // TODO Navigate to the next page or show a success message
+                            navigate("/case-frontend")
+                        } catch (error) {
+                            console.error("Error creating intervention:", error);
+                            // TODO Handle error appropriately, e.g., show a notification
+                        }
+                    }}
+                    >
+                        Create Intervention
+                </button>
             </div>
         </main>
     );

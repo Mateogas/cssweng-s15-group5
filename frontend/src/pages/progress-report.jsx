@@ -188,7 +188,7 @@ function ProgressReport() {
                 </div>
             </section>
 
-            {/* Update/Developmert */}
+            {/* Update/Development */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5">
                     <h3 className="header-md">Update/Development</h3>

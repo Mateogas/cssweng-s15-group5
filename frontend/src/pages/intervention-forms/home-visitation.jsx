@@ -4,7 +4,6 @@ import { TextInput, DateInput, TextArea } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
 
 function HomeVisitationForm() {
-
     /********** TEST DATA **********/
 
     const [data, setData] = useState({

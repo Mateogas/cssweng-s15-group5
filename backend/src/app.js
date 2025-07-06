@@ -19,6 +19,8 @@ app.use(express.json());
  */
 const caseController = require("./controller/caseController");
 const caseRoutes = require('./route/caseRoutes')
+const interventionRoutes = require('./route/interventionRoutes');
+const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 /**
@@ -33,6 +35,13 @@ app.use((req, res, next) => {
 
 // all case routes
 app.use('/api/cases', caseRoutes);
+
+// Intervention routes
+app.use('/api/intervention', interventionRoutes);
+
+// Progress Report routes
+app.use('/api/progress-report', progressReportRoutes);
+
 app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
 /*

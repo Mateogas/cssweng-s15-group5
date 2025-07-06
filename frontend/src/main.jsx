@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
+
 import HomeSDW from "./pages/home-sdw.jsx";
 import HomeAdmin from "./pages/home-admin.jsx";
 import Archive from "./pages/archive.jsx";
@@ -53,6 +54,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     path="/case-closure"
                     element={<CaseClosure />}
                 />
+
+                <Route path="/home-sdw" element={<HomeSDW />} />
+
             </Routes>
         </BrowserRouter>
     </React.StrictMode>,

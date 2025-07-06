@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-/*
-     UPDATE: 
-        > Added sm_number
-        > Changed intervention to of type array
- */
 const SponsoredMemberSchema = new mongoose.Schema({
     sm_number: {
         type: Number,
@@ -82,11 +77,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
             refPath: 'interventions.interventionType',
             required: true,
         },
-        intervention_number: {
-            type: Number,
-            required: true
-        },
-        interventionType: { 
+        interventionType: { // Reference to the type of intervention schema
             type: String,
             enum: [
                 'Intervention Correspondence',
@@ -94,11 +85,13 @@ const SponsoredMemberSchema = new mongoose.Schema({
                 'Intervention Financial Assessment',
                 'Intervention Home Visitation'
             ],
-            required: true 
-        }
+            required: true
+        },
+        intervention_number: {
+            type: Number,
+            required: true
+        },
     }],
-
-
     history_problem: {
         type: String,
         required: false

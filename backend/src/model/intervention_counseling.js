@@ -2,12 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const InterventionCounselingSchema = new Schema ({
-     intervention_type: {
-          type: mongoose.Schema.Types.ObjectId, 
-          ref: 'Intervention Type',
-
-          required: true
-     },
      grade_year_level: {
           type: String,
           required: true
@@ -20,11 +14,11 @@ const InterventionCounselingSchema = new Schema ({
           type: String,
           required: true        
      },
-     counselling_date:{
+     counseling_date:{
           type: Date,
           required: true        
      },     
-     reason_for_counselling:{
+     reason_for_counseling:{
           type: String,
           required: true        
      },
@@ -38,7 +32,7 @@ const InterventionCounselingSchema = new Schema ({
      },
      sm_comments:{
           type: String,
-          required: true        
+          required: false        
      },
      progress_reports: {
           type: [mongoose.Schema.Types.ObjectId], 
