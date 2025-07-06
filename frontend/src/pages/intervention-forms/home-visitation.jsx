@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../../Components/TextField";
+import { TextInput, TextArea, DateInput } from "../../Components/TextField";
+import FamilyCard from "../../Components/FamilyCard";
 
 // API Import
 import  {   fetchCaseData, 
@@ -53,6 +54,8 @@ function HomeVisitationForm() {
             const fatherData = returnData.father
             const motherData = returnData.mother
             const otherFamilyData = returnData.otherFamily
+
+            console.log(caseData)
 
             setRawCaseData(caseData);
             setRawFatherData(fatherData);
@@ -145,6 +148,32 @@ function HomeVisitationForm() {
         const response = await createHomeVis(payload);
     };
     // ===== END :: Backend Connection ===== //
+
+    // ===== START :: Local Functions ===== //
+    const handleAddObservation = () => {
+        const newObservation = "";
+
+        setObservationFindings((prev) => [...prev, newObservation]);
+    };
+
+    const updateObservations = (index, value) => {
+        setObservationFindings((prev) =>
+            prev.map((item, i) => (i === index ? value : item)),
+        );
+    };
+
+    const handleAddIntervention = () => {
+        const newIntervention = "";
+
+        setInterventions((prev) => [...prev, newIntervention]);
+    };
+
+    const updateInterventions = (index, value) => {
+        setInterventions((prev) =>
+            prev.map((item, i) => (i === index ? value : item)),
+        );
+    };
+    // ===== END :: Local Functions ===== //
 
     /**
      *   Formats the currency
@@ -445,13 +474,6 @@ function HomeVisitationForm() {
                     Members and/or Other Members of the Family
                 </h1>
 
-                <button
-                    className="btn-primary font-bold-label drop-shadow-base"
-                    onClick={handleAddFamilyMember}
-                >
-                    Add Family Member
-                </button>
-
                 <div className="flex justify-between gap-10">
                     <div className="flex flex-wrap gap-8">
                         {familyMembers.map((member, index) => (
@@ -459,10 +481,6 @@ function HomeVisitationForm() {
                                 key={index}
                                 index={index}
                                 member={member}
-                                selectedFamily={selectedFamily}
-                                setSelectedFamily={setSelectedFamily}
-                                editingFamilyValue={editingFamilyValue}
-                                setEditingFamilyValue={setEditingFamilyValue}
                                 familyMembers={familyMembers}
                                 setFamilyMembers={setFamilyMembers}
                             />

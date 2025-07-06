@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Intervention_Counseling = require('../model/intervention_counseling');
-const Intervention_Home_Visitation = require('../model/intervention_home_visitation');
+const Intervention_Home_Visitation = require('../model/intervention_homevisit');
 const Intervention_Correspondence = require('../model/intervention_correspondence');
-const Intervention_Financial_Assessment = require('../model/intervention_financial_assessment');
+const Intervention_Financial_Assessment = require('../model/intervention_financial');
 const Progress_Report = require('../model/progress_report');
 
 /**

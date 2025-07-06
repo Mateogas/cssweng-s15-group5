@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea } from "../Components/TextField";
+import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 // API Import
 import  {   fetchCaseData, 
@@ -130,6 +130,9 @@ function CaseClosure() {
     const [address, setAddress] = useState(data?.address || "");
     const [spu, setSPU] = useState(data?.spu || "");
     const [closure_date, setClosureDate] = useState(data?.closure_date || "");
+    const [sponsorship_date, setSponsorshipDate] = useState(
+        data?.sponsorship_date || "",
+    );
     const [reason_for_retirement, setReasonForRetirement] = useState(
         data?.reason_for_retirement || "",
     );
@@ -140,6 +143,27 @@ function CaseClosure() {
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
     );
+    const [service_selected, setServiceSelected] = useState("");
+
+    const services = [
+        "Sponsorship Program",
+        "Social Development Program",
+        "Home Visitation",
+        "Counselling",
+        "Financial Assistance",
+        "Correspondence",
+    ];
+
+    const [services_provided, setServicesProvided] = useState([
+        {
+            service: "Sponsorship Program",
+            description: "",
+        },
+        {
+            service: "Social Development Program",
+            description: "",
+        },
+    ]);
 
      return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
