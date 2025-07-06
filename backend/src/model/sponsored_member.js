@@ -83,13 +83,13 @@ const SponsoredMemberSchema = new mongoose.Schema({
                 'Intervention Correspondence',
                 'Intervention Counseling',
                 'Intervention Financial Assessment',
-                'Intervention Home Visitation'
+                'Intervention Home Visit'
             ],
             required: true
         },
         intervention_number: {
             type: Number,
-            required: true
+            required: false
         },
     }],
     history_problem: {

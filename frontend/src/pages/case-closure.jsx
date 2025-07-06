@@ -1,104 +1,99 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea, DateInput } from "../Components/TextField";
+import { TextInput, TextArea } from "../Components/TextField";
+
+// API Import
+import  {   fetchCaseData, 
+            createCaseClosureForm
+        }
+from '../fetch-connections/caseClosure-connection'; 
 
 function CaseClosure() {
-
-    /********** TEST DATA **********/
+    // ===== START :: Setting Data ===== // 
+    const [loading, setLoading] = useState(true);
+    const [rawCaseData, setRawCaseData] = useState(null);
 
     const [data, setData] = useState({
-        form_num: "4",
-        first_name: "Hepzhi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        dob: "2000-01-10",
-        religion: "Roman Catholic",
+        form_num: "",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        ch_number: "",
+        dob: "",
+        religion: "",
         address: "",
-        spu: "FDQ",
+        spu: "",
         closure_date: "",
-        sponsorship_date: "",
         reason_for_retirement: "",
         sm_notification: "",
         evaluation: "",
         recommendation: "",
     });
 
-    const services = [
-        "Sponsorship Program",
-        "Social Development Program",
-        "Home Visitation",
-        "Counselling",
-        "Financial Assistance",
-        "Correspondence",
-    ];
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
 
-    const [services_provided, setServicesProvided] = useState([
-        {
-            service: "Sponsorship Program",
-            description: "",
-        },
-        {
-            service: "Social Development Program",
-            description: "",
-        },
-    ]);
+            // [TO UPDATE] :: Case ID
+            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
+            const caseData = returnData
 
-    /********** TEST DATA **********/
+            setRawCaseData(caseData);
+            setData((prev) => ({
+                ...prev,
+                first_name: caseData.first_name || "",
+                middle_name: caseData.middle_name || "",
+                last_name: caseData.last_name || "",
 
-    /********** USE STATES **********/
-
-    const [last_name, setLastName] = useState(data?.last_name || "");
-    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
-    const [first_name, setFirstName] = useState(data?.first_name || "");
-    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
-    const [dob, setDOB] = useState(data?.dob || "");
-    const [age, setAge] = useState(calculateAge(data?.dob));
-    const [religion, setReligion] = useState(data?.religion || "");
-    const [address, setAddress] = useState(data?.address || "");
-    const [spu, setSPU] = useState(data?.spu || "");
-    const [closure_date, setClosureDate] = useState(data?.closure_date || "");
-    const [sponsorship_date, setSponsorshipDate] = useState(
-        data?.sponsorship_date || "",
-    );
-    const [reason_for_retirement, setReasonForRetirement] = useState(
-        data?.reason_for_retirement || "",
-    );
-    const [sm_awareness, setSMAwareness] = useState("");
-    const [sm_notification, setSMNotification] = useState(
-        data?.sm_notification || "",
-    );
-    const [service_selected, setServiceSelected] = useState("");
-    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
-    const [recommendation, setRecommendation] = useState(
-        data?.recommendation || "",
-    );
-
-    /********** USE STATES **********/
-
-    /********** FUNCTIONS **********/
-
-    const handleAddService = (item) => {
-        const new_service = {
-            service: item,
-            description: "",
+                ch_number: caseData.sm_number || "",
+                dob: caseData.dob || "",
+                religion: caseData.religion || "",
+                address: caseData.present_address || "",
+                spu: caseData.spu || "",
+            }));
+            setLoading(false);
         };
+        loadData();
+    }, []);
 
-        setServicesProvided((prev) =>
-            prev.some((entry) => entry.service === item)
-                ? prev
-                : [...prev, new_service],
-        );
-    };
+    useEffect(() => {
+        setLastName(data.last_name || "");
+        setMiddleName(data.middle_name || "");
+        setFirstName(data.first_name || "");
+        setCHNumber(data.ch_number || "");
+        setDOB(data.dob || "");
+        setAge(calculateAge(data.dob));
+        setReligion(data.religion || "");
+        setAddress(data.address || "");
+        setSPU(data.spu || "");
+        console.log(data)
+    }, [data]);
+    // ===== END :: Setting Data ===== // 
 
-    const updateDescription = (index, value) => {
-        setServicesProvided((prev) =>
-            prev.map((item, i) =>
-                i === index ? { ...item, description: value } : item,
-            ),
-        );
+    // ===== START :: Backend Connection ===== //
+    const handleCreateForm = async () => {
+        const payload = {
+            form_num,
+            first_name,
+            middle_name,
+            last_name,
+            ch_number,
+            dob,
+            religion,
+            address,
+            spu,
+            closure_date,
+            reason_for_retirement,
+            sm_awareness,
+            sm_notification,
+            evaluation,
+            recommendation,
+
+            rawCaseData
+        };
+        const response = await createCaseClosureForm(payload);
     };
+    // ===== END :: Backend Connection ===== //
 
     const [sm_awareness, setSMAwareness] = useState("");
 
@@ -124,9 +119,29 @@ function CaseClosure() {
         return age;
     }
 
-    /********** FUNCTIONS **********/
+    const [last_name, setLastName] = useState(data?.last_name || "");
+    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
+    const [first_name, setFirstName] = useState(data?.first_name || "");
+    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
+    const [form_num, setFormNum] = useState(data?.form_num || "");
+    const [dob, setDOB] = useState(data?.dob || "");
+    const [age, setAge] = useState(calculateAge(data?.dob));
+    const [religion, setReligion] = useState(data?.religion || "");
+    const [address, setAddress] = useState(data?.address || "");
+    const [spu, setSPU] = useState(data?.spu || "");
+    const [closure_date, setClosureDate] = useState(data?.closure_date || "");
+    const [reason_for_retirement, setReasonForRetirement] = useState(
+        data?.reason_for_retirement || "",
+    );
+    const [sm_notification, setSMNotification] = useState(
+        data?.sm_notification || "",
+    );
+    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
 
-    return (
+     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Case Closure Report</h3>

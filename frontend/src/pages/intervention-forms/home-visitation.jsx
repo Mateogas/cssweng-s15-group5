@@ -1,16 +1,26 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, DateInput, TextArea } from "../../Components/TextField";
-import FamilyCard from "../../Components/FamilyCard";
+import { TextInput, TextArea } from "../../Components/TextField";
+
+// API Import
+import  {   fetchCaseData, 
+            createHomeVis
+        }
+from '../../fetch-connections/homeVisitation-connection'; 
 
 function HomeVisitationForm() {
-    /********** TEST DATA **********/
+    // ===== START :: Setting Data ===== // 
+    const [loading, setLoading] = useState(true);
+    const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFatherData, setRawFatherData] = useState(null);
+    const [rawMotherData, setRawMotherData] = useState(null);
+    const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
 
     const [data, setData] = useState({
-        form_num: "3",
-        first_name: "Hepzhi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
+        form_num: "",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
         grade_year_course: "",
         years_in_program: "",
         date: "",
@@ -32,6 +42,127 @@ function HomeVisitationForm() {
         recommendation: "",
         agreement: "",
     });
+
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Case ID
+            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
+            const caseData = returnData.case
+            const fatherData = returnData.father
+            const motherData = returnData.mother
+            const otherFamilyData = returnData.otherFamily
+
+            setRawCaseData(caseData);
+            setRawFatherData(fatherData);
+            setRawMotherData(motherData);
+            setRawOtherFamilyData(otherFamilyData);
+
+            setData((prev) => ({
+                ...prev,
+                first_name: caseData.first_name || "",
+                middle_name: caseData.middle_name || "",
+                last_name: caseData.last_name || "",
+
+                father_first_name: fatherData.first_name || "",
+                father_middle_name: fatherData.middle_name || "",
+                father_last_name: fatherData.last_name || "",
+                father_work: fatherData.occupation || "",
+                father_income: fatherData.income || "",
+
+                mother_first_name: motherData.first_name || "",
+                mother_middle_name: motherData.middle_name || "",
+                mother_last_name: motherData.last_name || "",
+                mother_work: motherData.occupation || "",
+                mother_income: motherData.income || "",
+            }));
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        setFirstName(data.first_name || "");
+        setMiddleName(data.middle_name || "");
+        setLastName(data.last_name || "");
+
+        setFatherFirstName(data.father_first_name || "");
+        setFatherMiddleName(data.father_middle_name || "");
+        setFatherLastName(data.father_last_name || "");
+        setFatherWork(data.father_work || "");
+        setFatherIncome(data.father_income || "");
+
+        setMotherFirstName(data.mother_first_name || "");
+        setMotherMiddleName(data.mother_middle_name || "");
+        setMotherLastName(data.mother_last_name || "");
+        setMotherWork(data.mother_work || "");
+        setMotherIncome(data.mother_income || "");
+    }, [data]);
+    // ===== END :: Setting Data ===== // 
+
+    // ===== START :: Backend Connection ===== //
+    const handleCreate = async () => {
+        const payload = {
+            form_num,
+            first_name,
+            middle_name,
+            last_name,
+
+            grade_year_course,
+            years_in_program,
+
+            date,
+            community,
+            sponsor_name,
+
+            family_type,
+            father_first_name,
+            father_middle_name,
+            father_last_name,
+            father_work,
+            father_income,
+            rawFatherData,
+
+            mother_first_name,
+            mother_middle_name,
+            mother_last_name,
+            mother_work,
+            mother_income,
+            rawMotherData,
+
+            rawOtherFamilyData,
+
+            sm_progress,
+            family_progress,
+            recommendation,
+            agreement,
+
+            familyMembers,
+            observation_findings,
+            interventions
+        };
+        const response = await createHomeVis(payload);
+    };
+    // ===== END :: Backend Connection ===== //
+
+    /**
+     *   Formats the currency
+     * 
+     *   @param {*} value : Value to be formatted (assumed Number)
+     *   @returns : The formatted string
+     * 
+     *   [NOTE]: Applied this in income display; changed the income input to of type number
+     */
+    function currency_Formatter(value) {
+        if (typeof value !== "number") return "PHP0.00";
+        return value.toLocaleString("en-PH", {
+            style: "currency",
+            currency: "PHP",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
     const [familyMembers, setFamilyMembers] = useState([
         {
@@ -74,10 +205,6 @@ function HomeVisitationForm() {
         "Intervention 2",
         "Intervention 3",
     ]);
-
-    /********** TEST DATA **********/
-
-    /********** USE STATES **********/
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -128,54 +255,7 @@ function HomeVisitationForm() {
     );
     const [agreement, setAgreement] = useState(data?.agreement || "");
 
-    const [selectedFamily, setSelectedFamily] = useState(null);
-    const [editingFamilyValue, setEditingFamilyValue] = useState({});
-
-    /********** USE STATES **********/
-
-    /********** FUNCTIONS **********/
-
-    const handleAddFamilyMember = () => {
-        const newMember = {
-            name: "",
-            age: "",
-            income: "",
-            civilStatus: "",
-            occupation: "",
-            education: "",
-            relationship: "",
-        };
-
-        setFamilyMembers((prev) => [newMember, ...prev]);
-        setSelectedFamily(0);
-        setEditingFamilyValue(newMember);
-    };
-
-    const handleAddObservation = () => {
-        const newObservation = "";
-
-        setObservationFindings((prev) => [...prev, newObservation]);
-    };
-
-    const updateObservations = (index, value) => {
-        setObservationFindings((prev) =>
-            prev.map((item, i) => (i === index ? value : item)),
-        );
-    };
-
-    const handleAddIntervention = () => {
-        const newIntervention = "";
-
-        setInterventions((prev) => [...prev, newIntervention]);
-    };
-
-    const updateInterventions = (index, value) => {
-        setInterventions((prev) =>
-            prev.map((item, i) => (i === index ? value : item)),
-        );
-    };
-
-    /********** FUNCTIONS **********/
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
