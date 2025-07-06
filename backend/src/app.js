@@ -20,6 +20,7 @@ app.use(express.json());
 const caseController = require("./controller/caseController");
 const caseRoutes = require('./route/caseRoutes')
 const interventionRoutes = require('./route/interventionRoutes');
+const progressReportRoutes = require('./route/progressReportRoutes');
 
 /**
  *  ============ Routes ==============
@@ -36,6 +37,9 @@ app.use('/api/cases', caseRoutes);
 
 // Intervention routes
 app.use('/api/intervention', interventionRoutes);
+
+// Progress Report routes
+app.use('/api/progress-report', progressReportRoutes);
 
 /*
 Code below was added by gpt as a bug fix to when you reload it turns into json, this happens because of routing issues with

@@ -5,8 +5,6 @@ const Intervention_Correspondence = require('../model/intervention_correspondenc
 const Intervention_Financial_Assessment = require('../model/intervention_financial_assessment');
 const Progress_Report = require('../model/progress_report');
 
-/*
-TODO: FIX
 const getProgressReportById = async (req, res) => {
     try {
         const id = req.params.id;
@@ -28,7 +26,7 @@ const getProgressReportById = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
-*/
+
 /**
  * Adds a progress report to an intervention.
  * @route POST /progress-report/add/:id
@@ -315,7 +313,7 @@ const editProgressReport = async (req, res) => {
 }
 
 module.exports = {
-    // getProgressReportById,
+    getProgressReportById,
     addProgressReport,
     deleteProgressReport,
     editProgressReport,
