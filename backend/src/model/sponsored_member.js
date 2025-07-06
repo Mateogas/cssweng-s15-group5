@@ -7,7 +7,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     spu: {
         type: String,
-        enum: ['AMP', 'FDQ', 'MPH', 'MS'], // Add other SPUs as needed
+        enum: ['AMP', 'FDQ', 'MPH', 'MS','MNL'], // Add other SPUs as needed
         required: true
     },
     last_name: {
@@ -74,12 +74,17 @@ const SponsoredMemberSchema = new mongoose.Schema({
     interventions: [{
         intervention: {
             type: mongoose.Schema.Types.ObjectId,
-            refPath: 'interventionType',
+            refPath: 'interventions.interventionType',
             required: true,
         },
         interventionType: { // Reference to the type of intervention schema
             type: String,
-            enum: ['Intervention Correspondence', 'Intervention Counseling', 'Intervention Financial Assessment', 'Intervention Home Visitation'], // Add other intervention types as needed
+            enum: [
+                'Intervention Correspondence',
+                'Intervention Counseling',
+                'Intervention Financial Assessment',
+                'Intervention Home Visitation'
+            ],
             required: true
         },
         intervention_number: {

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 function FinancialAssessmentForm() {
+
+    /********** TEST DATA **********/
+
     const [data, setData] = useState({
         form_num: "3",
         type_of_assistance: [
@@ -25,13 +28,9 @@ function FinancialAssessmentForm() {
         "Medical Assistance to the Sponsored Member",
     ]);
 
-    const handleCheckboxChange = (value) => {
-        setTypeOfAssistance((prev) =>
-            prev.includes(value)
-                ? prev.filter((v) => v !== value)
-                : [...prev, value],
-        );
-    };
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -49,13 +48,28 @@ function FinancialAssessmentForm() {
         data?.recommendation || "",
     );
 
+    /********** USE STATES **********/
+
+    /********** FUNCTIONS **********/
+
+    const handleCheckboxChange = (value) => {
+        setTypeOfAssistance((prev) =>
+            prev.includes(value)
+                ? prev.filter((v) => v !== value)
+                : [...prev, value],
+        );
+    };
+
+    /********** FUNCTIONS **********/
+
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 Assessment Form for Special Family Assistance
             </h3>
 
+            {/* Type of Assistance */}
             <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Type of Assistance</h4>
                 <div className="flex justify-center gap-20 px-5">
@@ -184,6 +198,7 @@ function FinancialAssessmentForm() {
                 </div>
             </section>
 
+            {/* Identifying Information */}
             <section className="flex w-full flex-col items-center gap-8">
                 <h4 className="header-sm w-full">Identifying Information</h4>
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
@@ -224,6 +239,7 @@ function FinancialAssessmentForm() {
                 </div>
             </section>
 
+            {/* Problem Presented */}
             <section className="flex w-full">
                 <TextArea
                     label="Problem Presented"
@@ -232,6 +248,7 @@ function FinancialAssessmentForm() {
                 ></TextArea>
             </section>
 
+            {/* Recommendation */}
             <section className="flex w-full">
                 <TextArea
                     label="Recommendation"
@@ -240,6 +257,7 @@ function FinancialAssessmentForm() {
                 ></TextArea>
             </section>
 
+            {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Intervention</button>

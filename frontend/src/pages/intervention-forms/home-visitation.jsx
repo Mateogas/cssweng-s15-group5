@@ -4,6 +4,8 @@ import { TextInput, DateInput, TextArea } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
 
 function HomeVisitationForm() {
+    /********** TEST DATA **********/
+
     const [data, setData] = useState({
         form_num: "3",
         first_name: "Hepzhi-Bah",
@@ -73,6 +75,10 @@ function HomeVisitationForm() {
         "Intervention 3",
     ]);
 
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
+
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -125,6 +131,10 @@ function HomeVisitationForm() {
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [editingFamilyValue, setEditingFamilyValue] = useState({});
 
+    /********** USE STATES **********/
+
+    /********** FUNCTIONS **********/
+
     const handleAddFamilyMember = () => {
         const newMember = {
             name: "",
@@ -165,11 +175,14 @@ function HomeVisitationForm() {
         );
     };
 
+    /********** FUNCTIONS **********/
+
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
+            {/* Sponsored Member */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -243,6 +256,7 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
+            {/* General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -272,6 +286,7 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
+            {/* Father and Mother */}
             <section className="flex w-full gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -344,6 +359,7 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
+            {/* Family Members */}
             <section className="flex flex-col gap-8">
                 <h1 className="header-main">
                     Members and/or Other Members of the Family
@@ -375,6 +391,7 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
+            {/* Progress in Goals */}
             <section className="flex w-full flex-col gap-5">
                 <h3 className="header-md">
                     Progress in the Family based on their Family Goals
@@ -393,6 +410,7 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
+            {/* Observation/Findings */}
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
                 {observation_findings.map((item, index) => (
@@ -413,6 +431,7 @@ function HomeVisitationForm() {
                 </button>
             </section>
 
+            {/* Interventions Made */}
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Interventions Made</h4>
                 {interventions.map((item, index) => (
@@ -433,6 +452,7 @@ function HomeVisitationForm() {
                 </button>
             </section>
 
+            {/* Recommendation and Agreement */}
             <section className="flex w-full flex-col gap-5">
                 <div className="flex w-full gap-10">
                     <TextArea
@@ -448,6 +468,7 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
+            {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Intervention</button>

@@ -6,9 +6,12 @@
     "start:backend": "cd backend/src && npm run dev-server",
     "start:frontend": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "install:all": "cd backend/src && npm install && cd ../../frontend && npm install"
+    "install:all": "cd backend/src && npm install && cd ../../frontend && npm install",
+    "test:fin-api": "cd backend && node tests/intervention-fin-api-test.js",
+    "test:corresp-api": "cd backend && node tests/intervention-corresp-api-test.js"
   },
   "devDependencies": {
+    "axios": "^1.10.0",
     "concurrently": "^8.2.2"
   }
 }

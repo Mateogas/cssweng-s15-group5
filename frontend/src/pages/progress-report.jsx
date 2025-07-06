@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../Components/TextField";
 
 function ProgressReport() {
+
+    /********** TEST DATA **********/
+
     const [data, setData] = useState({
         form_num: "2",
         first_name: "Hepzhi-Bah",
@@ -29,35 +32,15 @@ function ProgressReport() {
 
     const options = ["Yes", "Sometimes", "No"];
 
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
+
     const [responses, setResponses] = useState({
         q1: "",
         q2: "",
         q3: "",
     });
-
-    const handleCheckboxChange = (questionID, value) => {
-        setResponses((prev) => ({
-            ...prev,
-            [questionID]: value,
-        }));
-    };
-
-    function calculateAge(dateValue) {
-        const birthday = new Date(dateValue);
-        const today = new Date();
-
-        let age = today.getFullYear() - birthday.getFullYear();
-
-        const birthdayDone =
-            today.getMonth() > birthday.getMonth() ||
-            (today.getMonth() === birthday.getMonth() && today.getDate() >= birthday.getDate());
-
-        if (!birthdayDone) {
-            age--;
-        }
-
-        return age;
-    }
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -88,11 +71,42 @@ function ProgressReport() {
         data?.participation || "",
     );
 
+    /********** USE STATES **********/
+
+    /********** FUNCTIONS **********/
+
+    const handleCheckboxChange = (questionID, value) => {
+        setResponses((prev) => ({
+            ...prev,
+            [questionID]: value,
+        }));
+    };
+
+    function calculateAge(dateValue) {
+        const birthday = new Date(dateValue);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthday.getFullYear();
+
+        const birthdayDone =
+            today.getMonth() > birthday.getMonth() ||
+            (today.getMonth() === birthday.getMonth() && today.getDate() >= birthday.getDate());
+
+        if (!birthdayDone) {
+            age--;
+        }
+
+        return age;
+    }
+
+    /********** FUNCTIONS **********/
+
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Individual Progress Report</h3>
 
+            {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -174,6 +188,7 @@ function ProgressReport() {
                 </div>
             </section>
 
+            {/* Update/Development */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5">
                     <h3 className="header-md">Update/Development</h3>
@@ -196,6 +211,7 @@ function ProgressReport() {
                 </div>
             </section>
 
+            {/* Services to Family */}
             <section className="flex w-full">
                 <TextArea
                     label="Services Rendered to the Family"
@@ -204,6 +220,7 @@ function ProgressReport() {
                 ></TextArea>
             </section>
 
+            {/* Participation */}
             <section className="flex w-full">
                 <TextArea
                     label="Participation in the Community"
@@ -213,6 +230,7 @@ function ProgressReport() {
                 ></TextArea>
             </section>
 
+            {/* Relationship to Sponsor and Unbound */}
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">Relationship to Sponsor & Unbound</h4>
                 <div className="flex gap-24">
@@ -241,6 +259,7 @@ function ProgressReport() {
                 </div>
             </section>
 
+            {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between mt-10">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Create Progress Report</button>

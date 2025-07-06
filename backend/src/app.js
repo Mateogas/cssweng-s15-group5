@@ -21,7 +21,8 @@ const caseController = require("./controller/caseController");
 const caseRoutes = require('./route/caseRoutes')
 const interventionRoutes = require('./route/interventionRoutes');
 const progressReportRoutes = require('./route/progressReportRoutes');
-
+const interventFinRoutes = require('./route/interventFinRoute.js');
+const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 /**
  *  ============ Routes ==============
  */
@@ -41,6 +42,8 @@ app.use('/api/intervention', interventionRoutes);
 // Progress Report routes
 app.use('/api/progress-report', progressReportRoutes);
 
+app.use('/api/interventions/financial',interventFinRoutes);
+app.use('/api/interventions/correspondence',interventCorrespRoutes);
 /*
 Code below was added by gpt as a bug fix to when you reload it turns into json, this happens because of routing issues with
 vite+react to be able to use this tho you first need to build the front end

@@ -181,6 +181,7 @@ function CounsellingForm() {
                 ></TextArea>
             </section>
 
+            {/* Recommendation and Comments */}
             <section className="flex w-full flex-col gap-15">
                 <TextArea
                     label="Recommendation for Improvement (Intervention)"
@@ -196,6 +197,7 @@ function CounsellingForm() {
                 ></TextArea>
             </section>
 
+            {/* Buttons */}
             <div className="flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
 

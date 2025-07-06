@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 function CaseClosure() {
+
+    /********** TEST DATA **********/
+
     const [data, setData] = useState({
         form_num: "4",
         first_name: "Hepzhi-Bah",
@@ -33,7 +36,7 @@ function CaseClosure() {
     const [services_provided, setServicesProvided] = useState([
         {
             service: "Sponsorship Program",
-            description: "hi",
+            description: "",
         },
         {
             service: "Social Development Program",
@@ -41,7 +44,40 @@ function CaseClosure() {
         },
     ]);
 
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
+
+    const [last_name, setLastName] = useState(data?.last_name || "");
+    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
+    const [first_name, setFirstName] = useState(data?.first_name || "");
+    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
+    const [form_num, setFormNum] = useState(data?.form_num || "");
+    const [dob, setDOB] = useState(data?.dob || "");
+    const [age, setAge] = useState(calculateAge(data?.dob));
+    const [religion, setReligion] = useState(data?.religion || "");
+    const [address, setAddress] = useState(data?.address || "");
+    const [spu, setSPU] = useState(data?.spu || "");
+    const [closure_date, setClosureDate] = useState(data?.closure_date || "");
+    const [sponsorship_date, setSponsorshipDate] = useState(
+        data?.sponsorship_date || "",
+    );
+    const [reason_for_retirement, setReasonForRetirement] = useState(
+        data?.reason_for_retirement || "",
+    );
+    const [sm_awareness, setSMAwareness] = useState("");
+    const [sm_notification, setSMNotification] = useState(
+        data?.sm_notification || "",
+    );
     const [service_selected, setServiceSelected] = useState("");
+    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
+
+    /********** USE STATES **********/
+
+    /********** FUNCTIONS **********/
 
     const handleAddService = (item) => {
         const new_service = {
@@ -88,36 +124,14 @@ function CaseClosure() {
         return age;
     }
 
-    const [last_name, setLastName] = useState(data?.last_name || "");
-    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
-    const [first_name, setFirstName] = useState(data?.first_name || "");
-    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
-    const [dob, setDOB] = useState(data?.dob || "");
-    const [age, setAge] = useState(calculateAge(data?.dob));
-    const [religion, setReligion] = useState(data?.religion || "");
-    const [address, setAddress] = useState(data?.address || "");
-    const [spu, setSPU] = useState(data?.spu || "");
-    const [closure_date, setClosureDate] = useState(data?.closure_date || "");
-    const [sponsorship_date, setSponsorshipDate] = useState(
-        data?.sponsorship_date || "",
-    );
-    const [reason_for_retirement, setReasonForRetirement] = useState(
-        data?.reason_for_retirement || "",
-    );
-    const [sm_notification, setSMNotification] = useState(
-        data?.sm_notification || "",
-    );
-    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
-    const [recommendation, setRecommendation] = useState(
-        data?.recommendation || "",
-    );
+    /********** FUNCTIONS **********/
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Case Closure Report</h3>
 
+            {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -202,6 +216,7 @@ function CaseClosure() {
                 </div>
             </section>
 
+            {/* Reason for Retirement and SM Notification */}
             <section className="flex w-full flex-col gap-5">
                 <TextArea
                     label="Reasons for Retirement"
@@ -249,6 +264,7 @@ function CaseClosure() {
                 </div>
             </section>
 
+            {/* Services Provided */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5">
                     <h3 className="header-md">
@@ -279,7 +295,7 @@ function CaseClosure() {
                             </option>
                         ))}
                     </select>
-                    <div className="flex w-full gap-10">
+                    <div className="flex flex-wrap gap-10">
                         {services_provided.map((item, index) => (
                             <TextArea
                                 key={index}
@@ -294,6 +310,7 @@ function CaseClosure() {
                 </div>
             </section>
 
+            {/* Evaluation */}
             <section className="flex w-full">
                 <TextArea
                     label="Evaluation"
@@ -303,6 +320,7 @@ function CaseClosure() {
                 ></TextArea>
             </section>
 
+            {/* Recommendation */}
             <section className="flex w-full">
                 <TextArea
                     label="Recommendation"
@@ -312,6 +330,7 @@ function CaseClosure() {
                 ></TextArea>
             </section>
 
+            {/* Buttons */}
             <div className="mt-10 flex w-[22.5rem] justify-between">
                 <button className="btn-outline-rounded">Cancel</button>
                 <button className="btn-primary">Close Case</button>
