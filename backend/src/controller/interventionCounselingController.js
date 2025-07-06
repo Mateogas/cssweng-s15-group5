@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const Sponsored_Member = require('../model/sponsored_member');
 const Intervention_Counseling = require('../model/intervention_counseling');
 
+/**
+ * Retrieves a counseling intervention by its ID, including detailed intervention data
+ * and associated sponsored member information.
+ *
+ * @route GET /api/intervention/counseling/intervention/:counselingId
+ *
+ * @param {string} req.params.counselingId - ID of the counseling intervention to retrieve
+ *
+ * @returns {Object} 200 - JSON object with counseling intervention and sponsored member details
+ * @returns {Object} 404 - If intervention or sponsored member is not found
+ * @returns {Object} 500 - If a server error occurs
+ */
 const getCounselingInterventionById = async (req, res) => {
     try {
         const counselingId = req.params.counselingId;
@@ -46,6 +58,18 @@ const getCounselingInterventionById = async (req, res) => {
     }
 }
 
+/**
+ * Retrieves all counseling interventions for a sponsored member by their ID.
+ * Filters interventions to include only those of type 'Intervention Counseling'.
+ * 
+ * @route GET /api/intervention/counseling/member/:memberID
+ * 
+ * @param {string} req.params.memberID - ID of the sponsored member
+ * 
+ * @returns {Object} 200 - JSON object with counseling interventions and sponsored member details
+ * @returns {Object} 404 - If sponsored member is not found
+ * @returns {Object} 500 - If a server error occurs
+ */
 const getAllCounselingInterventionsByMemberId = async (req, res) => {
     try {
         const memberID = req.params.memberID;
@@ -81,7 +105,17 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
 }
 
 /**
- * Adds a new counseling intervention record to the database.
+ * Adds a new counseling intervention for a sponsored member.
+ * 
+ * @route POST /api/intervention/counseling/add/:memberID
+ * 
+ * @param {string} req.params.memberID - ID of the sponsored member
+ * @param {Object} req.body - Data for the new counseling intervention
+ * 
+ * @returns {Object} 200 - JSON object with success message, intervention details, and sponsored member info
+ * @returns {Object} 400 - If required fields are missing or counseling date is invalid
+ * @returns {Object} 404 - If sponsored member is not found
+ * @returns {Object} 500 - If a server error occurs
  */
 const addCounselingIntervention = async (req, res) => {
     try {
@@ -186,6 +220,17 @@ const addCounselingIntervention = async (req, res) => {
     }
 }
 
+/**
+ * Deletes a counseling intervention by its ID and removes it from the sponsored member's interventions.
+ * 
+ * @route DELETE /api/intervention/counseling/delete/:counselingId
+ * 
+ * @param {string} req.params.counselingId - ID of the counseling intervention to delete
+ * 
+ * @returns {Object} 200 - JSON object with success message and intervention ID
+ * @returns {Object} 404 - If intervention or sponsored member is not found
+ * @returns {Object} 500 - If a server error occurs
+ */
 const deleteCounselingIntervention = async (req, res) => {
     try {
         const counselingId = req.params.counselingId;
@@ -224,6 +269,20 @@ const deleteCounselingIntervention = async (req, res) => {
     }
 }
 
+/**
+ * Edits an existing counseling intervention by its ID.
+ * Validates required fields and updates the intervention data.
+ * 
+ * @route PUT /api/intervention/counseling/edit/:counselingId
+ * 
+ * @param {string} req.params.counselingId - ID of the counseling intervention to edit
+ * @param {Object} req.body - Data to update the counseling intervention
+ * 
+ * @return {Object} 200 - JSON object with success message and updated intervention details
+ * @return {Object} 400 - If required fields are missing or counseling date is invalid
+ * @return {Object} 404 - If counseling intervention is not found
+ * @return {Object} 500 - If a server error occurs
+ */
 const editCounselingIntervention = async (req, res) => {
     try {
         const counselingId = req.params.counselingId;

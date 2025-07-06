@@ -5,6 +5,18 @@ const Intervention_Correspondence = require('../model/intervention_correspondenc
 const Intervention_Financial_Assessment = require('../model/intervention_financial_assessment');
 const Progress_Report = require('../model/progress_report');
 
+/**
+ * Fetches a progress report by its ID.
+ * 
+ * @route GET /api/progress-report/:reportId
+ * 
+ * @param {string} reportId - The ID of the progress report to fetch.
+ * 
+ * @returns {Object} 200 - Progress report object.
+ * @returns {Object} 400 - Invalid report ID or missing report.
+ * @returns {Object} 404 - Progress report not found.
+ * @returns {Object} 500 - Internal server error.
+ */
 const getProgressReportById = async (req, res) => {
     try {
         const reportId = req.params.reportId;
@@ -29,9 +41,18 @@ const getProgressReportById = async (req, res) => {
 
 /**
  * Adds a progress report to an intervention.
- * @route POST /progress-report/add/:id
+ * 
+ * @route POST /api/progress-report/add/:interventionId
+ * 
  * @param {string} interventionId - The ID of the intervention.
  * 
+ * @param {Object} req.body - The progress report data.
+ * @param {string} req.body.intervention_type - The type of intervention.
+ * 
+ * @returns {Object} 201 - Progress report added successfully.
+ * @returns {Object} 400 - Invalid intervention ID, type, or missing required fields.
+ * @returns {Object} 404 - Intervention not found.
+ * @returns {Object} 500 - Internal server error.
  */
 const addProgressReport = async (req, res) => {
     try {
@@ -161,6 +182,19 @@ const addProgressReport = async (req, res) => {
     }
 }
 
+/**
+ * Deletes a progress report from an intervention.
+ * 
+ * @route DELETE /api/progress-report/delete/:reportId
+ * 
+ * @param {string} reportId - The ID of the progress report to delete.
+ * @param {string} req.body.intervention_type - The type of intervention.
+ * 
+ * @returns {Object} 200 - Progress report deleted successfully.
+ * @returns {Object} 400 - Invalid report ID or intervention type.
+ * @returns {Object} 404 - Progress report or intervention not found.
+ * @returns {Object} 500 - Internal server error.
+ */
 const deleteProgressReport = async (req, res) => {
     try {
         const reportId = req.params.reportId;
@@ -224,6 +258,19 @@ const deleteProgressReport = async (req, res) => {
     }
 }
 
+/**
+ * Edits an existing progress report.
+ * 
+ * @route PUT /api/progress-report/edit/:reportId
+ * 
+ * @param {string} reportId - The ID of the progress report to edit.
+ * @param {Object} req.body - The updated progress report data.
+ * 
+ * @returns {Object} 200 - Progress report updated successfully.
+ * @returns {Object} 400 - Invalid report ID, missing required fields, or invalid sponsorship date.
+ * @returns {Object} 404 - Progress report not found.
+ * @returns {Object} 500 - Internal server error.
+ */ 
 const editProgressReport = async (req, res) => {
     try {
         const reportId = req.params.reportId;

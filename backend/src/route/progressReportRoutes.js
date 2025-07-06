@@ -3,6 +3,8 @@ const router = express.Router();
 
 const progressReportController = require('../controller/progressReportController');
 
+// Progress Report Routes
+// /api/progress-report
 router.get('/:reportId', progressReportController.getProgressReportById);
 router.post('/add/:interventionId', progressReportController.addProgressReport);
 router.delete('/delete/:reportId', progressReportController.deleteProgressReport);
