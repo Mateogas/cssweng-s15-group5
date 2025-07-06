@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function Case() {
-  // these are basically variables this is how u use them in react
+// these are basically variables this is how u use them in react
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -35,7 +35,7 @@ function Case() {
     <div className="case-container">
       <h2>Case Testing Page</h2>
 
-      // use the function
+      //use the function
       <button onClick={fetchCaseData}>
         Fetch Case Data from Backend
       </button>

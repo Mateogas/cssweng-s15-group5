@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import SideItem from "../Components/SideItem"
 import ClientEntry from "../Components/ClientEntry";
 
-function HomeSDW() {
+function Archive() {
     const [allData, setAllData] = useState([
         {
             first_name: "Hephzi-Bah",
@@ -200,7 +200,7 @@ function HomeSDW() {
     useEffect(() => {
         let filtered = [...allData];
 
-        filtered = filtered.filter((client) => client.is_active === "yes");
+        filtered = filtered.filter((client) => client.is_active === "no");
 
 
         if (currentSPU !== "") {
@@ -334,9 +334,8 @@ function HomeSDW() {
                                 </button>
                             </div>
 
-                            <button className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
-                                <p>+</p>
-                                <p>New Case</p>
+                            <button className="btn-green font-bold-label flex gap-4 whitespace-nowrap">
+                                <p>Export</p>
                             </button>
                         </div>
                     </div>
@@ -360,6 +359,7 @@ function HomeSDW() {
                                 sdwAssigned={
                                     socialDevWorkers.find(w => w.sdw_id === client.sdw_id)?.username || "Unassigned"
                                 }
+                                archive={true}
                             />
                         ))}
 
@@ -373,4 +373,4 @@ function HomeSDW() {
     )
 }
 
-export default HomeSDW
+export default Archive
