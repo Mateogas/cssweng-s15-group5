@@ -6,22 +6,10 @@ const interventionCounselingController = require('../controller/interventionCoun
 
 // Counseling Intervention Routes
 router.get('/counseling/add/:id', caseController.getCaseById);
-router.get('/counseling/intervention/:id', interventionCounselingController.getCounselingInterventionById);
-router.get('/counseling/member/:id', interventionCounselingController.getAllCounselingInterventionsByMemberId);
-router.post('/counseling/add/:id', interventionCounselingController.addCounselingIntervention);
-router.delete('/counseling/delete/:id', interventionCounselingController.deleteCounselingIntervention);
-router.put('/counseling/edit/:id', interventionCounselingController.editCounselingIntervention);
-
-// Home Visitation Routes
-
-
-
-// Correspondence Routes
-
-
-
-// Financial Intervention Routes
-
-
+router.get('/counseling/intervention/:counselingId', interventionCounselingController.getCounselingInterventionById);
+router.get('/counseling/member/:memberID', interventionCounselingController.getAllCounselingInterventionsByMemberId);
+router.post('/counseling/add/:memberID', interventionCounselingController.addCounselingIntervention);
+router.delete('/counseling/delete/:counselingId', interventionCounselingController.deleteCounselingIntervention);
+router.put('/counseling/edit/:counselingId', interventionCounselingController.editCounselingIntervention);
 
 module.exports = router;

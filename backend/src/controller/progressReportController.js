@@ -7,15 +7,15 @@ const Progress_Report = require('../model/progress_report');
 
 const getProgressReportById = async (req, res) => {
     try {
-        const id = req.params.id;
+        const reportId = req.params.reportId;
 
         // Validate progress report ID
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(reportId)) {
             return res.status(400).json({ error: 'Invalid progress report ID' });
         }
 
         // Find the progress report by ID
-        const progressReport = await Progress_Report.findById(id);
+        const progressReport = await Progress_Report.findById(reportId);
         if (!progressReport) {
             return res.status(404).json({ error: 'Progress report not found' });
         }
@@ -30,16 +30,16 @@ const getProgressReportById = async (req, res) => {
 /**
  * Adds a progress report to an intervention.
  * @route POST /progress-report/add/:id
- * @param {string} id - The ID of the intervention.
+ * @param {string} interventionId - The ID of the intervention.
  * 
  */
 const addProgressReport = async (req, res) => {
     try {
-        const id = req.params.id;
+        const interventionId = req.params.interventionId;
         const interventionType = req.body.intervention_type;
 
         // Validate intervention ID
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(interventionId)) {
             return res.status(400).json({ error: 'Invalid intervention ID' });
         }
 
@@ -53,16 +53,16 @@ const addProgressReport = async (req, res) => {
 
         switch (interventionType) {
             case 'Intervention Counseling':
-                intervention = await Intervention_Counseling.findById(id);
+                intervention = await Intervention_Counseling.findById(interventionId);
                 break;
             case 'Intervention Home Visitation':
-                intervention = await Intervention_Home_Visitation.findById(id);
+                intervention = await Intervention_Home_Visitation.findById(interventionId);
                 break;
             case 'Intervention Correspondence':
-                intervention = await Intervention_Correspondence.findById(id);
+                intervention = await Intervention_Correspondence.findById(interventionId);
                 break;
             case 'Intervention Financial Assessment':
-                intervention = await Intervention_Financial_Assessment.findById(id);
+                intervention = await Intervention_Financial_Assessment.findById(interventionId);
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid intervention type' });
@@ -163,16 +163,16 @@ const addProgressReport = async (req, res) => {
 
 const deleteProgressReport = async (req, res) => {
     try {
-        const id = req.params.id;
+        const reportId = req.params.reportId;
         const interventionType = req.body.intervention_type;
 
         // Validate progress report ID
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(reportId)) {
             return res.status(400).json({ error: 'Invalid progress report ID' });
         }
 
         // Find the progress report
-        const progressReport = await Progress_Report.findById(id);
+        const progressReport = await Progress_Report.findById(reportId);
         if (!progressReport) {
             return res.status(404).json({ error: 'Progress report not found' });
         }
@@ -203,8 +203,8 @@ const deleteProgressReport = async (req, res) => {
 
         // Find the intervention that contains the progress report and remove it
         const intervention = await interventionModel.findOneAndUpdate(
-            { progress_reports: id },
-            { $pull: { progress_reports: id } },
+            { progress_reports: reportId },
+            { $pull: { progress_reports: reportId } },
             { new: true }
         );
         
@@ -214,8 +214,8 @@ const deleteProgressReport = async (req, res) => {
         console.log('Progress report removed from intervention');
 
         // Delete the progress report
-        await Progress_Report.findByIdAndDelete(id);
-        console.log('Progress report deleted:', id);
+        await Progress_Report.findByIdAndDelete(reportId);
+        console.log('Progress report deleted:', reportId);
 
         return res.status(200).json({ message: 'Progress report deleted successfully' });
     } catch (error) {
@@ -226,10 +226,10 @@ const deleteProgressReport = async (req, res) => {
 
 const editProgressReport = async (req, res) => {
     try {
-        const id = req.params.id;
+        const reportId = req.params.reportId;
 
         // Find the progress report
-        const progressReport = await Progress_Report.findById(id);
+        const progressReport = await Progress_Report.findById(reportId);
 
         if (!progressReport) {
             return res.status(404).json({ error: 'Progress report not found' });

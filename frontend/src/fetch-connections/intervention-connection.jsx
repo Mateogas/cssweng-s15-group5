@@ -30,9 +30,9 @@ export const fetchCaseData = async (caseID) => {
     }
 };
 
-export const fetchCounselingIntervention = async (interventionID) => {
+export const fetchCounselingIntervention = async (counselingId) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/intervention/${interventionID}`);
+        const response = await fetch(`/api/intervention/counseling/intervention/${counselingId}`);
 
         if (!response.ok) {
             throw new Error("Failed to fetch counseling intervention");

@@ -4,10 +4,10 @@ const Intervention_Counseling = require('../model/intervention_counseling');
 
 const getCounselingInterventionById = async (req, res) => {
     try {
-        const id = req.params.id;
+        const counselingId = req.params.counselingId;
 
         // Find the counseling intervention by ID
-        const intervention = await Intervention_Counseling.findById(id);
+        const intervention = await Intervention_Counseling.findById(counselingId);
         if (!intervention) {
             console.log('Intervention not found');
             return res.status(404).json({ error: 'Counseling intervention not found' });
@@ -15,7 +15,7 @@ const getCounselingInterventionById = async (req, res) => {
 
         // Populate the sponsored member details
         const sponsored_member = await Sponsored_Member.findOne({
-            'interventions.intervention': id
+            'interventions.intervention': counselingId
         }).populate('interventions.intervention');
 
         if (!sponsored_member) {
@@ -48,10 +48,10 @@ const getCounselingInterventionById = async (req, res) => {
 
 const getAllCounselingInterventionsByMemberId = async (req, res) => {
     try {
-        const id = req.params.id;
+        const memberID = req.params.memberID;
 
         // Find the sponsored member by ID
-        const sponsored_member = await Sponsored_Member.findById(id).populate('interventions.intervention');
+        const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention');
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
@@ -85,9 +85,9 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
  */
 const addCounselingIntervention = async (req, res) => {
     try {
-        const id = req.params.id;
+        const memberID = req.params.memberID;
 
-        const sponsored_member = await Sponsored_Member.findById(id);
+        const sponsored_member = await Sponsored_Member.findById(memberID);
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         };
@@ -188,9 +188,9 @@ const addCounselingIntervention = async (req, res) => {
 
 const deleteCounselingIntervention = async (req, res) => {
     try {
-        const id = req.params.id;
+        const counselingId = req.params.counselingId;
 
-        const intervention = await Intervention_Counseling.findById(id);
+        const intervention = await Intervention_Counseling.findById(counselingId);
 
         if (!intervention) {
             return res.status(404).json({ error: 'Counseling intervention not found' });
@@ -198,8 +198,8 @@ const deleteCounselingIntervention = async (req, res) => {
 
         // Remove the intervention from the sponsored member's interventions array
         const sponsored_member = await Sponsored_Member.findOneAndUpdate(
-            { 'interventions.intervention': id },
-            { $pull: { interventions: { intervention: id } } },
+            { 'interventions.intervention': counselingId },
+            { $pull: { interventions: { intervention: counselingId } } },
             { new: true }
         );
 
@@ -208,12 +208,12 @@ const deleteCounselingIntervention = async (req, res) => {
         }
 
         // Delete the intervention
-        await Intervention_Counseling.findByIdAndDelete(id);
+        await Intervention_Counseling.findByIdAndDelete(counselingId);
 
         // Return success response
         return res.status(200).json({
             message: 'Counseling intervention deleted successfully',
-            interventionId: id,
+            interventionId: counselingId,
             sponsored_member: {
                 id: sponsored_member._id,
             },
@@ -226,8 +226,8 @@ const deleteCounselingIntervention = async (req, res) => {
 
 const editCounselingIntervention = async (req, res) => {
     try {
-        const id = req.params.id;
-        const intervention = await Intervention_Counseling.findById(id);
+        const counselingId = req.params.counselingId;
+        const intervention = await Intervention_Counseling.findById(counselingId);
         if (!intervention) {
             return res.status(404).json({ error: 'Counseling intervention not found' });
         }
