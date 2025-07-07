@@ -227,18 +227,18 @@ function HomeVisitationForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
             {/* Sponsored Member */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
@@ -255,7 +255,7 @@ function HomeVisitationForm() {
                                 disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Grade/Year Course"
                                 value={grade_year_course}
@@ -266,8 +266,8 @@ function HomeVisitationForm() {
                                 value={years_in_program}
                                 disabled={true}
                             ></TextInput>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Family Type</p>
+                            <div className="flex items-center gap-16">
+                                <p className="label-base w-64">Family Type</p>
                                 <select
                                     name="family_type"
                                     id="family_type"
@@ -306,13 +306,13 @@ function HomeVisitationForm() {
             </section>
 
             {/* General Info */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date"
                                 value={date}
@@ -324,7 +324,7 @@ function HomeVisitationForm() {
                                 setValue={setCommunity}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Sponsor Name"
                                 value={sponsor_name}
@@ -336,13 +336,13 @@ function HomeVisitationForm() {
             </section>
 
             {/* Father and Mother */}
-            <section className="flex w-full gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Father</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={father_last_name}
@@ -372,12 +372,12 @@ function HomeVisitationForm() {
                     </div>
                 </div>
 
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Mother</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={mother_last_name}
@@ -409,12 +409,12 @@ function HomeVisitationForm() {
             </section>
 
             {/* Family Members */}
-            <section className="flex w-full flex-col gap-10">
+            <section className="flex w-full flex-col gap-16">
                 <h3 className="header-md">
                     Members and/or Other Members of the Family
                 </h3>
 
-                <div className="flex w-full justify-between gap-10">
+                <div className="flex w-full justify-between gap-16">
                     <div className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6">
                         <div
                             className="flex gap-8"
@@ -443,11 +443,11 @@ function HomeVisitationForm() {
             </section>
 
             {/* Progress in Goals */}
-            <section className="flex w-full flex-col gap-5">
+            <section className="flex w-full flex-col gap-8">
                 <h3 className="header-md">
                     Progress in the Family based on their Family Goals
                 </h3>
-                <div className="flex w-full gap-10">
+                <div className="flex w-full gap-16">
                     <TextArea
                         label="SM"
                         value={sm_progress}
@@ -462,11 +462,11 @@ function HomeVisitationForm() {
             </section>
 
             {/* Observation/Findings */}
-            <section className="flex w-full flex-col gap-5">
+            <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
                 {observation_findings.map((item, index) => (
                     <div key={index} className="flex items-center">
-                        <p className="body-base pr-2.5">{index + 1}.</p>
+                        <p className="body-base pr-4">{index + 1}.</p>
                         <input
                             type="text"
                             value={item}
@@ -487,11 +487,11 @@ function HomeVisitationForm() {
             </section>
 
             {/* Interventions Made */}
-            <section className="flex w-full flex-col gap-5">
+            <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Interventions Made</h4>
                 {interventions.map((item, index) => (
                     <div key={index} className="flex items-center">
-                        <p className="body-base pr-2.5">{index + 1}.</p>
+                        <p className="body-base pr-4">{index + 1}.</p>
                         <input
                             type="text"
                             value={item}
@@ -512,8 +512,8 @@ function HomeVisitationForm() {
             </section>
 
             {/* Recommendation and Agreement */}
-            <section className="flex w-full flex-col gap-5">
-                <div className="flex w-full gap-10">
+            <section className="flex w-full flex-col gap-8">
+                <div className="flex w-full gap-16">
                     <TextArea
                         label="Recommendations"
                         value={recommendation}
