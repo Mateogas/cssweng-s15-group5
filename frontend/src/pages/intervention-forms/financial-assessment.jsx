@@ -193,7 +193,7 @@ function FinancialAssessmentForm() {
                             value={other_assistance}
                             onChange={(e) => setOtherAssistance(e.target.value)}
                             placeholder="Form of Assistance"
-                            className="text-input w-full"
+                            className="text-input h-32 w-full"
                         ></textarea>
                     </div>
                 </div>

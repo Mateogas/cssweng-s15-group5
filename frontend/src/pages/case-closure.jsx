@@ -126,18 +126,19 @@ function CaseClosure() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex justify-center px-20 py-20">
-            <div className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-full justify-center p-32">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
                 <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 <h3 className="header-md">Case Closure Report</h3>
+
                 {/* Sponsored Member and General Info */}
-                <section className="flex w-full flex-col gap-10">
-                    <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <section className="flex w-full flex-col gap-16">
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">Sponsored Member</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-10">
-                            <div className="flex flex-col gap-5">
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Last Name"
                                     value={last_name}
@@ -159,7 +160,7 @@ function CaseClosure() {
                                     disabled={true}
                                 ></TextInput>
                             </div>
-                            <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-8">
                                 <DateInput
                                     label="Date of Birth"
                                     value={dob}
@@ -175,30 +176,30 @@ function CaseClosure() {
                                     value={religion}
                                     disabled={true}
                                 ></TextInput>
-                                <div className="flex gap-10">
-                                    <p className="label-base w-44">Address</p>
+                                <div className="flex gap-16">
+                                    <p className="label-base w-72">Address</p>
                                     <textarea
                                         value={address}
                                         disabled={true}
-                                        className="text-area cursor-not-allowed bg-gray-200"
+                                        className="text-area h-32 cursor-not-allowed bg-gray-200"
                                     ></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-10">
-                            <div className="flex flex-col gap-5">
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Name of SPU/Cluster"
                                     value={spu}
                                     disabled={true}
                                 ></TextInput>
                             </div>
-                            <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-8">
                                 <DateInput
                                     label="Date of Closure"
                                     value={closure_date}
@@ -213,8 +214,9 @@ function CaseClosure() {
                         </div>
                     </div>
                 </section>
+
                 {/* Reason for Retirement and SM Notification */}
-                <section className="flex w-full flex-col gap-5">
+                <section className="flex w-full flex-col gap-8">
                     <TextArea
                         label="Reasons for Retirement"
                         sublabel="Indicate reason based on the result of the case conference"
@@ -222,12 +224,12 @@ function CaseClosure() {
                         setValue={setReasonForRetirement}
                     ></TextArea>
                     <div className="flex w-full items-center gap-12">
-                        <div className="flex min-w-80 flex-col gap-5">
+                        <div className="flex min-w-lg flex-col gap-8">
                             <p className="body-base">
                                 Is the client or SM aware of case closure?
                             </p>
-                            <div className="flex gap-8">
-                                <label className="flex items-center gap-2.5">
+                            <div className="flex gap-12">
+                                <label className="flex items-center body-base gap-4">
                                     <input
                                         type="checkbox"
                                         name="sm_awareness"
@@ -239,7 +241,7 @@ function CaseClosure() {
                                     />
                                     Yes
                                 </label>
-                                <label className="flex items-center gap-2.5">
+                                <label className="flex items-center body-base gap-4">
                                     <input
                                         type="checkbox"
                                         name="sm_awareness"
@@ -260,9 +262,10 @@ function CaseClosure() {
                         ></TextArea>
                     </div>
                 </section>
+
                 {/* Services Provided */}
-                <section className="flex w-full flex-col gap-10">
-                    <div className="flex w-full flex-col gap-5">
+                <section className="flex w-full flex-col gap-16">
+                    <div className="flex w-full flex-col gap-8">
                         <h3 className="header-md">
                             Services Provided and Progress Toward SM's/Family
                             Goals
@@ -277,7 +280,7 @@ function CaseClosure() {
                             id="services"
                             value={service_selected}
                             onChange={(e) => handleAddService(e.target.value)}
-                            className="label-base text-input max-w-96"
+                            className="label-base text-input max-w-xl"
                         >
                             <option value="" className="body-base">
                                 Add Service
@@ -292,7 +295,7 @@ function CaseClosure() {
                                 </option>
                             ))}
                         </select>
-                        <div className="flex flex-wrap gap-10">
+                        <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
                                 <TextArea
                                     key={index}
@@ -306,6 +309,7 @@ function CaseClosure() {
                         </div>
                     </div>
                 </section>
+
                 {/* Evaluation */}
                 <section className="flex w-full">
                     <TextArea
@@ -315,6 +319,7 @@ function CaseClosure() {
                         setValue={setEvaluation}
                     ></TextArea>
                 </section>
+
                 {/* Recommendation */}
                 <section className="flex w-full">
                     <TextArea
@@ -324,6 +329,7 @@ function CaseClosure() {
                         setValue={setRecommendation}
                     ></TextArea>
                 </section>
+
                 {/* Buttons */}
                 <div className="mt-10 flex w-[22.5rem] justify-between">
                     <button
