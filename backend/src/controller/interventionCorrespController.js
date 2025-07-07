@@ -52,6 +52,86 @@ const createCorespForm = async(req,res)=>{
     }
 }
 
+/**
+ * Adds a new intervention plan to an existing correspondence form
+ * @route PUT /api/interventions/correspondence/add-plan/:formId
+ */
+const addInterventionPlan = async (req, res) => {
+    const formId = req.params.formId;
+    const newPlan = req.body; // Should be an object with action, time_frame, results
+
+    if (!mongoose.Types.ObjectId.isValid(formId)) {
+        return res.status(400).json({ message: 'Invalid Form ID' });
+    }
+
+    // Basic validation for the plan object
+    if (
+        !newPlan ||
+        typeof newPlan.action !== 'string' || newPlan.action.length < 1 ||
+        typeof newPlan.time_frame !== 'string' || newPlan.time_frame.length < 1 ||
+        typeof newPlan.results !== 'string' || newPlan.results.length < 1
+    ) {
+        return res.status(400).json({ message: 'Invalid intervention plan data' });
+    }
+
+    try {
+        const updatedForm = await Intervention_Correspondence.findByIdAndUpdate(
+            formId,
+            { $push: { intervention_plans: newPlan } },
+            { new: true }
+        ).lean();
+
+        if (!updatedForm) {
+            return res.status(404).json({ message: 'Form not found' });
+        }
+
+        return res.status(200).json({
+            message: 'Intervention plan added successfully',
+            form: updatedForm,
+        });
+    } catch (error) {
+        console.error('Error adding intervention plan:', error);
+        return res.status(500).json({
+            message: 'Failed to add intervention plan',
+            error: error.message,
+        });
+    }
+};
+/**
+ * Deletes an intervention plan from a correspondence form by plan _id
+ * @route DELETE /api/interventions/correspondence/delete-plan/:formId/:planId
+ */
+const deleteInterventionPlanById = async (req, res) => {
+    const formId = req.params.formId;
+    const planId = req.params.planId;
+
+    if (!mongoose.Types.ObjectId.isValid(formId) || !mongoose.Types.ObjectId.isValid(planId)) {
+        return res.status(400).json({ message: 'Invalid Form ID or Plan ID' });
+    }
+
+    try {
+        const updatedForm = await Intervention_Correspondence.findByIdAndUpdate(
+            formId,
+            { $pull: { intervention_plans: { _id: planId } } },
+            { new: true }
+        ).lean();
+
+        if (!updatedForm) {
+            return res.status(404).json({ message: 'Form or intervention plan not found' });
+        }
+
+        return res.status(200).json({
+            message: 'Intervention plan deleted successfully',
+            form: updatedForm
+        });
+    } catch (error) {
+        console.error('Error deleting intervention plan:', error);
+        return res.status(500).json({
+            message: 'Failed to delete intervention plan',
+            error: error.message,
+        });
+    }
+};
 
 const getCorrespondenceForm = async(req,res)=>{
     const sponsor_id = req.params.smId;
@@ -165,4 +245,6 @@ module.exports = {
     getCorrespondenceForm,
     getAllCorrespondenceInterventions,
     editCorrespondenceForm,
+    addInterventionPlan,
+    deleteInterventionPlanById,
 }
