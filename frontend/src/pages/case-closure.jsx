@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
@@ -80,6 +80,25 @@ function CaseClosure() {
 
     const navigate = useNavigate();
 
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
     const handleAddService = (item) => {
         const new_service = {
             service: item,
@@ -99,6 +118,10 @@ function CaseClosure() {
                 i === index ? { ...item, description: value } : item,
             ),
         );
+    };
+
+    const deleteService = (indexToDelete) => {
+        setServicesProvided((prev) => prev.filter((_, i) => i !== indexToDelete));
     };
 
     const handleCheckboxChange = (value) => {
@@ -204,14 +227,19 @@ function CaseClosure() {
                                     label="Date of Closure"
                                     value={closure_date}
                                     setValue={setClosureDate}
+                                    handleChange={handleChange("General Information")}
                                 ></DateInput>
                                 <DateInput
                                     label="Date Sponsored"
                                     value={sponsorship_date}
                                     setValue={setSponsorshipDate}
+                                    handleChange={handleChange("General Information")}
                                 ></DateInput>
                             </div>
                         </div>
+                        {savedTime && sectionEdited === "General Information" && (
+                            <p className="text-sm self-end mt-2">{savedTime}</p>
+                        )}
                     </div>
                 </section>
 
@@ -297,14 +325,21 @@ function CaseClosure() {
                         </select>
                         <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
-                                <TextArea
-                                    key={index}
-                                    label={item.service}
-                                    value={item.description}
-                                    handleChange={(e) =>
-                                        updateDescription(index, e.target.value)
-                                    }
-                                ></TextArea>
+                                <div key={index} className="flex w-full justify-between items-center px-4 gap-6">
+                                    <TextArea
+                                        label={item.service}
+                                        value={item.description}
+                                        handleChange={(e) =>
+                                            updateDescription(index, e.target.value)
+                                        }
+                                    ></TextArea>
+                                    {(index !== 0 && index !== 1) && (
+                                        <button
+                                            onClick={() => deleteService(index)}
+                                            className="icon-button-setup trash-button px-10"
+                                        ></button>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     </div>
