@@ -64,14 +64,14 @@ function FinancialAssessmentForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 Assessment Form for Special Family Assistance
             </h3>
 
             {/* Type of Assistance */}
-            <section className="flex w-full flex-col gap-8">
+            <section className="flex w-full flex-col gap-12">
                 <h4 className="header-sm">Type of Assistance</h4>
                 <div className="flex justify-center gap-20 px-5">
                     <div className="flex flex-col gap-4">
@@ -200,14 +200,14 @@ function FinancialAssessmentForm() {
             </section>
 
             {/* Identifying Information */}
-            <section className="flex w-full flex-col items-center gap-8">
+            <section className="flex w-full flex-col items-center gap-12">
                 <h4 className="header-sm w-full">Identifying Information</h4>
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
@@ -224,7 +224,7 @@ function FinancialAssessmentForm() {
                                 disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
