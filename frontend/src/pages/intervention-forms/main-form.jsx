@@ -28,7 +28,7 @@ function InterventionForm() {
     /********** USE STATES **********/
 
     return (
-        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg px-20 py-20">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg p-32">
             <section className="flex w-full justify-between">
                 <h3 className="header-md self-start">
                     Intervention/Helping Plan
