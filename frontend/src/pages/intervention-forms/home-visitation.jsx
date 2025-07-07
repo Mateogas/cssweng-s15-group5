@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, DateInput, TextArea } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
@@ -174,6 +174,26 @@ function HomeVisitationForm() {
 
     const navigate = useNavigate();
 
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
+
     const handleAddFamilyMember = () => {
         const newMember = {
             name: "",
@@ -272,9 +292,10 @@ function HomeVisitationForm() {
                                     name="family_type"
                                     id="family_type"
                                     value={family_type}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        handleChange("Sponsored Member")(e) 
                                         setFamilyType(e.target.value)
-                                    }
+                                    }}
                                     className="label-base text-input"
                                 >
                                     <option value="" className="body-base">
@@ -302,6 +323,9 @@ function HomeVisitationForm() {
                             </div>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "Sponsored Member" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
@@ -317,11 +341,13 @@ function HomeVisitationForm() {
                                 label="Date"
                                 value={date}
                                 setValue={setDate}
+                                handleChange={handleChange("General Information")}
                             ></DateInput>
                             <TextInput
                                 label="Community"
                                 value={community}
                                 setValue={setCommunity}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -329,9 +355,13 @@ function HomeVisitationForm() {
                                 label="Sponsor Name"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "General Information" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
@@ -470,9 +500,10 @@ function HomeVisitationForm() {
                         <input
                             type="text"
                             value={item}
-                            onChange={(e) =>
+                            onChange={(e) => {
                                 updateObservations(index, e.target.value)
-                            }
+                                handleChange("Observations")(e)
+                            }}
                             className="body-base text-area w-full"
                         />
                         <button
@@ -484,6 +515,9 @@ function HomeVisitationForm() {
                 <button className="btn-primary" onClick={handleAddObservation}>
                     Add Observation/Findings
                 </button>
+                {savedTime && sectionEdited === "Observations" && (
+                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                )}
             </section>
 
             {/* Interventions Made */}
@@ -495,9 +529,10 @@ function HomeVisitationForm() {
                         <input
                             type="text"
                             value={item}
-                            onChange={(e) =>
+                            onChange={(e) => {
                                 updateInterventions(index, e.target.value)
-                            }
+                                handleChange("Interventions")(e)
+                            }}
                             className="body-base text-area w-full"
                         />
                         <button
@@ -509,6 +544,9 @@ function HomeVisitationForm() {
                 <button className="btn-primary" onClick={handleAddIntervention}>
                     Add Intervention
                 </button>
+                {savedTime && sectionEdited === "Interventions" && (
+                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                )}
             </section>
 
             {/* Recommendation and Agreement */}

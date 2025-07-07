@@ -8,7 +8,10 @@ export const TextInput = ({ label, value, setValue, handleChange, disabled = fal
             <input
                 type="text"
                 value={value}
-                onChange={handleChange || ((e) => setValue?.(e.target.value))}
+                onChange={(e) => {
+                    handleChange?.(e);
+                    setValue?.(e.target.value);
+                }}
                 disabled={disabled}
                 className={`body-base text-input w-96 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
@@ -16,14 +19,14 @@ export const TextInput = ({ label, value, setValue, handleChange, disabled = fal
     );
 };
 
-export const DateInput = ({ label, value, setValue, disabled = false }) => {
+export const DateInput = ({ label, value, setValue, handleChange, disabled = false }) => {
     return (
         <div className="flex items-center gap-16">
             <p className="label-base w-72">{label}</p>
             <input
                 type="date"
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={handleChange || ((e) => setValue(e.target.value))}
                 disabled={disabled}
                 className={`body-base text-input w-96 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
@@ -81,7 +84,7 @@ export const TextArea = ({
             ></textarea>
             
             {showTime && savedTime && (
-                <p className="text-sm text-color-muted mt-1">{savedTime}</p>
+                <p className="text-sm self-end text-color-muted mt-1">{savedTime}</p>
             )}
         </section>
     );
