@@ -60,18 +60,18 @@ function CounsellingForm() {
     const navigate = useNavigate();
 
     return (
-        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
             {/* Sponsored Member and General Info */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
@@ -93,7 +93,7 @@ function CounsellingForm() {
                                 disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Grade/Year Level"
                                 value={grade_year_level}
@@ -104,23 +104,23 @@ function CounsellingForm() {
                                 value={school}
                                 setValue={setSchool}
                             ></TextInput>
-                            <div className="flex gap-10">
-                                <p className="label-base w-44">Address</p>
+                            <div className="flex gap-16">
+                                <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
                                     disabled={true}
-                                    className="text-area cursor-not-allowed bg-gray-200"
+                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Sub-Project"
                                 value={subproject}
@@ -132,7 +132,7 @@ function CounsellingForm() {
                                 setValue={setAreaSelfHelp}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Counselling"
                                 value={counselling_date}
@@ -144,7 +144,7 @@ function CounsellingForm() {
             </section>
 
             {/* Reason for Counselling and Corrective Action */}
-            <section className="flex w-full items-end gap-10">
+            <section className="flex w-full items-end gap-16">
                 <TextArea
                     label="Purpose/Reason for Counselling"
                     value={reason_for_counselling}
@@ -158,7 +158,7 @@ function CounsellingForm() {
             </section>
 
             {/* Recommendation and Comments */}
-            <section className="flex w-full flex-col gap-15">
+            <section className="flex w-full flex-col gap-16">
                 <TextArea
                     label="Recommendation for Improvement (Intervention)"
                     sublabel="Sponsor Member (SM) Please Note:"
