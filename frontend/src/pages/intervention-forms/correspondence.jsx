@@ -98,20 +98,20 @@ function CorrespondenceForm() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 SMs, Families, and SHGs Intervention Plan
             </h3>
 
             {/* Sponsored Member and General Info */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
@@ -133,7 +133,7 @@ function CorrespondenceForm() {
                                 disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
@@ -144,23 +144,23 @@ function CorrespondenceForm() {
                                 value={school}
                                 setValue={setSchool}
                             ></TextInput>
-                            <div className="flex gap-10">
-                                <p className="label-base w-44">Address</p>
+                            <div className="flex gap-16">
+                                <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
                                     disabled={true}
-                                    className="text-area cursor-not-allowed bg-gray-200"
+                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Name of Sponsor"
                                 value={sponsor_name}
@@ -172,7 +172,7 @@ function CorrespondenceForm() {
                                 setValue={setSubproject}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Sponsorship"
                                 value={sponsorship_date}
@@ -193,7 +193,7 @@ function CorrespondenceForm() {
             </section>
 
             {/* Assessment and Objective */}
-            <section className="flex w-full gap-10">
+            <section className="flex w-full gap-16">
                 <TextArea
                     label="SDW's Assessment"
                     value={assessment}
@@ -206,26 +206,27 @@ function CorrespondenceForm() {
                 ></TextArea>
             </section>
 
-            <section className="flex w-full flex-col gap-10">
+            {/* Intervention Plan */}
+            <section className="flex w-full flex-col gap-16">
                 <h3 className="header-md">Intervention Plan</h3>
-                <div className="flex flex-col gap-5">
-                    <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
-                        <div className="flex justify-between px-2.5">
-                            <p className="label-base w-80">Actions</p>
-                            <p className="label-base w-32">Time Frame</p>
-                            <p className="label-base w-80">Results</p>
-                            <p className="label-base w-80">
+                <div className="flex flex-col gap-8">
+                    <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
+                        <div className="flex justify-between px-4">
+                            <p className="label-base w-lg">Actions</p>
+                            <p className="label-base w-sm">Time Frame</p>
+                            <p className="label-base w-lg">Results</p>
+                            <p className="label-base w-lg">
                                 Person Responsible
                             </p>
                         </div>
                     </div>
-                    <div className="flex flex-col flex-wrap gap-2.5">
+                    <div className="flex flex-col flex-wrap gap-4">
                         {intervention_plan.map((item, index) => (
                             <div
                                 key={index}
-                                className="flex w-full items-center justify-between"
+                                className="flex w-full items-center justify-between gap-6"
                             >
-                                <div className="flex w-80">
+                                <div className="flex w-lg">
                                     <TextArea
                                         value={item.action}
                                         handleChange={(e) =>
@@ -237,7 +238,7 @@ function CorrespondenceForm() {
                                         }
                                     ></TextArea>
                                 </div>
-                                <div className="flex w-32">
+                                <div className="flex w-sm">
                                     <TextArea
                                         value={item.time_frame}
                                         handleChange={(e) =>
@@ -249,7 +250,7 @@ function CorrespondenceForm() {
                                         }
                                     ></TextArea>
                                 </div>
-                                <div className="flex w-80">
+                                <div className="flex w-lg">
                                     <TextArea
                                         value={item.results}
                                         handleChange={(e) =>
@@ -261,7 +262,7 @@ function CorrespondenceForm() {
                                         }
                                     ></TextArea>
                                 </div>
-                                <div className="flex w-80">
+                                <div className="flex w-lg">
                                     <TextArea
                                         value={item.person_responsible}
                                         handleChange={(e) =>
