@@ -240,6 +240,7 @@ function CorrespondenceForm() {
                                                 e.target.value,
                                             )
                                         }
+                                        showTime={false}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-sm">
@@ -252,6 +253,7 @@ function CorrespondenceForm() {
                                                 e.target.value,
                                             )
                                         }
+                                        showTime={false}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
@@ -264,6 +266,7 @@ function CorrespondenceForm() {
                                                 e.target.value,
                                             )
                                         }
+                                        showTime={false}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
@@ -276,6 +279,7 @@ function CorrespondenceForm() {
                                                 e.target.value,
                                             )
                                         }
+                                        showTime={false}
                                     ></TextArea>
                                 </div>
                                 <button

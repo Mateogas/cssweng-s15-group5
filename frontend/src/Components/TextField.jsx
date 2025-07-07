@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useRef, useState } from 'react';
 
 export const TextInput = ({ label, value, setValue, handleChange, disabled = false }) => {
     return (
@@ -37,8 +38,31 @@ export const TextArea = ({
     value,
     setValue,
     handleChange,
+    showTime = true,
     disabled = false,
 }) => {
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+
+    useEffect(() => {
+        if (value === '') return; // don't show message for initial empty state
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+        });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => setSavedTime(null), 3000);
+
+        return () => clearTimeout(timeoutRef.current);
+    }, [value]);
+
     return (
         <section className="flex w-full flex-col gap-5">
             <h4 className="header-sm">{label}</h4>
@@ -55,6 +79,10 @@ export const TextArea = ({
                 onChange={handleChange || ((e) => setValue?.(e.target.value))}
                 className={`text-area h-32 ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
             ></textarea>
+            
+            {showTime && savedTime && (
+                <p className="text-sm text-color-muted mt-1">{savedTime}</p>
+            )}
         </section>
     );
 };
