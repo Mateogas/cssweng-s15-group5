@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
@@ -76,6 +76,25 @@ function CorrespondenceForm() {
 
     const navigate = useNavigate();
 
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
     const handleAddIntervention = () => {
         const new_intervention = {
             action: "",
@@ -147,6 +166,7 @@ function CorrespondenceForm() {
                                 label="School"
                                 value={school}
                                 setValue={setSchool}
+                                handleChange={handleChange("Sponsored Member")}
                             ></TextInput>
                             <div className="flex gap-16">
                                 <p className="label-base w-72">Address</p>
@@ -158,6 +178,9 @@ function CorrespondenceForm() {
                             </div>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "Sponsored Member" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
                 <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -169,11 +192,13 @@ function CorrespondenceForm() {
                                 label="Name of Sponsor"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                             <TextInput
                                 label="Sub-Project"
                                 value={subproject}
                                 setValue={setSubproject}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -181,9 +206,13 @@ function CorrespondenceForm() {
                                 label="Date of Sponsorship"
                                 value={sponsorship_date}
                                 setValue={setSponsorshipDate}
+                                handleChange={handleChange("General Information")}
                             ></DateInput>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "General Information" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
@@ -233,52 +262,56 @@ function CorrespondenceForm() {
                                 <div className="flex w-lg">
                                     <TextArea
                                         value={item.action}
-                                        handleChange={(e) =>
+                                        handleChange={(e) => {
                                             updateIntervention(
                                                 index,
                                                 "action",
                                                 e.target.value,
-                                            )
-                                        }
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
                                         showTime={false}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-sm">
                                     <TextArea
                                         value={item.time_frame}
-                                        handleChange={(e) =>
+                                        handleChange={(e) => {
                                             updateIntervention(
                                                 index,
                                                 "time_frame",
                                                 e.target.value,
-                                            )
-                                        }
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
                                         showTime={false}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
                                     <TextArea
                                         value={item.results}
-                                        handleChange={(e) =>
+                                        handleChange={(e) => {
                                             updateIntervention(
                                                 index,
                                                 "results",
                                                 e.target.value,
-                                            )
-                                        }
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
                                         showTime={false}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
                                     <TextArea
                                         value={item.person_responsible}
-                                        handleChange={(e) =>
+                                        handleChange={(e) => {
                                             updateIntervention(
                                                 index,
                                                 "person_responsible",
                                                 e.target.value,
-                                            )
-                                        }
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
                                         showTime={false}
                                     ></TextArea>
                                 </div>
@@ -289,6 +322,9 @@ function CorrespondenceForm() {
                             </div>
                         ))}
                     </div>
+                    {savedTime && sectionEdited === "Intervention Plan" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
                 <button
                     name="add_intervention"
