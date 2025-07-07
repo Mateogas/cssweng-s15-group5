@@ -95,6 +95,10 @@ function CorrespondenceForm() {
         );
     };
 
+    const deleteIntervention = (indexToDelete) => {
+        setInterventionPlan((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
+
     /********** FUNCTIONS **********/
 
     return (
@@ -209,9 +213,9 @@ function CorrespondenceForm() {
             {/* Intervention Plan */}
             <section className="flex w-full flex-col gap-16">
                 <h3 className="header-md">Intervention Plan</h3>
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-2">
                     <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
-                        <div className="flex justify-between px-4 gap-6">
+                        <div className="flex justify-between px-4 gap-6 pr-30">
                             <p className="label-base w-lg">Actions</p>
                             <p className="label-base w-sm">Time Frame</p>
                             <p className="label-base w-lg">Results</p>
@@ -224,7 +228,7 @@ function CorrespondenceForm() {
                         {intervention_plan.map((item, index) => (
                             <div
                                 key={index}
-                                className="flex w-full justify-between px-4 gap-6"
+                                className="flex w-full justify-between items-center px-4 gap-6"
                             >
                                 <div className="flex w-lg">
                                     <TextArea
@@ -274,6 +278,10 @@ function CorrespondenceForm() {
                                         }
                                     ></TextArea>
                                 </div>
+                                <button
+                                    onClick={() => deleteIntervention(index)}
+                                    className="icon-button-setup trash-button px-10"
+                                ></button>
                             </div>
                         ))}
                     </div>
