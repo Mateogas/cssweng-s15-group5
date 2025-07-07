@@ -104,19 +104,19 @@ function ProgressReport() {
     /********** FUNCTIONS **********/
 
     return (
-        <main className="flex justify-center px-20 py-20">
-            <div className="flex w-full flex-col items-center justify-center gap-10 rounded-lg border border-[var(--border-color)] p-10">
+        <main className="flex justify-center p-32">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
                 <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 <h3 className="header-md">Individual Progress Report</h3>
 
                 {/* Sponsored Member and General Info */}
-                <section className="flex w-full flex-col gap-10">
-                    <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <section className="flex w-full flex-col gap-16">
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">Sponsored Member</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-10">
-                            <div className="flex flex-col gap-5">
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Last Name"
                                     value={last_name}
@@ -133,7 +133,7 @@ function ProgressReport() {
                                     disabled={true}
                                 ></TextInput>
                             </div>
-                            <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="CH ID #"
                                     value={ch_number}
@@ -152,12 +152,12 @@ function ProgressReport() {
                             </div>
                         </div>
                     </div>
-                    <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-10">
-                            <div className="flex flex-col gap-5">
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Sub-Project"
                                     value={subproject}
@@ -174,7 +174,7 @@ function ProgressReport() {
                                     setValue={setPeriodCovered}
                                 ></TextInput>
                             </div>
-                            <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Name of Sponsor"
                                     value={sponsor_name}
@@ -191,15 +191,15 @@ function ProgressReport() {
                 </section>
 
                 {/* Update/Developmert */}
-                <section className="flex w-full flex-col gap-10">
-                    <div className="flex w-full flex-col gap-5">
+                <section className="flex w-full flex-col gap-16">
+                    <div className="flex w-full flex-col gap-8">
                         <h3 className="header-md">Update/Development</h3>
                         <h4 className="header-sm">
                             e.g. Education, Health, Socio-Economic, Behavioral,
                             Social, etc.
                         </h4>
                     </div>
-                    <div className="flex w-full gap-10">
+                    <div className="flex w-full gap-16">
                         <TextArea
                             label="Sponsored Member (observation)"
                             value={sm_update}
@@ -233,22 +233,22 @@ function ProgressReport() {
                 </section>
 
                 {/* Relationship to Sponsor and Unbound */}
-                <section className="flex w-full flex-col gap-5">
+                <section className="flex w-full flex-col gap-8">
                     <h4 className="header-sm">
                         Relationship to Sponsor & Unbound
                     </h4>
-                    <div className="flex gap-x-24 gap-y-10 flex-wrap">
+                    <div className="flex gap-x-40 gap-y-16 flex-wrap">
                         {relation_to_sponsor.map((q) => (
                             <div
                                 key={q.id}
-                                className="flex flex-col justify-end gap-5"
+                                className="flex flex-col justify-end gap-8"
                             >
                                 <p className="body-base">{q.text}</p>
-                                <div className="flex gap-8">
+                                <div className="flex gap-12">
                                     {options.map((option) => (
                                         <label
                                             key={option}
-                                            className="flex items-center gap-2.5"
+                                            className="flex items-center gap-4 body-base"
                                         >
                                             <input
                                                 type="checkbox"
