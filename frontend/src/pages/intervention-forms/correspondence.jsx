@@ -211,7 +211,7 @@ function CorrespondenceForm() {
                 <h3 className="header-md">Intervention Plan</h3>
                 <div className="flex flex-col gap-8">
                     <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
-                        <div className="flex justify-between px-4">
+                        <div className="flex justify-between px-4 gap-6">
                             <p className="label-base w-lg">Actions</p>
                             <p className="label-base w-sm">Time Frame</p>
                             <p className="label-base w-lg">Results</p>
@@ -224,7 +224,7 @@ function CorrespondenceForm() {
                         {intervention_plan.map((item, index) => (
                             <div
                                 key={index}
-                                className="flex w-full items-center justify-between gap-6"
+                                className="flex w-full justify-between px-4 gap-6"
                             >
                                 <div className="flex w-lg">
                                     <TextArea
