@@ -2,14 +2,14 @@ import React from "react";
 
 export const TextInput = ({ label, value, setValue, handleChange, disabled = false }) => {
     return (
-        <div className="flex items-center gap-10">
-            <p className="label-base w-44">{label}</p>
+        <div className="flex items-center gap-16">
+            <p className="label-base w-72">{label}</p>
             <input
                 type="text"
                 value={value}
                 onChange={handleChange || ((e) => setValue?.(e.target.value))}
                 disabled={disabled}
-                className={`body-base text-input w-64 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
+                className={`body-base text-input w-96 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
         </div>
     );
@@ -17,14 +17,14 @@ export const TextInput = ({ label, value, setValue, handleChange, disabled = fal
 
 export const DateInput = ({ label, value, setValue, disabled = false }) => {
     return (
-        <div className="flex items-center gap-10">
-            <p className="label-base w-44">{label}</p>
+        <div className="flex items-center gap-16">
+            <p className="label-base w-72">{label}</p>
             <input
                 type="date"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 disabled={disabled}
-                className={`body-base text-input w-64 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
+                className={`body-base text-input w-96 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
         </div>
     );
@@ -40,20 +40,20 @@ export const TextArea = ({
     disabled = false,
 }) => {
     return (
-        <section className="flex w-full flex-col gap-3">
+        <section className="flex w-full flex-col gap-5">
             <h4 className="header-sm">{label}</h4>
             {sublabel ? (
                 <p className="label-base">
                     {sublabel}
                     {description ? (
-                        <span className="body-base ml-1">{description}</span>
+                        <span className="body-base ml-16">{description}</span>
                     ) : null}
                 </p>
             ) : null}
             <textarea
                 value={value}
                 onChange={handleChange || ((e) => setValue?.(e.target.value))}
-                className={`text-area ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
+                className={`text-area h-32 ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
             ></textarea>
         </section>
     );
