@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
@@ -75,6 +75,25 @@ function ProgressReport() {
     /********** FUNCTIONS **********/
 
     const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
 
     const handleCheckboxChange = (questionID, value) => {
         setResponses((prev) => ({
@@ -167,11 +186,13 @@ function ProgressReport() {
                                     label="Date Accomplished"
                                     value={date_accomplished}
                                     setValue={setDateAccomplished}
+                                    handleChange={handleChange("General Information")}
                                 ></DateInput>
                                 <TextInput
                                     label="Period Covered"
                                     value={period_covered}
                                     setValue={setPeriodCovered}
+                                    handleChange={handleChange("General Information")}
                                 ></TextInput>
                             </div>
                             <div className="flex flex-col gap-8">
@@ -179,14 +200,19 @@ function ProgressReport() {
                                     label="Name of Sponsor"
                                     value={sponsor_name}
                                     setValue={setSponsorName}
+                                    handleChange={handleChange("General Information")}
                                 ></TextInput>
                                 <DateInput
                                     label="Sponsorship Begin Date"
                                     value={sponsorship_date}
                                     setValue={setSponsorshipDate}
+                                    handleChange={handleChange("General Information")}
                                 ></DateInput>
                             </div>
                         </div>
+                        {savedTime && sectionEdited === "General Information" && (
+                            <p className="text-sm self-end mt-2">{savedTime}</p>
+                        )}
                     </div>
                 </section>
 
@@ -257,12 +283,13 @@ function ProgressReport() {
                                                 checked={
                                                     responses[q.id] === option
                                                 }
-                                                onChange={() =>
+                                                onChange={(e) => {
                                                     handleCheckboxChange(
                                                         q.id,
                                                         option,
-                                                    )
-                                                }
+                                                    );
+                                                    handleChange("Relation to Sponsor and Unbound")(e);
+                                                }}
                                             />
                                             {option}
                                         </label>
@@ -271,6 +298,9 @@ function ProgressReport() {
                             </div>
                         ))}
                     </div>
+                    {savedTime && sectionEdited === "Relation to Sponsor and Unbound" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </section>
 
                 {/* Buttons */}
