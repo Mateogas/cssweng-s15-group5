@@ -73,9 +73,9 @@ function FinancialAssessmentForm() {
             {/* Type of Assistance */}
             <section className="flex w-full flex-col gap-12">
                 <h4 className="header-sm">Type of Assistance</h4>
-                <div className="flex justify-center gap-20 px-5">
+                <div className="flex justify-center gap-20 px-8">
                     <div className="flex flex-col gap-4">
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="funeral_assist_family"
@@ -89,7 +89,7 @@ function FinancialAssessmentForm() {
                             />
                             Funeral Assistance to the Family Member
                         </label>
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="medical_assist_family"
@@ -103,7 +103,7 @@ function FinancialAssessmentForm() {
                             />
                             Medical Assistance to the Family Member
                         </label>
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="food_assist"
@@ -117,7 +117,7 @@ function FinancialAssessmentForm() {
                             />
                             Food Assistance
                         </label>
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="igp_cap"
@@ -133,7 +133,7 @@ function FinancialAssessmentForm() {
                         </label>
                     </div>
                     <div className="flex flex-col gap-4">
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="funeral_assist_sponsored"
@@ -147,7 +147,7 @@ function FinancialAssessmentForm() {
                             />
                             Funeral Assistance to the Sponsored Member
                         </label>
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="medical_assist_sponsored"
@@ -161,7 +161,7 @@ function FinancialAssessmentForm() {
                             />
                             Medical Assistance to the Sponsored Member
                         </label>
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="home_improve"
@@ -175,7 +175,7 @@ function FinancialAssessmentForm() {
                             />
                             Home Improvement/Needs
                         </label>
-                        <label className="body-base flex gap-2.5">
+                        <label className="body-base flex gap-4">
                             <input
                                 type="checkbox"
                                 id="other_assist"
@@ -259,7 +259,7 @@ function FinancialAssessmentForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between">
+            <div className="flex w-[24rem] justify-between">
                 <button
                     className="btn-outline-rounded"
                     onClick={() => navigate(-1)}
