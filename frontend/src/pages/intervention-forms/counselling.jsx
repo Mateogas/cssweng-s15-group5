@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
@@ -57,7 +57,30 @@ function CounsellingForm() {
 
     /********** USE STATES **********/
 
+    /********** FUNCTIONS **********/
+    
     const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
+    /********** FUNCTIONS **********/
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
@@ -98,11 +121,13 @@ function CounsellingForm() {
                                 label="Grade/Year Level"
                                 value={grade_year_level}
                                 setValue={setGradeYearLevel}
+                                handleChange={handleChange("Sponsored Member")}
                             ></TextInput>
                             <TextInput
                                 label="School"
                                 value={school}
                                 setValue={setSchool}
+                                handleChange={handleChange("Sponsored Member")}
                             ></TextInput>
                             <div className="flex gap-16">
                                 <p className="label-base w-72">Address</p>
@@ -114,6 +139,9 @@ function CounsellingForm() {
                             </div>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "Sponsored Member" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
                 <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
@@ -130,6 +158,7 @@ function CounsellingForm() {
                                 label="Area/Self-Help Group"
                                 value={area_self_help}
                                 setValue={setAreaSelfHelp}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -137,9 +166,13 @@ function CounsellingForm() {
                                 label="Date of Counselling"
                                 value={counselling_date}
                                 setValue={setCounsellingDate}
+                                handleChange={handleChange("General Information")}
                             ></DateInput>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "General Information" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
