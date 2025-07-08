@@ -29,7 +29,7 @@ const loadCaseClosureForm = async(req, res) => {
 } 
 
 /**
- *   Creates home visitation intervention and adds it to the sponsored member intervention array
+ *   Creates new case closure form and updates the sponsored member to inactive
  *   @returns New intervention made
  */
 const createCaseClosureForm = async(req, res) => {

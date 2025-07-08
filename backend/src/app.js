@@ -17,14 +17,14 @@ app.use(express.json());
 /**
  *  Require controllers and routes
  */
-const caseController = require("./controller/caseController");
 const caseRoutes = require('./route/caseRoutes');
-const homVisContoller = require("./controller/homeVisController");
 const caseClosureController = require("./controller/caseClosureController");
+
 const interventionRoutes = require('./route/interventionRoutes');
 const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
+
 /**
  *  ============ Routes ==============
  */
@@ -35,7 +35,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// all case routes
+// All case routes
 app.use('/api/cases', caseRoutes);
 
 // Intervention routes
@@ -46,6 +46,15 @@ app.use('/api/progress-report', progressReportRoutes);
 
 app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
+
+// Case Closure routes
+app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
+app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm)
+
+/**
+ *  ============ Extras ==============
+ */
+
 /*
 Code below was added by gpt as a bug fix to when you reload it turns into json, this happens because of routing issues with
 vite+react to be able to use this tho you first need to build the front end
@@ -58,10 +67,5 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend-dev-test/dist/index.html'))
 })
 */
-
-app.get('/api/intervention/home-visit-form/:caseID', homVisContoller.loadHomeVisitationForm)
-app.put('/api/intervention/create/home-visit-form/:caseID', homVisContoller.createHomVis)
-app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
-app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm)
 
 module.exports = app;

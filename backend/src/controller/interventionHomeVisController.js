@@ -65,6 +65,63 @@ const loadHomeVisitationForm = async(req, res) => {
      }
 } 
 
+const loadHomeVisitationFormEdit = async(req, res) => {
+     try {
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
+          const formSelected = await InterventionHomeVisit.findById(req.params.formID)
+
+          if (!caseSelected || !formSelected)
+               throw error
+
+          // run through the family data again if ever there are changes
+          const relationships = await Family_Relationship.find({ sponsor_id: caseSelected });
+          const familyData = relationships.map(rel => ({
+               id: rel.family_id._id.toString(),
+               relationship_to_sm: rel.relationship_to_sm,
+               _id: rel._id 
+          }));
+          const familyMembers = await Family_Member.find({
+               _id: { $in: familyData.map(fam => fam.id) }
+          });
+          const FamilyRelationshipMap = familyMembers.map(member => {
+               const rel = familyData.find(fam => fam.id === member._id.toString());
+               return {
+                    ...member.toObject(),
+                    relationship_to_sm: rel.relationship_to_sm,
+                    relationship_id: rel._id.toString()
+               };
+          });
+
+          const fatherData = FamilyRelationshipMap.find(member =>
+               member.relationship_to_sm === "Father" || member.relationship_to_sm === "father"
+          );
+          const motherData = FamilyRelationshipMap.find(member =>
+               member.relationship_to_sm === "Mother" || member.relationship_to_sm === "mother"
+          );
+          const otherFamilyMembers = FamilyRelationshipMap.filter(member => {
+               if (fatherData && member._id.toString() === fatherData._id.toString()) return false;
+               if (motherData && member._id.toString() === motherData._id.toString()) return false;
+               return true;
+          });
+          const familyMembersArray = otherFamilyMembers.map(member => ({
+               family_member_details: member._id,
+               family_member_relationship: member.relationship_id
+          }));
+          console.log(familyMembersArray)
+
+          return res.status(200).json({  
+                                        form: formSelected,
+                                        case: caseSelected,
+                                        father: fatherData,
+                                        mother: motherData,
+                                        otherFamily: otherFamilyMembers
+                                   });
+     } catch(error) {
+          console.error('Error creating loading home intervention:', error);
+          res.status(500).json({ message: 'Failed to load home intervention', error });
+     }
+}
+
 /**
  *   Creates home visitation intervention and adds it to the sponsored member intervention array
  *   @returns New intervention made
@@ -149,7 +206,17 @@ const createHomVis = async(req, res) => {
                },
                { new: true }
           );
-          return res.status(200).json(newForm)
+
+          const fatherData = formData.rawFatherData || null;
+          const motherData = formData.rawMotherData || null;
+
+          return res.status(200).json({  
+                                        form: newForm,
+                                        case: updatedCase,
+                                        father: fatherData,
+                                        mother: motherData,
+                                        otherFamily: otherFamilyMembers
+                                   });
      } catch(error) {
           console.error('Error creating new home intervention:', error);
           res.status(500).json({ message: 'Failed to create home intervention', error });
@@ -165,7 +232,7 @@ const createHomVis = async(req, res) => {
 const editHomeVis = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-          const interventionSelected = await InterventionHomeVisit.findById(req.params.homeVisID)
+          const interventionSelected = await InterventionHomeVisit.findById(req.params.formID)
           const formData = req.body
 
           if (!caseSelected) {
@@ -239,13 +306,18 @@ const editHomeVis = async(req, res) => {
           }
 
           // update
-          const updatedIntervention = await InterventionHomeVisit.findByIdAndUpdate(
+          const updatedForm = await InterventionHomeVisit.findByIdAndUpdate(
                interventionSelected._id,
                updatedData,
                { new: true, runValidators: true }
           );
 
-          return res.status(200).json(updatedIntervention)
+          return res.status(200).json({ form: updatedForm,
+                                        case: caseSelected,
+                                        father: fatherData,
+                                        mother: motherData,
+                                        otherFamily: otherFamilyMembers
+                                   })
      } catch(error) {
           console.error('Error editing home intervention:', error);
           res.status(500).json({ message: 'Failed to edit home intervention', error });
@@ -254,6 +326,7 @@ const editHomeVis = async(req, res) => {
 
 module.exports = {
      loadHomeVisitationForm,
+     loadHomeVisitationFormEdit,
      createHomVis,
      editHomeVis
 }
