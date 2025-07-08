@@ -718,7 +718,7 @@ function CaseFrontend() {
                     {editingField === "core-fields" && (
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
+                            onClick={async () => {
                                 if (!checkNewLocales()) return;
 
                                 try {
@@ -732,19 +732,22 @@ function CaseFrontend() {
                                         classifications: drafts.classifications || [],
                                     };
 
-                                    const updated = await updateCoreCaseData(updatedFields,data._id);
+                                    const updated = await updateCoreCaseData(updatedFields, data._id);
 
-                                setData(prev => ({
-                                    ...prev,
-                                    first_name: drafts.first_name,
-                                    middle_name: drafts.middle_name,
-                                    last_name: drafts.last_name,
-                                    sm_number: drafts.sm_number,
-                                    spu_id: drafts.spu_id,
-                                    sdw_id: drafts.sdw_id,
-                                    classifications: drafts.classifications || [],
-                                }));
-                                setEditingField(null);
+                                    setData(prev => ({
+                                        ...prev,
+                                        first_name: drafts.first_name,
+                                        middle_name: drafts.middle_name,
+                                        last_name: drafts.last_name,
+                                        sm_number: drafts.sm_number,
+                                        spu_id: drafts.spu_id,
+                                        sdw_id: drafts.sdw_id,
+                                        classifications: drafts.classifications || [],
+                                    }));
+                                    setEditingField(null);
+                                } catch (error) {
+                                    console.error('Error updating core case data:', error);
+                                }
                             }}
                         >
                             Submit Changes
