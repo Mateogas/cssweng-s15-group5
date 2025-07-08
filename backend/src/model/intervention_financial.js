@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const InterventionFinancialAssessmentSchema = new Schema ({
+    interventionType:{
+        type:String,
+        default:'Intervention Financial Assessment',
+        required:true
+    },
     type_of_assistance: {
         type: String,
         enum: ['Funeral Assistance to the family member',

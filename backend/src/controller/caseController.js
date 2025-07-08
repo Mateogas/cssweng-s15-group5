@@ -467,12 +467,12 @@ const addFamilyMember = async (req, res) => {
                updateDetails.age = 0
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = 0
-          
+
           const newMember = new Family_Member({
                first_name: updateDetails.first,
                middle_name: updateDetails.middle || "",
                last_name: updateDetails.last,
-               age: updateDetails.age,
+               age: parseInt(updateDetails.age),
                income: updateDetails.income || 0,
                civil_status: updateDetails.civilStatus,
                occupation: updateDetails.occupation,
@@ -584,6 +584,9 @@ const editFamilyMember = async (req, res) => {
                updateDetails.age = familySelected.age
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = familySelected.age
+
+
+
 
           /**
            *   Updating part

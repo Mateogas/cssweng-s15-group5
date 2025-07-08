@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ProgressReportSchema = new Schema ({
-    date_accomplished: {
-        type: Date,
+    sponsor_name: {
+        type: String,
         required: true
     },
-    recommendation: {
-        type: String,
+    sponsorship_date: {
+        type: Date,
         required: true
     },
     date_accomplished: {
@@ -16,7 +16,7 @@ const ProgressReportSchema = new Schema ({
     },
     period_covered: {
         type: String,
-        required: true
+        required: false
     },
     sm_update: {
         type: String,
@@ -35,21 +35,21 @@ const ProgressReportSchema = new Schema ({
         required: true
     },
     relation_to_sponsor: {
-          know_sponsor_name: {
-               type: String,
-               enum: ["Yes", "Sometimes", "No"],
-               required: true
-          },
-          cooperative: {
-               type: String,
-               enum: ["Yes", "Sometimes", "No"],
-               required: true
-          },
-          personalized_letter: {
-              type: String,
-              enum: ["Yes", "Sometimes", "No"],
-              required: true
-          },
+        know_sponsor_name: {
+            type: String,
+            enum: ["Yes", "Sometimes", "No"],
+            required: true
+        },
+        cooperative: {
+            type: String,
+            enum: ["Yes", "Sometimes", "No"],
+            required: true
+        },
+        personalized_letter: {
+            type: String,
+            enum: ["Yes", "Sometimes", "No"],
+            required: true
+        },
     },
 }, { timestamps: true });
 

@@ -19,57 +19,90 @@ import {    fetchCaseData,
 from '../../fetch-connections/case-connection'; 
 
 function CaseFrontend() {
-    // ====== START :: INITIALIZE VARIABLES ====== //
-    const [data, setData] = useState(null);
-    const [familyMembers, setFamilyMembers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState({
+        first_name: "Hephzi-Bah",
+        middle_name: "Gamac",
+        last_name: "Tolentino",
+        sm_number: "12356473",
+        sex: "F",
+        dob: "2000-01-10",
+        civil_status: "Single",
+        edu_attainment: "Senior High School",
+        occupation: "Teacher",
+        pob: "Manila",
+        religion: "Roman Catholic",
+        contact_no: "0917 123 4567",
+        present_address: "Taft Avenue, Metro Manila",
+        relationship_to_client: "Sister",
+        problem_presented: "Client struggles with adjustment to new environment.",
+        observation_findings: "Client appears anxious and has limited coping strategies.",
+        recommendation: "Recommend follow-up sessions and group support.",
+        history_problem: "History of relocation, social withdrawal.",
+        evaluation: "Initial evaluation suggests mild adjustment disorder.",
+        is_active: "yes",
+        assessment: "Yes, very very qualified to wield firearms in public!",
 
-    const [dob, setDob] = useState(data?.dob || '');
-    const [age, setAge] = useState(calculateAge(data?.dob));
-    const [civilStatus, setCivilStatus] = useState(data?.civil_status || '');
-    const [education, setEducation] = useState(data?.edu_attainment || '');
-    const [sex, setSex] = useState(data?.sex || '');
-    const [pob, setPob] = useState(data?.pob || '');
-    const [religion, setReligion] = useState(data?.religion || '');
-    const [occupation, setOccupation] = useState(data?.occupation || '');
-    const [presentAddress, setPresentAddress] = useState(data?.present_address || '');
-    const [contactNo, setContactNo] = useState(data?.contact_no || '');
-    const [relationship, setRelationship] = useState(data?.relationship_to_client || '');
-    const [problemPresented, setProblemPresented] = useState(data?.problem_presented || '');
-    const [observationFindings, setObservationFindings] = useState(data?.observation_findings || '');
-    const [historyProblem, setHistoryProblem] = useState(data?.history_problem || '');
-    const [caseAssessment, setCaseAssessment] = useState(data?.assessment || '');
+        sdw_id: 23456789,
+        spu_id: "CEB",
+        // sub_id: "CEB-02",
 
-    const [caseEvalutation, setCaseEvalutation] = useState(data?.evaluation || '');
-    const [caseRecommendation, setCaseRecommendation] = useState(data?.recommendation || '');
+        classifications: ["Solo Parent", "Street Child", "Abandoned Child"]
+    });
 
-    const [selectedClassification, setSelectedClassification] = useState("");
-    const sliderRef = useRef(null);
-    const [editingField, setEditingField] = useState(null);
-    const [currentSection, setCurrentSection] = useState("identifying-data");
-    const [editedLocale, setEditedLocale] = useState(false);
-
-    const [selectedFamily, setSelectedFamily] = useState(null);
-    const [editingFamilyValue, setEditingFamilyValue] = useState({})
-    const [familyCounter, setFamilyCounter] = useState(familyMembers.length);
-    const [familyToDelete, setFamilyToDelete] = useState(null);
-    const [familyConfirm, setFamilyConfirm] = useState(false);
-
-    const [showModal, setShowModal] = useState(false);
-    const [modalTitle, setModalTitle] = useState("");
-    const [modalBody, setModalBody] = useState("");
-    const [modalConfirm, setModalConfirm] = useState(false);
-    const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
-    const [modalImageCenter, setModalImageCenter] = useState(null);
-    
-    /*const [drafts, setDrafts] = useState({
-        problemPresented: problemPresented,
-        historyProblem: historyProblem,
-        observationFindings: observationFindings,
-        caseAssessment: caseAssessment,
-        caseRecommendation: caseRecommendation,
-        caseEvalutation: caseEvalutation
-    });*/
+    const [familyMembers, setFamilyMembers] = useState([
+        {
+            id: 1,
+            first: 'Ana',
+            middle: 'Victoria',
+            last: 'Angat',
+            age: 20,
+            income: 100000.00,
+            civilStatus: 'Single',
+            occupation: 'Software Developer',
+            education: 'Undergraduate',
+            relationship: 'Sister',
+            deceased: false
+        },
+        {
+            id: 2,
+            first: 'Marvin',
+            middle: 'Ivan',
+            last: 'Mangubat',
+            age: 21,
+            income: 0.00,
+            civilStatus: 'Divorced',
+            occupation: 'Unemployed',
+            education: 'Undergraduate',
+            relationship: 'Sister',
+            deceased: false
+        },
+        {
+            id: 3,
+            first: 'Jose',
+            middle: 'Miguel',
+            last: 'Espinosa',
+            age: 21,
+            income: 100000.00,
+            civilStatus: 'Single',
+            occupation: 'Producer',
+            education: 'Undergraduate',
+            relationship: 'Brother',
+            deceased: false
+        },
+        {
+            id: 4,
+            first: 'Jose2',
+            middle: 'Miguel2',
+            last: 'Espinosa2',
+            age: 21,
+            income: 100000.00,
+            civilStatus: 'Single',
+            occupation: 'Producer',
+            education: 'Undergraduate',
+            relationship: 'Brother',
+            deceased: false
+        }
+    ]);
 
     const [projectLocation, setProjectLocation] = useState([
         {
@@ -152,143 +185,38 @@ function CaseFrontend() {
         "Low Income Family"
     ]);
 
-    const [ref1, inView1] = useInView({ threshold: 0.5 });
-    const [ref2, inView2] = useInView({ threshold: 0.5 });
-    const [ref3, inView3] = useInView({ threshold: 0.5 });
-    const [ref4, inView4] = useInView({ threshold: 0.5 });
-    const [ref5, inView5] = useInView({ threshold: 0.5 });
-    const [ref6, inView6] = useInView({ threshold: 0.5 });
-    // ====== END :: INITIALIZE VARIABLES ====== //
 
-    // ====== START :: LOAD ALL DATA ====== //
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            // [TO UPDATE] :: Case ID
-            const caseData = await fetchCaseData('6849646feaa08161083d1aec');
-            setData(caseData);
-            setLoading(false);
-        };
 
-        loadData();
-        
-    }, []);
-
-    useEffect(() => {
-        if (data) {
-            setDob(data.dob || '');
-            setAge(calculateAge(data.dob));
-            setCivilStatus(data.civil_status || '');
-            setEducation(data.edu_attainment || '');
-            setSex(data.sex || '');
-            setPob(data.pob || '');
-            setReligion(data.religion || '');
-            setOccupation(data.occupation || '');
-            setPresentAddress(data.present_address || '');
-            setContactNo(data.contact_no || '');
-            setRelationship(data.relationship_to_client || '');
-
-            setProblemPresented(data.problem_presented);
-            setHistoryProblem(data.history_problem);
-            setObservationFindings(data.observation_findings);
-            setCaseAssessment(data.assessment);
-            setCaseEvalutation(data.evaluation);
-            setCaseRecommendation(data.recommendation);
-        }
-    }, [data]);
+    const [age, setAge] = useState(calculateAge(data?.dob));
 
     const [drafts, setDrafts] = useState({
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        sm_number: "",
-        spu_id: "",
-        sdw_id: "",
-        classifications: [],
+        first_name: data.first_name || "",
+        middle_name: data.middle_name || "",
+        last_name: data.last_name || "",
+        sm_number: data.sm_number || "",
+        spu_id: data.spu_id || "",
+        sdw_id: data.sdw_id || "",
+        classifications: data.classifications || [],
 
-        dob: "",
-        civilStatus: "",
-        education: "",
-        sex: "",
-        pob: "",
-        religion: "",
-        occupation: "",
-        presentAddress: "",
-        contactNo: "",
-        relationship: "",
+        dob: data.dob || "",
+        civilStatus: data.civil_status || "",
+        education: data.edu_attainment || "",
+        sex: data.sex || "",
+        pob: data.pob || "",
+        religion: data.religion || "",
+        occupation: data.occupation || "",
+        presentAddress: data.present_address || "",
+        contactNo: data.contact_no || "",
+        relationship: data.relationship_to_client || "",
 
-        problemPresented: "",
-        historyProblem: "",
-        observationFindings: "",
-        caseAssessment: "",
-        caseRecommendation: "",
-        caseEvalutation: ""
+        problemPresented: data.problem_presented || "",
+        historyProblem: data.history_problem || "",
+        observationFindings: data.observation_findings || "",
+        caseAssessment: data.assessment || "",
+        caseRecommendation: data.recommendation || "",
+        caseEvalutation: data.evaluation || ""
     });
 
-    // When data changes, update drafts
-    useEffect(() => {
-        if (data) {
-            setDrafts({
-                first_name: data.first_name || "",
-                middle_name: data.middle_name || "",
-                last_name: data.last_name || "",
-                sm_number: data.sm_number || "",
-                spu_id: data.spu_id || "",
-                sdw_id: data.sdw_id || "",
-                classifications: data.classifications || [],
-
-                dob: data.dob || "",
-                civilStatus: data.civil_status || "",
-                education: data.edu_attainment || "",
-                sex: data.sex || "",
-                pob: data.pob || "",
-                religion: data.religion || "",
-                occupation: data.occupation || "",
-                presentAddress: data.present_address || "",
-                contactNo: data.contact_no || "",
-                relationship: data.relationship_to_client || "",
-
-                problemPresented: data.problem_presented || "",
-                historyProblem: data.history_problem || "",
-                observationFindings: data.observation_findings || "",
-                caseAssessment: data.assessment || "",
-                caseRecommendation: data.recommendation || "",
-                caseEvalutation: data.evaluation || ""
-            });
-        }
-    }, [data]);
-
-    useEffect(() => {
-        setAge(calculateAge(drafts.dob));
-    }, [drafts.dob]);
-
-    useEffect(() => {
-        const loadFamilyMembers = async () => {
-            if (!data?._id) return; // Check if data._id exists
-
-            setLoading(true);
-            try {
-                const fetchedMembers = await fetchFamilyMembers(data._id);
-                setFamilyMembers(fetchedMembers);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadFamilyMembers();
-    }, [data]); 
-    // ====== END :: LOAD ALL DATA ====== //
-
-    useEffect(() => {
-        if (inView1) setCurrentSection('identifying-data');
-        else if (inView2) setCurrentSection('family-composition');
-        else if (inView3) setCurrentSection('problems-findings');
-        else if (inView4) setCurrentSection('interventions');
-        else if (inView5) setCurrentSection('assessments');
-        else if (inView6) setCurrentSection('evaluation-recommendation');
-
-
-    }, [inView1, inView2, inView3, inView4, inView5, inView6]);
 
     const resetFields = () => {
         setDrafts({
@@ -320,6 +248,33 @@ function CaseFrontend() {
         });
         setEditingField(null);
     };
+
+
+    useEffect(() => {
+        setAge(calculateAge(drafts.dob));
+    }, [drafts.dob]);
+
+
+    const [ref1, inView1] = useInView({ threshold: 0.5 });
+    const [ref2, inView2] = useInView({ threshold: 0.5 });
+    const [ref3, inView3] = useInView({ threshold: 0.5 });
+    const [ref4, inView4] = useInView({ threshold: 0.5 });
+    const [ref5, inView5] = useInView({ threshold: 0.5 });
+    const [ref6, inView6] = useInView({ threshold: 0.5 });
+
+    useEffect(() => {
+        if (inView1) setCurrentSection('identifying-data');
+        else if (inView2) setCurrentSection('family-composition');
+        else if (inView3) setCurrentSection('problems-findings');
+        else if (inView4) setCurrentSection('interventions');
+        else if (inView5) setCurrentSection('assessments');
+        else if (inView6) setCurrentSection('evaluation-recommendation');
+
+
+    }, [inView1, inView2, inView3, inView4, inView5, inView6]);
+
+
+    const sliderRef = useRef(null);
 
     const handleMouseDown = (e) => {
         const slider = sliderRef.current;
@@ -369,6 +324,29 @@ function CaseFrontend() {
 
         return age;
     }
+
+    const [selectedClassification, setSelectedClassification] = useState("");
+
+    const [editingField, setEditingField] = useState(null);
+
+    const [currentSection, setCurrentSection] = useState("identifying-data");
+
+    const [selectedFamily, setSelectedFamily] = useState(null);
+    const [editingFamilyValue, setEditingFamilyValue] = useState({})
+
+    const [familyCounter, setFamilyCounter] = useState(familyMembers.length);
+
+    const [familyToDelete, setFamilyToDelete] = useState(null);
+
+    const [familyConfirm, setFamilyConfirm] = useState(false);
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+    const [modalImageCenter, setModalImageCenter] = useState(null);
 
     function formatListWithAnd(arr) {
         if (arr.length === 0) return '';
@@ -420,9 +398,12 @@ function CaseFrontend() {
         }
     }, [drafts.spu_id, drafts.sdw_id, socialDevelopmentWorkers]);
 
+
+
     const handleAddFamilyMember = () => {
+        const newId = familyCounter + 1;
         const newMember = {
-            id: null,
+            id: newId,
             name: '',
             age: '',
             income: '',
@@ -430,14 +411,13 @@ function CaseFrontend() {
             occupation: '',
             education: '',
             relationship: '',
-            deceased: false,
-
-            unsaved: true // added for flagging
+            deceased: false
         };
 
         setFamilyMembers(prev => [newMember, ...prev]);
         setSelectedFamily(0);
         setEditingFamilyValue(newMember);
+        setFamilyCounter(newId);
     };
 
     const handleDeleteFamilyMember = (familyToDelete) => {
@@ -448,8 +428,6 @@ function CaseFrontend() {
         setSelectedFamily(null);
     };
 
-    if (loading) return <div>Loading...</div>;
-    if (!data) return <div>No data found.</div>;
 
     return (
         <>
@@ -457,7 +435,6 @@ function CaseFrontend() {
                 isOpen={showModal}
                 onClose={() => {
                     setShowModal(false);
-                    // Optional: clear states if needed
                     setModalTitle("");
                     setModalBody("");
                     setModalImageCenter(null);
@@ -474,7 +451,6 @@ function CaseFrontend() {
                 }}
             />
 
-
             <main className='flex flex-col gap-20 pt-15'>
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
                 <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
@@ -484,7 +460,7 @@ function CaseFrontend() {
                         Back
                     </button>
 
-                    <div className="flex gap-5">                        
+                    <div className="flex gap-5">
                         <NavLabelButton
                             title="Identifying Data"
                             iconClass="identifying-button"
@@ -742,7 +718,7 @@ function CaseFrontend() {
                     {editingField === "core-fields" && (
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async () => {
+                            onClick={() => {
                                 if (!checkNewLocales()) return;
 
                                 try {
@@ -758,21 +734,17 @@ function CaseFrontend() {
 
                                     const updated = await updateCoreCaseData(updatedFields,data._id);
 
-                                    setData(prev => ({
-                                        ...prev,
-                                        first_name: drafts.first_name,
-                                        middle_name: drafts.middle_name,
-                                        last_name: drafts.last_name,
-                                        sm_number: drafts.sm_number,
-                                        spu_id: drafts.spu_id,
-                                        sdw_id: drafts.sdw_id,
-                                        classifications: drafts.classifications || [],
-                                    }));
-                                    setEditingField(null);
-                                } catch (error) {
-                                    console.error('Error updating case data:', error);
-                                    // You might want to show an error message to the user here
-                                }
+                                setData(prev => ({
+                                    ...prev,
+                                    first_name: drafts.first_name,
+                                    middle_name: drafts.middle_name,
+                                    last_name: drafts.last_name,
+                                    sm_number: drafts.sm_number,
+                                    spu_id: drafts.spu_id,
+                                    sdw_id: drafts.sdw_id,
+                                    classifications: drafts.classifications || [],
+                                }));
+                                setEditingField(null);
                             }}
                         >
                             Submit Changes
@@ -896,7 +868,7 @@ function CaseFrontend() {
                                     <label className="font-bold-label">Present Address</label>
                                     <textarea
                                         className="text-input font-label"
-                                        placeholder="No address added"
+                                        placeholder="Taft Avenue, Metro Manila"
                                         value={drafts.presentAddress || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, presentAddress: e.target.value }))}
                                     ></textarea>
@@ -907,7 +879,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         className="text-input font-label"
-                                        placeholder="No contact number added"
+                                        placeholder="0000 000 0000"
                                         value={drafts.contactNo || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, contactNo: e.target.value }))}
                                     />
@@ -918,7 +890,7 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         className="text-input font-label"
-                                        placeholder="No relationship added"
+                                        placeholder="Sister"
                                         value={drafts.relationship || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, relationship: e.target.value }))}
                                     />
@@ -989,6 +961,7 @@ function CaseFrontend() {
                     )}
                 </section>
 
+
                 <section className='flex flex-col gap-8' id="family-composition" ref={ref2}>
                     <h1 className="header-main">Family Composition</h1>
 
@@ -997,12 +970,12 @@ function CaseFrontend() {
 
                     <div className="flex justify-between gap-10">
                         <div
-                            ref={sliderRef}
-                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto cursor-grab"
-                            onMouseDown={handleMouseDown}
-                            onMouseLeave={handleMouseLeave}
-                            onMouseUp={handleMouseUp}
-                            onMouseMove={handleMouseMove}
+                            // ref={sliderRef}
+                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto"
+                            // onMouseDown={handleMouseDown}
+                            // onMouseLeave={handleMouseLeave}
+                            // onMouseUp={handleMouseUp}
+                            // onMouseMove={handleMouseMove}
                         >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard
@@ -1025,7 +998,6 @@ function CaseFrontend() {
                                     setModalImageCenter={setModalImageCenter}
                                     setModalConfirm={setModalConfirm}
                                     setModalOnConfirm={setModalOnConfirm}
-                                    caseSelected={data}
                                 />
                             ))}
                         </div>
@@ -1039,15 +1011,7 @@ function CaseFrontend() {
                         <h1 className="header-main">Problems and Findings</h1>
                         <button className={editingField == 'history-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
-                                setDrafts({
-                                    problemPresented,
-                                    historyProblem,
-                                    observationFindings,
-                                    caseAssessment,
-                                    caseEvalutation,
-                                    caseRecommendation
-                                });
-                                setEditingField(null);
+                                resetFields();
                             } else {
                                 setEditingField('history-fields');
                             }
@@ -1067,7 +1031,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, problemPresented: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{problemPresented || '-'}</p>
+                                <p className='font-label'>{data.problem_presented || '-'}</p>
                             )}
                         </div>
 
@@ -1081,7 +1045,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, historyProblem: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{historyProblem || '-'}</p>
+                                <p className='font-label'>{data.history_problem || '-'}</p>
                             )}
                         </div>
 
@@ -1094,7 +1058,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, observationFindings: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{observationFindings || '-'}</p>
+                                <p className='font-label'>{data.observation_findings || '-'}</p>
                             )}
                         </div>
 
@@ -1102,13 +1066,15 @@ function CaseFrontend() {
 
                     {editingField == "history-fields" && (
                         <button className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async () => {
-                                const updated = await editProblemsFindings(data._id, drafts)
-
-                                setProblemPresented(updated.problemPresented);
-                                setHistoryProblem(updated.historyProblem);
-                                setObservationFindings(updated.observationFindings);
+                            onClick={() => {
+                                setData(prev => ({
+                                    ...prev,
+                                    problem_presented: drafts.problemPresented,
+                                    history_problem: drafts.historyProblem,
+                                    observation_findings: drafts.observationFindings
+                                }));
                                 setEditingField(null);
+
                             }}>
                             Submit Changes
                         </button>
@@ -1127,15 +1093,7 @@ function CaseFrontend() {
                         <h1 className="header-main">Assessment</h1>
                         <button className={editingField == 'assessment-field' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
-                                setDrafts({
-                                    problemPresented,
-                                    historyProblem,
-                                    observationFindings,
-                                    caseAssessment,
-                                    caseEvalutation,
-                                    caseRecommendation
-                                });
-                                setEditingField(null);
+                                resetFields();
                             } else {
                                 setEditingField('assessment-field');
                             }
@@ -1153,21 +1111,23 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseAssessment: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{caseAssessment || '-'}</p>
+                                <p className='font-label'>{data.assessment || '-'}</p>
                             )}
                         </div>
                     </div>
 
                     {editingField == "assessment-field" && (
                         <button className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async() => {
-                                const updated = await editAssessment(data._id, drafts)
-
-                                setCaseAssessment(updated.caseAssessment);
+                            onClick={() => {
+                                setData(prev => ({
+                                    ...prev,
+                                    assessment: drafts.caseAssessment
+                                }));
                                 setEditingField(null);
                             }}>
                             Submit Changes
                         </button>
+
                     )}
                 </section>
 
@@ -1177,15 +1137,7 @@ function CaseFrontend() {
                         <h1 className="header-main">Evaluation and Recommendation</h1>
                         <button className={editingField == 'evaluation-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
                             if (editingField) {
-                                setDrafts({
-                                    problemPresented,
-                                    historyProblem,
-                                    observationFindings,
-                                    caseAssessment,
-                                    caseEvalutation,
-                                    caseRecommendation
-                                });
-                                setEditingField(null);
+                                resetFields()
                             } else {
                                 setEditingField('evaluation-fields');
                             }
@@ -1205,7 +1157,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseEvalutation: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{caseEvalutation || '-'}</p>
+                                <p className='font-label'>{data.evaluation || '-'}</p>
                             )}
                         </div>
 
@@ -1219,7 +1171,7 @@ function CaseFrontend() {
                                     onChange={(e) =>
                                         setDrafts((prev) => ({ ...prev, caseRecommendation: e.target.value }))} />
                             ) : (
-                                <p className='font-label'>{caseRecommendation || '-'}</p>
+                                <p className='font-label'>{data.recommendation || '-'}</p>
                             )}
                         </div>
 
@@ -1227,15 +1179,18 @@ function CaseFrontend() {
 
                     {editingField == "evaluation-fields" && (
                         <button className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async() => {
-                                const updated = await editEvalReco(data._id, drafts)
-
-                                setCaseEvalutation(updated.caseEvalutation);
-                                setCaseRecommendation(updated.caseRecommendation);
+                            onClick={() => {
+                                setData(prev => ({
+                                    ...prev,
+                                    evaluation: drafts.caseEvalutation,
+                                    recommendation: drafts.caseRecommendation
+                                }));
                                 setEditingField(null);
                             }}>
                             Submit Changes
                         </button>
+
+
                     )}
 
                 </section>

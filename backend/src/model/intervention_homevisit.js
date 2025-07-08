@@ -33,63 +33,56 @@ const InterventionHomeVisitSchema = new Schema ({
      },
      sponsor_name: {
           type: String,
-          required: True
+          required: true
      },
      family_type: {
           type: String,
           enum: [], // Add family type here
           required: true
      },
-     father_details: {
-          father_first_name: {
-               type: String,
-               required: true
-          },
-          father_middle_name: {
-               type: String,
-               required: false
-          },
-          father_last_name: {
-               type: String,
-               required: true
-          },
-          father_work: {
-               type: String,
-               required: true
-          },
-          father_income: {
-               type: Number,
-               required: true
-          }
-     },
-     mother_details: {
-          mother_first_name: {
-               type: String,
-               required: true
-          },
-          mother_middle_name: {
-               type: String,
-               required: false
-          },
-          mother_last_name: {
-               type: String,
-               required: true
-          },
-          mother_work: {
-               type: String,
-               required: true
-          },
-          mother_income: {
-               type: Number,
-               required: true
-          }
-     },
-     familyMembers: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Family Member',
+     father: {
+          father_details: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Family Member',
 
-          required: false
+               required: false
+          },
+          father_relationship: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Family Relationship',
+
+               required: false
+          }
      },
+     mother: {
+          mother_details: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Family Member',
+
+               required: false
+          },
+          mother_relationship: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Family Relationship',
+
+               required: false
+          }
+     },
+     familyMembers: [{
+          family_member_details: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Family Member',
+
+               required: false
+          },
+          family_member_relationship: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Family Relationship',
+
+               required: false
+          },
+          _id: false
+     }],
      sm_progress: {
           type: String,
           required: true
