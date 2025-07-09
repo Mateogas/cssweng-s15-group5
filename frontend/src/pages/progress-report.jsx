@@ -83,10 +83,6 @@ function ProgressReport() {
         month: '2-digit',
         day: '2-digit',
     });
-
-    const formattedDOB = data?.dob
-        ? formatter.format(new Date(data.dob))
-        : "Date not available";
         
     const relation_to_sponsor = [
         { id: "q1", text: "Knows his/her sponsor's name?" },

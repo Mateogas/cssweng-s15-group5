@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
@@ -61,13 +61,39 @@ function CaseClosure() {
         setMiddleName(data.middle_name || "");
         setFirstName(data.first_name || "");
         setCHNumber(data.ch_number || "");
-        setDOB(data.dob || "");
-        setAge(calculateAge(data.dob));
+        setDOB("");
+        setAge("");
         setReligion(data.religion || "");
         setAddress(data.address || "");
         setSPU(data.spu || "");
         console.log(data)
     }, [data]);
+
+    useEffect(() => {
+        if (data?.dob) {
+            const date = new Date(data.dob);
+            if (!isNaN(date)) {
+                setDOB(formatter.format(date));
+                setAge(calculateAge(data.dob));
+            }
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    const services = [
+        "Sponsorship Program",
+        "Social Development Program",
+        "Home Visitation",
+        "Counselling",
+        "Financial Assistance",
+        "Correspondence",
+    ];
+
     // ===== END :: Setting Data ===== // 
 
     // ===== START :: Backend Connection ===== //
@@ -95,7 +121,96 @@ function CaseClosure() {
     };
     // ===== END :: Backend Connection ===== //
 
+    // ===== START :: Use States ===== //
+
     const [sm_awareness, setSMAwareness] = useState("");
+
+    const [last_name, setLastName] = useState(data?.last_name || "");
+    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
+    const [first_name, setFirstName] = useState(data?.first_name || "");
+    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
+    const [form_num, setFormNum] = useState(data?.form_num || "");
+    const [dob, setDOB] = useState("");
+    const [age, setAge] = useState("");
+    const [religion, setReligion] = useState(data?.religion || "");
+    const [address, setAddress] = useState(data?.address || "");
+    const [spu, setSPU] = useState(data?.spu || "");
+    const [closure_date, setClosureDate] = useState(data?.closure_date || "");
+    const [sponsorship_date, setSponsorshipDate] = useState(
+        data?.sponsorship_date || "",
+    );
+    const [reason_for_retirement, setReasonForRetirement] = useState(
+        data?.reason_for_retirement || "",
+    );
+    const [sm_notification, setSMNotification] = useState(
+        data?.sm_notification || "",
+    );
+    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
+    const [service_selected, setServiceSelected] = useState("");
+    const [services_provided, setServicesProvided] = useState([
+        {
+            service: "Sponsorship Program",
+            description: "",
+        },
+        {
+            service: "Social Development Program",
+            description: "",
+        },
+    ]);
+    const [showConfirm, setShowConfirm] = useState(false);
+
+    // ===== END :: Use States ===== //
+
+    // ===== START :: Functions ===== //
+
+    const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
+    const handleAddService = (item) => {
+        const new_service = {
+            service: item,
+            description: "",
+        };
+
+        setServicesProvided((prev) =>
+            prev.some((entry) => entry.service === item)
+                ? prev
+                : [...prev, new_service],
+        );
+    };
+
+    const updateDescription = (index, value) => {
+        setServicesProvided((prev) =>
+            prev.map((item, i) =>
+                i === index ? { ...item, description: value } : item,
+            ),
+        );
+    };
+
+    const deleteService = (indexToDelete) => {
+        setServicesProvided((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
 
     const handleCheckboxChange = (value) => {
         setSMAwareness(value);
@@ -119,261 +234,279 @@ function CaseClosure() {
         return age;
     }
 
-    const [last_name, setLastName] = useState(data?.last_name || "");
-    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
-    const [first_name, setFirstName] = useState(data?.first_name || "");
-    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
-    const [dob, setDOB] = useState(data?.dob || "");
-    const [age, setAge] = useState(calculateAge(data?.dob));
-    const [religion, setReligion] = useState(data?.religion || "");
-    const [address, setAddress] = useState(data?.address || "");
-    const [spu, setSPU] = useState(data?.spu || "");
-    const [closure_date, setClosureDate] = useState(data?.closure_date || "");
-    const [sponsorship_date, setSponsorshipDate] = useState(
-        data?.sponsorship_date || "",
-    );
-    const [reason_for_retirement, setReasonForRetirement] = useState(
-        data?.reason_for_retirement || "",
-    );
-    const [sm_notification, setSMNotification] = useState(
-        data?.sm_notification || "",
-    );
-    const [evaluation, setEvaluation] = useState(data?.evaluation || "");
-    const [recommendation, setRecommendation] = useState(
-        data?.recommendation || "",
-    );
-    const [service_selected, setServiceSelected] = useState("");
+    const closeCase = () => {
+        console.log("Deleted!");
+        setShowConfirm(false);
+    };
 
-    const services = [
-        "Sponsorship Program",
-        "Social Development Program",
-        "Home Visitation",
-        "Counselling",
-        "Financial Assistance",
-        "Correspondence",
-    ];
-
-    const [services_provided, setServicesProvided] = useState([
-        {
-            service: "Sponsorship Program",
-            description: "",
-        },
-        {
-            service: "Social Development Program",
-            description: "",
-        },
-    ]);
+    // ===== END :: Functions ===== //
 
      return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
-            <h4 className="header-sm self-end">Form #: {form_num}</h4>
-            <h3 className="header-md">Case Closure Report</h3>
+        <main className="flex w-full justify-center p-32">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                <h3 className="header-md">Case Closure Report</h3>
 
-            {/* Sponsored Member and General Info */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
-                    <div className="flex border-b border-[var(--border-color)]">
-                        <h4 className="header-sm">Sponsored Member</h4>
-                    </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
-                            <TextInput
-                                label="Last Name"
-                                value={last_name}
-                                setValue={setLastName}
-                            ></TextInput>
-                            <TextInput
-                                label="First Name"
-                                value={first_name}
-                                setValue={setFirstName}
-                            ></TextInput>
-                            <TextInput
-                                label="Middle Name"
-                                value={middle_name}
-                                setValue={setMiddleName}
-                            ></TextInput>
-                            <TextInput
-                                label="CH ID #"
-                                value={ch_number}
-                                setValue={setCHNumber}
-                            ></TextInput>
+                {/* Sponsored Member and General Info */}
+                <section className="flex w-full flex-col gap-16">
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
+                        <div className="flex border-b border-[var(--border-color)]">
+                            <h4 className="header-sm">Sponsored Member</h4>
                         </div>
-                        <div className="flex flex-col gap-5">
-                            <DateInput
-                                label="Date of Birth"
-                                value={dob}
-                                setValue={setDOB}
-                            ></DateInput>
-                            <TextInput
-                                label="Age"
-                                value={age}
-                                setValue={setAge}
-                            ></TextInput>
-                            <TextInput
-                                label="Religion"
-                                value={religion}
-                                setValue={setReligion}
-                            ></TextInput>
-                            <div className="flex gap-10">
-                                <p className="label-base w-44">Address</p>
-                                <textarea
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
-                                ></textarea>
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
+                                <TextInput
+                                    label="Last Name"
+                                    value={last_name}
+                                    disabled={true}
+                                ></TextInput>
+                                <TextInput
+                                    label="First Name"
+                                    value={first_name}
+                                    disabled={true}
+                                ></TextInput>
+                                <TextInput
+                                    label="Middle Name"
+                                    value={middle_name}
+                                    disabled={true}
+                                ></TextInput>
+                                <TextInput
+                                    label="CH ID #"
+                                    value={ch_number}
+                                    disabled={true}
+                                ></TextInput>
+                            </div>
+                            <div className="flex flex-col gap-8">
+                                <DateInput
+                                    label="Date of Birth"
+                                    value={dob}
+                                    disabled={true}
+                                ></DateInput>
+                                <TextInput
+                                    label="Age"
+                                    value={age}
+                                    disabled={true}
+                                ></TextInput>
+                                <TextInput
+                                    label="Religion"
+                                    value={religion}
+                                    disabled={true}
+                                ></TextInput>
+                                <div className="flex gap-16">
+                                    <p className="label-base w-72">Address</p>
+                                    <textarea
+                                        value={address}
+                                        disabled={true}
+                                        className="text-area h-32 cursor-not-allowed bg-gray-200"
+                                    ></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
+                        <div className="flex border-b border-[var(--border-color)]">
+                            <h4 className="header-sm">General Information</h4>
+                        </div>
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
+                                <TextInput
+                                    label="Name of SPU/Cluster"
+                                    value={spu}
+                                    disabled={true}
+                                ></TextInput>
+                            </div>
+                            <div className="flex flex-col gap-8">
+                                <DateInput
+                                    label="Date of Closure"
+                                    value={closure_date}
+                                    setValue={setClosureDate}
+                                    handleChange={handleChange("General Information")}
+                                ></DateInput>
+                                <DateInput
+                                    label="Date Sponsored"
+                                    value={sponsorship_date}
+                                    setValue={setSponsorshipDate}
+                                    handleChange={handleChange("General Information")}
+                                ></DateInput>
+                            </div>
+                        </div>
+                        {savedTime && sectionEdited === "General Information" && (
+                            <p className="text-sm self-end mt-2">{savedTime}</p>
+                        )}
+                    </div>
+                </section>
 
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
-                    <div className="flex border-b border-[var(--border-color)]">
-                        <h4 className="header-sm">General Information</h4>
-                    </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
-                            <TextInput
-                                label="Name of SPU/Cluster"
-                                value={spu}
-                                setValue={setSPU}
-                            ></TextInput>
-                        </div>
-                        <div className="flex flex-col gap-5">
-                            <DateInput
-                                label="Date of Closure"
-                                value={closure_date}
-                                setValue={setClosureDate}
-                            ></DateInput>
-                            <DateInput
-                                label="Date Sponsored"
-                                value={sponsorship_date}
-                                setValue={setSponsorshipDate}
-                            ></DateInput>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Reason for Retirement and SM Notification */}
-            <section className="flex w-full flex-col gap-5">
-                <TextArea
-                    label="Reasons for Retirement"
-                    sublabel="Indicate reason based on the result of the case conference"
-                    value={reason_for_retirement}
-                    setValue={setReasonForRetirement}
-                ></TextArea>
-                <div className="flex w-full items-center gap-12">
-                    <div className="flex min-w-80 flex-col gap-5">
-                        <p className="body-base">
-                            Is the client or SM aware of case closure?
-                        </p>
-                        <div className="flex gap-8">
-                            <label className="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    name="sm_awareness"
-                                    value="yes"
-                                    checked={sm_awareness === "yes"}
-                                    onChange={(e) =>
-                                        handleCheckboxChange(e.target.value)
-                                    }
-                                />
-                                Yes
-                            </label>
-                            <label className="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    name="sm_awareness"
-                                    value="no"
-                                    checked={sm_awareness === "no"}
-                                    onChange={(e) =>
-                                        handleCheckboxChange(e.target.value)
-                                    }
-                                />
-                                No
-                            </label>
-                        </div>
-                    </div>
+                {/* Reason for Retirement and SM Notification */}
+                <section className="flex w-full flex-col gap-8">
                     <TextArea
-                        sublabel="If yes, how was the client notified"
-                        value={sm_notification}
-                        setValue={setSMNotification}
+                        label="Reasons for Retirement"
+                        sublabel="Indicate reason based on the result of the case conference"
+                        value={reason_for_retirement}
+                        setValue={setReasonForRetirement}
                     ></TextArea>
-                </div>
-            </section>
+                    <div className="flex w-full items-center gap-12">
+                        <div className="flex min-w-lg flex-col gap-8">
+                            <p className="body-base">
+                                Is the client or SM aware of case closure?
+                            </p>
+                            <div className="flex gap-12">
+                                <label className="flex items-center body-base gap-4">
+                                    <input
+                                        type="checkbox"
+                                        name="sm_awareness"
+                                        value="yes"
+                                        checked={sm_awareness === "yes"}
+                                        onChange={(e) =>
+                                            handleCheckboxChange(e.target.value)
+                                        }
+                                    />
+                                    Yes
+                                </label>
+                                <label className="flex items-center body-base gap-4">
+                                    <input
+                                        type="checkbox"
+                                        name="sm_awareness"
+                                        value="no"
+                                        checked={sm_awareness === "no"}
+                                        onChange={(e) =>
+                                            handleCheckboxChange(e.target.value)
+                                        }
+                                    />
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        <TextArea
+                            sublabel="If yes, how was the client notified"
+                            value={sm_notification}
+                            setValue={setSMNotification}
+                        ></TextArea>
+                    </div>
+                </section>
 
-            {/* Services Provided */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5">
-                    <h3 className="header-md">
-                        Services Provided and Progress Toward SM's/Family Goals
-                    </h3>
-                    <h4 className="header-sm">
-                        Did the foundation religiously provide the holistic
-                        development to each sponsored member through its
-                        program?
-                    </h4>
-                    <select
-                        name="services"
-                        id="services"
-                        value={service_selected}
-                        onChange={(e) => handleAddService(e.target.value)}
-                        className="label-base text-input max-w-96"
-                    >
-                        <option value="" className="body-base">
-                            Add Service
-                        </option>
-                        {services.slice(2).map((service, index) => (
-                            <option
-                                key={index}
-                                value={service}
-                                className="body-base"
-                            >
-                                {service}
+                {/* Services Provided */}
+                <section className="flex w-full flex-col gap-16">
+                    <div className="flex w-full flex-col gap-8">
+                        <h3 className="header-md">
+                            Services Provided and Progress Toward SM's/Family
+                            Goals
+                        </h3>
+                        <h4 className="header-sm">
+                            Did the foundation religiously provide the holistic
+                            development to each sponsored member through its
+                            program?
+                        </h4>
+                        <select
+                            name="services"
+                            id="services"
+                            value={service_selected}
+                            onChange={(e) => handleAddService(e.target.value)}
+                            className="label-base text-input max-w-xl"
+                        >
+                            <option value="" className="body-base">
+                                Add Service
                             </option>
-                        ))}
-                    </select>
-                    <div className="flex flex-wrap gap-10">
-                        {services_provided.map((item, index) => (
-                            <TextArea
-                                key={index}
-                                label={item.service}
-                                value={item.description}
-                                handleChange={(e) =>
-                                    updateDescription(index, e.target.value)
+                            {services.slice(2).map((service, index) => (
+                                <option
+                                    key={index}
+                                    value={service}
+                                    className="body-base"
+                                >
+                                    {service}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="flex flex-wrap gap-16">
+                            {services_provided.map((item, index) => (
+                                <div key={index} className="flex w-full justify-between items-center px-4 gap-6">
+                                    <TextArea
+                                        label={item.service}
+                                        value={item.description}
+                                        handleChange={(e) =>
+                                            updateDescription(index, e.target.value)
+                                        }
+                                    ></TextArea>
+                                    {(index !== 0 && index !== 1) && (
+                                        <button
+                                            onClick={() => deleteService(index)}
+                                            className="icon-button-setup trash-button px-10"
+                                        ></button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Evaluation */}
+                <section className="flex w-full">
+                    <TextArea
+                        label="Evaluation"
+                        sublabel="Based on the intervention plans including Case Management Results"
+                        value={evaluation}
+                        setValue={setEvaluation}
+                    ></TextArea>
+                </section>
+
+                {/* Recommendation */}
+                <section className="flex w-full">
+                    <TextArea
+                        label="Recommendation"
+                        sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
+                        value={recommendation}
+                        setValue={setRecommendation}
+                    ></TextArea>
+                </section>
+
+                {/* Buttons */}
+                <div className="mt-10 flex w-[22.5rem] justify-between">
+                    <button
+                        className="btn-outline-rounded"
+                        onClick={() => navigate(-1)}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        className="btn-primary"
+                        onClick={() => setShowConfirm(true)}
+                    >
+                        Close Case
+                    </button>
+                </div>
+            </div>
+
+            {/* Confirm Close Case */}
+            {showConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-2xl mx-4 gap-8">
+                        <h2 className="header-md font-semibold mb-4">Close Case</h2>
+                        <p className="label-base mb-6">Are you sure you want to close this case?</p>
+                        <div className="flex justify-end gap-4">
+                            
+                            {/* Cancel */}
+                            <button
+                                onClick={() => 
+                                    setShowConfirm(false)
                                 }
-                            ></TextArea>
-                        ))}
+                                className="px-4 py-2 text-gray-600 hover:text-black"
+                            >
+                                Cancel
+                            </button>
+
+                            {/* Close Case */}
+                            <button
+                                onClick={() => {
+                                    closeCase;
+                                    navigate(-1);
+                                }}
+                                className="px-4 py-2 btn-primary"
+                            >
+                                Confirm
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </section>
-
-            {/* Evaluation */}
-            <section className="flex w-full">
-                <TextArea
-                    label="Evaluation"
-                    sublabel="Based on the intervention plans including Case Management Results"
-                    value={evaluation}
-                    setValue={setEvaluation}
-                ></TextArea>
-            </section>
-
-            {/* Recommendation */}
-            <section className="flex w-full">
-                <TextArea
-                    label="Recommendation"
-                    sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
-                    value={recommendation}
-                    setValue={setRecommendation}
-                ></TextArea>
-            </section>
-
-            {/* Buttons */}
-            <div className="mt-10 flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Close Case</button>
-            </div>
+            )}
         </main>
     );
 }

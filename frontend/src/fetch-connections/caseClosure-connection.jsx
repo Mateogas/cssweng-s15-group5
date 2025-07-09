@@ -11,7 +11,7 @@ export const fetchCaseData = async(caseID) => {
                throw new Error('API error');
 
           const rawData = await response.json();
-          localID = rawData._id
+          // localID = rawData._id
 
           /*if (rawData.dob) {
                const dobDate = new Date(rawData.dob);
