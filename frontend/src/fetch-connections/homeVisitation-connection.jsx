@@ -6,7 +6,7 @@ export const fetchCaseData = async(caseID) => {
                throw new Error('API error');
 
           const rawData = await response.json();
-          localID = rawData.case._id
+          // localID = rawData.case._id
 
           return rawData
      } catch (err) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
@@ -149,7 +149,57 @@ function HomeVisitationForm() {
     };
     // ===== END :: Backend Connection ===== //
 
+    // ===== START :: Modals ===== //
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => {});
+    const [modalImageCenter, setModalImageCenter] = useState(null);
+
+    // ===== END :: Modals ===== //
+
     // ===== START :: Local Functions ===== //
+    const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
+
+    const handleAddFamilyMember = () => {
+        const newMember = {
+            name: "",
+            age: "",
+            income: "",
+            civilStatus: "",
+            occupation: "",
+            education: "",
+            relationship: "",
+        };
+
+        setFamilyMembers((prev) => [newMember, ...prev]);
+        setSelectedFamily(0);
+        setEditingFamilyValue(newMember);
+    };
+
     const handleAddObservation = () => {
         const newObservation = "";
 
@@ -159,6 +209,12 @@ function HomeVisitationForm() {
     const updateObservations = (index, value) => {
         setObservationFindings((prev) =>
             prev.map((item, i) => (i === index ? value : item)),
+        );
+    };
+
+    const deleteObservation = (indexToDelete) => {
+        setObservationFindings((prev) =>
+            prev.filter((_, i) => i !== indexToDelete),
         );
     };
 
@@ -173,6 +229,11 @@ function HomeVisitationForm() {
             prev.map((item, i) => (i === index ? value : item)),
         );
     };
+
+    const deleteIntervention = (indexToDelete) => {
+        setInterventions((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
+
     // ===== END :: Local Functions ===== //
 
     /**
@@ -193,6 +254,10 @@ function HomeVisitationForm() {
         });
     }
 
+    const [familyMembers, setFamilyMembers] = useState([]);
+    const [observation_findings, setObservationFindings] = useState([]);
+    const [interventions, setInterventions] = useState([]);
+    /*
     const [familyMembers, setFamilyMembers] = useState([
         {
             name: "Ana Victoria Angat",
@@ -233,7 +298,7 @@ function HomeVisitationForm() {
         "Intervention 1",
         "Intervention 2",
         "Intervention 3",
-    ]);
+    ]);*/
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -284,57 +349,59 @@ function HomeVisitationForm() {
     );
     const [agreement, setAgreement] = useState(data?.agreement || "");
 
+    const [selectedFamily, setSelectedFamily] = useState(null);
+    const [editingFamilyValue, setEditingFamilyValue] = useState({});
+
     if (!data) return <div>No data found.</div>;
 
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Home Visitation Report</h3>
 
             {/* Sponsored Member */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Grade/Year Course"
                                 value={grade_year_course}
-                                setValue={setGradeYearCourse}
                             ></TextInput>
                             <TextInput
                                 label="Year/s in the Program"
                                 value={years_in_program}
-                                setValue={setYearsInProgram}
                             ></TextInput>
-                            <div className="flex items-center gap-10">
-                                <p className="label-base w-44">Family Type</p>
+                            <div className="flex items-center gap-16">
+                                <p className="label-base w-64">Family Type</p>
                                 <select
                                     name="family_type"
                                     id="family_type"
                                     value={family_type}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        handleChange("Sponsored Member")(e) 
                                         setFamilyType(e.target.value)
-                                    }
+                                    }}
                                     className="label-base text-input"
                                 >
                                     <option value="" className="body-base">
@@ -362,106 +429,115 @@ function HomeVisitationForm() {
                             </div>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "Sponsored Member" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
             {/* General Info */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date"
                                 value={date}
                                 setValue={setDate}
+                                handleChange={handleChange("General Information")}
                             ></DateInput>
                             <TextInput
                                 label="Community"
                                 value={community}
                                 setValue={setCommunity}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Sponsor Name"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "General Information" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
             {/* Father and Mother */}
-            <section className="flex w-full gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Father</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={father_last_name}
-                                setValue={setFatherLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={father_first_name}
-                                setValue={setFatherFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={father_middle_name}
-                                setValue={setFatherMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Work"
                                 value={father_work}
-                                setValue={setFatherWork}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Income"
                                 value={father_income}
-                                setValue={setFatherIncome}
+                                disabled={true}
                             ></TextInput>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Mother</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={mother_last_name}
-                                setValue={setMotherLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={mother_first_name}
-                                setValue={setMotherFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={mother_middle_name}
-                                setValue={setMotherMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Work"
                                 value={mother_work}
-                                setValue={setMotherWork}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Income"
                                 value={mother_income}
-                                setValue={setMotherIncome}
+                                disabled={true}
                             ></TextInput>
                         </div>
                     </div>
@@ -469,32 +545,45 @@ function HomeVisitationForm() {
             </section>
 
             {/* Family Members */}
-            <section className="flex flex-col gap-8">
-                <h1 className="header-main">
+            <section className="flex w-full flex-col gap-16">
+                <h3 className="header-md">
                     Members and/or Other Members of the Family
-                </h1>
+                </h3>
 
-                <div className="flex justify-between gap-10">
-                    <div className="flex flex-wrap gap-8">
-                        {familyMembers.map((member, index) => (
-                            <FamilyCard
-                                key={index}
-                                index={index}
-                                member={member}
-                                familyMembers={familyMembers}
-                                setFamilyMembers={setFamilyMembers}
-                            />
-                        ))}
+                <div className="flex w-full justify-between gap-16">
+                    <div className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6">
+                        <div
+                            className="flex gap-8"
+                            style={{ minWidth: "max-content" }}
+                        >
+                            {familyMembers.map((member, index) => (
+                                <FamilyCard
+                                    key={index}
+                                    index={index}
+                                    member={member}
+                                    selectedFamily={selectedFamily}
+                                    editingFamilyValue={editingFamilyValue}
+                                    familyMembers={familyMembers}
+                                    setShowModal={setShowModal}
+                                    setModalTitle={setModalTitle}
+                                    setModalBody={setModalBody}
+                                    setModalImageCenter={setModalImageCenter}
+                                    setModalConfirm={setModalConfirm}
+                                    setModalOnConfirm={setModalOnConfirm}
+                                    editable={false}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* Progress in Goals */}
-            <section className="flex w-full flex-col gap-5">
+            <section className="flex w-full flex-col gap-8">
                 <h3 className="header-md">
                     Progress in the Family based on their Family Goals
                 </h3>
-                <div className="flex w-full gap-10">
+                <div className="flex w-full gap-16">
                     <TextArea
                         label="SM"
                         value={sm_progress}
@@ -509,50 +598,66 @@ function HomeVisitationForm() {
             </section>
 
             {/* Observation/Findings */}
-            <section className="flex w-full flex-col gap-5">
+            <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
                 {observation_findings.map((item, index) => (
-                    <div key={index} className="flex">
-                        <p className="body-base pr-2.5">{index + 1}.</p>
+                    <div key={index} className="flex items-center">
+                        <p className="body-base pr-4">{index + 1}.</p>
                         <input
                             type="text"
                             value={item}
-                            onChange={(e) =>
+                            onChange={(e) => {
                                 updateObservations(index, e.target.value)
-                            }
-                            className="body-base w-full"
+                                handleChange("Observations")(e)
+                            }}
+                            className="body-base text-area w-full"
                         />
+                        <button
+                            onClick={() => deleteObservation(index)}
+                            className="icon-button-setup trash-button px-10"
+                        ></button>
                     </div>
                 ))}
-                <button className="btn-primary" onClick={handleAddObservation}>
+                <button className="btn-primary font-bold-label" onClick={handleAddObservation}>
                     Add Observation/Findings
                 </button>
+                {savedTime && sectionEdited === "Observations" && (
+                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                )}
             </section>
 
             {/* Interventions Made */}
-            <section className="flex w-full flex-col gap-5">
+            <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Interventions Made</h4>
                 {interventions.map((item, index) => (
-                    <div key={index} className="flex">
-                        <p className="body-base pr-2.5">{index + 1}.</p>
+                    <div key={index} className="flex items-center">
+                        <p className="body-base pr-4">{index + 1}.</p>
                         <input
                             type="text"
                             value={item}
-                            onChange={(e) =>
+                            onChange={(e) => {
                                 updateInterventions(index, e.target.value)
-                            }
-                            className="body-base w-full"
+                                handleChange("Interventions")(e)
+                            }}
+                            className="body-base text-area w-full"
                         />
+                        <button
+                            onClick={() => deleteIntervention(index)}
+                            className="icon-button-setup trash-button px-10"
+                        ></button>
                     </div>
                 ))}
-                <button className="btn-primary" onClick={handleAddIntervention}>
+                <button className="btn-primary font-bold-label" onClick={handleAddIntervention}>
                     Add Intervention
                 </button>
+                {savedTime && sectionEdited === "Interventions" && (
+                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                )}
             </section>
 
             {/* Recommendation and Agreement */}
-            <section className="flex w-full flex-col gap-5">
-                <div className="flex w-full gap-10">
+            <section className="flex w-full flex-col gap-8">
+                <div className="flex w-full gap-16">
                     <TextArea
                         label="Recommendations"
                         value={recommendation}
@@ -567,9 +672,16 @@ function HomeVisitationForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+            <div className="flex w-full justify-center gap-20">
+                <button
+                    className="btn-outline font-bold-label"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button className="btn-primary font-bold-label w-min" onClick={() => navigate(-1)}>
+                    Create Intervention
+                </button>
             </div>
         </main>
     );
