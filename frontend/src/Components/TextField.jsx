@@ -26,7 +26,10 @@ export const DateInput = ({ label, value, setValue, handleChange, disabled = fal
             <input
                 type="date"
                 value={value}
-                onChange={handleChange || ((e) => setValue(e.target.value))}
+                onChange={(e) => {
+                    handleChange?.(e);
+                    setValue?.(e.target.value);
+                }}
                 disabled={disabled}
                 className={`body-base text-input w-96 ${disabled ? "cursor-not-allowed bg-gray-200" : ""}`}
             />
