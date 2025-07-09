@@ -7,8 +7,9 @@ const mongoose = require('mongoose');
 const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
+const { Employee } = require('../model/employee');
 
-const caseSchemaValidate = require('./validators/caseValidator')
+const [caseSchemaValidate,caseCoreValidate,caseIdentifyingValidate] = require('./validators/caseValidator')
 
 // ================================================== //
 
@@ -43,7 +44,9 @@ const getCaseById = async (req, res) => {
 
      try {
           //finds an id in our mongo
-          const caseItem = await Sponsored_Member.findById(id).lean();  
+          const caseItem = await Sponsored_Member.findById(id).lean().populate(
+              'assigned_sdw' 
+          );  
           res.json(caseItem);
      } catch (error) {
 
@@ -54,7 +57,15 @@ const getCaseById = async (req, res) => {
           });
      }
 }
-
+const getAllSDWs = async (req, res) => {
+    try {
+        // If you filter by role, adjust as needed
+        const sdws = await Employee.find({ role: 'sdw' }).lean();
+        res.json(sdws);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
+    }
+};
 /**  
  *   Gets all cases that are viable to be seen based on user priveleges
  */
@@ -193,14 +204,14 @@ const addNewCase = async(req,res) => {
           assigned_sdw : sdwId
           });
           //here we just validate the newCase before saving it doesnt work lol
-          /*const { error } = caseSchemaValidate.validate(newCase);
+          const { error } = caseSchemaValidate.validate(newCase);
 
           if (error) {
           return res.status(400).json({
                message: 'Validation error',
                details: error.details.map(detail => detail.message)
           });
-          }*/
+          }
           
           const savedCase = await newCase.save();
           res.status(201).json({
@@ -228,35 +239,42 @@ const addNewCase = async(req,res) => {
  *    - 404 Not Found: Case not found
  *    - 500 Internal Server Error: Server error
  */
-const editCase = async (req, res) => {
+const editCaseCore = async (req, res) => {
     const updatedCaseData = req.body;
-    const caseId = req.params.id; // Fixed: params not param
+    const caseId = req.params.id;
     
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
         return res.status(400).json({ message: 'Invalid case ID format' });
     }
     
     try {
-        // Validate the updated data
-        /*
-        const { error } = caseSchemaValidate.validate(updatedCaseData);
+        // First get the existing case
+        const existingCase = await Sponsored_Member.findById(caseId);
+        if (!existingCase) {
+            return res.status(404).json({ message: 'Case not found' });
+        }
+        
+        // Merge existing data with updates for validation
+        const mergedData = {
+            ...existingCase.toObject(),
+            ...updatedCaseData
+        };
+        
+        // Validate the merged data
+        const { error } = caseCoreValidate.validate(updatedCaseData);
         if (error) {
             return res.status(400).json({
                 message: 'Validation error',
                 details: error.details.map(detail => detail.message)
             });
         }
-        */
-        // Update the case
+        
+        // Update with only the fields provided
         const updatedCase = await Sponsored_Member.findByIdAndUpdate(
             caseId,
             updatedCaseData,
-            { new: true } // Return the updated document
+            { new: true }
         ).lean();
-        
-        if (!updatedCase) {
-            return res.status(404).json({ message: 'Case not found' });
-        }
         
         res.status(200).json({
             message: 'Case updated successfully',
@@ -270,6 +288,57 @@ const editCase = async (req, res) => {
         });
     }
 }
+
+const editCaseIdentifyingData = async (req, res) => {
+    const updatedCaseData = req.body;
+    const caseId = req.params.id;
+    
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+        return res.status(400).json({ message: 'Invalid case ID format' });
+    }
+    
+    try {
+        // First get the existing case
+        const existingCase = await Sponsored_Member.findById(caseId);
+        if (!existingCase) {
+            return res.status(404).json({ message: 'Case not found' });
+        }
+        
+        // Merge existing data with updates for validation
+        const mergedData = {
+            ...existingCase.toObject(),
+            ...updatedCaseData
+        };
+        
+        // Validate the merged data
+        const { error } = caseIdentifyingValidate.validate(updatedCaseData);
+        if (error) {
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.details.map(detail => detail.message)
+            });
+        }
+        
+        // Update with only the fields provided
+        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+            caseId,
+            updatedCaseData,
+            { new: true }
+        ).lean();
+        
+        res.status(200).json({
+            message: 'Case updated successfully',
+            case: updatedCase
+        });
+    } catch (error) {
+        console.error('Error updating case:', error);
+        res.status(500).json({ 
+            message: 'Failed to update case', 
+            error: error.message 
+        });
+    }
+}
+
 
 const archiveCase = async (req, res) => {
     const caseId = req.params.id; // Fixed: params not param
@@ -517,6 +586,8 @@ const editFamilyMember = async (req, res) => {
                updateDetails.age = familySelected.age
 
 
+
+
           /**
            *   Updating part
            * 
@@ -537,7 +608,7 @@ const editFamilyMember = async (req, res) => {
                edu_attainment: updateDetails.education || familySelected.edu_attainment,
                status: status || familySelected.status
           };
-          const updatedFam = await Family_Member.findByIdAndUpdate(familySelected, updatedData, { new: true });
+          const updatedFam = await Family_Member.findByIdAndUpdate(familySelected._id, updatedData, { new: true });
 
           const updatedRel = await Family_Relationship.findByIdAndUpdate(
                relationshipSelected._id, 
@@ -709,9 +780,11 @@ module.exports = {
      getAllCases,
      getAllCaseViable,
      reassignSDW,
-     editCase,  // Add this line
      addNewCase, // Also add this if needed
      editProblemsAndFindings,
      editAssessment,
      editEvaluationAndRecommendation,
+     editCaseCore,
+     editCaseIdentifyingData,
+     getAllSDWs,
 }

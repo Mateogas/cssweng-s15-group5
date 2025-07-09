@@ -36,7 +36,7 @@ var localID
 export const fetchCaseData = async(caseID) => {
      try {
      const response = await fetch(`/api/cases/${caseID}`);
-     if (!response.ok) throw new Error('API error');
+     if (!response.ok) throw new Error('Failed to fetch case data');
 
      const rawData = await response.json();
      localID = rawData._id
@@ -50,6 +50,7 @@ export const fetchCaseData = async(caseID) => {
           ...defaultCaseData,
           ...rawData,
           dob: formattedDob,
+          sdw_id: rawData.assigned_sdw?._id || rawData.assigned_sdw || '', 
      };
      } catch (err) {
           console.error('Error fetching case data:', err);
@@ -61,28 +62,133 @@ export const fetchCaseData = async(caseID) => {
  * 
  *   @returns updated case data
  */
-export const updateCaseData = async(updatedData) => {
+export const updateCoreCaseData = async(updatedData, caseID) => {
      try {
-          const response = await fetch(`/api/cases/edit/${localID}`, {
+          const targetID = caseID || localID;
+          const preparedData = { ...updatedData };
+          
+       
+          if (typeof preparedData.sdw_id === 'number' || preparedData.sdw_id) {
+               preparedData.assigned_sdw = preparedData.sdw_id; // Always use a valid ObjectId
+               delete preparedData.sdw_id;
+          }
+ 
+          if (preparedData.spu_id) {
+               preparedData.spu = preparedData.spu_id;
+               delete preparedData.spu_id;
+          }
+          
+          
+
+          if (preparedData.sm_number === undefined || preparedData.sm_number === null || preparedData.sm_number === '') {
+          throw new Error('sm_number must be a numeric value.');
+          }
+
+          if (typeof preparedData.sm_number === 'string') {
+          preparedData.sm_number = preparedData.sm_number.trim();
+          if (preparedData.sm_number === '') {
+               throw new Error('sm_number must be a numeric value.');
+          }
+          preparedData.sm_number = Number(preparedData.sm_number);
+          }
+
+          if (
+          typeof preparedData.sm_number !== 'number' ||
+          !Number.isInteger(preparedData.sm_number) ||
+          isNaN(preparedData.sm_number)
+          ) {
+          throw new Error('sm_number must be a whole numeric value.');
+          }
+          
+         
+
+          if (!preparedData.middle_name) {
+               preparedData.middle_name = ''; 
+          }
+          
+  
+          if (preparedData.is_active === undefined) {
+               preparedData.is_active = true;
+          }
+          
+
+          if (preparedData.classifications) {
+               delete preparedData.classifications;
+          }
+
+          //console.log("Sending data:", preparedData);
+
+          const response = await fetch(`/api/cases/edit/core/${targetID}`, {
                method: 'PUT',
                headers: {
-               'Content-Type': 'application/json',
+                    'Content-Type': 'application/json',
                },
-               body: JSON.stringify(updatedData),
+               body: JSON.stringify(preparedData),
           });
 
           if (!response.ok) {
-               throw new Error('Failed to update case');
+               const errorData = await response.json();
+               console.error("Validation errors:", errorData);
+               throw new Error(`Failed to update case: ${errorData.message}`);
           }
 
-          const updated = await response.json(); 
-          return updated
+          return await response.json();
      } catch (error) {
           console.error('Error updating case:', error);
           throw error;
      }
 };
+/**
+ *   Edits chosen data
+ * 
+ *   @returns updated case data
+ */
+export const updateIdentifyingCaseData = async(updatedData, caseID) => {
+     try {
+          const targetID = caseID || localID;
+          const preparedData = { ...updatedData };
+          
+       
+          
 
+          //console.log("Sending data:", preparedData);
+
+          const response = await fetch(`/api/cases/edit/identifyingdata/${targetID}`, {
+               method: 'PUT',
+               headers: {
+                    'Content-Type': 'application/json',
+               },
+               body: JSON.stringify(preparedData),
+          });
+
+          if (!response.ok) {
+               const errorData = await response.json();
+               console.error("Validation errors:", errorData);
+               throw new Error(`Failed to update case: ${errorData.message}`);
+          }
+
+          return await response.json();
+     } catch (error) {
+          console.error('Error updating case:', error);
+          throw error;
+     }
+};
+export const fetchSDWs = async () => {
+    try {
+        const response = await fetch('/api/cases/getsdw');
+        if (!response.ok) throw new Error('Failed to fetch SDWs');
+        const data = await response.json();
+        // Map to expected format
+        return data.map(sdw => ({
+            id: sdw._id,
+            username: `${sdw.first_name} ${sdw.last_name}`,
+            spu_id: sdw.spu_id || '', // Adjust as needed
+        }));
+    } catch (err) {
+        console.error('Error fetching SDWs:', err);
+        return [];
+    }
+};
 /**
  *   Fetches all family members
  * 

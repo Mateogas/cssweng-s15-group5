@@ -1,5 +1,25 @@
 import React from "react"
 
+import { updateFamilyMember, addFamilyMember, deleteFamilyMember } from '../fetch-connections/case-connection'; 
+
+/**
+ *   Formats the currency
+ * 
+ *   @param {*} value : Value to be formatted (assumed Number)
+ *   @returns : The formatted string
+ * 
+ *   [NOTE]: Applied this in income display; changed the income input to of type number
+ */
+function currency_Formatter(value) {
+    if (typeof value !== "number") return "₱0.00";
+    return value.toLocaleString("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
 const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
     editingFamilyValue, setEditingFamilyValue, familyMembers, setFamilyMembers,
     // handleDeleteFamilyMember, setFamilyToDelete,
