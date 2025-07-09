@@ -1451,7 +1451,7 @@ function CaseFrontend() {
                         name="add_intervention"
                         id="add_intervention"
                         onClick={() => navigate("/intervention-form")}
-                        className="btn-primary self-center"
+                        className="btn-primary font-bold-label self-center"
                         data-cy='add-intervention'
                     >
                         New Intervention
@@ -1528,7 +1528,7 @@ function CaseFrontend() {
                         name="add_progress_report"
                         id="add_progress_report"
                         onClick={() => navigate("/progress-report")}
-                        className="btn-primary self-center"
+                        className="btn-primary font-bold-label self-center"
                         data-cy='add-progress-report'
                     >
                         New Progress Report
