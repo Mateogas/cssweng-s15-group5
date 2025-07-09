@@ -398,3 +398,25 @@ export const editEvalReco = async(caseID, updatedData) => {
           throw error;
      }
 }
+
+
+/**
+ * Fetches all sponsored member cases.
+ * @returns {Promise<Array<{id: string, name: string, ch_number: string, assigned_sdw_name: string|null}>>}
+ *   Returns an array of objects with:
+ *     - id: string (case ObjectId)
+ *     - name: string (full name of the sponsored member)
+ *     - ch_number: string (case number)
+ *     - assigned_sdw_name: string|null (full name of assigned SDW, or null if none)
+ */
+export const fetchAllCases = async () => {
+    try {
+        const response = await fetch('/api/cases');
+        if (!response.ok) throw new Error('API error');
+        return await response.json();
+    } catch (err) {
+        console.error('Error fetching all cases:', err);
+        return [];
+    }
+};
+
