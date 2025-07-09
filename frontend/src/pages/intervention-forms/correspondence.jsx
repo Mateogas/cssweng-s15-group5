@@ -330,7 +330,7 @@ function CorrespondenceForm() {
                     name="add_intervention"
                     id="add_intervention"
                     onClick={handleAddIntervention}
-                    className="btn-primary self-center"
+                    className="btn-primary font-bold-label self-center"
                 >
                     Add Intervention
                 </button>
@@ -347,14 +347,14 @@ function CorrespondenceForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between">
+            <div className="flex w-full justify-center gap-20">
                 <button
-                    className="btn-outline-rounded"
+                    className="btn-outline font-bold-label"
                     onClick={() => navigate(-1)}
                 >
                     Cancel
                 </button>
-                <button className="btn-primary" onClick={() => navigate(-1)}>
+                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
                     Create Intervention
                 </button>
             </div>
