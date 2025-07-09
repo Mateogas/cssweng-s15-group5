@@ -1,12 +1,80 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
+// API Import
+import  {   fetchCaseData, 
+            createHomeVis
+        }
+from '../../fetch-connections/homeVisitation-connection'; 
+
 function CorrespondenceForm() {
     
+    // ===== START :: Setting Data ===== //
+    const [loading, setLoading] = useState(true);
+    const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFatherData, setRawFatherData] = useState(null);
+    const [rawMotherData, setRawMotherData] = useState(null);
+    const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
+
+    const [data, setData] = useState({
+        form_num: "3",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        ch_number: "",
+        date: "",
+        dob: "",
+        school: "",
+        address: "",
+        sponsor_name: "",
+        subproject: "",
+        sponsorship_date: "",
+        identified_problem: "",
+        assessment: "",
+        objective: "",
+        recommendation: "",
+    });
+
+    const [intervention_plan, setInterventionPlan] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Case ID
+            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
+            const caseData = returnData.case
+
+            console.log(caseData)
+
+            setRawCaseData(caseData);
+
+            setData((prev) => ({
+                ...prev,
+                first_name: caseData.first_name || "",
+                middle_name: caseData.middle_name || "",
+                last_name: caseData.last_name || "",
+                ch_number: caseData.sm_number || "",
+                address: caseData.present_address || "",
+            }));
+
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        setFirstName(data.first_name || "");
+        setMiddleName(data.middle_name || "");
+        setLastName(data.last_name || "");
+        setCHNumber(data.ch_number || "");
+        setAddress(data.address || "");
+    }, [data]);
+    // ===== END :: Setting Data ===== // 
+
     /********** TEST DATA **********/
-
-
+    /*
     const [data, setData] = useState({
         form_num: "7",
         first_name: "Hephzi-Bah",
@@ -45,7 +113,7 @@ function CorrespondenceForm() {
             person_responsible: "SDW 3",
         },
     ]);
-
+    */
     /********** TEST DATA **********/
 
     /********** USE STATES **********/
@@ -74,89 +142,147 @@ function CorrespondenceForm() {
 
     /********** USE STATES **********/
 
+    // ===== START :: Local Functions ===== //
+
+    const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
+    const handleAddIntervention = () => {
+        const new_intervention = {
+            action: "",
+            time_frame: "",
+            results: "",
+            person_responsible: "",
+        };
+
+        setInterventionPlan((prev) => [...prev, new_intervention]);
+    };
+
+    const updateIntervention = (index, key, value) => {
+        setInterventionPlan((prev) =>
+            prev.map((item, i) =>
+                i === index ? { ...item, [key]: value } : item,
+            ),
+        );
+    };
+
+    const deleteIntervention = (indexToDelete) => {
+        setInterventionPlan((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
+
+    // ===== END :: Local Functions ===== //
+
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">
                 SMs, Families, and SHGs Intervention Plan
             </h3>
 
             {/* Sponsored Member and General Info */}
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
-                                setValue={setDOB}
+                                disabled={true}
                             ></DateInput>
                             <TextInput
                                 label="School"
                                 value={school}
                                 setValue={setSchool}
+                                handleChange={handleChange("Sponsored Member")}
                             ></TextInput>
-                            <div className="flex gap-10">
-                                <p className="label-base w-44">Address</p>
+                            <div className="flex gap-16">
+                                <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
+                                    disabled={true}
+                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "Sponsored Member" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Name of Sponsor"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                             <TextInput
                                 label="Sub-Project"
                                 value={subproject}
                                 setValue={setSubproject}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Sponsorship"
                                 value={sponsorship_date}
                                 setValue={setSponsorshipDate}
+                                handleChange={handleChange("General Information")}
                             ></DateInput>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "General Information" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
@@ -170,7 +296,7 @@ function CorrespondenceForm() {
             </section>
 
             {/* Assessment and Objective */}
-            <section className="flex w-full gap-10">
+            <section className="flex w-full gap-16">
                 <TextArea
                     label="SDW's Assessment"
                     value={assessment}
@@ -181,6 +307,103 @@ function CorrespondenceForm() {
                     value={objective}
                     setValue={setObjective}
                 ></TextArea>
+            </section>
+
+            {/* Intervention Plan */}
+            <section className="flex w-full flex-col gap-16">
+                <h3 className="header-md">Intervention Plan</h3>
+                <div className="flex flex-col gap-2">
+                    <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
+                        <div className="flex justify-between px-4 gap-6 pr-30">
+                            <p className="label-base w-lg">Actions</p>
+                            <p className="label-base w-sm">Time Frame</p>
+                            <p className="label-base w-lg">Results</p>
+                            <p className="label-base w-lg">
+                                Person Responsible
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col flex-wrap gap-4">
+                        {intervention_plan.map((item, index) => (
+                            <div
+                                key={index}
+                                className="flex w-full justify-between items-center px-4 gap-6"
+                            >
+                                <div className="flex w-lg">
+                                    <TextArea
+                                        value={item.action}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "action",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-sm">
+                                    <TextArea
+                                        value={item.time_frame}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "time_frame",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-lg">
+                                    <TextArea
+                                        value={item.results}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "results",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-lg">
+                                    <TextArea
+                                        value={item.person_responsible}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "person_responsible",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <button
+                                    onClick={() => deleteIntervention(index)}
+                                    className="icon-button-setup trash-button px-10"
+                                ></button>
+                            </div>
+                        ))}
+                    </div>
+                    {savedTime && sectionEdited === "Intervention Plan" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
+                </div>
+                <button
+                    name="add_intervention"
+                    id="add_intervention"
+                    onClick={handleAddIntervention}
+                    className="btn-primary font-bold-label self-center"
+                >
+                    Add Intervention
+                </button>
             </section>
 
             {/* Recommendation */}
@@ -194,9 +417,16 @@ function CorrespondenceForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+            <div className="flex w-full justify-center gap-20">
+                <button
+                    className="btn-outline font-bold-label"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
+                    Create Intervention
+                </button>
             </div>
         </main>
     );
