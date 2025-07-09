@@ -38,7 +38,7 @@ export const createCorrespForm = async (caseId, formData) => {
  * @param {string} caseId - The ObjectId of the Sponsored Member.
  * @param {string} formId - The ObjectId of the Intervention Correspondence form.
  * @returns {Promise<{sponsored_member: object, form: object}|null>}
- *   sponsored_member: { first_name, middle_name, last_name, sm_number, dob, present_address }
+ *   sponsored_member: { first_name, middle_name, last_name, sm_number, dob, present_address ,spu}
  *   form: { ...all form fields... }
  */
 export const fetchCorrespFormData = async (caseId, formId) => {

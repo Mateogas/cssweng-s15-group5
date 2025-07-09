@@ -38,15 +38,9 @@ const EmployeeSchema = new mongoose.Schema({
         default: null,
         required: false
     },
-    department: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Departments',
-        default: null,
-        required: false
-    },
     spu_id: {
         type: String,
-        enum: ['MNL', 'CEB', 'DVO', 'BAG', 'ILO', 'ZAM'], // Add other SPUs as needed
+        enum: ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'], // Updated SPU IDs
         required: true
     },
 

@@ -199,13 +199,12 @@ const addNewCase = async(req,res) => {
      }
 
      try{
-          const latestCase = await Sponsored_Member.findOne().sort({ sm_number: -1 }).lean();
-          let smNewNumber = latestCase ? Number(latestCase.sm_number) + 1 : 1;
+          //const latestCase = await Sponsored_Member.findOne().sort({ sm_number: -1 }).lean();
+          //let smNewNumber = latestCase ? Number(latestCase.sm_number) + 1 : 1;
           //assigns newCase with our current newData
           
           const newCase = new Sponsored_Member({
           ...newCaseData,
-          sm_number: smNewNumber,
           assigned_sdw : sdwId
           });
           //here we just validate the newCase before saving it doesnt work lol

@@ -154,8 +154,9 @@ const getCorrespondenceForm = async(req,res)=>{
                 middle_name: sponsoredData.middle_name,
                 last_name: sponsoredData.last_name,
                 sm_number: sponsoredData.sm_number,
-                dob: sponsoredData.spu,
+                dob: sponsoredData.dob,
                 present_address: sponsoredData.present_address,
+                spu:sponsoredData.spu,
             },
             form: formData
         };

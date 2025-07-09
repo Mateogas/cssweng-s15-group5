@@ -7,7 +7,7 @@ const SponsoredMemberSchema = new mongoose.Schema({
     },
     spu: {
         type: String,
-        enum: ['AMP', 'FDQ', 'MPH', 'MS','MNL'],
+        enum: ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'],
         required: true
     },
     last_name: {
