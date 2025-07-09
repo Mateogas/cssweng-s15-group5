@@ -533,7 +533,7 @@ function HomeVisitationForm() {
                             ></TextInput>
                             <TextInput
                                 label="Income"
-                                value={father_income}
+                                value={currency_Formatter(father_income)}
                                 disabled={true}
                             ></TextInput>
                         </div>
@@ -568,7 +568,7 @@ function HomeVisitationForm() {
                             ></TextInput>
                             <TextInput
                                 label="Income"
-                                value={mother_income}
+                                value={currency_Formatter(mother_income)}
                                 disabled={true}
                             ></TextInput>
                         </div>
