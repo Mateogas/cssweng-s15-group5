@@ -18,16 +18,19 @@ export const fetchCaseData = async(caseID) => {
 export const fetchFormData = async(caseID, formID) => {
      try {
           const response = await fetch(`/api/intervention/home-visit-form/${caseID}/${formID}`);
+
+          console.log("Case ID: ", caseID);
+          console.log("Form ID: ", formID);
           
           if (!response.ok) 
                throw new Error('API error');
 
           const rawData = await response.json();
-          localID = rawData.case._id
+          // localID = rawData.case._id
 
           return rawData
      } catch (err) {
-          console.error('Error fetching case data:', err);
+          console.error('Error fetching form data:', err);
           return defaultCaseData;
      }
 };

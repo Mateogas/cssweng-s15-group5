@@ -5,6 +5,7 @@ import FamilyCard from "../../Components/FamilyCard";
 
 // API Import
 import  {   fetchCaseData, 
+            fetchFormData,
             createHomeVis
         }
 from '../../fetch-connections/homeVisitation-connection'; 
@@ -16,6 +17,7 @@ function HomeVisitationForm() {
     const [rawFatherData, setRawFatherData] = useState(null);
     const [rawMotherData, setRawMotherData] = useState(null);
     const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
         form_num: "",
@@ -75,7 +77,9 @@ function HomeVisitationForm() {
         },
     ]);*/
 
-    useEffect(() => {
+    // ===== START :: Create New Form ===== //
+
+    /*useEffect(() => {
         const loadData = async () => {
             setLoading(true);
 
@@ -116,9 +120,9 @@ function HomeVisitationForm() {
             setLoading(false);
         };
         loadData();
-    }, []);
+    }, []);*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         setFirstName(data.first_name || "");
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
@@ -134,7 +138,58 @@ function HomeVisitationForm() {
         setMotherLastName(data.mother_last_name || "");
         setMotherWork(data.mother_work || "");
         setMotherIncome(data.mother_income || "");
+    }, [data]);*/
+
+    // ===== END :: Create New Form ===== //
+
+    // ===== START :: View Form ===== //
+
+    useEffect(() => {
+        const loadFormData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Form ID
+            const returnFormData = await fetchFormData('6849646feaa08161083d1aec', '6866a34fea8617ba4f2025ed');
+            const formData = returnFormData.case
+
+            console.log("form Data", formData)
+
+            setRawFormData(formData);
+
+            setData((prev) => ({
+                ...prev,
+                grade_year_course: formData.grade_year_course || "",
+                years_in_program: formData.years_in_program || "",
+                date: formData.createdAt || "",
+                community: formData.community || "",
+                sponsor_name: formData.sponsor_name || "",
+                family_type: formData.family_type || "",
+                sm_progress: formData.sm_progress || "",
+                family_progress: formData.family_progress || "",
+                recommendation: formData.recommendation || "",
+                agreement: formData.agreement || "",
+            }));
+
+            setLoading(false);
+        };
+        loadFormData();
+    }, []);
+
+    useEffect(() => {
+        setGradeYearCourse(data.grade_year_course || "");
+        setYearsInProgram(data.years_in_program || "");
+        setDate(data.date || "");
+        setCommunity(data.community || "");
+        setSponsorName(data.sponsor_name || "");
+        setFamilyType(data.family_type || "");
+        setSMProgress(data.sm_progress || "");
+        setFamilyProgress(data.family_progress || "");
+        setRecommendation(data.recommendation || "");
+        setAgreement(data.agreement || "");
     }, [data]);
+
+    // ===== END :: View Form ===== //
+
     // ===== END :: Setting Data ===== // 
 
     // ===== START :: Backend Connection ===== //
