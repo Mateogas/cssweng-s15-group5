@@ -27,6 +27,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route path="/testcase" element={<Case />} />
 
                 <Route path="/case-frontend" element={<CaseFrontend />} />
+                <Route path="/case/:clientId" element={<CaseFrontend />} />
+
 
                 <Route path="/home-sdw" element={<HomeSDW />} />
                 <Route path="/home-admin" element={<HomeAdmin />} />

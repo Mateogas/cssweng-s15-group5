@@ -6,6 +6,11 @@ const DepartmentsSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    department_id: {
+        type: String,
+        required: true,
+        unique: true
+    }
 });
 
 const Departments = mongoose.model('Departments', DepartmentsSchema);
@@ -16,5 +21,5 @@ const Departments = mongoose.model('Departments', DepartmentsSchema);
 
 module.exports = {
     Departments,
-    
+
 };

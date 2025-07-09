@@ -1,57 +1,93 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
-
+import { useParams } from "react-router-dom";
 import FamilyCard from '../../components/FamilyCard';
 import SimpleModal from '../../components/SimpleModal';
 import NavLabelButton from '../../components/NavLabelButton';
 
 // API Imports
-import {    fetchCaseData, 
-            fetchFamilyMembers, 
-            editProblemsFindings, 
-            editAssessment, 
-            editEvalReco,
-            updateCoreCaseData,
-            updateIdentifyingCaseData,
-            fetchSDWs,   
+import {
+    fetchCaseData,
+    fetchFamilyMembers,
+    editProblemsFindings,
+    editAssessment,
+    editEvalReco,
+    updateCoreCaseData,
+    updateIdentifyingCaseData,
+    fetchSDWs,
 }
-from '../../fetch-connections/case-connection'; 
+    from '../../fetch-connections/case-connection';
 
 function CaseFrontend() {
     const navigate = useNavigate();
+    const { clientId } = useParams();
 
     const [data, setData] = useState({
-        first_name: "Hephzi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        sm_number: "12356473",
-        sex: "F",
-        dob: "2000-01-10",
-        civil_status: "Single",
-        edu_attainment: "Senior High School",
-        occupation: "Teacher",
-        pob: "Manila",
-        religion: "Roman Catholic",
-        contact_no: "0917 123 4567",
-        present_address: "Taft Avenue, Metro Manila",
-        relationship_to_client: "Sister",
-        problem_presented:
-            "Client struggles with adjustment to new environment.",
-        observation_findings:
-            "Client appears anxious and has limited coping strategies.",
-        recommendation: "Recommend follow-up sessions and group support.",
-        history_problem: "History of relocation, social withdrawal.",
-        evaluation: "Initial evaluation suggests mild adjustment disorder.",
-        is_active: "yes",
-        assessment: "Yes, very very qualified to wield firearms in public!",
-
-        sdw_id: 23456789,
-        spu_id: "CEB",
-        // sub_id: "CEB-02",
-
-        classifications: ["Solo Parent", "Street Child", "Abandoned Child"],
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        sm_number: "",
+        sex: "",
+        dob: "",
+        civil_status: "",
+        edu_attainment: "",
+        occupation: "",
+        pob: "",
+        religion: "",
+        contact_no: "",
+        present_address: "",
+        relationship_to_client: "",
+        problem_presented: "",
+        observation_findings: "",
+        recommendation: "",
+        history_problem: "",
+        evaluation: "",
+        is_active: "",
+        assessment: "",
+        assigned_sdw: "",
+        spu: "",
+        classifications: []
     });
+
+
+
+    useEffect(() => {
+        const loadCaseData = async () => {
+            if (!clientId) return;
+            const fetchedData = await fetchCaseData(clientId);
+            setData(fetchedData);
+            setDrafts({
+                first_name: fetchedData.first_name || "",
+                middle_name: fetchedData.middle_name || "",
+                last_name: fetchedData.last_name || "",
+                sm_number: fetchedData.sm_number || "",
+                spu_id: fetchedData.spu_id || "",
+                sdw_id: fetchedData.sdw_id || "",
+                classifications: fetchedData.classifications || [],
+                dob: fetchedData.dob || "",
+                civilStatus: fetchedData.civil_status || "",
+                education: fetchedData.edu_attainment || "",
+                sex: fetchedData.sex || "",
+                pob: fetchedData.pob || "",
+                religion: fetchedData.religion || "",
+                occupation: fetchedData.occupation || "",
+                presentAddress: fetchedData.present_address || "",
+                contactNo: fetchedData.contact_no || "",
+                relationship: fetchedData.relationship_to_client || "",
+                problemPresented: fetchedData.problem_presented || "",
+                historyProblem: fetchedData.history_problem || "",
+                observationFindings: fetchedData.observation_findings || "",
+                caseAssessment: fetchedData.assessment || "",
+                caseRecommendation: fetchedData.recommendation || "",
+                caseEvalutation: fetchedData.evaluation || "",
+            });
+            setAge(calculateAge(fetchedData.dob));
+        };
+
+        loadCaseData();
+    }, [clientId]);
+
 
     const [familyMembers, setFamilyMembers] = useState([
         {
@@ -112,56 +148,26 @@ function CaseFrontend() {
         {
             name: "Manila",
             projectCode: "MNL",
-            // subLocations: [
-            //     { sub_id: "MNL-01", name: "Tondo" },
-            //     { sub_id: "MNL-02", name: "Sampaloc" },
-            //     { sub_id: "MNL-03", name: "Ermita" }
-            // ]
         },
         {
             name: "Cebu",
             projectCode: "CEB",
-            // subLocations: [
-            //     { sub_id: "CEB-01", name: "Lapu-Lapu" },
-            //     { sub_id: "CEB-02", name: "Mandaue" },
-            //     { sub_id: "CEB-03", name: "Talamban" }
-            // ]
         },
         {
             name: "Davao",
             projectCode: "DVO",
-            // subLocations: [
-            //     { sub_id: "DVO-01", name: "Buhangin" },
-            //     { sub_id: "DVO-02", name: "Talomo" },
-            //     { sub_id: "DVO-03", name: "Toril" }
-            // ]
         },
         {
             name: "Baguio",
             projectCode: "BAG",
-            // subLocations: [
-            //     { sub_id: "BAG-01", name: "Loakan" },
-            //     { sub_id: "BAG-02", name: "Irisan" },
-            //     { sub_id: "BAG-03", name: "Pacdal" }
-            // ]
         },
         {
             name: "Iloilo",
             projectCode: "ILO",
-            // subLocations: [
-            //     { sub_id: "ILO-01", name: "Jaro" },
-            //     { sub_id: "ILO-02", name: "Mandurriao" },
-            //     { sub_id: "ILO-03", name: "Molo" }
-            // ]
         },
         {
             name: "Zamboanga",
             projectCode: "ZAM",
-            // subLocations: [
-            //     { sub_id: "ZAM-01", name: "Ayala" },
-            //     { sub_id: "ZAM-02", name: "Putik" },
-            //     { sub_id: "ZAM-03", name: "Tetuan" }
-            // ]
         },
     ]);
 
@@ -196,28 +202,29 @@ function CaseFrontend() {
         middle_name: data.middle_name || "",
         last_name: data.last_name || "",
         sm_number: data.sm_number || "",
-        spu_id: data.spu_id || "",
-        sdw_id: data.sdw_id || "",
+        spu: data.spu || "",
+        assigned_sdw: data.assigned_sdw || "",
         classifications: data.classifications || [],
 
         dob: data.dob || "",
-        civilStatus: data.civil_status || "",
-        education: data.edu_attainment || "",
+        civil_status: data.civil_status || "",
+        edu_attainment: data.edu_attainment || "",
         sex: data.sex || "",
         pob: data.pob || "",
         religion: data.religion || "",
         occupation: data.occupation || "",
-        presentAddress: data.present_address || "",
-        contactNo: data.contact_no || "",
-        relationship: data.relationship_to_client || "",
+        present_address: data.present_address || "",
+        contact_no: data.contact_no || "",
+        relationship_to_client: data.relationship_to_client || "",
 
-        problemPresented: data.problem_presented || "",
-        historyProblem: data.history_problem || "",
-        observationFindings: data.observation_findings || "",
-        caseAssessment: data.assessment || "",
-        caseRecommendation: data.recommendation || "",
-        caseEvalutation: data.evaluation || "",
+        problem_presented: data.problem_presented || "",
+        history_problem: data.history_problem || "",
+        observation_findings: data.observation_findings || "",
+        assessment: data.assessment || "",
+        recommendation: data.recommendation || "",
+        evaluation: data.evaluation || "",
     });
+
 
     const resetFields = () => {
         setDrafts({
@@ -364,23 +371,23 @@ function CaseFrontend() {
     const checkCore = () => {
         const missing = [];
 
-        if (!drafts.first_name || drafts.first_name.trim() === "") missing.push('First Name');
-        if (!drafts.middle_name || drafts.middle_name.trim() === "") missing.push('Middle Name');
-        if (!drafts.last_name || drafts.last_name.trim() === "") missing.push('Last Name');
+        if (!drafts.first_name || drafts.first_name.trim() === "")
+            missing.push("First Name");
+        if (!drafts.middle_name || drafts.middle_name.trim() === "")
+            missing.push("Middle Name");
+        if (!drafts.last_name || drafts.last_name.trim() === "")
+            missing.push("Last Name");
 
-        if (!drafts.sm_number || drafts.sm_number.trim() === "") {
-            missing.push('SM Number');
+        if (!drafts.sm_number) {
+            missing.push("SM Number");
         } else if (isNaN(Number(drafts.sm_number))) {
-            missing.push('SM Number must only be numeric');
+            missing.push("SM Number must only be numeric");
         } else if (Number(drafts.sm_number) < 0) {
-            missing.push('SM Number cannot be negative');
+            missing.push("SM Number cannot be negative");
         }
 
-        if (!drafts.spu_id) missing.push('SPU Project');
-        // if (!drafts.sub_id) missing.push('Sub-Project'); // if needed
+        if (!drafts.spu_id) missing.push("SPU Project");
         if (!drafts.sdw_id) missing.push("Social Development Worker");
-        if (!drafts.classifications || drafts.classifications.length === 0)
-            missing.push("at least one Classification");
 
         const validSDWIds = socialDevelopmentWorkers
             .filter((sdw) => sdw.spu_id === drafts.spu_id)
@@ -392,9 +399,7 @@ function CaseFrontend() {
 
         if (missing.length > 0) {
             setModalTitle("Invalid Fields");
-            setModalBody(
-                `The following fields are missing or invalid: ${formatListWithAnd(missing)}`,
-            );
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
             setModalImageCenter(<div className="warning-icon mx-auto"></div>);
             setModalConfirm(false);
             setShowModal(true);
@@ -403,6 +408,7 @@ function CaseFrontend() {
 
         return true;
     };
+
 
     useEffect(() => {
         const validSDWIds = socialDevelopmentWorkers
@@ -857,9 +863,8 @@ function CaseFrontend() {
                         </div>
                     </div>
 
-
                     <div className='flex flex-col w-full'>
-                        <label className="font-bold-label mb-2"><span className='text-red-500'>*</span> Classifications</label>
+                        <label className="font-bold-label mb-2">Classifications</label>
                         {editingField === "core-fields" ? (
                             <>
                                 <div className="flex w-full max-w-[65rem] items-center self-start">
@@ -953,25 +958,34 @@ function CaseFrontend() {
                     {editingField === "core-fields" && (
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
-                                if (!checkCore()) return;
+                            onClick={async () => {
+                                const valid = checkCore();
+                                if (!valid) return;
 
-                                setData((prev) => ({
-                                    ...prev,
-                                    first_name: drafts.first_name,
-                                    middle_name: drafts.middle_name,
-                                    last_name: drafts.last_name,
-                                    sm_number: drafts.sm_number,
-                                    spu_id: drafts.spu_id,
-                                    sdw_id: drafts.sdw_id,
-                                    classifications:
-                                        drafts.classifications || [],
-                                }));
-                                setEditingField(null);
+                                try {
+                                    const updated = await updateCoreCaseData(drafts, clientId);
+                                    setData((prev) => ({
+                                        ...prev,
+                                        first_name: updated.first_name || drafts.first_name,
+                                        middle_name: updated.middle_name || drafts.middle_name,
+                                        last_name: updated.last_name || drafts.last_name,
+                                        sm_number: updated.sm_number || drafts.sm_number,
+                                        spu_id: updated.spu || drafts.spu_id,  // match your schema
+                                        sdw_id: updated.assigned_sdw || drafts.sdw_id, // match your schema
+                                        classifications: updated.classifications || drafts.classifications || [],
+                                    }));
 
-                                showSuccess('Core details were successfully updated!');
+                                    setEditingField(null);
+                                    showSuccess("Core details were successfully updated!");
+                                } catch (error) {
+                                    setModalTitle("Update Error");
+                                    setModalBody(error.message || "An unexpected error occurred.");
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                    setModalConfirm(false);
+                                    setShowModal(true);
+                                }
                             }}
-                            data-cy='submit-core-details-section'
+                            data-cy="submit-core-details-section"
                         >
                             Submit Changes
                         </button>

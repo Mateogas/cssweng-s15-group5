@@ -65,9 +65,17 @@ export const fetchCaseData = async(caseID) => {
 export const updateCoreCaseData = async(updatedData, caseID) => {
      try {
           const targetID = caseID || localID;
-          const preparedData = { ...updatedData };
-          
-       
+          const preparedData = {
+               sm_number: Number(updatedData.sm_number),
+               last_name: updatedData.last_name,
+               first_name: updatedData.first_name,
+               middle_name: updatedData.middle_name || '',
+               spu: updatedData.spu_id,
+               assigned_sdw: updatedData.sdw_id,
+               is_active: updatedData.is_active ?? true,
+               classifications: updatedData.classifications
+          };          
+               
           if (typeof preparedData.sdw_id === 'number' || preparedData.sdw_id) {
                preparedData.assigned_sdw = preparedData.sdw_id; // Always use a valid ObjectId
                delete preparedData.sdw_id;
@@ -76,9 +84,7 @@ export const updateCoreCaseData = async(updatedData, caseID) => {
           if (preparedData.spu_id) {
                preparedData.spu = preparedData.spu_id;
                delete preparedData.spu_id;
-          }
-          
-          
+          }          
 
           if (preparedData.sm_number === undefined || preparedData.sm_number === null || preparedData.sm_number === '') {
           throw new Error('sm_number must be a numeric value.');
@@ -112,11 +118,11 @@ export const updateCoreCaseData = async(updatedData, caseID) => {
           }
           
 
-          if (preparedData.classifications) {
-               delete preparedData.classifications;
-          }
+          // if (preparedData.classifications) {
+          //      delete preparedData.classifications;
+          // }
 
-          //console.log("Sending data:", preparedData);
+          console.log("Sending data:", preparedData);
 
           const response = await fetch(`/api/cases/edit/core/${targetID}`, {
                method: 'PUT',
@@ -147,10 +153,6 @@ export const updateIdentifyingCaseData = async(updatedData, caseID) => {
      try {
           const targetID = caseID || localID;
           const preparedData = { ...updatedData };
-          
-       
-          
-
           //console.log("Sending data:", preparedData);
 
           const response = await fetch(`/api/cases/edit/identifyingdata/${targetID}`, {

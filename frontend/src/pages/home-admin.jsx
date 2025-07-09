@@ -98,8 +98,6 @@ function HomeAdmin() {
         },
     ]);
 
-
-
     const [projectLocation, setProjectLocation] = useState([
         {
             name: "Manila",
@@ -176,7 +174,6 @@ function HomeAdmin() {
 
         setCurrentData(filtered);
     }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
-
 
     return (
         <>

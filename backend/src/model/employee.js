@@ -46,8 +46,18 @@ const EmployeeSchema = new mongoose.Schema({
     },
     spu_id: {
         type: String,
-        enum: ['MNL', 'CEB', 'DVO', 'BAG','ILO','ZAM'], // Add other SPUs as needed
+        enum: ['MNL', 'CEB', 'DVO', 'BAG', 'ILO', 'ZAM'], // Add other SPUs as needed
         required: true
+    },
+
+      sdw_id: {
+        type: Number,
+        required: false
+    },
+
+    contact_no: {
+        type: String,
+        required: false
     }
 });
 
@@ -59,5 +69,5 @@ const Employee = mongoose.model('Employee', EmployeeSchema);
 
 module.exports = {
     Employee,
-    
+
 };

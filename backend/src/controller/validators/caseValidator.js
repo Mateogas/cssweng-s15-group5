@@ -100,8 +100,8 @@ const caseCoreValidate = Joi.object({
   'string.length': 'Assigned SDW must be exactly 24 characters long.',
   'any.required': 'Assigned SDW is required.'
 }),
-is_active: Joi.boolean().required()
-
+is_active: Joi.boolean().required(),
+classifications: Joi.array().items(Joi.string()).optional()
 });
 /*
 //THIS IS FOR IDENTIFYING DATA ONLY
