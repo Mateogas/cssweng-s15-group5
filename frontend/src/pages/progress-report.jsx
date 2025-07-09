@@ -53,6 +53,7 @@ function ProgressReport() {
                 last_name: caseData.last_name || "",
                 ch_number: caseData.sm_number || "",
                 dob: caseData.dob || "",
+                subproject: caseData.spu || "",
             }));
 
             setLoading(false);
@@ -66,6 +67,7 @@ function ProgressReport() {
         setLastName(data.last_name || "");
         setCHNumber(data.ch_number || "");
         setDOB(data.dob || "");
+        setSubproject(data.subproject || "");
     }, [data]);
 
     useEffect(() => {

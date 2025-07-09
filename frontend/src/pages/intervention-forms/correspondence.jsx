@@ -57,6 +57,7 @@ function CorrespondenceForm() {
                 last_name: caseData.last_name || "",
                 ch_number: caseData.sm_number || "",
                 address: caseData.present_address || "",
+                subproject: caseData.spu || "",
             }));
 
             setLoading(false);
@@ -70,6 +71,7 @@ function CorrespondenceForm() {
         setLastName(data.last_name || "");
         setCHNumber(data.ch_number || "");
         setAddress(data.address || "");
+        setSubproject(data.subproject || "");
     }, [data]);
     // ===== END :: Setting Data ===== // 
 

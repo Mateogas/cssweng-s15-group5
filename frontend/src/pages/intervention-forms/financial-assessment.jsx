@@ -60,6 +60,7 @@ function FinancialAssessmentForm() {
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
                 ch_number: caseData.sm_number || "",
+                area_and_subproject: caseData.spu || "",
             }));
 
             setLoading(false);
@@ -72,6 +73,7 @@ function FinancialAssessmentForm() {
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
         setCHNumber(data.ch_number || "");
+        setAreaAndSubproject(data.area_and_subproject || "");
     }, [data]);
     // ===== END :: Setting Data ===== // 
 
