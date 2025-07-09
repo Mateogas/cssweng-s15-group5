@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 // API Import
-import  {   fetchCaseData, 
-            createCaseClosureForm
-        }
-from '../fetch-connections/caseClosure-connection'; 
+import {
+    fetchCaseData,
+    createCaseClosureForm
+}
+    from '../fetch-connections/caseClosure-connection';
 
 function CaseClosure() {
     // ===== START :: Setting Data ===== // 
@@ -95,7 +96,9 @@ function CaseClosure() {
     };
     // ===== END :: Backend Connection ===== //
 
-    const [sm_awareness, setSMAwareness] = useState("");
+    const deleteService = (indexToDelete) => {
+        setServicesProvided((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
 
     const handleCheckboxChange = (value) => {
         setSMAwareness(value);
@@ -165,11 +168,12 @@ function CaseClosure() {
         },
     ]);
 
-     return (
+    return (
         <main className="flex max-w-7xl flex-col items-center justify-center gap-10 p-10 border border-[var(--border-color)] rounded-lg">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Case Closure Report</h3>
 
+            <div>
             {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
@@ -225,32 +229,36 @@ function CaseClosure() {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
-                    <div className="flex border-b border-[var(--border-color)]">
-                        <h4 className="header-sm">General Information</h4>
-                    </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
-                            <TextInput
-                                label="Name of SPU/Cluster"
-                                value={spu}
-                                setValue={setSPU}
-                            ></TextInput>
+                    <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
+                        <div className="flex border-b border-[var(--border-color)]">
+                            <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="flex flex-col gap-5">
-                            <DateInput
-                                label="Date of Closure"
-                                value={closure_date}
-                                setValue={setClosureDate}
-                            ></DateInput>
-                            <DateInput
-                                label="Date Sponsored"
-                                value={sponsorship_date}
-                                setValue={setSponsorshipDate}
-                            ></DateInput>
+                        <div className="inline-flex items-center justify-center gap-16">
+                            <div className="flex flex-col gap-8">
+                                <TextInput
+                                    label="Name of SPU/Cluster"
+                                    value={spu}
+                                    disabled={true}
+                                ></TextInput>
+                            </div>
+                            <div className="flex flex-col gap-8">
+                                <DateInput
+                                    label="Date of Closure"
+                                    value={closure_date}
+                                    setValue={setClosureDate}
+                                    handleChange={handleChange("General Information")}
+                                ></DateInput>
+                                <DateInput
+                                    label="Date Sponsored"
+                                    value={sponsorship_date}
+                                    setValue={setSponsorshipDate}
+                                    handleChange={handleChange("General Information")}
+                                ></DateInput>
+                            </div>
                         </div>
+                        {savedTime && sectionEdited === "General Information" && (
+                            <p className="text-sm self-end mt-2">{savedTime}</p>
+                        )}
                     </div>
                 </div>
             </section>
@@ -371,8 +379,19 @@ function CaseClosure() {
 
             {/* Buttons */}
             <div className="mt-10 flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Close Case</button>
+                <button
+                    className="btn-outline-rounded"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                <button
+                    className="btn-primary"
+                    onClick={() => navigate(-1)}
+                >
+                    Close Case
+                </button>
+            </div>
             </div>
         </main>
     );

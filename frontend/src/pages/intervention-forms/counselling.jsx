@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
@@ -9,7 +9,7 @@ import {
 } from "../../fetch-connections/intervention-connection";
 
 function CounsellingForm() {
-    const navigate = useNavigate();
+    /********** TEST DATA **********/
 
     const [data, setData] = useState({
         form_num: "",
@@ -28,6 +28,10 @@ function CounsellingForm() {
         recommendation: "",
         sm_comments: "",
     });
+
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -85,90 +89,129 @@ function CounsellingForm() {
         loadData();
     }, []);
 
+    /********** USE STATES **********/
+
+    /********** FUNCTIONS **********/
+    
+    const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+        setSavedTime(null);
+        }, 3000);
+    };
+
+    /********** FUNCTIONS **********/
+
     return (
-        <main className="flex max-w-7xl flex-col items-center justify-center gap-10 px-10">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
             <h3 className="header-md">Counselling Form</h3>
 
-            <section className="flex w-full flex-col gap-10">
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+            {/* Sponsored Member and General Info */}
+            <section className="flex w-full flex-col gap-16">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
                                 value={last_name}
-                                setValue={setLastName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="First Name"
                                 value={first_name}
-                                setValue={setFirstName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Middle Name"
                                 value={middle_name}
-                                setValue={setMiddleName}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
-                                setValue={setCHNumber}
+                                disabled={true}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Grade/Year Level"
                                 value={grade_year_level}
                                 setValue={setGradeYearLevel}
+                                handleChange={handleChange("Sponsored Member")}
                             ></TextInput>
                             <TextInput
                                 label="School"
                                 value={school}
                                 setValue={setSchool}
+                                handleChange={handleChange("Sponsored Member")}
                             ></TextInput>
-                            <div className="flex gap-10">
-                                <p className="label-base w-44">Address</p>
+                            <div className="flex gap-16">
+                                <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
+                                    disabled={true}
+                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "Sponsored Member" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
-                <div className="flex w-full flex-col gap-5 rounded-[0.5rem] border border-[var(--border-color)] p-5">
+                <div className="flex w-full flex-col gap-8 rounded-[0.8rem] border border-[var(--border-color)] p-8">
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-10">
-                        <div className="flex flex-col gap-5">
+                    <div className="inline-flex items-center justify-center gap-16">
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Sub-Project"
                                 value={subproject}
-                                setValue={setSubproject}
+                                disabled={true}
                             ></TextInput>
                             <TextInput
                                 label="Area/Self-Help Group"
                                 value={area_self_help}
                                 setValue={setAreaSelfHelp}
+                                handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Counselling"
-                                value={counseling_date}
-                                setValue={setCounselingDate}
+                                value={counselling_date}
+                                setValue={setCounsellingDate}
+                                handleChange={handleChange("General Information")}
                             ></DateInput>
                         </div>
                     </div>
+                    {savedTime && sectionEdited === "General Information" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
                 </div>
             </section>
 
-            <section className="flex w-full items-end gap-10">
+            {/* Reason for Counselling and Corrective Action */}
+            <section className="flex w-full items-end gap-16">
                 <TextArea
                     label="Purpose/Reason for Counselling"
                     value={reason_for_counseling}
@@ -182,7 +225,7 @@ function CounsellingForm() {
             </section>
 
             {/* Recommendation and Comments */}
-            <section className="flex w-full flex-col gap-15">
+            <section className="flex w-full flex-col gap-16">
                 <TextArea
                     label="Recommendation for Improvement (Intervention)"
                     sublabel="Sponsor Member (SM) Please Note:"
