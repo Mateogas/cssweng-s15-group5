@@ -81,25 +81,30 @@ const getAllCaseViable = async (req,res) =>{
 /**  
  *   Gets all cases returns name and id only
  */
-const getAllCases = async(req,res)=>{
-      try {
-        const cases = await Sponsored_Member.find({}) 
-        .lean();  
-          
-        const simplifiedCases = cases.map(c =>({
-          id: c._id,
-          name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`
+const getAllCases = async (req, res) => {
+    try {
+        const cases = await Sponsored_Member.find({})
+            .populate('assigned_sdw', 'first_name middle_name last_name') // Only fetch name fields
+            .lean();
+
+        const simplifiedCases = cases.map(c => ({
+            id: c._id,
+            name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
+            ch_number: c.sm_number,
+            assigned_sdw_name: c.assigned_sdw
+                ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+                : null
         }));
 
         res.json(simplifiedCases);
     } catch (error) {
         console.error('Error fetching cases:', error);
-        res.status(500).json({ 
-        message: 'Error retrieving case data',
-        error: error.message 
+        res.status(500).json({
+            message: 'Error retrieving case data',
+            error: error.message
         });
     }
-}
+};
 
 /**
  * @route   POST /api/cases/reassign-sdw
