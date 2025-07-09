@@ -44,6 +44,37 @@ function HomeVisitationForm() {
         agreement: "",
     });
 
+    const [familyMembers, setFamilyMembers] = useState([]);
+    /*
+        {
+            name: "Ana Victoria Angat",
+            age: 20,
+            income: 100000.0,
+            civilStatus: "Single",
+            occupation: "Software Developer",
+            education: "Undergraduate",
+            relationship: "Sister",
+        },
+        {
+            name: "Marvin Ivan Mangubat",
+            age: 21,
+            income: 0.0,
+            civilStatus: "Divorced",
+            occupation: "Unemployed",
+            education: "Undergraduate",
+            relationship: "Sister",
+        },
+        {
+            name: "Jose Miguel Espinosa",
+            age: 21,
+            income: 100000.0,
+            civilStatus: "Single",
+            occupation: "Producer",
+            education: "Undergraduate",
+            relationship: "Brother",
+        },
+    ]);*/
+
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -80,6 +111,8 @@ function HomeVisitationForm() {
                 mother_work: motherData.occupation || "",
                 mother_income: motherData.income || "",
             }));
+
+            setFamilyMembers(otherFamilyData);
             setLoading(false);
         };
         loadData();
@@ -254,7 +287,6 @@ function HomeVisitationForm() {
         });
     }
 
-    const [familyMembers, setFamilyMembers] = useState([]);
     const [observation_findings, setObservationFindings] = useState([]);
     const [interventions, setInterventions] = useState([]);
     /*

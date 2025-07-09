@@ -53,7 +53,7 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                 {isEditing ? (
                     <h3 className="header-sub">Editing Member</h3>
                 ) : (
-                    <h3 className="header-sub">{member.last || '-'}, {member.first || '-'} {member.middle || '-'}</h3>
+                    <h3 className="header-sub">{member.last_name || '-'}, {member.first_name || '-'} {member.middle_name || '-'}</h3>
                 )}
 
                 <button className={isEditing ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
@@ -69,15 +69,15 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
 
             <div className="grid grid-cols-[max-content_1fr] gap-5 text-sm font-label">
                 {[
-                    { label: 'First Name', key: 'first', type: 'text' },
-                    { label: 'Middle Name', key: 'middle', type: 'text' },
-                    { label: 'Last Name', key: 'last', type: 'text' },
+                    { label: 'First Name', key: 'first_name', type: 'text' },
+                    { label: 'Middle Name', key: 'middle_name', type: 'text' },
+                    { label: 'Last Name', key: 'last_name', type: 'text' },
                     { label: 'Age', key: 'age', type: 'number' },
                     { label: 'Income', key: 'income', type: 'text' },
-                    { label: 'Civil Status', key: 'civilStatus', type: 'text' },
+                    { label: 'Civil Status', key: 'civil_status', type: 'text' },
                     { label: 'Occupation', key: 'occupation', type: 'text' },
-                    { label: 'Educational Attainment', key: 'education', type: 'text' },
-                    { label: 'Relationship to Client', key: 'relationship', type: 'text' },
+                    { label: 'Educational Attainment', key: 'edu_attainment', type: 'text' },
+                    { label: 'Relationship to Client', key: 'relationship_to_sm', type: 'text' },
                 ].map(({ label, key, type }) => (
                     <React.Fragment key={key}>
                         <div className="font-bold-label">{label}</div>
