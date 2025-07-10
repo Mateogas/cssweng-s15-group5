@@ -10,6 +10,7 @@ from '../../fetch-connections/correspFormConnection';
 function CorrespondenceForm() {
     
     // ===== START :: Setting Data ===== //
+
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
@@ -77,47 +78,54 @@ function CorrespondenceForm() {
     // ===== END :: Create New Form ===== //
 
     // ===== START :: View Form ===== //
+
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
+    if (viewForm) {
+        useEffect(() => {
+            const loadFormData = async () => {
+                setLoading(true);
     
-    useEffect(() => {
-        const loadFormData = async () => {
-            setLoading(true);
-
-            // [TO UPDATE] :: Form ID
-            const returnFormData = await fetchCorrespFormData(
-                '686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a'
-            );
-            const formData = returnFormData.form;
-
-            console.log("form Data", formData);
-
-            setRawFormData(formData);
-
-            setData((prev) => ({
-                ...prev,
-                date: formData.createdAt || "",
-                sponsor_name: formData.name_of_sponsor || "",
-                sponsorship_date: formData.date_of_sponsorship || "",
-                identified_problem: formData.identified_problem || "",
-                assessment: formData.assesment || "",
-                objective: formData.objective || "",
-                recommendation: formData.recommendation || "",
-            }));
-
-            setInterventionPlan(formData.intervention_plans)
+                // [TO UPDATE] :: Form ID
+                const returnFormData = await fetchCorrespFormData(
+                    '686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a'
+                );
+                const formData = returnFormData.form;
     
-            setLoading(false);
-        };
-        loadFormData();
-    }, []);
+                console.log("form Data", formData);
+    
+                setRawFormData(formData);
+    
+                setData((prev) => ({
+                    ...prev,
+                    date: formData.createdAt || "",
+                    sponsor_name: formData.name_of_sponsor || "",
+                    sponsorship_date: formData.date_of_sponsorship || "",
+                    identified_problem: formData.identified_problem || "",
+                    assessment: formData.assesment || "",
+                    objective: formData.objective || "",
+                    recommendation: formData.recommendation || "",
+                }));
+    
+                setInterventionPlan(formData.intervention_plans)
+        
+                setLoading(false);
+            };
+            loadFormData();
+        }, []);
 
-    useEffect(() => {
-        setSponsorName(data.sponsor_name || "");
-        setSponsorshipDate(data.sponsorship_date || "");
-        setIdentifiedProblem(data.identified_problem || "");
-        setAssessment(data.assessment || "");
-        setObjective(data.objective || "");
-        setRecommendation(data.recommendation || "");
-    }, [data]);
+        useEffect(() => {
+            setSponsorName(data.sponsor_name || "");
+            setSponsorshipDate(data.sponsorship_date || "");
+            setIdentifiedProblem(data.identified_problem || "");
+            setAssessment(data.assessment || "");
+            setObjective(data.objective || "");
+            setRecommendation(data.recommendation || "");
+        }, [data]);
+    }
+
+    // ===== END :: View Form ===== //
 
     useEffect(() => {
         if (data?.sponsorship_date) {
@@ -143,53 +151,9 @@ function CorrespondenceForm() {
         day: '2-digit',
     });
 
-    // ===== END :: View Form ===== //
-
     // ===== END :: Setting Data ===== // 
 
-    /********** TEST DATA **********/
-    /*
-    const [data, setData] = useState({
-        form_num: "7",
-        first_name: "Hephzi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        dob: "2000-01-10",
-        address: "",
-        sponsor_name: "",
-        subproject: "",
-        sponsorship_date: "",
-        identified_problem: "",
-        assessment: "",
-        objective: "",
-        recommendation: "",
-    });
-
-    const [intervention_plan, setInterventionPlan] = useState([
-        {
-            action: "action 1",
-            time_frame: "7 Days",
-            results: "results 1",
-            person_responsible: "SDW 1",
-        },
-        {
-            action: "action 2",
-            time_frame: "2 Months",
-            results: "results 2",
-            person_responsible: "SDW 2",
-        },
-        {
-            action: "action 3",
-            time_frame: "3 Weeks",
-            results: "results 3",
-            person_responsible: "SDW 3",
-        },
-    ]);
-    */
-    /********** TEST DATA **********/
-
-    /********** USE STATES **********/
+    // ===== START :: Use States ===== // 
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -212,7 +176,7 @@ function CorrespondenceForm() {
         data?.recommendation || "",
     );
 
-    /********** USE STATES **********/
+    // ===== END :: Use States ===== // 
 
     // ===== START :: Local Functions ===== //
 
@@ -261,6 +225,8 @@ function CorrespondenceForm() {
     };
 
     // ===== END :: Local Functions ===== //
+
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">

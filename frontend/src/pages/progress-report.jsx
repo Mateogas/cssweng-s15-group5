@@ -10,6 +10,7 @@ from '../fetch-connections/progress-report-connection';
 function ProgressReport() {
 
     // ===== START :: Setting Data ===== //
+
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
@@ -76,46 +77,51 @@ function ProgressReport() {
 
     // ===== START :: View Form ===== //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
 
-            // [TO UPDATE] :: Case ID
-            const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
-            const formData = returnData
+    if (viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
+    
+                // [TO UPDATE] :: Case ID
+                const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+                const formData = returnData
+    
+                console.log(formData)
+    
+                setRawFormData(formData);
+    
+                setData((prev) => ({
+                    ...prev,
+                    sponsor_name: formData.sponsor_name || "",
+                    sponsorship_date: formData.sponsorship_date || "",
+                    date_accomplished: formData.date_accomplished || "",
+                    period_covered: formData.period_covered || "",
+                    sm_update: formData.sm_update || "",
+                    family_update: formData.family_update || "",
+                    services_to_family: formData.services_to_family || "",
+                    participation: formData.participation || "",
+                }));
+                
+                setResponses(formData.relation_to_sponsor)
+                setLoading(false);
+            };
+            loadData();
+        }, []);
 
-            console.log(formData)
-
-            setRawFormData(formData);
-
-            setData((prev) => ({
-                ...prev,
-                sponsor_name: formData.sponsor_name || "",
-                sponsorship_date: formData.sponsorship_date || "",
-                date_accomplished: formData.date_accomplished || "",
-                period_covered: formData.period_covered || "",
-                sm_update: formData.sm_update || "",
-                family_update: formData.family_update || "",
-                services_to_family: formData.services_to_family || "",
-                participation: formData.participation || "",
-            }));
-            
-            setResponses(formData.relation_to_sponsor)
-            setLoading(false);
-        };
-        loadData();
-    }, []);
-
-    useEffect(() => {
-        setSponsorName(data.sponsor_name || "");
-        setSponsorshipDate(data.sponsorship_date || "");
-        setDateAccomplished(data.date_accomplished || "");
-        setPeriodCovered(data.period_covered || "");
-        setSMUpdate(data.sm_update || "");
-        setFamilyUpdate(data.family_update || "");
-        setServicesToFamily(data.services_to_family || "");
-        setParticipation(data.participation || "");
-    }, [data]);
+        useEffect(() => {
+            setSponsorName(data.sponsor_name || "");
+            setSponsorshipDate(data.sponsorship_date || "");
+            setDateAccomplished(data.date_accomplished || "");
+            setPeriodCovered(data.period_covered || "");
+            setSMUpdate(data.sm_update || "");
+            setFamilyUpdate(data.family_update || "");
+            setServicesToFamily(data.services_to_family || "");
+            setParticipation(data.participation || "");
+        }, [data]);
+    }
 
     // ===== END :: View Form ===== //
 
@@ -159,32 +165,8 @@ function ProgressReport() {
     ];
     
     const options = ["Yes", "Sometimes", "No"];
-
-    const [responses, setResponses] = useState({});
     
     // ===== END :: Setting Data ===== //
-
-    /********** TEST DATA **********/
-    /*
-    const [data, setData] = useState({
-        form_num: "2",
-        first_name: "Hepzhi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        dob: "2000-01-10",
-        sponsor_name: "",
-        sponsorship_date: "",
-        subproject: "FDQ",
-        date_accomplished: "",
-        period_covered: "",
-        sm_update: "",
-        family_update: "",
-        services_to_family: "",
-        participation: "",
-    });
-    */
-    /********** TEST DATA **********/
 
     // ===== START :: Use States ===== //
 
@@ -216,6 +198,7 @@ function ProgressReport() {
     const [participation, setParticipation] = useState(
         data?.participation || "",
     );
+    const [responses, setResponses] = useState({});
 
     // ===== END :: Use States ===== //
 

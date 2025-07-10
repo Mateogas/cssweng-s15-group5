@@ -9,7 +9,9 @@ import  {   fetchCaseData,
 from '../fetch-connections/caseClosure-connection'; 
 
 function CaseClosure() {
+
     // ===== START :: Setting Data ===== // 
+
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
@@ -31,6 +33,8 @@ function CaseClosure() {
         evaluation: "",
         recommendation: "",
     });
+
+    // ===== START :: Create New Form ===== //
 
     useEffect(() => {
         const loadData = async () => {
@@ -71,45 +75,53 @@ function CaseClosure() {
         console.log(data)
     }, [data]);
 
+    // ===== END :: Create New Form ===== //
+
     // ===== START :: View Form ===== //
     
     /*
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
 
-            // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('686e92a43c1f53d3ee659636');
-            const formData = returnData
-
-            console.log(formData)
-
-            setRawFormData(formData);
-
-            setData((prev) => ({
-                ...prev,
-                closure_date: formData.closure_date || "",
-                sponsorship_date: formData.sponsorship_date || "",
-                reason_for_retirement: formData.reason_for_retirement || "",
-                sm_notification: formData.sm_notification || "",
-                evaluation: formData.evaluation || "",
-                recommendation: formData.recommendation || "",
-            }));
-            
-            setServicesProvided(formData.servicesProvided)
-            setLoading(false);
-        };
-        loadData();
-    }, []);*/
-
-    useEffect(() => {
-        setClosureDate(data.closure_date || "");
-        setSponsorshipDate(data.closure_date || "");
-        setReasonForRetirement(data.reason_for_retirement || "");
-        setSMNotification(data.sm_notification || "");
-        setEvaluation(data.evaluation || "");
-        setRecommendation(data.recommendation || "");
-    }, [data]);
+    if (viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
+    
+                // [TO UPDATE] :: Case ID
+                const returnData = await fetchCaseData('686e92a43c1f53d3ee659636');
+                const formData = returnData
+    
+                console.log(formData)
+    
+                setRawFormData(formData);
+    
+                setData((prev) => ({
+                    ...prev,
+                    closure_date: formData.closure_date || "",
+                    sponsorship_date: formData.sponsorship_date || "",
+                    reason_for_retirement: formData.reason_for_retirement || "",
+                    sm_notification: formData.sm_notification || "",
+                    evaluation: formData.evaluation || "",
+                    recommendation: formData.recommendation || "",
+                }));
+                
+                setServicesProvided(formData.servicesProvided)
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+    
+        useEffect(() => {
+            setClosureDate(data.closure_date || "");
+            setSponsorshipDate(data.closure_date || "");
+            setReasonForRetirement(data.reason_for_retirement || "");
+            setSMNotification(data.sm_notification || "");
+            setEvaluation(data.evaluation || "");
+            setRecommendation(data.recommendation || "");
+        }, [data]);
+    
+    }*/
 
     // ===== END :: View Form ===== //
 
@@ -159,6 +171,7 @@ function CaseClosure() {
     // ===== END :: Setting Data ===== // 
 
     // ===== START :: Backend Connection ===== //
+    
     const handleCreateForm = async () => {
         const payload = {
             form_num,

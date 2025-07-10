@@ -11,7 +11,9 @@ import {
 } from "../../fetch-connections/homeVisitation-connection";
 
 function HomeVisitationForm() {
+
     // ===== START :: Setting Data ===== //
+
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFatherData, setRawFatherData] = useState(null);
@@ -47,35 +49,6 @@ function HomeVisitationForm() {
     });
 
     const [familyMembers, setFamilyMembers] = useState([]);
-    /*
-        {
-            name: "Ana Victoria Angat",
-            age: 20,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Software Developer",
-            education: "Undergraduate",
-            relationship: "Sister",
-        },
-        {
-            name: "Marvin Ivan Mangubat",
-            age: 21,
-            income: 0.0,
-            civilStatus: "Divorced",
-            occupation: "Unemployed",
-            education: "Undergraduate",
-            relationship: "Sister",
-        },
-        {
-            name: "Jose Miguel Espinosa",
-            age: 21,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Producer",
-            education: "Undergraduate",
-            relationship: "Brother",
-        },
-    ]);*/
 
     // ===== START :: Create New Form ===== //
 
@@ -144,56 +117,63 @@ function HomeVisitationForm() {
 
     // ===== START :: View Form ===== //
 
-    useEffect(() => {
-        const loadFormData = async () => {
-            setLoading(true);
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
 
-            // [TO UPDATE] :: Form ID
-            const returnFormData = await fetchFormData(
-                "6849646feaa08161083d1aec",
-                "686e92a53c1f53d3ee659662",
-            );
-            const formData = returnFormData.form;
+    if (viewForm) {
+        useEffect(() => {
+            const loadFormData = async () => {
+                setLoading(true);
 
-            console.log("form Data", formData);
+                // [TO UPDATE] :: Form ID
+                const returnFormData = await fetchFormData(
+                    "6849646feaa08161083d1aec",
+                    "686e92a53c1f53d3ee659662",
+                );
+                const formData = returnFormData.form;
 
-            setRawFormData(formData);
+                console.log("form Data", formData);
 
-            setData((prev) => ({
-                ...prev,
-                grade_year_course: formData.grade_year_course || "",
-                years_in_program: formData.years_in_program || "",
-                date: formData.createdAt || "",
-                community: formData.community || "",
-                sponsor_name: formData.sponsor_name || "",
-                family_type: formData.family_type || "",
-                sm_progress: formData.sm_progress || "",
-                family_progress: formData.family_progress || "",
-                observation_findings: formData.observation_findings || [],
-                interventions: formData.interventions || [],
-                recommendation: formData.recommendation || "",
-                agreement: formData.agreement || "",
-            }));
+                setRawFormData(formData);
 
-            setLoading(false);
-        };
-        loadFormData();
-    }, []);
+                setData((prev) => ({
+                    ...prev,
+                    grade_year_course: formData.grade_year_course || "",
+                    years_in_program: formData.years_in_program || "",
+                    date: formData.createdAt || "",
+                    community: formData.community || "",
+                    sponsor_name: formData.sponsor_name || "",
+                    family_type: formData.family_type || "",
+                    sm_progress: formData.sm_progress || "",
+                    family_progress: formData.family_progress || "",
+                    observation_findings: formData.observation_findings || [],
+                    interventions: formData.interventions || [],
+                    recommendation: formData.recommendations || "",
+                    agreement: formData.agreement || "",
+                }));
 
-    useEffect(() => {
-        setGradeYearCourse(data.grade_year_course || "");
-        setYearsInProgram(data.years_in_program || "");
-        setDate(data.date || "");
-        setCommunity(data.community || "");
-        setSponsorName(data.sponsor_name || "");
-        setFamilyType(data.family_type || "");
-        setSMProgress(data.sm_progress || "");
-        setFamilyProgress(data.family_progress || "");
-        setObservationFindings(data.observation_findings || []);
-        setInterventions(data.interventions || []);
-        setRecommendation(data.recommendation || "");
-        setAgreement(data.agreement || "");
-    }, [data]);
+                setLoading(false);
+            };
+            loadFormData();
+        }, []);
+
+        useEffect(() => {
+            setGradeYearCourse(data.grade_year_course || "");
+            setYearsInProgram(data.years_in_program || "");
+            setDate(data.date || "");
+            setCommunity(data.community || "");
+            setSponsorName(data.sponsor_name || "");
+            setFamilyType(data.family_type || "");
+            setSMProgress(data.sm_progress || "");
+            setFamilyProgress(data.family_progress || "");
+            setObservationFindings(data.observation_findings || []);
+            setInterventions(data.interventions || []);
+            setRecommendation(data.recommendation || "");
+            setAgreement(data.agreement || "");
+        }, [data]);
+    }
+
+    // ===== END :: View Form ===== //
 
     useEffect(() => {
         if (data?.date) {
@@ -210,11 +190,10 @@ function HomeVisitationForm() {
         day: '2-digit',
     });
 
-    // ===== END :: View Form ===== //
-
     // ===== END :: Setting Data ===== //
 
     // ===== START :: Backend Connection ===== //
+
     const handleCreate = async () => {
         const payload = {
             form_num,
@@ -257,6 +236,7 @@ function HomeVisitationForm() {
         };
         const response = await createHomeVis(payload);
     };
+
     // ===== END :: Backend Connection ===== //
 
     // ===== START :: Modals ===== //
@@ -272,6 +252,7 @@ function HomeVisitationForm() {
     // ===== END :: Modals ===== //
 
     // ===== START :: Local Functions ===== //
+
     const navigate = useNavigate();
 
     const [savedTime, setSavedTime] = useState(null);
@@ -294,22 +275,6 @@ function HomeVisitationForm() {
         timeoutRef.current = setTimeout(() => {
             setSavedTime(null);
         }, 3000);
-    };
-
-    const handleAddFamilyMember = () => {
-        const newMember = {
-            name: "",
-            age: "",
-            income: "",
-            civilStatus: "",
-            occupation: "",
-            education: "",
-            relationship: "",
-        };
-
-        setFamilyMembers((prev) => [newMember, ...prev]);
-        setSelectedFamily(0);
-        setEditingFamilyValue(newMember);
     };
 
     const handleAddObservation = () => {
@@ -366,51 +331,11 @@ function HomeVisitationForm() {
         });
     }
 
+    // ===== START :: Use States ===== //
+
     const [observation_findings, setObservationFindings] = useState([]);
     const [interventions, setInterventions] = useState([]);
-    /*
-    const [familyMembers, setFamilyMembers] = useState([
-        {
-            name: "Ana Victoria Angat",
-            age: 20,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Software Developer",
-            education: "Undergraduate",
-            relationship: "Sister",
-        },
-        {
-            name: "Marvin Ivan Mangubat",
-            age: 21,
-            income: 0.0,
-            civilStatus: "Divorced",
-            occupation: "Unemployed",
-            education: "Undergraduate",
-            relationship: "Sister",
-        },
-        {
-            name: "Jose Miguel Espinosa",
-            age: 21,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Producer",
-            education: "Undergraduate",
-            relationship: "Brother",
-        },
-    ]);
-
-    const [observation_findings, setObservationFindings] = useState([
-        "Observation 1",
-        "Observation 2",
-        "Observation 3",
-    ]);
-
-    const [interventions, setInterventions] = useState([
-        "Intervention 1",
-        "Intervention 2",
-        "Intervention 3",
-    ]);*/
-
+    
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -462,6 +387,8 @@ function HomeVisitationForm() {
 
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [editingFamilyValue, setEditingFamilyValue] = useState({});
+
+    // ===== END :: Use States ===== //
 
     if (!data) return <div>No data found.</div>;
 

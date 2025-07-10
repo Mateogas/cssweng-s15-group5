@@ -10,7 +10,8 @@ import {
 } from "../../fetch-connections/intervention-connection";
 
 function CounselingForm() {
-    const navigate = useNavigate();
+
+    // ===== START :: Setting Data ===== //
 
     const [data, setData] = useState({
         form_num: "",
@@ -30,34 +31,8 @@ function CounselingForm() {
         sm_comments: "",
     });
 
-    const [last_name, setLastName] = useState(data?.last_name || "");
-    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
-    const [first_name, setFirstName] = useState(data?.first_name || "");
-    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
-    const [grade_year_level, setGradeYearLevel] = useState(
-        data?.grade_year_level || "",
-    );
-    const [school, setSchool] = useState(data?.school || "");
-    const [address, setAddress] = useState(data?.address || "");
-    const [subproject, setSubproject] = useState(data?.subproject || "");
-    const [area_self_help, setAreaSelfHelp] = useState(
-        data?.area_self_help || "",
-    );
-    const [counseling_date, setCounselingDate] = useState(
-        data?.counseling_date || "",
-    );
-    const [reason_for_counseling, setReasonForCounseling] = useState(
-        data?.reason_for_counseling || "",
-    );
-    const [corrective_action, setCorrectiveAction] = useState(
-        data?.corrective_action || "",
-    );
-    const [recommendation, setRecommendation] = useState(
-        data?.recommendation || "",
-    );
-    const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
-    
+    // ===== START :: Create New Form ===== //
+
     // LOAD DATA
     useEffect(() => {
         const loadData = async () => {
@@ -86,35 +61,82 @@ function CounselingForm() {
         loadData();
     }, []);
 
+    // ===== END :: Create New Form ===== //
+
+    // ===== START :: View Form ===== //
+
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
     // View Form
-    useEffect(() => {
-        const loadData = async () => {
-            // setLoading(true);
-            const fetchedData = await fetchCounselingIntervention('686e92a63c1f53d3ee659679');
-            setData(fetchedData);
-            // setLoading(false);
+    if (viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                // setLoading(true);
+                const fetchedData = await fetchCounselingIntervention('686e92a63c1f53d3ee659679');
+                setData(fetchedData);
+                // setLoading(false);
 
-            setLastName(fetchedData.last_name || "");
-            setMiddleName(fetchedData.middle_name || "");
-            setFirstName(fetchedData.first_name || "");
-            setCHNumber(fetchedData.ch_number || "");
-            setFormNum(fetchedData.form_num || "");
-            setGradeYearLevel(fetchedData.grade_year_level || "");
-            setSchool(fetchedData.school || "");
-            setAddress(fetchedData.address || "");
-            setSubproject(fetchedData.subproject || "");
-            setAreaSelfHelp(fetchedData.area_self_help || "");
-            setCounselingDate(fetchedData.counseling_date || "");
-            setReasonForCounseling(fetchedData.reason_for_counseling || "");
-            setCorrectiveAction(fetchedData.corrective_action || "");
-            setRecommendation(fetchedData.recommendation || "");
-            setSMComments(fetchedData.sm_comments || "");
-        };
-        
-        loadData();
-    }, []);
+                setLastName(fetchedData.last_name || "");
+                setMiddleName(fetchedData.middle_name || "");
+                setFirstName(fetchedData.first_name || "");
+                setCHNumber(fetchedData.ch_number || "");
+                setFormNum(fetchedData.form_num || "");
+                setGradeYearLevel(fetchedData.grade_year_level || "");
+                setSchool(fetchedData.school || "");
+                setAddress(fetchedData.address || "");
+                setSubproject(fetchedData.subproject || "");
+                setAreaSelfHelp(fetchedData.area_self_help || "");
+                setCounselingDate(fetchedData.counseling_date || "");
+                setReasonForCounseling(fetchedData.reason_for_counseling || "");
+                setCorrectiveAction(fetchedData.corrective_action || "");
+                setRecommendation(fetchedData.recommendation || "");
+                setSMComments(fetchedData.sm_comments || "");
+            };
+            
+            loadData();
+        }, []);
+    }
 
-    /********** FUNCTIONS **********/
+    // ===== END :: View Form ===== //
+
+    // ===== END :: Setting Data ===== //
+
+    // ===== START :: Use States ===== //
+
+    const [last_name, setLastName] = useState(data?.last_name || "");
+    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
+    const [first_name, setFirstName] = useState(data?.first_name || "");
+    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
+    const [form_num, setFormNum] = useState(data?.form_num || "");
+    const [grade_year_level, setGradeYearLevel] = useState(
+        data?.grade_year_level || "",
+    );
+    const [school, setSchool] = useState(data?.school || "");
+    const [address, setAddress] = useState(data?.address || "");
+    const [subproject, setSubproject] = useState(data?.subproject || "");
+    const [area_self_help, setAreaSelfHelp] = useState(
+        data?.area_self_help || "",
+    );
+    const [counseling_date, setCounselingDate] = useState(
+        data?.counseling_date || "",
+    );
+    const [reason_for_counseling, setReasonForCounseling] = useState(
+        data?.reason_for_counseling || "",
+    );
+    const [corrective_action, setCorrectiveAction] = useState(
+        data?.corrective_action || "",
+    );
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
+    const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
+
+    // ===== END :: Use States ===== //
+
+    // ===== START :: Local Functions  ===== //
+
+    const navigate = useNavigate();
 
     const [savedTime, setSavedTime] = useState(null);
     const timeoutRef = useRef(null);
@@ -135,7 +157,9 @@ function CounselingForm() {
         }, 3000);
     };
 
-    /********** FUNCTIONS **********/
+    // ===== END :: Local Functions  ===== //
+
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
@@ -189,7 +213,7 @@ function CounselingForm() {
                                 <textarea
                                     value={address}
                                     disabled={true}
-                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
+                                    className="body-base text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>

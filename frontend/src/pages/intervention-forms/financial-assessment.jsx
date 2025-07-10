@@ -10,6 +10,7 @@ from '../../fetch-connections/financialForm-connection';
 function FinancialAssessmentForm() {
 
     // ===== START :: Setting Data ===== //
+
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
@@ -22,6 +23,7 @@ function FinancialAssessmentForm() {
         ch_number: "",
         date: "",
         area_and_subproject: "",
+        other_assistance: "",
         problem_presented: "",
         recommendation: "",
     });
@@ -79,85 +81,49 @@ function FinancialAssessmentForm() {
 
     // ===== START :: View Form ===== //
     
-    useEffect(() => {
-        const loadFormData = async () => {
-            setLoading(true);
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
 
-            // [TO UPDATE] :: Form ID
-            const returnFormData = await fetchFinInterventionData(
-                '686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669'
-            );
-            const formData = returnFormData.form;
+    if (viewForm) {
+        useEffect(() => {
+            const loadFormData = async () => {
+                setLoading(true);
 
-            console.log("form Data", formData);
+                // [TO UPDATE] :: Form ID
+                const returnFormData = await fetchFinInterventionData(
+                    '686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669'
+                );
+                const formData = returnFormData.form;
 
-            setRawFormData(formData);
+                console.log("form Data", formData);
 
-            setData((prev) => ({
-                ...prev,
-                date: formData.createdAt || "",
-                area_and_subproject: formData.area_and_subproject || "",
-                problem_presented: formData.problem_presented || "",
-                recommendation: formData.recommendation || "",
-            }));
-    
-            setLoading(false);
-        };
-        loadFormData();
-    }, []);
+                setRawFormData(formData);
 
-    useEffect(() => {
-        setAreaAndSubproject(data.area_and_subproject || "");
-        setProblemPresented(data.problem_presented || "");
-        setRecommendation(data.recommendation || "");
-    }, [data]);
+                setData((prev) => ({
+                    ...prev,
+                    date: formData.createdAt || "",
+                    problem_presented: formData.problem_presented || "",
+                    recommendation: formData.recommendation || "",
+                    other_assistance: formData.other_assistance_detail || "",
+                }));
+        
+                setLoading(false);
+            };
+            loadFormData();
+        }, []);
 
-    /*useEffect(() => {
-        if (data?.date) {
-            const date = new Date(data.date);
-            if (!isNaN(date)) {
-                setDate(formatter.format(date));
-            }
-        }
-    }, [data]);
-
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    });*/
+        useEffect(() => {
+            setOtherAssistance(data.other_assistance || "");
+            setProblemPresented(data.problem_presented || "");
+            setRecommendation(data.recommendation || "");
+        }, [data]);
+    }
     
     // ===== END :: View Form ===== //
 
     // ===== END :: Setting Data ===== // 
 
-    // ===== START :: TEST DATA ===== //
-    /*
-    const [data, setData] = useState({
-        form_num: "3",
-        type_of_assistance: [
-            "Food Assistance",
-            "IGP Capital",
-            "Medical Assistance to the Sponsored Member",
-        ],
-        first_name: "Hepzhi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        area_and_subproject: "FDQ",
-        problem_presented: "",
-        recommendation: "",
-    });
-
-    const [type_of_assistance, setTypeOfAssistance] = useState([
-        "Food Assistance",
-        "IGP Capital",
-        "Medical Assistance to the Sponsored Member",
-    ]);
-    */
-    // ===== END :: TEST DATA ===== //
-
-    // ===== END :: Use States ===== //
+    // ===== START :: Use States ===== //
     
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -266,7 +232,7 @@ function FinancialAssessmentForm() {
                                 handleChange("Type of Assistance")(e);
                             }}
                             placeholder="Form of Assistance"
-                            className="text-input h-32 w-full"
+                            className="body-base text-input h-32 w-full"
                         ></textarea>
                     </div>
                 </div>
