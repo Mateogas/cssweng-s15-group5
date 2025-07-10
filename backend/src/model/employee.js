@@ -53,11 +53,4 @@ const EmployeeSchema = new mongoose.Schema({
 
 const Employee = mongoose.model('Employee', EmployeeSchema);
 
-// Add methods here
-
-
-
-module.exports = {
-    Employee,
-    
-};
+module.exports = Employee
