@@ -5,6 +5,7 @@ import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 // API Imports
 import {
     fetchCaseData,
+    fetchCounselingIntervention,
     addCounselingIntervention,
 } from "../../fetch-connections/intervention-connection";
 
@@ -61,7 +62,35 @@ function CounselingForm() {
     useEffect(() => {
         const loadData = async () => {
             // setLoading(true);
-            const fetchedData = await fetchCaseData('685e536add2b486dad9efd88');
+            const fetchedData = await fetchCaseData('6849646feaa08161083d1aec');
+            setData(fetchedData);
+            // setLoading(false);
+
+            setLastName(fetchedData.last_name || "");
+            setMiddleName(fetchedData.middle_name || "");
+            setFirstName(fetchedData.first_name || "");
+            setCHNumber(fetchedData.ch_number || "");
+            setFormNum(fetchedData.form_num || "");
+            setGradeYearLevel(fetchedData.grade_year_level || "");
+            setSchool(fetchedData.school || "");
+            setAddress(fetchedData.address || "");
+            setSubproject(fetchedData.subproject || "");
+            setAreaSelfHelp(fetchedData.area_self_help || "");
+            setCounselingDate(fetchedData.counseling_date || "");
+            setReasonForCounseling(fetchedData.reason_for_counseling || "");
+            setCorrectiveAction(fetchedData.corrective_action || "");
+            setRecommendation(fetchedData.recommendation || "");
+            setSMComments(fetchedData.sm_comments || "");
+        };
+        
+        loadData();
+    }, []);
+
+    // View Form
+    useEffect(() => {
+        const loadData = async () => {
+            // setLoading(true);
+            const fetchedData = await fetchCounselingIntervention('686e92a63c1f53d3ee659679');
             setData(fetchedData);
             // setLoading(false);
 

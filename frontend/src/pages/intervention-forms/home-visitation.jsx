@@ -175,8 +175,6 @@ function HomeVisitationForm() {
                 agreement: formData.agreement || "",
             }));
 
-            console.log("Observations: ", formData.observation_findings);
-
             setLoading(false);
         };
         loadFormData();
