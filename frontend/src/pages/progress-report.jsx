@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, DateInput, TextArea } from "../Components/TextField";
 
 // API Import
-import  {   fetchCaseData, 
-            createHomeVis
+import  {   fetchProgressReport, 
         } 
-from '../fetch-connections/homeVisitation-connection'; 
+from '../fetch-connections/progress-report-connection'; 
 
 function ProgressReport() {
 
     // ===== START :: Setting Data ===== //
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
     
 
     const [data, setData] = useState({
@@ -34,13 +34,15 @@ function ProgressReport() {
         participation: "",
     });
 
+    // ===== START :: Create New Form ===== //
+
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
 
             // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
-            const caseData = returnData.case
+            const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+            const caseData = returnData
 
             console.log(caseData)
 
@@ -70,12 +72,76 @@ function ProgressReport() {
         setSubproject(data.subproject || "");
     }, [data]);
 
+    // ===== END :: Create New Form ===== //
+
+    // ===== START :: View Form ===== //
+
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Case ID
+            const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+            const formData = returnData
+
+            console.log(formData)
+
+            setRawFormData(formData);
+
+            setData((prev) => ({
+                ...prev,
+                sponsor_name: formData.sponsor_name || "",
+                sponsorship_date: formData.sponsorship_date || "",
+                date_accomplished: formData.date_accomplished || "",
+                period_covered: formData.period_covered || "",
+                sm_update: formData.sm_update || "",
+                family_update: formData.family_update || "",
+                services_to_family: formData.services_to_family || "",
+                participation: formData.participation || "",
+            }));
+            
+            setResponses(formData.relation_to_sponsor)
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        setSponsorName(data.sponsor_name || "");
+        setSponsorshipDate(data.sponsorship_date || "");
+        setDateAccomplished(data.date_accomplished || "");
+        setPeriodCovered(data.period_covered || "");
+        setSMUpdate(data.sm_update || "");
+        setFamilyUpdate(data.family_update || "");
+        setServicesToFamily(data.services_to_family || "");
+        setParticipation(data.participation || "");
+    }, [data]);
+
+    // ===== END :: View Form ===== //
+
     useEffect(() => {
         if (data?.dob) {
             const date = new Date(data.dob);
             if (!isNaN(date)) {
                 setDOB(formatter.format(date));
-                setAge(calculateAge(data.dob));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.date_accomplished) {
+            const date = new Date(data.date_accomplished);
+            if (!isNaN(date)) {
+                setDateAccomplished(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.sponsorship_date) {
+            const date = new Date(data.sponsorship_date);
+            if (!isNaN(date)) {
+                setSponsorshipDate(formatter.format(date));
             }
         }
     }, [data]);
@@ -87,18 +153,14 @@ function ProgressReport() {
     });
         
     const relation_to_sponsor = [
-        { id: "q1", text: "Knows his/her sponsor's name?" },
-        { id: "q2", text: "Cooperative with the program?" },
-        { id: "q3", text: "Writes personalized letters in a timely manner?" },
+        { id: "know_sponsor_name", text: "Knows his/her sponsor's name?" },
+        { id: "cooperative", text: "Cooperative with the program?" },
+        { id: "personalized_letter", text: "Writes personalized letters in a timely manner?" },
     ];
     
     const options = ["Yes", "Sometimes", "No"];
 
-    const [responses, setResponses] = useState({
-        q1: "",
-        q2: "",
-        q3: "",
-    });
+    const [responses, setResponses] = useState({});
     
     // ===== END :: Setting Data ===== //
 
