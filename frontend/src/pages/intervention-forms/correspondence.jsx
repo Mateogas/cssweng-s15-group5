@@ -3,19 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 // API Import
-import  {   fetchCaseData, 
-            createHomeVis
+import  {   fetchCorrespFormData, 
         }
-from '../../fetch-connections/homeVisitation-connection'; 
+from '../../fetch-connections/correspFormConnection'; 
 
 function CorrespondenceForm() {
     
     // ===== START :: Setting Data ===== //
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
-    const [rawFatherData, setRawFatherData] = useState(null);
-    const [rawMotherData, setRawMotherData] = useState(null);
-    const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
         form_num: "3",
@@ -25,7 +22,6 @@ function CorrespondenceForm() {
         ch_number: "",
         date: "",
         dob: "",
-        school: "",
         address: "",
         sponsor_name: "",
         subproject: "",
@@ -38,15 +34,17 @@ function CorrespondenceForm() {
 
     const [intervention_plan, setInterventionPlan] = useState([]);
 
+    // ===== START :: Create New Form ===== //
+
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
 
             // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
-            const caseData = returnData.case
+            const returnData = await fetchCorrespFormData('686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a');
+            const caseData = returnData.sponsored_member
 
-            console.log(caseData)
+            console.log("Case Data: ", caseData)
 
             setRawCaseData(caseData);
 
@@ -56,6 +54,7 @@ function CorrespondenceForm() {
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
                 ch_number: caseData.sm_number || "",
+                dob: caseData.dob || "",
                 address: caseData.present_address || "",
                 subproject: caseData.spu || "",
             }));
@@ -70,9 +69,82 @@ function CorrespondenceForm() {
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
         setCHNumber(data.ch_number || "");
+        setDOB(data.dob || "");
         setAddress(data.address || "");
         setSubproject(data.subproject || "");
     }, [data]);
+
+    // ===== END :: Create New Form ===== //
+
+    // ===== START :: View Form ===== //
+    
+    useEffect(() => {
+        const loadFormData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Form ID
+            const returnFormData = await fetchCorrespFormData(
+                '686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a'
+            );
+            const formData = returnFormData.form;
+
+            console.log("form Data", formData);
+
+            setRawFormData(formData);
+
+            setData((prev) => ({
+                ...prev,
+                date: formData.createdAt || "",
+                sponsor_name: formData.name_of_sponsor || "",
+                sponsorship_date: formData.date_of_sponsorship || "",
+                identified_problem: formData.identified_problem || "",
+                assessment: formData.assesment || "",
+                objective: formData.objective || "",
+                recommendation: formData.recommendation || "",
+            }));
+
+            setInterventionPlan(formData.intervention_plans)
+    
+            setLoading(false);
+        };
+        loadFormData();
+    }, []);
+
+    useEffect(() => {
+        setSponsorName(data.sponsor_name || "");
+        setSponsorshipDate(data.sponsorship_date || "");
+        setIdentifiedProblem(data.identified_problem || "");
+        setAssessment(data.assessment || "");
+        setObjective(data.objective || "");
+        setRecommendation(data.recommendation || "");
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.sponsorship_date) {
+            const date = new Date(data.sponsorship_date);
+            if (!isNaN(date)) {
+                setSponsorshipDate(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.dob) {
+            const date = new Date(data.dob);
+            if (!isNaN(date)) {
+                setDOB(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    // ===== END :: View Form ===== //
+
     // ===== END :: Setting Data ===== // 
 
     /********** TEST DATA **********/
@@ -84,7 +156,6 @@ function CorrespondenceForm() {
         last_name: "Tolentino",
         ch_number: "12356473",
         dob: "2000-01-10",
-        school: "",
         address: "",
         sponsor_name: "",
         subproject: "",
@@ -126,7 +197,6 @@ function CorrespondenceForm() {
     const [ch_number, setCHNumber] = useState(data?.ch_number || "");
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState(data?.dob || "");
-    const [school, setSchool] = useState(data?.school || "");
     const [address, setAddress] = useState(data?.address || "");
     const [sponsor_name, setSponsorName] = useState(data?.sponsor_name || "");
     const [subproject, setSubproject] = useState(data?.subproject || "");
@@ -222,30 +292,24 @@ function CorrespondenceForm() {
                                 value={middle_name}
                                 disabled={true}
                             ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
                                 disabled={true}
                             ></TextInput>
-                        </div>
-                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
                                 disabled={true}
                             ></DateInput>
-                            <TextInput
-                                label="School"
-                                value={school}
-                                setValue={setSchool}
-                                handleChange={handleChange("Sponsored Member")}
-                            ></TextInput>
                             <div className="flex gap-16">
                                 <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
                                     disabled={true}
-                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
+                                    className="body-base text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
@@ -270,6 +334,7 @@ function CorrespondenceForm() {
                                 label="Sub-Project"
                                 value={subproject}
                                 setValue={setSubproject}
+                                disabled={true}
                                 handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
