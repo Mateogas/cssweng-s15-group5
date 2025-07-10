@@ -4,14 +4,14 @@ import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
 
 // API Import
-import  {   fetchCaseData, 
-            fetchFormData,
-            createHomeVis
-        }
-from '../../fetch-connections/homeVisitation-connection'; 
+import {
+    fetchCaseData,
+    fetchFormData,
+    createHomeVis,
+} from "../../fetch-connections/homeVisitation-connection";
 
 function HomeVisitationForm() {
-    // ===== START :: Setting Data ===== // 
+    // ===== START :: Setting Data ===== //
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFatherData, setRawFatherData] = useState(null);
@@ -79,7 +79,7 @@ function HomeVisitationForm() {
 
     // ===== START :: Create New Form ===== //
 
-    /*useEffect(() => {
+    useEffect(() => {
         const loadData = async () => {
             setLoading(true);
 
@@ -120,9 +120,9 @@ function HomeVisitationForm() {
             setLoading(false);
         };
         loadData();
-    }, []);*/
+    }, []);
 
-    /*useEffect(() => {
+    useEffect(() => {
         setFirstName(data.first_name || "");
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
@@ -138,7 +138,7 @@ function HomeVisitationForm() {
         setMotherLastName(data.mother_last_name || "");
         setMotherWork(data.mother_work || "");
         setMotherIncome(data.mother_income || "");
-    }, [data]);*/
+    }, [data]);
 
     // ===== END :: Create New Form ===== //
 
@@ -149,10 +149,13 @@ function HomeVisitationForm() {
             setLoading(true);
 
             // [TO UPDATE] :: Form ID
-            const returnFormData = await fetchFormData('6849646feaa08161083d1aec', '6866a34fea8617ba4f2025ed');
-            const formData = returnFormData.case
+            const returnFormData = await fetchFormData(
+                "6849646feaa08161083d1aec",
+                "686e92a53c1f53d3ee659662",
+            );
+            const formData = returnFormData.form;
 
-            console.log("form Data", formData)
+            console.log("form Data", formData);
 
             setRawFormData(formData);
 
@@ -166,9 +169,13 @@ function HomeVisitationForm() {
                 family_type: formData.family_type || "",
                 sm_progress: formData.sm_progress || "",
                 family_progress: formData.family_progress || "",
+                observation_findings: formData.observation_findings || [],
+                interventions: formData.interventions || [],
                 recommendation: formData.recommendation || "",
                 agreement: formData.agreement || "",
             }));
+
+            console.log("Observations: ", formData.observation_findings);
 
             setLoading(false);
         };
@@ -184,13 +191,30 @@ function HomeVisitationForm() {
         setFamilyType(data.family_type || "");
         setSMProgress(data.sm_progress || "");
         setFamilyProgress(data.family_progress || "");
+        setObservationFindings(data.observation_findings || []);
+        setInterventions(data.interventions || []);
         setRecommendation(data.recommendation || "");
         setAgreement(data.agreement || "");
     }, [data]);
 
+    useEffect(() => {
+        if (data?.date) {
+            const date = new Date(data.date);
+            if (!isNaN(date)) {
+                setDate(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
     // ===== END :: View Form ===== //
 
-    // ===== END :: Setting Data ===== // 
+    // ===== END :: Setting Data ===== //
 
     // ===== START :: Backend Connection ===== //
     const handleCreate = async () => {
@@ -231,7 +255,7 @@ function HomeVisitationForm() {
 
             familyMembers,
             observation_findings,
-            interventions
+            interventions,
         };
         const response = await createHomeVis(payload);
     };
@@ -260,17 +284,19 @@ function HomeVisitationForm() {
         setSectionEdited(section);
 
         const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const timeString = now.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+        });
         setSavedTime(`Saved at ${timeString}`);
 
         if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+            clearTimeout(timeoutRef.current);
         }
         timeoutRef.current = setTimeout(() => {
-        setSavedTime(null);
+            setSavedTime(null);
         }, 3000);
     };
-
 
     const handleAddFamilyMember = () => {
         const newMember = {
@@ -326,10 +352,10 @@ function HomeVisitationForm() {
 
     /**
      *   Formats the currency
-     * 
+     *
      *   @param {*} value : Value to be formatted (assumed Number)
      *   @returns : The formatted string
-     * 
+     *
      *   [NOTE]: Applied this in income display; changed the income input to of type number
      */
     function currency_Formatter(value) {
@@ -338,7 +364,7 @@ function HomeVisitationForm() {
             style: "currency",
             currency: "PHP",
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
         });
     }
 
@@ -486,8 +512,8 @@ function HomeVisitationForm() {
                                     id="family_type"
                                     value={family_type}
                                     onChange={(e) => {
-                                        handleChange("Sponsored Member")(e) 
-                                        setFamilyType(e.target.value)
+                                        handleChange("Sponsored Member")(e);
+                                        setFamilyType(e.target.value);
                                     }}
                                     className="label-base text-input"
                                 >
@@ -517,7 +543,7 @@ function HomeVisitationForm() {
                         </div>
                     </div>
                     {savedTime && sectionEdited === "Sponsored Member" && (
-                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                        <p className="mt-2 self-end text-sm">{savedTime}</p>
                     )}
                 </div>
             </section>
@@ -534,13 +560,17 @@ function HomeVisitationForm() {
                                 label="Date"
                                 value={date}
                                 setValue={setDate}
-                                handleChange={handleChange("General Information")}
+                                handleChange={handleChange(
+                                    "General Information",
+                                )}
                             ></DateInput>
                             <TextInput
                                 label="Community"
                                 value={community}
                                 setValue={setCommunity}
-                                handleChange={handleChange("General Information")}
+                                handleChange={handleChange(
+                                    "General Information",
+                                )}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -548,12 +578,14 @@ function HomeVisitationForm() {
                                 label="Sponsor Name"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
-                                handleChange={handleChange("General Information")}
+                                handleChange={handleChange(
+                                    "General Information",
+                                )}
                             ></TextInput>
                         </div>
                     </div>
                     {savedTime && sectionEdited === "General Information" && (
-                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                        <p className="mt-2 self-end text-sm">{savedTime}</p>
                     )}
                 </div>
             </section>
@@ -687,29 +719,33 @@ function HomeVisitationForm() {
             {/* Observation/Findings */}
             <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
-                {observation_findings.map((item, index) => (
-                    <div key={index} className="flex items-center">
-                        <p className="body-base pr-4">{index + 1}.</p>
-                        <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => {
-                                updateObservations(index, e.target.value)
-                                handleChange("Observations")(e)
-                            }}
-                            className="body-base text-area w-full"
-                        />
-                        <button
-                            onClick={() => deleteObservation(index)}
-                            className="icon-button-setup trash-button px-10"
-                        ></button>
-                    </div>
-                ))}
-                <button className="btn-primary font-bold-label" onClick={handleAddObservation}>
+                {Array.isArray(observation_findings) &&
+                    observation_findings.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                            <p className="body-base pr-4">{index + 1}.</p>
+                            <input
+                                type="text"
+                                value={item}
+                                onChange={(e) => {
+                                    updateObservations(index, e.target.value);
+                                    handleChange("Observations")(e);
+                                }}
+                                className="body-base text-area w-full"
+                            />
+                            <button
+                                onClick={() => deleteObservation(index)}
+                                className="icon-button-setup trash-button px-10"
+                            ></button>
+                        </div>
+                    ))}
+                <button
+                    className="btn-primary font-bold-label"
+                    onClick={handleAddObservation}
+                >
                     Add Observation/Findings
                 </button>
                 {savedTime && sectionEdited === "Observations" && (
-                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                    <p className="mt-2 self-end text-sm">{savedTime}</p>
                 )}
             </section>
 
@@ -723,8 +759,8 @@ function HomeVisitationForm() {
                             type="text"
                             value={item}
                             onChange={(e) => {
-                                updateInterventions(index, e.target.value)
-                                handleChange("Interventions")(e)
+                                updateInterventions(index, e.target.value);
+                                handleChange("Interventions")(e);
                             }}
                             className="body-base text-area w-full"
                         />
@@ -734,11 +770,14 @@ function HomeVisitationForm() {
                         ></button>
                     </div>
                 ))}
-                <button className="btn-primary font-bold-label" onClick={handleAddIntervention}>
+                <button
+                    className="btn-primary font-bold-label"
+                    onClick={handleAddIntervention}
+                >
                     Add Intervention
                 </button>
                 {savedTime && sectionEdited === "Interventions" && (
-                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                    <p className="mt-2 self-end text-sm">{savedTime}</p>
                 )}
             </section>
 
@@ -766,7 +805,10 @@ function HomeVisitationForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label w-min" onClick={() => navigate(-1)}>
+                <button
+                    className="btn-primary font-bold-label w-min"
+                    onClick={() => navigate(-1)}
+                >
                     Create Intervention
                 </button>
             </div>
