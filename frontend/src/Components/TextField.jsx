@@ -83,7 +83,7 @@ export const TextArea = ({
             <textarea
                 value={value}
                 onChange={handleChange || ((e) => setValue?.(e.target.value))}
-                className={`text-area h-32 ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
+                className={`body-base text-area h-32 ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
             ></textarea>
             
             {showTime && savedTime && (
