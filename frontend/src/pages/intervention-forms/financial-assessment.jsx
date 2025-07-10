@@ -3,20 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 // API Import
-import  {   fetchCaseData, 
-            fetchFormData,
-            createHomeVis
+import  {   fetchFinInterventionData,
         }
-from '../../fetch-connections/homeVisitation-connection'; 
+from '../../fetch-connections/financialForm-connection'; 
 
 function FinancialAssessmentForm() {
 
     // ===== START :: Setting Data ===== //
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
-    const [rawFatherData, setRawFatherData] = useState(null);
-    const [rawMotherData, setRawMotherData] = useState(null);
-    const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
         form_num: "3",
@@ -50,8 +46,8 @@ function FinancialAssessmentForm() {
             setLoading(true);
 
             // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
-            const caseData = returnData.case
+            const returnData = await fetchFinInterventionData('686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669');
+            const caseData = returnData.sponsored_member;
 
             console.log(caseData)
 
@@ -83,56 +79,55 @@ function FinancialAssessmentForm() {
 
     // ===== START :: View Form ===== //
     
-        useEffect(() => {
-            const loadFormData = async () => {
-                setLoading(true);
+    useEffect(() => {
+        const loadFormData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Form ID
+            const returnFormData = await fetchFinInterventionData(
+                '686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669'
+            );
+            const formData = returnFormData.form;
+
+            console.log("form Data", formData);
+
+            setRawFormData(formData);
+
+            setData((prev) => ({
+                ...prev,
+                date: formData.createdAt || "",
+                area_and_subproject: formData.area_and_subproject || "",
+                problem_presented: formData.problem_presented || "",
+                recommendation: formData.recommendation || "",
+            }));
     
-                // [TO UPDATE] :: Form ID
-                const returnFormData = await fetchFormData(
-                    "6849646feaa08161083d1aec",
-                    "686e92a63c1f53d3ee659677",
-                );
-                const formData = returnFormData.form;
-    
-                console.log("form Data", formData);
-    
-                setRawFormData(formData);
-    
-                setData((prev) => ({
-                    ...prev,
-                    date: formData.createdAt || "",
-                    area_and_subproject: formData.area_and_subproject || "",
-                    problem_presented: formData.problem_presented || "",
-                    recommendation: formData.recommendation || "",
-                }));
-        
-                setLoading(false);
-            };
-            loadFormData();
-        }, []);
-    
-        useEffect(() => {
-            setAreaAndSubproject(data.area_and_subproject || "");
-            setProblemPresented(data.problem_presented || "");
-            setRecommendation(data.recommendation || "");
-        }, [data]);
-    
-        /*useEffect(() => {
-            if (data?.date) {
-                const date = new Date(data.date);
-                if (!isNaN(date)) {
-                    setDate(formatter.format(date));
-                }
+            setLoading(false);
+        };
+        loadFormData();
+    }, []);
+
+    useEffect(() => {
+        setAreaAndSubproject(data.area_and_subproject || "");
+        setProblemPresented(data.problem_presented || "");
+        setRecommendation(data.recommendation || "");
+    }, [data]);
+
+    /*useEffect(() => {
+        if (data?.date) {
+            const date = new Date(data.date);
+            if (!isNaN(date)) {
+                setDate(formatter.format(date));
             }
-        }, [data]);
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });*/
     
-        const formatter = new Intl.DateTimeFormat('en-CA', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        });*/
-    
-        // ===== END :: View Form ===== //
+    // ===== END :: View Form ===== //
 
     // ===== END :: Setting Data ===== // 
 
