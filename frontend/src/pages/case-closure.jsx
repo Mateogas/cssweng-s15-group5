@@ -12,6 +12,7 @@ function CaseClosure() {
     // ===== START :: Setting Data ===== // 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
         form_num: "",
@@ -24,6 +25,7 @@ function CaseClosure() {
         address: "",
         spu: "",
         closure_date: "",
+        sponsorship_date: "",
         reason_for_retirement: "",
         sm_notification: "",
         evaluation: "",
@@ -69,12 +71,72 @@ function CaseClosure() {
         console.log(data)
     }, [data]);
 
+    // ===== START :: View Form ===== //
+    
+    /*
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Case ID
+            const returnData = await fetchCaseData('686e92a43c1f53d3ee659636');
+            const formData = returnData
+
+            console.log(formData)
+
+            setRawFormData(formData);
+
+            setData((prev) => ({
+                ...prev,
+                closure_date: formData.closure_date || "",
+                sponsorship_date: formData.sponsorship_date || "",
+                reason_for_retirement: formData.reason_for_retirement || "",
+                sm_notification: formData.sm_notification || "",
+                evaluation: formData.evaluation || "",
+                recommendation: formData.recommendation || "",
+            }));
+            
+            setServicesProvided(formData.servicesProvided)
+            setLoading(false);
+        };
+        loadData();
+    }, []);*/
+
+    useEffect(() => {
+        setClosureDate(data.closure_date || "");
+        setSponsorshipDate(data.closure_date || "");
+        setReasonForRetirement(data.reason_for_retirement || "");
+        setSMNotification(data.sm_notification || "");
+        setEvaluation(data.evaluation || "");
+        setRecommendation(data.recommendation || "");
+    }, [data]);
+
+    // ===== END :: View Form ===== //
+
     useEffect(() => {
         if (data?.dob) {
             const date = new Date(data.dob);
             if (!isNaN(date)) {
                 setDOB(formatter.format(date));
                 setAge(calculateAge(data.dob));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.closure_date) {
+            const date = new Date(data.closure_date);
+            if (!isNaN(date)) {
+                setClosureDate(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.sponsorship_date) {
+            const date = new Date(data.sponsorship_date);
+            if (!isNaN(date)) {
+                setSponsorshipDate(formatter.format(date));
             }
         }
     }, [data]);
@@ -297,7 +359,7 @@ function CaseClosure() {
                                     <textarea
                                         value={address}
                                         disabled={true}
-                                        className="text-area h-32 cursor-not-allowed bg-gray-200"
+                                        className="body-base text-area h-32 cursor-not-allowed bg-gray-200"
                                     ></textarea>
                                 </div>
                             </div>
