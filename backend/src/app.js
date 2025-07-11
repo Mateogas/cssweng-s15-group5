@@ -3,7 +3,7 @@
  */
 const express = require('express');
 const dotenv = require('dotenv');
-//const path = require('path');
+// const path = require('path');
 
 /**
  *  Configuration/Initialization
@@ -13,6 +13,30 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+/**
+ *  Session Proper
+ */
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const MongoStore = require("connect-mongo");
+
+app.use(cookieParser());
+app.use(
+    session({
+        secret: "secret-key", 
+        resave: false,        
+        saveUninitialized: false,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            collectionName: "sessions",
+        }),
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24, 
+            httpOnly: true, 
+            secure: false,
+        }
+    })
+);
 
 /**
  *  Require controllers and routes
@@ -33,6 +57,18 @@ const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
   next();
+});
+
+// To test sessions, please go to localhost:3000
+app.get("/test-session", (req, res) => {
+    // Check if a value already exists in the session
+    if (req.session.views) {
+        req.session.views++;
+        res.send(`You have visited this page ${req.session.views} times.`);
+    } else {
+        req.session.views = 1;
+        res.send("Welcome to this page for the first time! Refresh to count views.");
+    }
 });
 
 // All case routes

@@ -21,12 +21,9 @@ const renderLoginPage = async (req, res) => {
  *             errorMsg if fail
  */
 const loginUser = async (req, res) => {
-     // code here
      try {
           const { email, password } = req.body
           const remember_me = req.body.rememberMe;
-
-          var authFlag = false
 
           const active_user = await Employee.findOne({ email: email });
 
@@ -38,8 +35,7 @@ const loginUser = async (req, res) => {
           if (!isPasswordValid) {
                // force, compare text
                if (password === active_user.password) {
-                    // [TO UPDATE] :: uncomment once session is set up
-                    // req.session.user = active_user;
+                    req.session.user = active_user;
                     return res.send(200).json( active_user )
                }
                // case that none really matched
@@ -47,8 +43,7 @@ const loginUser = async (req, res) => {
                     return res.send(200).json({ errorMsg: "Invalid email or password" })
           }
 
-          // [TO UPDATE] :: uncomment once session is set up
-          // req.session.user = active_user;
+          req.session.user = active_user;
 
           if (remember_me)
                req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; 
@@ -60,13 +55,15 @@ const loginUser = async (req, res) => {
 }
 
 /**
- *   Handle log out feature
- *        > destroy session
- *        > clear cookie
- *        > redirect to log in page
+ *   Handles log out feature
+ *   @returns true
  */
 const logoutUser = async (req, res) => {
-     // code here
+     req.session.destroy();
+     res.clearCookie('connect.sid');
+
+     // [TO UPDATE], ask what to return for log out
+     return res.send(200).json( true )
 }
 
 /**
