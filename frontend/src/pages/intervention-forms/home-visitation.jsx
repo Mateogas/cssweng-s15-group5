@@ -8,6 +8,7 @@ import {
     fetchCaseData,
     fetchFormData,
     createHomeVis,
+    editHomeVis,
 } from "../../fetch-connections/homeVisitation-connection";
 
 function HomeVisitationForm() {
@@ -50,7 +51,7 @@ function HomeVisitationForm() {
 
     const [familyMembers, setFamilyMembers] = useState([]);
 
-    // ===== START :: Create New Form ===== //
+    // < START :: Auto-Filled Data > //
 
     useEffect(() => {
         const loadData = async () => {
@@ -63,7 +64,7 @@ function HomeVisitationForm() {
             const motherData = returnData.mother
             const otherFamilyData = returnData.otherFamily
 
-            console.log(caseData)
+            console.log("Case Data: ", caseData);
 
             setRawCaseData(caseData);
             setRawFatherData(fatherData);
@@ -76,17 +77,17 @@ function HomeVisitationForm() {
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
 
-                father_first_name: fatherData.first_name || "",
-                father_middle_name: fatherData.middle_name || "",
-                father_last_name: fatherData.last_name || "",
-                father_work: fatherData.occupation || "",
-                father_income: fatherData.income || "",
+                father_first_name: fatherData?.first_name || "",
+                father_middle_name: fatherData?.middle_name || "",
+                father_last_name: fatherData?.last_name || "",
+                father_work: fatherData?.occupation || "",
+                father_income: fatherData?.income || "",
 
-                mother_first_name: motherData.first_name || "",
-                mother_middle_name: motherData.middle_name || "",
-                mother_last_name: motherData.last_name || "",
-                mother_work: motherData.occupation || "",
-                mother_income: motherData.income || "",
+                mother_first_name: motherData?.first_name || "",
+                mother_middle_name: motherData?.middle_name || "",
+                mother_last_name: motherData?.last_name || "",
+                mother_work: motherData?.occupation || "",
+                mother_income: motherData?.income || "",
             }));
 
             setFamilyMembers(otherFamilyData);
@@ -113,9 +114,9 @@ function HomeVisitationForm() {
         setMotherIncome(data.mother_income || "");
     }, [data]);
 
-    // ===== END :: Create New Form ===== //
+    // < END :: Auto-Filled Data > //
 
-    // ===== START :: View Form ===== //
+    // < START :: View Form > //
 
     // [TO UPDATE] :: Temporary state
     const viewForm = true;
@@ -125,14 +126,14 @@ function HomeVisitationForm() {
             const loadFormData = async () => {
                 setLoading(true);
 
-                // [TO UPDATE] :: Form ID
+                // [TO UPDATE] :: Case ID, Form ID
                 const returnFormData = await fetchFormData(
                     "6849646feaa08161083d1aec",
                     "686e92a53c1f53d3ee659662",
                 );
                 const formData = returnFormData.form;
 
-                console.log("form Data", formData);
+                console.log("Form Data", formData);
 
                 setRawFormData(formData);
 
@@ -173,7 +174,7 @@ function HomeVisitationForm() {
         }, [data]);
     }
 
-    // ===== END :: View Form ===== //
+    // < END :: View Form > //
 
     useEffect(() => {
         if (data?.date) {
@@ -193,6 +194,8 @@ function HomeVisitationForm() {
     // ===== END :: Setting Data ===== //
 
     // ===== START :: Backend Connection ===== //
+
+    // < START :: Create Form > //
 
     const handleCreate = async () => {
         const payload = {
@@ -234,8 +237,65 @@ function HomeVisitationForm() {
             observation_findings,
             interventions,
         };
-        const response = await createHomeVis(payload);
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createHomeVis(payload, "6849646feaa08161083d1aec"); 
     };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            form_num,
+            first_name,
+            middle_name,
+            last_name,
+
+            grade_year_course,
+            years_in_program,
+
+            date,
+            community,
+            sponsor_name,
+
+            family_type,
+            father_first_name,
+            father_middle_name,
+            father_last_name,
+            father_work,
+            father_income,
+            rawFatherData,
+
+            mother_first_name,
+            mother_middle_name,
+            mother_last_name,
+            mother_work,
+            mother_income,
+            rawMotherData,
+
+            rawOtherFamilyData,
+
+            sm_progress,
+            family_progress,
+            recommendation,
+            agreement,
+
+            familyMembers,
+            observation_findings,
+            interventions,
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Case ID, Form ID
+        const response = await editHomeVis(updatedPayload, "6849646feaa08161083d1aec", "686e92a53c1f53d3ee659662"); 
+    };
+
+    // < END :: Edit Form > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -425,10 +485,18 @@ function HomeVisitationForm() {
                             <TextInput
                                 label="Grade/Year Course"
                                 value={grade_year_course}
+                                setValue={setGradeYearCourse}
+                                handleChange={handleChange(
+                                    "Sponsored Member",
+                                )}
                             ></TextInput>
                             <TextInput
                                 label="Year/s in the Program"
                                 value={years_in_program}
+                                setValue={setYearsInProgram}
+                                handleChange={handleChange(
+                                    "Sponsored Member",
+                                )}
                             ></TextInput>
                             <div className="flex items-center gap-16">
                                 <p className="label-base w-64">Family Type</p>
@@ -446,19 +514,19 @@ function HomeVisitationForm() {
                                         Select
                                     </option>
                                     <option
-                                        value="nuclear"
+                                        value="Nuclear"
                                         className="body-base"
                                     >
                                         Nuclear
                                     </option>
                                     <option
-                                        value="extended"
+                                        value="Extended"
                                         className="body-base"
                                     >
                                         Extended
                                     </option>
                                     <option
-                                        value="blended"
+                                        value="Blended"
                                         className="body-base"
                                     >
                                         Blended
@@ -730,12 +798,21 @@ function HomeVisitationForm() {
                 >
                     Cancel
                 </button>
-                <button
-                    className="btn-primary font-bold-label w-min"
-                    onClick={() => navigate(-1)}
-                >
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );

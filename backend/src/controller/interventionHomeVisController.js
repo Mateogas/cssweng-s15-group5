@@ -173,7 +173,6 @@ const createHomVis = async (req, res) => {
     try {
         const caseSelected = await Sponsored_Member.findById(req.params.caseID);
         const formData = req.body;
-        console.log(formData);
 
         if (!caseSelected) {
             return res
@@ -220,14 +219,14 @@ const createHomVis = async (req, res) => {
             family_type: formData.family_type,
 
             father: {
-                father_details: formData.rawFatherData._id,
-                father_relationship: formData.rawFatherData.relationship_id,
+                father_details: formData.rawFatherData?._id || null,
+                father_relationship: formData.rawFatherData?.relationship_id || null,
             },
             mother: {
-                mother_details: formData.rawMotherData._id,
-                mother_relationship: formData.rawMotherData.relationship_id,
+                mother_details: formData.rawMotherData?._id || null,
+                mother_relationship: formData.rawMotherData?.relationship_id || null,
             },
-            familyMembers: familyMembersArray,
+            familyMembers: familyMembersArray || [],
 
             sm_progress: formData.sm_progress,
             family_progress: formData.family_progress,
@@ -363,12 +362,12 @@ const editHomeVis = async (req, res) => {
                 formData.family_type || interventionSelected.family_type,
 
             father: {
-                father_details: fatherData._id,
-                father_relationship: fatherData.relationship_id,
+                father_details: fatherData?._id || null,
+                father_relationship: fatherData?.relationship_id || null,
             },
             mother: {
-                mother_details: motherData._id,
-                mother_relationship: motherData.relationship_id,
+                mother_details: motherData?._id || null,
+                mother_relationship: motherData?.relationship_id || null,
             },
             familyMembers: familyMembersArray,
 
