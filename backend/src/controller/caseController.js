@@ -9,7 +9,7 @@ const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
 const { Employee } = require('../model/employee');
 
-const [caseSchemaValidate,caseCoreValidate,caseIdentifyingValidate] = require('./validators/caseValidator')
+const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
 // ================================================== //
 
@@ -39,52 +39,52 @@ const getCaseById = async (req, res) => {
      //checks if its a valid ObjectId
      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
           return res.status(400).json({ message: 'Invalid case' });
-     }  
+     }
      const id = req.params.id;
 
      try {
           //finds an id in our mongo
           const caseItem = await Sponsored_Member.findById(id).lean().populate(
-              'assigned_sdw' 
-          );  
+               'assigned_sdw'
+          );
           res.json(caseItem);
      } catch (error) {
 
           console.error('Error fetching cases:', error);
-          res.status(500).json({ 
-          message: 'Error retrieving case data',
-          error: error.message 
+          res.status(500).json({
+               message: 'Error retrieving case data',
+               error: error.message
           });
      }
 }
 const getAllSDWs = async (req, res) => {
-    try {
-        // If you filter by role, adjust as needed
-        const sdws = await Employee.find({ role: 'sdw' }).lean();
-        res.json(sdws);
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
-    }
+     try {
+          // If you filter by role, adjust as needed
+          const sdws = await Employee.find({ role: 'sdw' }).lean();
+          res.json(sdws);
+     } catch (error) {
+          res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
+     }
 };
 /**  
  *   Gets all cases that are viable to be seen based on user priveleges
  */
-const getAllCaseViable = async (req,res) =>{
-     const userPriv = req.userId 
-      try {
-        const cases = await Sponsored_Member.find({
-          assigned_sdw: userPriv,
-          isActive:"true"
-        }) 
+const getAllCaseViable = async (req, res) => {
+     const userPriv = req.userId
+     try {
+          const cases = await Sponsored_Member.find({
+               assigned_sdw: userPriv,
+               isActive: "true"
+          })
 
-        .lean();  
-        
-        res.json(cases);
+               .lean();
+
+          res.json(cases);
      } catch (error) {
           console.error('Error fetching cases:', error);
-          res.status(500).json({ 
-          message: 'Error retrieving case data',
-          error: error.message 
+          res.status(500).json({
+               message: 'Error retrieving case data',
+               error: error.message
           });
      }
 }
@@ -93,28 +93,28 @@ const getAllCaseViable = async (req,res) =>{
  *   Gets all cases returns name and id only
  */
 const getAllCases = async (req, res) => {
-    try {
-        const cases = await Sponsored_Member.find({})
-            .populate('assigned_sdw', 'first_name middle_name last_name') // Only fetch name fields
-            .lean();
+     try {
+          const cases = await Sponsored_Member.find({})
+               .populate('assigned_sdw', 'first_name middle_name last_name') // Only fetch name fields
+               .lean();
 
-        const simplifiedCases = cases.map(c => ({
-            id: c._id,
-            name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
-            ch_number: c.sm_number,
-            assigned_sdw_name: c.assigned_sdw
-                ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-                : null
-        }));
+          const simplifiedCases = cases.map(c => ({
+               id: c._id,
+               name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
+               ch_number: c.sm_number,
+               assigned_sdw_name: c.assigned_sdw
+                    ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+                    : null
+          }));
 
-        res.json(simplifiedCases);
-    } catch (error) {
-        console.error('Error fetching cases:', error);
-        res.status(500).json({
-            message: 'Error retrieving case data',
-            error: error.message
-        });
-    }
+          res.json(simplifiedCases);
+     } catch (error) {
+          console.error('Error fetching cases:', error);
+          res.status(500).json({
+               message: 'Error retrieving case data',
+               error: error.message
+          });
+     }
 };
 
 /**
@@ -137,22 +137,22 @@ const getAllCases = async (req, res) => {
  *    - 500 Internal Server Error: if something else goes wrong
  */
 
-const reassignSDW = async(req,res) => {
+const reassignSDW = async (req, res) => {
      //this gets the case and also the assigned_sdw ids
      const { caseId, assigned_sdw } = req.body;
      if (!mongoose.Types.ObjectId.isValid(caseId) || !mongoose.Types.ObjectId.isValid(assigned_sdw)) {
           return res.status(400).json({ message: 'Invalid case or sdw' });
      }
 
-     try{
+     try {
           const updatedCase = await Sponsored_Member.findByIdAndUpdate(
-               caseId, 
-               {assigned_sdw},
-               {new: true}
+               caseId,
+               { assigned_sdw },
+               { new: true }
           ).populate('assigned_sdw')
-          .lean()
-          if(!updatedCase){
-               return res.status(404).json({message:"Case not found xD"});
+               .lean()
+          if (!updatedCase) {
+               return res.status(404).json({ message: "Case not found xD" });
           }
           res.status(200).json(
                {
@@ -162,11 +162,11 @@ const reassignSDW = async(req,res) => {
           );
 
 
-     }catch(error){
+     } catch (error) {
           console.error('Error assigning SDW:', error);
           res.status(500).json({ message: 'Error assigning SDW', error });
      }
-     
+
 }
 
 /**
@@ -191,39 +191,39 @@ const reassignSDW = async(req,res) => {
  *    - interventions optional (array of ObjectIds)
  */
 
-const addNewCase = async(req,res) => {
+const addNewCase = async (req, res) => {
      const newCaseData = req.body;
      const sdwId = '6849646feaa08161083d1ad8' // ||req.session.userId should be session id but static for now
-     if(!newCaseData){
+     if (!newCaseData) {
           return res.status(400).json({ message: 'Invalid case' });
      }
 
-     try{
+     try {
           //const latestCase = await Sponsored_Member.findOne().sort({ sm_number: -1 }).lean();
           //let smNewNumber = latestCase ? Number(latestCase.sm_number) + 1 : 1;
           //assigns newCase with our current newData
-          
+
           const newCase = new Sponsored_Member({
-          ...newCaseData,
-          assigned_sdw : sdwId
+               ...newCaseData,
+               assigned_sdw: sdwId
           });
           //here we just validate the newCase before saving it doesnt work lol
           const { error } = caseSchemaValidate.validate(newCase);
 
           if (error) {
-          return res.status(400).json({
-               message: 'Validation error',
-               details: error.details.map(detail => detail.message)
-          });
+               return res.status(400).json({
+                    message: 'Validation error',
+                    details: error.details.map(detail => detail.message)
+               });
           }
-          
+
           const savedCase = await newCase.save();
           res.status(201).json({
                message: 'New case created successfully',
                case: savedCase
           });
 
-     }catch(error){
+     } catch (error) {
           console.error('Error creating new case:', error);
           res.status(500).json({ message: 'Failed to create case', error });
      }
@@ -244,145 +244,145 @@ const addNewCase = async(req,res) => {
  *    - 500 Internal Server Error: Server error
  */
 const editCaseCore = async (req, res) => {
-    const updatedCaseData = req.body;
-    const caseId = req.params.id;
-    
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-        return res.status(400).json({ message: 'Invalid case ID format' });
-    }
-    
-    try {
-        // First get the existing case
-        const existingCase = await Sponsored_Member.findById(caseId);
-        if (!existingCase) {
-            return res.status(404).json({ message: 'Case not found' });
-        }
-        
-        // Merge existing data with updates for validation
-        const mergedData = {
-            ...existingCase.toObject(),
-            ...updatedCaseData
-        };
-        
-        // Validate the merged data
-        const { error } = caseCoreValidate.validate(updatedCaseData);
-        if (error) {
-            return res.status(400).json({
-                message: 'Validation error',
-                details: error.details.map(detail => detail.message)
-            });
-        }
-        
-        // Update with only the fields provided
-        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
-            caseId,
-            updatedCaseData,
-            { new: true }
-        ).lean();
-        
-        res.status(200).json({
-            message: 'Case updated successfully',
-            case: updatedCase
-        });
-    } catch (error) {
-        console.error('Error updating case:', error);
-        res.status(500).json({ 
-            message: 'Failed to update case', 
-            error: error.message 
-        });
-    }
+     const updatedCaseData = req.body;
+     const caseId = req.params.id;
+
+     if (!mongoose.Types.ObjectId.isValid(caseId)) {
+          return res.status(400).json({ message: 'Invalid case ID format' });
+     }
+
+     try {
+          // First get the existing case
+          const existingCase = await Sponsored_Member.findById(caseId);
+          if (!existingCase) {
+               return res.status(404).json({ message: 'Case not found' });
+          }
+
+          // Merge existing data with updates for validation
+          const mergedData = {
+               ...existingCase.toObject(),
+               ...updatedCaseData
+          };
+
+          // Validate the merged data
+          const { error } = caseCoreValidate.validate(updatedCaseData);
+          if (error) {
+               return res.status(400).json({
+                    message: 'Validation error',
+                    details: error.details.map(detail => detail.message)
+               });
+          }
+
+          // Update with only the fields provided
+          const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+               caseId,
+               updatedCaseData,
+               { new: true }
+          ).lean();
+
+          res.status(200).json({
+               message: 'Case updated successfully',
+               case: updatedCase
+          });
+     } catch (error) {
+          console.error('Error updating case:', error);
+          res.status(500).json({
+               message: 'Failed to update case',
+               error: error.message
+          });
+     }
 }
 
 const editCaseIdentifyingData = async (req, res) => {
-    const updatedCaseData = req.body;
-    const caseId = req.params.id;
-    
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-        return res.status(400).json({ message: 'Invalid case ID format' });
-    }
-    
-    try {
-        // First get the existing case
-        const existingCase = await Sponsored_Member.findById(caseId);
-        if (!existingCase) {
-            return res.status(404).json({ message: 'Case not found' });
-        }
-        
-        // Merge existing data with updates for validation
-        const mergedData = {
-            ...existingCase.toObject(),
-            ...updatedCaseData
-        };
-        
-        // Validate the merged data
-        const { error } = caseIdentifyingValidate.validate(updatedCaseData);
-        if (error) {
-            return res.status(400).json({
-                message: 'Validation error',
-                details: error.details.map(detail => detail.message)
-            });
-        }
-        
-        // Update with only the fields provided
-        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
-            caseId,
-            updatedCaseData,
-            { new: true }
-        ).lean();
-        
-        res.status(200).json({
-            message: 'Case updated successfully',
-            case: updatedCase
-        });
-    } catch (error) {
-        console.error('Error updating case:', error);
-        res.status(500).json({ 
-            message: 'Failed to update case', 
-            error: error.message 
-        });
-    }
+     const updatedCaseData = req.body;
+     const caseId = req.params.id;
+
+     if (!mongoose.Types.ObjectId.isValid(caseId)) {
+          return res.status(400).json({ message: 'Invalid case ID format' });
+     }
+
+     try {
+          // First get the existing case
+          const existingCase = await Sponsored_Member.findById(caseId);
+          if (!existingCase) {
+               return res.status(404).json({ message: 'Case not found' });
+          }
+
+          // Merge existing data with updates for validation
+          const mergedData = {
+               ...existingCase.toObject(),
+               ...updatedCaseData
+          };
+
+          // Validate the merged data
+          const { error } = caseIdentifyingValidate.validate(updatedCaseData);
+          if (error) {
+               return res.status(400).json({
+                    message: 'Validation error',
+                    details: error.details.map(detail => detail.message)
+               });
+          }
+
+          // Update with only the fields provided
+          const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+               caseId,
+               updatedCaseData,
+               { new: true }
+          ).lean();
+
+          res.status(200).json({
+               message: 'Case updated successfully',
+               case: updatedCase
+          });
+     } catch (error) {
+          console.error('Error updating case:', error);
+          res.status(500).json({
+               message: 'Failed to update case',
+               error: error.message
+          });
+     }
 }
 
 
 const archiveCase = async (req, res) => {
-    const caseId = req.params.id; // Fixed: params not param
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-        return res.status(400).json({ message: 'Invalid case ID format' });
-    }
-    
-    try {
-        // Validate the updated data
-        /*
-        const { error } = caseSchemaValidate.validate(updatedCaseData);
-        if (error) {
-            return res.status(400).json({
-                message: 'Validation error',
-                details: error.details.map(detail => detail.message)
-            });
-        }
-        */
-        // Update the case
-        const updatedCase = await Sponsored_Member.findByIdAndUpdate(
-            caseId,
-            { isAlive: false },
-            { new: true } // Return the updated document
-        ).lean();
-        
-        if (!updatedCase) {
-            return res.status(404).json({ message: 'Case not found' });
-        }
-        
-        res.status(200).json({
-            message: 'Case updated successfully',
-            case: updatedCase
-        });
-    } catch (error) {
-        console.error('Error updating case:', error);
-        res.status(500).json({ 
-            message: 'Failed to update case', 
-            error: error.message 
-        });
-    }
+     const caseId = req.params.id; // Fixed: params not param
+     if (!mongoose.Types.ObjectId.isValid(caseId)) {
+          return res.status(400).json({ message: 'Invalid case ID format' });
+     }
+
+     try {
+          // Validate the updated data
+          /*
+          const { error } = caseSchemaValidate.validate(updatedCaseData);
+          if (error) {
+              return res.status(400).json({
+                  message: 'Validation error',
+                  details: error.details.map(detail => detail.message)
+              });
+          }
+          */
+          // Update the case
+          const updatedCase = await Sponsored_Member.findByIdAndUpdate(
+               caseId,
+               { isAlive: false },
+               { new: true } // Return the updated document
+          ).lean();
+
+          if (!updatedCase) {
+               return res.status(404).json({ message: 'Case not found' });
+          }
+
+          res.status(200).json({
+               message: 'Case updated successfully',
+               case: updatedCase
+          });
+     } catch (error) {
+          console.error('Error updating case:', error);
+          res.status(500).json({
+               message: 'Failed to update case',
+               error: error.message
+          });
+     }
 }
 
 /**  
@@ -391,7 +391,7 @@ const archiveCase = async (req, res) => {
 const getFamilyMembers = async (req, res) => {
      try {
           const caseSelected = req.params.caseID;
-          
+
           // Match family IDs and relationship to client
           const relationships = await Family_Relationship.find({ sponsor_id: caseSelected });
           const familyData = relationships.map(rel => ({
@@ -417,7 +417,7 @@ const getFamilyMembers = async (req, res) => {
                middle: member.middle_name || '',
                last: member.last_name || '',
                name: fullname_Formatter(member) || '',
-               
+
                age: member.age || '',
                income: member.income || '',
                civilStatus: member.civil_status || '',
@@ -425,16 +425,16 @@ const getFamilyMembers = async (req, res) => {
                education: member.edu_attainment || '',
                relationship: member.relationship_to_sm || '',
 
-               deceased: member.status === "Deceased"
+               status: member.status || ""
           }));
 
           // Return response
           res.status(200).json(formattedFamilyMembers);
      } catch (error) {
           console.error('Error fetching:', error);
-          res.status(500).json({ 
+          res.status(500).json({
                message: 'Error retrieving family composition',
-               error: error.message 
+               error: error.message
           });
      }
 }
@@ -458,10 +458,6 @@ const addFamilyMember = async (req, res) => {
                }
           }
 
-          var status = "Living"
-          if (updateDetails.deceased)
-               status = "Deceased"
-
           if (updateDetails.income < 0)
                updateDetails.income = 0
 
@@ -481,7 +477,7 @@ const addFamilyMember = async (req, res) => {
                civil_status: updateDetails.civilStatus,
                occupation: updateDetails.occupation,
                edu_attainment: updateDetails.education,
-               status: status
+               status: updateDetails.status
           })
           console.log(newMember);
           await newMember.validate();
@@ -500,7 +496,7 @@ const addFamilyMember = async (req, res) => {
           // Format the return data again
           const returnData = {
                id: newMember._id.toString(),
-               
+
                first: newMember.first_name,
                middle: newMember.middle_name || '',
                last: newMember.last_name,
@@ -512,6 +508,7 @@ const addFamilyMember = async (req, res) => {
                occupation: newMember.occupation,
                education: newMember.edu_attainment,
                relationship: updateDetails.relationship,
+               status: newMember.status,
 
                deceased: newMember.status === "Deceased"
           }
@@ -520,9 +517,9 @@ const addFamilyMember = async (req, res) => {
           // Response
           res.status(200).json(returnData);
      } catch (error) {
-        console.error("Error adding family member:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+          console.error("Error adding family member:", error);
+          res.status(500).json({ message: "Internal Server Error" });
+     }
 }
 
 /**  
@@ -540,7 +537,7 @@ const deleteFamilyMember = async (req, res) => {
           }
 
           await Family_Relationship.deleteOne({
-               family_id: familySelected, 
+               family_id: familySelected,
                sponsor_id: caseSelected
           })
 
@@ -553,9 +550,9 @@ const deleteFamilyMember = async (req, res) => {
 
           return getFamilyMembers(req, res);
      } catch (error) {
-        console.error("Error deleting family member:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+          console.error("Error deleting family member:", error);
+          res.status(500).json({ message: "Internal Server Error" });
+     }
 }
 
 /**  
@@ -568,16 +565,16 @@ const editFamilyMember = async (req, res) => {
           const familySelected = await Family_Member.findById(req.params.famID);
           const caseSelected = await Sponsored_Member.findById(req.params.caseID);
           const relationshipSelected = await Family_Relationship.findOne({
-               family_id: familySelected, 
+               family_id: familySelected,
                sponsor_id: caseSelected
           })
 
           if (!familySelected || !caseSelected || !relationshipSelected)
                throw error;
 
-          var status = "Living"
-          if (updateDetails.deceased)
-               status = "Deceased"
+          // var status = "Living"
+          // if (updateDetails.deceased)
+          //      status = "Deceased"
 
           if (updateDetails.income < 0)
                updateDetails.income = familySelected.income
@@ -588,9 +585,6 @@ const editFamilyMember = async (req, res) => {
                updateDetails.age = familySelected.age
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = familySelected.age
-
-
-
 
           /**
            *   Updating part
@@ -605,25 +599,25 @@ const editFamilyMember = async (req, res) => {
                age: updateDetails.age !== undefined && updateDetails.age !== ""
                     ? parseInt(updateDetails.age)
                     : familySelected.age,
-                    
+
                income: updateDetails.income || 0,
                civil_status: updateDetails.civilStatus || familySelected.civil_status,
                occupation: updateDetails.occupation || familySelected.occupation,
                edu_attainment: updateDetails.education || familySelected.edu_attainment,
-               status: status || familySelected.status
+               status: updateDetails.status || familySelected.status,
           };
           const updatedFam = await Family_Member.findByIdAndUpdate(familySelected._id, updatedData, { new: true });
 
           const updatedRel = await Family_Relationship.findByIdAndUpdate(
-               relationshipSelected._id, 
-               { $set: {relationship_to_sm: updateDetails.relationship || relationshipSelected.relationship_to_sm} },
+               relationshipSelected._id,
+               { $set: { relationship_to_sm: updateDetails.relationship || relationshipSelected.relationship_to_sm } },
                { new: true }
           );
 
           // Format the return data again
           const returnData = {
                id: updatedFam._id,
-               
+
                first: updatedFam.first_name,
                middle: updatedFam.middle_name,
                last: updatedFam.last_name,
@@ -636,25 +630,29 @@ const editFamilyMember = async (req, res) => {
                education: updatedFam.edu_attainment,
                relationship: updatedRel.relationship_to_sm,
 
+               status: updatedFam.status,
+
                deceased: updatedFam.status === "Deceased"
           }
 
           // Response
           res.status(200).json(returnData);
      } catch (error) {
-        console.error("Error updating family member:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+          console.error("Error updating family member:", error);
+          res.status(500).json({ message: "Internal Server Error" });
+     }
 }
 
 /**
  *   Edits a case's problems and findings
  */
+
+// MODIFIED
 const editProblemsAndFindings = async (req, res) => {
      try {
           const caseToUpdate = await Sponsored_Member.findById(req.params.caseID)
           const updateDetails = req.body;
-          
+
           // Validate required fields
           if (!caseToUpdate) {
                return res.status(400).json({
@@ -663,9 +661,9 @@ const editProblemsAndFindings = async (req, res) => {
           }
 
           // Update problems and findings
-          caseToUpdate.problem_presented = updateDetails.problemPresented || '';
-          caseToUpdate.history_problem = updateDetails.historyProblem || '';
-          caseToUpdate.observation_findings = updateDetails.observationFindings || '';
+          caseToUpdate.problem_presented = updateDetails.problem_presented || '';
+          caseToUpdate.history_problem = updateDetails.history_problem || '';
+          caseToUpdate.observation_findings = updateDetails.observation_findings || '';
 
           // Save the updated case
           await caseToUpdate.save();
@@ -677,9 +675,9 @@ const editProblemsAndFindings = async (req, res) => {
           });
      } catch (error) {
           console.error('Error editing problems and findings:', error);
-          return res.status(500).json({ 
+          return res.status(500).json({
                message: 'Error editing problems and findings',
-               error: error.message 
+               error: error.message
           });
      }
 }
@@ -694,25 +692,25 @@ const editAssessment = async (req, res) => {
 
           // Validate require fields
           if (!caseToUpdate) {
-               return res.status(400).json({ 
-                    message: 'Cannot find case' 
+               return res.status(400).json({
+                    message: 'Cannot find case'
                });
           }
 
           // Update assessment
-          caseToUpdate.assessment = updateDetails.caseAssessment || '';
+          caseToUpdate.assessment = updateDetails.assessment || '';
           await caseToUpdate.save();
-          
+
           // Return success response
-          return res.status(200).json({ 
-               message: 'Assessment updated successfully', 
-               case: caseToUpdate 
+          return res.status(200).json({
+               message: 'Assessment updated successfully',
+               case: caseToUpdate
           });
      } catch (error) {
           console.error('Error editing assessment:', error);
-          return res.status(500).json({ 
+          return res.status(500).json({
                message: 'Error editing assessment',
-               error: error.message 
+               error: error.message
           });
      }
 }
@@ -724,29 +722,28 @@ const editEvaluationAndRecommendation = async (req, res) => {
      try {
           const caseToUpdate = await Sponsored_Member.findById(req.params.caseID)
           const updateDetails = req.body;
-
           // Validate required fields
           if (!caseToUpdate) {
-               return res.status(400).json({ 
-                    message: 'Cannot find case' 
+               return res.status(400).json({
+                    message: 'Cannot find case'
                });
           }
 
           // Update evaluation and recommendation
-          caseToUpdate.evaluation = updateDetails.caseEvalutation || '';
-          caseToUpdate.recommendation = updateDetails.caseRecommendation || '';
+          caseToUpdate.evaluation = updateDetails.evaluation || '';
+          caseToUpdate.recommendation = updateDetails.recommendation || '';
           await caseToUpdate.save();
-          
+
           // Return success response
-          return res.status(200).json({ 
-               message: 'Evaluation and recommendation updated successfully', 
-               case: caseToUpdate 
+          return res.status(200).json({
+               message: 'Evaluation and recommendation updated successfully',
+               case: caseToUpdate
           });
      } catch (error) {
           console.error('Error editing evaluation and recommendation:', error);
-          return res.status(500).json({ 
+          return res.status(500).json({
                message: 'Error editing evaluation and recommendation',
-               error: error.message 
+               error: error.message
           });
      }
 }

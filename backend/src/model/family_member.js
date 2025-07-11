@@ -1,41 +1,41 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const FamilyMemberSchema = new Schema ({
+const FamilyMemberSchema = new Schema({
      last_name: {
           type: String,
 
           required: true,
      },
      first_name: {
-          type: String, 
+          type: String,
 
           required: true
      },
      // Default is NULL, considered those without middle names
      middle_name: {
-          type: String, 
+          type: String,
 
           default: null,
           required: false
      },
      age: {
-          type: Number, 
+          type: Number,
 
           required: true
      },
      civil_status: {
-          type: String, 
+          type: String,
 
           required: true
      },
      edu_attainment: {
-          type: String, 
+          type: String,
 
           required: true
      },
      occupation: {
-          type: String, 
+          type: String,
 
           required: true
      },

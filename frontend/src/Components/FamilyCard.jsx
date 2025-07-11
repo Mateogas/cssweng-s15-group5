@@ -1,6 +1,6 @@
 import React from "react"
 
-import { updateFamilyMember, addFamilyMember, deleteFamilyMember } from '../fetch-connections/case-connection'; 
+import { updateFamilyMember, addFamilyMember, deleteFamilyMember } from '../fetch-connections/case-connection';
 
 /**
  *   Formats the currency
@@ -11,24 +11,25 @@ import { updateFamilyMember, addFamilyMember, deleteFamilyMember } from '../fetc
  *   [NOTE]: Applied this in income display; changed the income input to of type number
  */
 function currency_Formatter(value) {
-    if (typeof value !== "number") return "₱0.00";
-    return value.toLocaleString("en-PH", {
-        style: "currency",
-        currency: "PHP",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
+  if (typeof value !== "number") return "₱0.00";
+  return value.toLocaleString("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
 
-const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
-    editingFamilyValue, setEditingFamilyValue, familyMembers, setFamilyMembers,
-    // handleDeleteFamilyMember, setFamilyToDelete,
-    handleDeleteFamilyMember,
-    setShowModal, setModalTitle, setModalBody, setModalImageCenter,
-    setModalConfirm, setModalOnConfirm
+const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily,
+  editingFamilyValue, setEditingFamilyValue, familyMembers, setFamilyMembers,
+  // handleDeleteFamilyMember, setFamilyToDelete,
+  handleDeleteFamilyMember,
+  setShowModal, setModalTitle, setModalBody, setModalImageCenter,
+  setModalConfirm, setModalOnConfirm
 }) => {
+  const isEditing = selectedFamily === index;
 
-  const isEditing = selectedFamily === index
+  console.log(member);
 
   const handleInputChange = (field, value) => {
     setEditingFamilyValue({ ...editingFamilyValue, [field]: value })
@@ -51,15 +52,18 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
     handleInputChange(key, cleaned);
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const requiredFields = [
       { key: 'first', label: 'First Name' },
-      { key: 'middle', label: 'Middle Name' },
       { key: 'last', label: 'Last Name' },
       { key: 'income', label: 'Income' },
       { key: 'occupation', label: 'Occupation' },
       { key: 'education', label: 'Educational Attainment' },
       { key: 'relationship', label: 'Relationship to Client' },
+      { key: 'civilStatus', label: 'Civil Status' },
+      { key: 'status', label: 'Living Status' },
+      { key: 'relationship', label: 'Relationship to Client' },
+
     ];
 
     function formatListWithAnd(arr) {
@@ -115,19 +119,39 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
       return;
     }
 
-    const updated = [...familyMembers];
-    updated[index] = {
-      ...editingFamilyValue,
-      income: parseFloat(editingFamilyValue.income).toString(),
-    };
-    setFamilyMembers(updated);
-    setSelectedFamily(null);
+    try {
+      const famID = member.id;
+      const updatedData = { ...editingFamilyValue, income: parseFloat(editingFamilyValue.income) };
+      let updatedFromServer;
 
-    setModalTitle('Success!');
-    setModalBody('Family member was successfully updated.');
-    setModalImageCenter(<div className='success-icon mx-auto'></div>);
-    setModalConfirm(false);
-    setShowModal(true);
+      if (member.newlyCreated) {
+        updatedFromServer = await addFamilyMember(clientId, updatedData);
+      } else {
+        const famID = member.id;
+        updatedFromServer = await updateFamilyMember(clientId, famID, updatedData);
+      }
+      const updatedList = [...familyMembers];
+      updatedList[index] = {
+        ...updatedFromServer,
+        newlyCreated: false,
+      };
+
+      setFamilyMembers(updatedList);
+      setSelectedFamily(null);
+
+      setModalTitle('Success!');
+      setModalBody('Family member was successfully updated.');
+      setModalImageCenter(<div className='success-icon mx-auto'></div>);
+      setModalConfirm(false);
+      setShowModal(true);
+    } catch (error) {
+      console.error('❌ Failed to update family member:', error);
+      setModalTitle('Update Error');
+      setModalBody(error.message || 'Could not update family member.');
+      setModalImageCenter(<div className='error-icon mx-auto'></div>);
+      setModalConfirm(false);
+      setShowModal(true);
+    }
   };
 
   return (
@@ -158,15 +182,15 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
       <div className="grid grid-cols-[max-content_1fr] gap-5 items-center text-sm font-label">
         {[
           { label: 'First Name', key: 'first', type: 'text', required: true },
-          { label: 'Middle Name', key: 'middle', type: 'text', required: true },
+          { label: 'Middle Name', key: 'middle', type: 'text' },
           { label: 'Last Name', key: 'last', type: 'text', required: true },
-          { label: 'Age', key: 'age', type: 'number' },
+          { label: 'Age', key: 'age', type: 'number', required: true },
           { label: 'Income', key: 'income', type: 'number', required: true },
-          { label: 'Civil Status', key: 'civilStatus', type: 'civil-select' },
+          { label: 'Civil Status', key: 'civilStatus', type: 'civil-select', required: true },
           { label: 'Occupation', key: 'occupation', type: 'text', required: true },
           { label: 'Educational Attainment', key: 'education', type: 'text', required: true },
           { label: 'Relationship to Client', key: 'relationship', type: 'text', required: true },
-          { label: 'Status', key: 'status', type: 'select' },
+          { label: 'Status', key: 'status', type: 'select', required: true },
         ].map(({ label, key, type, required }) => (
           <React.Fragment key={key}>
             <div className="font-bold-label">
@@ -180,8 +204,8 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
                   onChange={(e) => handleInputChange(key, e.target.value)}
                 >
                   <option value="">Select Status</option>
-                  <option value="living">Living</option>
-                  <option value="deceased">Deceased</option>
+                  <option value="Living">Living</option>
+                  <option value="Deceased">Deceased</option>
                 </select>
               ) : type === 'civil-select' ? (
                 <select
@@ -248,9 +272,16 @@ const FamilyCard = ({ member, index, selectedFamily, setSelectedFamily,
               setModalImageCenter(<div className='warning-icon mx-auto'></div>);
               setModalConfirm(true);
 
-              setModalOnConfirm(() => () => {
-                handleDeleteFamilyMember(idToDelete);
+              setModalOnConfirm(() => async () => {
+                try {
+                  await deleteFamilyMember(clientId, member.id);
+                  handleDeleteFamilyMember(member.id);
+                  setShowModal(false);
+                } catch (err) {
+                  console.error('Failed to delete family member:', err);
+                }
               });
+
 
               setShowModal(true);
             }}
