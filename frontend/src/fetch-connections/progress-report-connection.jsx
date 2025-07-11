@@ -30,9 +30,9 @@ export const fetchCaseData = async (caseID) => {
     }
 }
 
-export const addProgressReport = async (data, interventionID) => {
+export const addProgressReport = async (data, caseID) => {
     try {
-        const response = await fetch(`/api/progress-report/add/${interventionID}`, {
+        const response = await fetch(`/api/progress-report/add/${caseID}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

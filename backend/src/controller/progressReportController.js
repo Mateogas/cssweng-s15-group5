@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 const Sponsored_member = require('../model/sponsored_member');
-const Intervention_Counseling = require('../model/intervention_counseling');
-const Intervention_Home_Visitation = require('../model/intervention_homevisit');
-const Intervention_Correspondence = require('../model/intervention_correspondence');
-const Intervention_Financial_Assessment = require('../model/intervention_financial');
 const Progress_Report = require('../model/progress_report');
 
 /**
@@ -84,58 +80,33 @@ const getCaseData = async (req, res) => {
 }
 
 /**
- * Adds a progress report to an intervention.
+ * Adds a progress report to a sponsored member.
  * 
- * @route POST /api/progress-report/add/:interventionId
+ * @route POST /api/progress-report/add/:caseId
  * 
- * @param {string} interventionId - The ID of the intervention.
+ * @param {string} caseId - The ID of the sponsored member.
  * 
  * @param {Object} req.body - The progress report data.
- * @param {string} req.body.intervention_type - The type of intervention.
  * 
  * @returns {Object} 201 - Progress report added successfully.
  * @returns {Object} 400 - Invalid intervention ID, type, or missing required fields.
- * @returns {Object} 404 - Intervention not found.
+ * @returns {Object} 404 - Sponsored member not found.
  * @returns {Object} 500 - Internal server error.
  */
 const addProgressReport = async (req, res) => {
     try {
-        const interventionId = req.params.interventionId;
-        const interventionType = req.body.intervention_type;
+        const caseId = req.params.caseId;
 
         // Validate intervention ID
-        if (!mongoose.Types.ObjectId.isValid(interventionId)) {
+        if (!mongoose.Types.ObjectId.isValid(caseId)) {
             return res.status(400).json({ error: 'Invalid intervention ID' });
         }
 
-        // Validate intervention type
-        if (!['Intervention Counseling', 'Intervention Home Visitation', 'Intervention Correspondence', 'Intervention Financial Assessment'].includes(interventionType)) {
-            return res.status(400).json({ error: 'Invalid intervention type' });
+        // Find sponsored member
+        const sm = await Sponsored_member.findById(caseId);
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
         }
-
-        // Find the intervention by ID and type
-        let intervention;
-
-        switch (interventionType) {
-            case 'Intervention Counseling':
-                intervention = await Intervention_Counseling.findById(interventionId);
-                break;
-            case 'Intervention Home Visitation':
-                intervention = await Intervention_Home_Visitation.findById(interventionId);
-                break;
-            case 'Intervention Correspondence':
-                intervention = await Intervention_Correspondence.findById(interventionId);
-                break;
-            case 'Intervention Financial Assessment':
-                intervention = await Intervention_Financial_Assessment.findById(interventionId);
-                break;
-            default:
-                return res.status(400).json({ error: 'Invalid intervention type' });
-        }
-        if (!intervention) {
-            return res.status(404).json({ error: 'Intervention not found' });
-        }
-        console.log('Found intervention:', intervention);
 
         // Validate required fields
         const requiredFields = [
@@ -209,16 +180,14 @@ const addProgressReport = async (req, res) => {
         await progressReport.save();
         console.log('Progress report created:', progressReport);
 
-        // Add the progress report to the intervention
-        intervention.progress_reports.push(progressReport._id);
-        await intervention.save();
-        console.log('Progress report added to intervention');
+        // Add the progress report to the sponsored member's progress_reports array
+        sm.progress_reports.push(progressReport._id);
+        await sm.save();
+        console.log('Progress report added to sponsored member');
 
         return res.status(201).json({
             message: 'Progress report added successfully',
             progressReport,
-            interventionId: intervention._id,
-            interventionType: interventionType
         });
     } catch (error) {
         console.error('Error adding progress report:', error);
@@ -227,22 +196,20 @@ const addProgressReport = async (req, res) => {
 }
 
 /**
- * Deletes a progress report from an intervention.
+ * Deletes a progress report from a sponsored member.
  * 
  * @route DELETE /api/progress-report/delete/:reportId
  * 
  * @param {string} reportId - The ID of the progress report to delete.
- * @param {string} req.body.intervention_type - The type of intervention.
  * 
  * @returns {Object} 200 - Progress report deleted successfully.
- * @returns {Object} 400 - Invalid report ID or intervention type.
+ * @returns {Object} 400 - Invalid report ID.
  * @returns {Object} 404 - Progress report or intervention not found.
  * @returns {Object} 500 - Internal server error.
  */
 const deleteProgressReport = async (req, res) => {
     try {
         const reportId = req.params.reportId;
-        const interventionType = req.body.intervention_type;
 
         // Validate progress report ID
         if (!mongoose.Types.ObjectId.isValid(reportId)) {
@@ -255,41 +222,17 @@ const deleteProgressReport = async (req, res) => {
             return res.status(404).json({ error: 'Progress report not found' });
         }
 
-        // Validate intervention type
-        if (!['Intervention Counseling', 'Intervention Home Visitation', 'Intervention Correspondence', 'Intervention Financial Assessment'].includes(interventionType)) {
-            return res.status(400).json({ error: 'Invalid intervention type' });
-        }
-
-        let interventionModel;
-
-        switch (interventionType) {
-            case 'Intervention Counseling':
-                interventionModel = Intervention_Counseling;
-                break;
-            case 'Intervention Home Visitation':
-                interventionModel = Intervention_Home_Visitation;
-                break;
-            case 'Intervention Correspondence':
-                interventionModel = Intervention_Correspondence;
-                break;
-            case 'Intervention Financial Assessment':
-                interventionModel = Intervention_Financial_Assessment;
-                break;
-            default:
-                return res.status(400).json({ error: 'Invalid intervention type' });
-        }
-
-        // Find the intervention that contains the progress report and remove it
-        const intervention = await interventionModel.findOneAndUpdate(
+        // Find the sponsored member and delete the progress report
+        const sm = await Sponsored_member.findOneAndUpdate(
             { progress_reports: reportId },
             { $pull: { progress_reports: reportId } },
             { new: true }
         );
-        
-        if (!intervention) {
-            return res.status(404).json({ error: 'Intervention not found' });
+
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
         }
-        console.log('Progress report removed from intervention');
+        console.log('Progress report removed from sponsored member:', sm._id);
 
         // Delete the progress report
         await Progress_Report.findByIdAndDelete(reportId);
