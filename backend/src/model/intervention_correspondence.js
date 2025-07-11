@@ -45,6 +45,10 @@ const InterventionCorrespondenceSchema = new Schema ({
                type: String,
                required: true
           },
+          person_responsible:{
+               type:String,
+               required: true
+          },
      }],
 
      progress_reports: {
