@@ -69,7 +69,8 @@ const addInterventionPlan = async (req, res) => {
         !newPlan ||
         typeof newPlan.action !== 'string' || newPlan.action.length < 1 ||
         typeof newPlan.time_frame !== 'string' || newPlan.time_frame.length < 1 ||
-        typeof newPlan.results !== 'string' || newPlan.results.length < 1
+        typeof newPlan.results !== 'string' || newPlan.results.length < 1 ||
+        typeof newPlan.person_responsible !== 'string' || newPlan.results.length < 1
     ) {
         return res.status(400).json({ message: 'Invalid intervention plan data' });
     }
