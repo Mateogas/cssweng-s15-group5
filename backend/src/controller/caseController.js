@@ -447,7 +447,7 @@ const addFamilyMember = async (req, res) => {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID);
           const updateDetails = req.body;
 
-          console.log(updateDetails)
+          // console.log(updateDetails)
 
           for (const [key, value] of Object.entries(updateDetails)) {
                if (key === "middle" || key === "income" || key === "name" || key === "id") continue;
@@ -479,7 +479,7 @@ const addFamilyMember = async (req, res) => {
                edu_attainment: updateDetails.education,
                status: updateDetails.status
           })
-          console.log(newMember);
+          // console.log(newMember);
           await newMember.validate();
 
           const newRelationship = new Family_Relationship({
@@ -487,7 +487,7 @@ const addFamilyMember = async (req, res) => {
                sponsor_id: caseSelected._id,
                relationship_to_sm: updateDetails.relationship
           });
-          console.log(newRelationship)
+          // console.log(newRelationship)
           await newRelationship.validate();
 
           await newMember.save();
@@ -512,7 +512,7 @@ const addFamilyMember = async (req, res) => {
 
                deceased: newMember.status === "Deceased"
           }
-          console.log(returnData);
+          // console.log(returnData);
 
           // Response
           res.status(200).json(returnData);
@@ -530,7 +530,7 @@ const deleteFamilyMember = async (req, res) => {
           const familySelected = await Family_Member.findById(req.params.famID);
           const caseSelected = await Sponsored_Member.findById(req.params.caseID);
 
-          console.log("delete")
+          // console.log("delete")
 
           if (!familySelected || !caseSelected) {
                return res.status(400).json({ message: `Cannot proceed action, missing IDs.` });

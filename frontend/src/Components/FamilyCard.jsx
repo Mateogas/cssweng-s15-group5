@@ -28,9 +28,7 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
   setModalConfirm, setModalOnConfirm
 }) => {
   const isEditing = selectedFamily === index;
-
-  console.log(member);
-
+  
   const handleInputChange = (field, value) => {
     setEditingFamilyValue({ ...editingFamilyValue, [field]: value })
   }

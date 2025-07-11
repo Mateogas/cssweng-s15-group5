@@ -57,7 +57,13 @@ function CaseFrontend() {
             if (!clientId) return;
 
             const fetchedData = await fetchCaseData(clientId);
-            setData(fetchedData);
+            // console.log("FETCHED DATA", fetchedData);
+
+            setData({
+            ...fetchedData,
+            assigned_sdw: fetchedData.assigned_sdw?._id || ""
+            });
+
 
             setDrafts({
                 first_name: fetchedData.first_name || "",
@@ -65,7 +71,7 @@ function CaseFrontend() {
                 last_name: fetchedData.last_name || "",
                 sm_number: fetchedData.sm_number || "",
                 spu: fetchedData.spu || "",
-                assigned_sdw: fetchedData.assigned_sdw || "",
+                assigned_sdw: fetchedData.assigned_sdw._id || "",
                 classifications: fetchedData.classifications || [],
 
                 dob: fetchedData.dob || "",
@@ -104,28 +110,32 @@ function CaseFrontend() {
 
     const [projectLocation, setProjectLocation] = useState([
         {
-            name: "Manila",
-            projectCode: "MNL",
+            name: "AMP",
+            projectCode: "AMP",
         },
         {
-            name: "Cebu",
-            projectCode: "CEB",
+            name: "FDQ",
+            projectCode: "FDQ",
         },
         {
-            name: "Davao",
-            projectCode: "DVO",
+            name: "MPH",
+            projectCode: "MPH",
         },
         {
-            name: "Baguio",
-            projectCode: "BAG",
+            name: "MS",
+            projectCode: "MS",
         },
         {
-            name: "Iloilo",
-            projectCode: "ILO",
+            name: "AP",
+            projectCode: "AV",
         },
         {
-            name: "Zamboanga",
-            projectCode: "ZAM",
+            name: "MM",
+            projectCode: "MM",
+        },
+        {
+            name: "MMP",
+            projectCode: "MMP",
         },
     ]);
 
@@ -140,17 +150,9 @@ function CaseFrontend() {
     }, []);
 
     const [classificationList, setClassificationList] = useState([
-        "Teenage Pregnancy",
-        "Out of School Youth",
-        "Person with Disability",
-        "Senior Citizen",
-        "Solo Parent",
-        "Street Child",
-        "Abandoned Child",
-        "Victim of Abuse",
-        "Indigenous People",
-        "Displaced Individual",
-        "Low Income Family",
+        "Child",
+        "Youth",
+        "Older Adult"
     ]);
 
     const [age, setAge] = useState(calculateAge(data?.dob));
@@ -184,15 +186,16 @@ function CaseFrontend() {
         evaluation: data.evaluation || "",
     });
 
-
     const resetFields = () => {
+        // console.log("RESET FIEDLS", data.assigned_sdw._id);
+
         setDrafts({
             first_name: data.first_name || "",
             middle_name: data.middle_name || "",
             last_name: data.last_name || "",
             sm_number: data.sm_number || "",
             spu: data.spu || "",
-            assigned_sdw: data.assigned_sdw || "",
+            assigned_sdw: data.assigned_sdw._id || "",
             classifications: data.classifications || [],
 
             dob: data.dob || "",
@@ -347,21 +350,22 @@ function CaseFrontend() {
             missing.push("SM Number cannot be negative");
         }
 
-        if (!drafts.spu_id) missing.push("SPU Project");
-        if (!drafts.sdw_id) missing.push("Social Development Worker");
+        if (!drafts.spu) missing.push("SPU Project");
+        if (!drafts.assigned_sdw) missing.push("Social Development Worker");
 
         const validSDWIds = socialDevelopmentWorkers
-            .filter((sdw) => sdw.spu_id === drafts.spu_id)
+            .filter((sdw) => sdw.spu_id === drafts.spu)
             .map((sdw) => sdw.id);
 
-        if (drafts.sdw_id && !validSDWIds.includes(drafts.sdw_id)) {
+        if (drafts.assigned_sdw && !validSDWIds.includes(drafts.assigned_sdw)) {
             missing.push("valid Social Development Worker for selected SPU");
         }
+
 
         if (missing.length > 0) {
             setModalTitle("Invalid Fields");
             setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
-            setModalImageCenter(<div className="error-icon mx-auto"></div>);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
             setModalConfirm(false);
             setShowModal(true);
             return false;
@@ -373,16 +377,16 @@ function CaseFrontend() {
 
     useEffect(() => {
         const validSDWIds = socialDevelopmentWorkers
-            .filter((sdw) => sdw.spu_id === drafts.spu_id)
+            .filter((sdw) => sdw.spu_id === drafts.spu)
             .map((sdw) => sdw.id);
 
-        if (drafts.sdw_id && !validSDWIds.includes(drafts.sdw_id)) {
+        if (drafts.assigned_sdw && !validSDWIds.includes(drafts.assigned_sdw)) {
             setDrafts((prev) => ({
-                ...prev,
-                sdw_id: "",
+                ...prev
             }));
         }
-    }, [drafts.spu_id, drafts.sdw_id, socialDevelopmentWorkers]);
+    }, [drafts.spu, drafts.assigned_sdw, socialDevelopmentWorkers]);
+
 
     function checkIdentifying() {
         const missing = [];
@@ -405,10 +409,14 @@ function CaseFrontend() {
             missing.push('Civil Status');
         }
 
+        if (drafts.contact_no && drafts.contact_no.length !== 11) {
+            missing.push('Contact No. must be exactly 11 digits');
+        }
+
         if (missing.length > 0) {
             setModalTitle('Invalid Fields');
             setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
-            setModalImageCenter(<div className="error-icon mx-auto"></div>);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
             setModalConfirm(false);
             setShowModal(true);
             return false;
@@ -535,6 +543,27 @@ function CaseFrontend() {
     const handleInterventionNavigation = (key) => {
         navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
+
+    // <p className="font-label">
+    //     <span className="font-bold-label">
+    //         Social Development Worker:
+    //     </span>{" "}
+    //     {socialDevelopmentWorkers.find(
+    //         (w) => w.id === data.assigned_sdw,
+    //     )?.username || "-"}
+    // </p>
+
+    useEffect(() => {
+        // console.log("SOC DEV WORK", socialDevelopmentWorkers);
+        // console.log("DATA:", data);
+
+        let found = socialDevelopmentWorkers.find(
+            (w) => w.id === data.assigned_sdw
+        );
+        // console.log("FOUND:", found);
+
+
+    }, [drafts])
 
     return (
         <>
@@ -743,11 +772,11 @@ function CaseFrontend() {
                                     <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
                                     <select
                                         className="text-input font-label"
-                                        value={drafts.spu_id}
+                                        value={drafts.spu}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({
                                                 ...prev,
-                                                spu_id: e.target.value,
+                                                spu: e.target.value,
                                             }))
                                         }
                                         data-cy='spu'
@@ -770,7 +799,7 @@ function CaseFrontend() {
                                         SPU Project:
                                     </span>{" "}
                                     {projectLocation.find(
-                                        (p) => p.projectCode === data.spu_id,
+                                        (p) => p.projectCode === data.spu,
                                     )?.name || "-"}
                                 </p>
                             )}
@@ -783,34 +812,26 @@ function CaseFrontend() {
                                     <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
                                     <select
                                         className="text-input font-label"
-                                        value={drafts.sdw_id}
+                                        value={drafts.assigned_sdw}
                                         onChange={(e) =>
-                                            setDrafts((prev) => ({
+                                            {
+                                                setDrafts((prev) => ({
                                                 ...prev,
-                                                sdw_id: parseInt(
-                                                    e.target.value,
-                                                    10,
-                                                ),
-                                            }))
+                                                assigned_sdw: e.target.value,
+                                            }))}
                                         }
-                                        data-cy='assigned-sdw'
+                                        data-cy="assigned-sdw"
                                     >
                                         <option value="">Select SDW</option>
                                         {socialDevelopmentWorkers
-                                            .filter(
-                                                (sdw) =>
-                                                    sdw.spu_id ===
-                                                    drafts.spu_id,
-                                            )
+                                            .filter((sdw) => sdw.spu_id === drafts.spu)
                                             .map((sdw) => (
-                                                <option
-                                                    key={sdw.id}
-                                                    value={sdw.id}
-                                                >
+                                                <option key={sdw.id} value={sdw.id}>
                                                     {sdw.username} ({sdw.id})
                                                 </option>
                                             ))}
                                     </select>
+
                                 </>
                             ) : (
                                 <p className="font-label">
@@ -818,9 +839,10 @@ function CaseFrontend() {
                                         Social Development Worker:
                                     </span>{" "}
                                     {socialDevelopmentWorkers.find(
-                                        (w) => w.id === data.sdw_id,
+                                        (w) => w.id === data.assigned_sdw,
                                     )?.username || "-"}
                                 </p>
+
                             )}
                         </div>
                     </div>
@@ -924,16 +946,21 @@ function CaseFrontend() {
                                 const valid = checkCore();
                                 if (!valid) return;
 
+                                    // console.log("CURRENT DRAFTS", drafts);
+
                                 try {
                                     const updated = await updateCoreCaseData(drafts, clientId);
+
+                                    // console.log("UPDATED: ", updated);
+
                                     setData((prev) => ({
                                         ...prev,
                                         first_name: updated.first_name || drafts.first_name,
                                         middle_name: updated.middle_name || drafts.middle_name,
                                         last_name: updated.last_name || drafts.last_name,
                                         sm_number: updated.sm_number || drafts.sm_number,
-                                        spu_id: updated.spu || drafts.spu_id,  // match your schema
-                                        sdw_id: updated.assigned_sdw || drafts.sdw_id, // match your schema
+                                        spu: updated.spu || drafts.spu,
+                                        assigned_sdw: updated.assigned_sdw || drafts.assigned_sdw,
                                         classifications: updated.classifications || drafts.classifications || [],
                                     }));
 
@@ -942,7 +969,7 @@ function CaseFrontend() {
                                 } catch (error) {
                                     setModalTitle("Update Error");
                                     setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="error-icon mx-auto"></div>);
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
                                     setModalConfirm(false);
                                     setShowModal(true);
                                 }
@@ -1099,7 +1126,7 @@ function CaseFrontend() {
                                 <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label">Present Address</label>
                                     <textarea
-                                        className="text-input font-label"
+                                        className="text-input font-label resize-y min-h-[20rem]"
                                         placeholder="Present Address"
                                         value={drafts.present_address || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, present_address: e.target.value }))}
@@ -1149,7 +1176,7 @@ function CaseFrontend() {
                                         } catch (error) {
                                             setModalTitle("Update Error");
                                             setModalBody(error.message || "An unexpected error occurred.");
-                                            setModalImageCenter(<div className="error-icon mx-auto"></div>);
+                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
                                             setModalConfirm(false);
                                             setShowModal(true);
                                         }
@@ -1264,7 +1291,7 @@ function CaseFrontend() {
 
                             {editingField === "history-fields" ? (
                                 <textarea
-                                    className="text-input font-label"
+                                    className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.problem_presented}
                                     placeholder="Problem Presented"
                                     onChange={(e) =>
@@ -1287,7 +1314,7 @@ function CaseFrontend() {
 
                             {editingField === "history-fields" ? (
                                 <textarea
-                                    className="text-input font-label"
+                                    className="text-input font-label resize-y min-h-[20rem]"
                                     placeholder="History of the Problem"
                                     value={drafts.history_problem}
                                     onChange={(e) =>
@@ -1310,7 +1337,7 @@ function CaseFrontend() {
 
                             {editingField === "history-fields" ? (
                                 <textarea
-                                    className="text-input font-label"
+                                    className="text-input font-label resize-y min-h-[20rem]"
                                     placeholder="Findings"
                                     value={drafts.observation_findings}
                                     onChange={(e) =>
@@ -1353,7 +1380,7 @@ function CaseFrontend() {
                                     console.error("❌ Update failed:", error);
                                     setModalTitle("Update Error");
                                     setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="error-icon mx-auto"></div>);
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
                                     setModalConfirm(false);
                                     setShowModal(true);
                                 }
@@ -1515,7 +1542,7 @@ function CaseFrontend() {
                         <div className="flex flex-col gap-4">
                             {editingField === "assessment-field" ? (
                                 <textarea
-                                    className="text-input font-label"
+                                    className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.assessment || ""}
                                     placeholder="Assessment"
                                     onChange={(e) =>
@@ -1554,7 +1581,7 @@ function CaseFrontend() {
                                     console.error("❌ Update failed:", error);
                                     setModalTitle("Update Error");
                                     setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="error-icon mx-auto"></div>);
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
                                     setModalConfirm(false);
                                     setShowModal(true);
                                 }
@@ -1598,7 +1625,7 @@ function CaseFrontend() {
 
                             {editingField === "evaluation-fields" ? (
                                 <textarea
-                                    className="text-input font-label"
+                                    className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.evaluation}
                                     placeholder="Evaluation"
                                     onChange={(e) =>
@@ -1621,7 +1648,7 @@ function CaseFrontend() {
 
                             {editingField === "evaluation-fields" ? (
                                 <textarea
-                                    className="text-input font-label"
+                                    className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.recommendation}
                                     placeholder="Recommendation"
                                     onChange={(e) =>
@@ -1661,7 +1688,7 @@ function CaseFrontend() {
                                     console.error("❌ Update failed:", error);
                                     setModalTitle("Update Error");
                                     setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="error-icon mx-auto"></div>);
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
                                     setModalConfirm(false);
                                     setShowModal(true);
                                 }

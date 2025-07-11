@@ -50,7 +50,7 @@ export const fetchCaseData = async (caseID) => {
                ...defaultCaseData,
                ...rawData,
                dob: formattedDob,
-               sdw_id: rawData.assigned_sdw?._id || rawData.assigned_sdw || '',
+               // sdw_id: rawData.assigned_sdw?._id || rawData.assigned_sdw || '',
           };
      } catch (err) {
           console.error('Error fetching case data:', err);
@@ -63,6 +63,8 @@ export const fetchCaseData = async (caseID) => {
  *   @returns updated case data
  */
 export const updateCoreCaseData = async (updatedData, caseID) => {
+     // console.log("UPDATED DATA:", updatedData);
+
      try {
           const targetID = caseID || localID;
           const preparedData = {
@@ -70,11 +72,13 @@ export const updateCoreCaseData = async (updatedData, caseID) => {
                last_name: updatedData.last_name,
                first_name: updatedData.first_name,
                middle_name: updatedData.middle_name || '',
-               spu: updatedData.spu_id,
-               assigned_sdw: updatedData.sdw_id,
+               spu: updatedData.spu,
+               assigned_sdw: updatedData.assigned_sdw,
                is_active: updatedData.is_active ?? true,
                classifications: updatedData.classifications
           };
+
+          // console.log("PREPARED DATA", preparedData);
 
           if (typeof preparedData.sdw_id === 'number' || preparedData.sdw_id) {
                preparedData.assigned_sdw = preparedData.sdw_id; // Always use a valid ObjectId
@@ -122,7 +126,7 @@ export const updateCoreCaseData = async (updatedData, caseID) => {
           //      delete preparedData.classifications;
           // }
 
-          console.log("Sending data:", preparedData);
+          // console.log("Sending data:", preparedData);
 
           const response = await fetch(`/api/cases/edit/core/${targetID}`, {
                method: 'PUT',
