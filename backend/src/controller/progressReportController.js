@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Sponsored_member = require('../model/sponsored_member');
 const Intervention_Counseling = require('../model/intervention_counseling');
 const Intervention_Home_Visitation = require('../model/intervention_homevisit');
 const Intervention_Correspondence = require('../model/intervention_correspondence');
@@ -35,6 +36,49 @@ const getProgressReportById = async (req, res) => {
         return res.status(200).json(progressReport);
     } catch (error) {
         console.error('Error fetching progress report:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+/**
+ * Fetches case data for a given case ID.
+ * 
+ * @route GET /api/progress-report/add/:caseId
+ * 
+ * @param {string} caseId - The ID of the case to fetch data for.
+ * 
+ * @returns {Object} 200 - Case data object.
+ * @returns {Object} 400 - Invalid case ID.
+ * @returns {Object} 404 - Case not found.
+ * @returns {Object} 500 - Internal server error.
+ */
+const getCaseData = async (req, res) => {
+    try {
+        const caseId = req.params.caseId;
+
+        // Validate case ID
+        if (!mongoose.Types.ObjectId.isValid(caseId)) {
+            return res.status(400).json({ error: 'Invalid case ID' });
+        }
+
+        // Fetch the case data (assuming a Case model exists)
+        const sm_data = await Sponsored_member.findById(caseId);
+        if (!sm_data) {
+            return res.status(404).json({ error: 'Case not found' });
+        }
+
+        const caseData = {
+            last_name: sm_data.last_name || '',
+            middle_name: sm_data.middle_name || '',
+            first_name: sm_data.first_name || '',
+            ch_number: sm_data.sm_number || '',
+            dob: new Date(sm_data.dob).toISOString().split('T')[0] || '',
+            subproject: sm_data.spu || '',
+        }
+
+        return res.status(200).json(caseData);
+    } catch (error) {
+        console.error('Error fetching case data:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -361,6 +405,7 @@ const editProgressReport = async (req, res) => {
 
 module.exports = {
     getProgressReportById,
+    getCaseData,
     addProgressReport,
     deleteProgressReport,
     editProgressReport,
