@@ -4,6 +4,9 @@ import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 // API Import
 import  {   fetchCorrespFormData, 
+            createCorrespForm,
+            addCorrespInterventionPlan,
+            editCorrespForm,
         }
 from '../../fetch-connections/correspFormConnection'; 
 
@@ -24,24 +27,24 @@ function CorrespondenceForm() {
         date: "",
         dob: "",
         address: "",
-        sponsor_name: "",
+        name_of_sponsor: "",
         subproject: "",
-        sponsorship_date: "",
+        date_of_sponsorship: "",
         identified_problem: "",
-        assessment: "",
+        assesment: "",
         objective: "",
         recommendation: "",
     });
 
-    const [intervention_plan, setInterventionPlan] = useState([]);
+    const [intervention_plans, setInterventionPlan] = useState([]);
 
-    // ===== START :: Create New Form ===== //
+    // < START :: Auto-Filled Data > //
 
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID
+            // [TO UPDATE] :: Case ID, Form ID
             const returnData = await fetchCorrespFormData('686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a');
             const caseData = returnData.sponsored_member
 
@@ -75,9 +78,9 @@ function CorrespondenceForm() {
         setSubproject(data.subproject || "");
     }, [data]);
 
-    // ===== END :: Create New Form ===== //
+    // < END :: Auto-Filled Data > //
 
-    // ===== START :: View Form ===== //
+    // < START :: View Form > //
 
     // [TO UPDATE] :: Temporary state
     const viewForm = true;
@@ -87,9 +90,9 @@ function CorrespondenceForm() {
             const loadFormData = async () => {
                 setLoading(true);
     
-                // [TO UPDATE] :: Form ID
+                // [TO UPDATE] :: Case ID, Form ID
                 const returnFormData = await fetchCorrespFormData(
-                    '686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a'
+                    '686e92a53c1f53d3ee659650', '6871636d243ca1e0023e6ca7'
                 );
                 const formData = returnFormData.form;
     
@@ -100,10 +103,10 @@ function CorrespondenceForm() {
                 setData((prev) => ({
                     ...prev,
                     date: formData.createdAt || "",
-                    sponsor_name: formData.name_of_sponsor || "",
-                    sponsorship_date: formData.date_of_sponsorship || "",
+                    name_of_sponsor: formData.name_of_sponsor || "",
+                    date_of_sponsorship: formData.date_of_sponsorship || "",
                     identified_problem: formData.identified_problem || "",
-                    assessment: formData.assesment || "",
+                    assesment: formData.assesment || "",
                     objective: formData.objective || "",
                     recommendation: formData.recommendation || "",
                 }));
@@ -116,20 +119,20 @@ function CorrespondenceForm() {
         }, []);
 
         useEffect(() => {
-            setSponsorName(data.sponsor_name || "");
-            setSponsorshipDate(data.sponsorship_date || "");
+            setSponsorName(data.name_of_sponsor || "");
+            setSponsorshipDate(data.date_of_sponsorship || "");
             setIdentifiedProblem(data.identified_problem || "");
-            setAssessment(data.assessment || "");
+            setAssessment(data.assesment || "");
             setObjective(data.objective || "");
             setRecommendation(data.recommendation || "");
         }, [data]);
     }
 
-    // ===== END :: View Form ===== //
+    // < END :: View Form > //
 
     useEffect(() => {
-        if (data?.sponsorship_date) {
-            const date = new Date(data.sponsorship_date);
+        if (data?.date_of_sponsorship) {
+            const date = new Date(data.date_of_sponsorship);
             if (!isNaN(date)) {
                 setSponsorshipDate(formatter.format(date));
             }
@@ -153,6 +156,52 @@ function CorrespondenceForm() {
 
     // ===== END :: Setting Data ===== // 
 
+    // ===== START :: Backend Connection ===== //
+        
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            name_of_sponsor,
+            date_of_sponsorship,
+            identified_problem,
+            assesment,
+            objective,
+            recommendation,
+            intervention_plans
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createCorrespForm("686e92a53c1f53d3ee659650", payload); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            name_of_sponsor,
+            date_of_sponsorship,
+            identified_problem,
+            assesment,
+            objective,
+            recommendation,
+            intervention_plans
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Form ID
+        const response = await editCorrespForm("6871636d243ca1e0023e6ca7", updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
+
     // ===== START :: Use States ===== // 
 
     const [last_name, setLastName] = useState(data?.last_name || "");
@@ -162,15 +211,15 @@ function CorrespondenceForm() {
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState(data?.dob || "");
     const [address, setAddress] = useState(data?.address || "");
-    const [sponsor_name, setSponsorName] = useState(data?.sponsor_name || "");
+    const [name_of_sponsor, setSponsorName] = useState(data?.name_of_sponsor || "");
     const [subproject, setSubproject] = useState(data?.subproject || "");
-    const [sponsorship_date, setSponsorshipDate] = useState(
-        data?.sponsorship_date || "",
+    const [date_of_sponsorship, setSponsorshipDate] = useState(
+        data?.date_of_sponsorship || "",
     );
     const [identified_problem, setIdentifiedProblem] = useState(
         data?.identified_problem || "",
     );
-    const [assessment, setAssessment] = useState(data?.assessment || "");
+    const [assesment, setAssessment] = useState(data?.assesment || "");
     const [objective, setObjective] = useState(data?.objective || "");
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
@@ -292,7 +341,7 @@ function CorrespondenceForm() {
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Name of Sponsor"
-                                value={sponsor_name}
+                                value={name_of_sponsor}
                                 setValue={setSponsorName}
                                 handleChange={handleChange("General Information")}
                             ></TextInput>
@@ -307,7 +356,7 @@ function CorrespondenceForm() {
                         <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Sponsorship"
-                                value={sponsorship_date}
+                                value={date_of_sponsorship}
                                 setValue={setSponsorshipDate}
                                 handleChange={handleChange("General Information")}
                             ></DateInput>
@@ -332,7 +381,7 @@ function CorrespondenceForm() {
             <section className="flex w-full gap-16">
                 <TextArea
                     label="SDW's Assessment"
-                    value={assessment}
+                    value={assesment}
                     setValue={setAssessment}
                 ></TextArea>
                 <TextArea
@@ -357,7 +406,7 @@ function CorrespondenceForm() {
                         </div>
                     </div>
                     <div className="flex flex-col flex-wrap gap-4">
-                        {intervention_plan.map((item, index) => (
+                        {intervention_plans.map((item, index) => (
                             <div
                                 key={index}
                                 className="flex w-full justify-between items-center px-4 gap-6"
@@ -457,9 +506,21 @@ function CorrespondenceForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );
