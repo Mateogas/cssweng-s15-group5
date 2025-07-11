@@ -4,6 +4,8 @@ import { TextInput, TextArea } from "../../Components/TextField";
 
 // API Import
 import  {   fetchFinInterventionData,
+            createFinancialForm,
+            editFinancialForm,
         }
 from '../../fetch-connections/financialForm-connection'; 
 
@@ -23,7 +25,7 @@ function FinancialAssessmentForm() {
         ch_number: "",
         date: "",
         area_and_subproject: "",
-        other_assistance: "",
+        other_assistance_detail: "",
         problem_presented: "",
         recommendation: "",
     });
@@ -47,7 +49,7 @@ function FinancialAssessmentForm() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID
+            // [TO UPDATE] :: Case ID, Form ID
             const returnData = await fetchFinInterventionData('686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669');
             const caseData = returnData.sponsored_member;
 
@@ -89,7 +91,7 @@ function FinancialAssessmentForm() {
             const loadFormData = async () => {
                 setLoading(true);
 
-                // [TO UPDATE] :: Form ID
+                // [TO UPDATE] :: Case ID, Form ID
                 const returnFormData = await fetchFinInterventionData(
                     '686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669'
                 );
@@ -104,7 +106,7 @@ function FinancialAssessmentForm() {
                     date: formData.createdAt || "",
                     problem_presented: formData.problem_presented || "",
                     recommendation: formData.recommendation || "",
-                    other_assistance: formData.other_assistance_detail || "",
+                    other_assistance_detail: formData.other_assistance_detail_detail || "",
                 }));
         
                 setLoading(false);
@@ -113,7 +115,7 @@ function FinancialAssessmentForm() {
         }, []);
 
         useEffect(() => {
-            setOtherAssistance(data.other_assistance || "");
+            setOtherAssistance(data.other_assistance_detail || "");
             setProblemPresented(data.problem_presented || "");
             setRecommendation(data.recommendation || "");
         }, [data]);
@@ -122,6 +124,48 @@ function FinancialAssessmentForm() {
     // ===== END :: View Form ===== //
 
     // ===== END :: Setting Data ===== // 
+
+    // ===== START :: Backend Connection ===== //
+    
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            type_of_assistance,
+            other_assistance_detail,
+            area_and_subproject,
+            problem_presented,
+            recommendation
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createFinancialForm("686e92a63c1f53d3ee65966e", payload); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            type_of_assistance,
+            other_assistance_detail,
+            area_and_subproject,
+            problem_presented,
+            recommendation
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Case ID, Form ID
+        const response = await editFinancialForm("686e92a63c1f53d3ee659669", updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
 
     // ===== START :: Use States ===== //
     
@@ -133,7 +177,7 @@ function FinancialAssessmentForm() {
     const [area_and_subproject, setAreaAndSubproject] = useState(
         data?.area_and_subproject || "",
     );
-    const [other_assistance, setOtherAssistance] = useState("");
+    const [other_assistance_detail, setOtherAssistance] = useState("");
     const [problem_presented, setProblemPresented] = useState(
         data?.problem_presented || "",
     );
@@ -224,9 +268,9 @@ function FinancialAssessmentForm() {
                         ))}
                         
                         <textarea
-                            id="other_assistance"
-                            name="other_assistance"
-                            value={other_assistance}
+                            id="other_assistance_detail"
+                            name="other_assistance_detail"
+                            value={other_assistance_detail}
                             onChange={(e) => {
                                 setOtherAssistance(e.target.value);
                                 handleChange("Type of Assistance")(e);
@@ -308,9 +352,21 @@ function FinancialAssessmentForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );
