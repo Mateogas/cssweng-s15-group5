@@ -37,7 +37,7 @@ const InterventionHomeVisitSchema = new Schema ({
      },
      family_type: {
           type: String,
-          enum: [], // Add family type here
+          enum: ["Nuclear", "Extended", "Blended"], // Add family type here
           required: true
      },
      father: {
