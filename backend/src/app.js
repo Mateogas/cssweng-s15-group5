@@ -50,7 +50,8 @@ app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.use('/api/intervention', homeVisRoutes);
 
 // Case Closure routes
-app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm);
+app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
+app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
 app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm);
 
 app.use((req, res) => {

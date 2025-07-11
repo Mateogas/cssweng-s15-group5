@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 
 // API Import
-import  {   fetchCaseData, 
+import  {   fetchCaseData,
+            fetchCaseClosureData, 
             createCaseClosureForm
         }
 from '../fetch-connections/caseClosure-connection'; 
@@ -34,7 +35,7 @@ function CaseClosure() {
         recommendation: "",
     });
 
-    // ===== START :: Create New Form ===== //
+    // < START :: Create New Form > //
 
     useEffect(() => {
         const loadData = async () => {
@@ -72,14 +73,12 @@ function CaseClosure() {
         setReligion(data.religion || "");
         setAddress(data.address || "");
         setSPU(data.spu || "");
-        console.log(data)
     }, [data]);
 
-    // ===== END :: Create New Form ===== //
+    // < END :: Create New Form > //
 
-    // ===== START :: View Form ===== //
+    // < START :: View Form > //
     
-    /*
     // [TO UPDATE] :: Temporary state
     const viewForm = true;
 
@@ -89,10 +88,10 @@ function CaseClosure() {
                 setLoading(true);
     
                 // [TO UPDATE] :: Case ID
-                const returnData = await fetchCaseData('686e92a43c1f53d3ee659636');
-                const formData = returnData
+                const returnData = await fetchCaseClosureData('6849646feaa08161083d1aec', '68717bc34c9f29dbdfc5f51b');
+                const formData = returnData.form
     
-                console.log(formData)
+                console.log("Form Data", formData)
     
                 setRawFormData(formData);
     
@@ -101,12 +100,13 @@ function CaseClosure() {
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     reason_for_retirement: formData.reason_for_retirement || "",
+                    sm_awareness: formData.sm_awareness || "",
                     sm_notification: formData.sm_notification || "",
                     evaluation: formData.evaluation || "",
                     recommendation: formData.recommendation || "",
                 }));
                 
-                setServicesProvided(formData.servicesProvided)
+                setServicesProvided(formData.services_provided || []);
                 setLoading(false);
             };
             loadData();
@@ -116,14 +116,15 @@ function CaseClosure() {
             setClosureDate(data.closure_date || "");
             setSponsorshipDate(data.closure_date || "");
             setReasonForRetirement(data.reason_for_retirement || "");
+            setSMAwareness(data.sm_awareness || "");
             setSMNotification(data.sm_notification || "");
             setEvaluation(data.evaluation || "");
             setRecommendation(data.recommendation || "");
         }, [data]);
     
-    }*/
+    }
 
-    // ===== END :: View Form ===== //
+    // < END :: View Form > //
 
     useEffect(() => {
         if (data?.dob) {
@@ -171,29 +172,29 @@ function CaseClosure() {
     // ===== END :: Setting Data ===== // 
 
     // ===== START :: Backend Connection ===== //
-    
-    const handleCreateForm = async () => {
+        
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
         const payload = {
-            form_num,
-            first_name,
-            middle_name,
-            last_name,
-            ch_number,
-            dob,
-            religion,
-            address,
-            spu,
             closure_date,
+            sponsorship_date,
             reason_for_retirement,
             sm_awareness,
             sm_notification,
+            services_provided,
             evaluation,
-            recommendation,
-
-            rawCaseData
+            recommendation
         };
-        const response = await createCaseClosureForm(payload);
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createCaseClosureForm(payload, "6849646feaa08161083d1aec"); 
     };
+
+    // < END :: Create Form > //
+
     // ===== END :: Backend Connection ===== //
 
     // ===== START :: Use States ===== //
@@ -430,7 +431,7 @@ function CaseClosure() {
                                         type="checkbox"
                                         name="sm_awareness"
                                         value="yes"
-                                        checked={sm_awareness === "yes"}
+                                        checked={sm_awareness}
                                         onChange={(e) =>
                                             handleCheckboxChange(e.target.value)
                                         }
@@ -534,54 +535,65 @@ function CaseClosure() {
                 </section>
 
                 {/* Buttons */}
-                <div className="mt-10 flex w-[22.5rem] justify-between">
-                    <button
-                        className="btn-outline-rounded"
-                        onClick={() => navigate(-1)}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="btn-primary"
-                        onClick={() => setShowConfirm(true)}
-                    >
-                        Close Case
-                    </button>
-                </div>
-            </div>
+                {viewForm ? (
+                    <div className="mt-10 flex w-[22.5rem] justify-between">
+                        <button
+                            className="btn-outline-rounded"
+                            onClick={() => navigate(-1)}
+                        >
+                            Go Back
+                        </button>
+                    </div>
+                ) : (
+                    <div className="mt-10 flex w-[22.5rem] justify-between">
+                        <button
+                            className="btn-outline-rounded"
+                            onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="btn-primary"
+                            onClick={() => setShowConfirm(true)}
+                        >
+                            Close Case
+                        </button>
+                    </div>
+                )}
 
-            {/* Confirm Close Case */}
-            {showConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-2xl mx-4 gap-8">
-                        <h2 className="header-md font-semibold mb-4">Close Case</h2>
-                        <p className="label-base mb-6">Are you sure you want to close this case?</p>
-                        <div className="flex justify-end gap-4">
-                            
-                            {/* Cancel */}
-                            <button
-                                onClick={() => 
-                                    setShowConfirm(false)
-                                }
-                                className="px-4 py-2 text-gray-600 hover:text-black"
-                            >
-                                Cancel
-                            </button>
+                {/* Confirm Close Case */}
+                {showConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-2xl mx-4 gap-8">
+                            <h2 className="header-md font-semibold mb-4">Close Case</h2>
+                            <p className="label-base mb-6">Are you sure you want to close this case?</p>
+                            <div className="flex justify-end gap-4">
+                                
+                                {/* Cancel */}
+                                <button
+                                    onClick={() => 
+                                        setShowConfirm(false)
+                                    }
+                                    className="px-4 py-2 text-gray-600 hover:text-black"
+                                >
+                                    Cancel
+                                </button>
 
-                            {/* Close Case */}
-                            <button
-                                onClick={() => {
-                                    closeCase;
-                                    navigate(-1);
-                                }}
-                                className="px-4 py-2 btn-primary"
-                            >
-                                Confirm
-                            </button>
+                                {/* Close Case */}
+                                <button
+                                    onClick={() => {
+                                        handleCreate();
+                                        setShowConfirm(false);
+                                    }}
+                                    className="px-4 py-2 btn-primary"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </main>
     );
 }

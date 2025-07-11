@@ -27,6 +27,17 @@ export const fetchCaseData = async(caseID) => {
      }
 };
 
+export const fetchCaseClosureData = async (caseId, formId) => {
+    try {
+        const response = await fetch(`/api/case-closure/${caseId}/${formId}`);
+        if (!response.ok) throw new Error('API error');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching financial intervention data:', error);
+        return null;
+    }
+};
+
 export const createCaseClosureForm = async(createdData, caseID) => {
      try {
           const response = await fetch(`/api/create/case-closure/${caseID}`, {
