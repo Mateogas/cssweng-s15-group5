@@ -29,13 +29,7 @@ const InterventionFinancialAssessmentSchema = new Schema ({
     recommendation: {
         type: String,
         required: true        
-    },
-     progress_reports: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Progress Report',
-
-          required: false
-     }         
+    },       
 }, { timestamps: true });
 
 const Intervention_Financial_Assessment = mongoose.model('Intervention Financial Assessment', InterventionFinancialAssessmentSchema);

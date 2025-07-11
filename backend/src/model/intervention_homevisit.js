@@ -107,12 +107,6 @@ const InterventionHomeVisitSchema = new Schema ({
           type: String,
           required: false
      },
-     progress_reports: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Progress Report',
-
-          required: false
-     }     
 }, { timestamps: true });
 
 const InterventionHomeVisit = mongoose.model('Intervention Home Visit', InterventionHomeVisitSchema);
