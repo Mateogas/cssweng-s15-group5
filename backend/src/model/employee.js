@@ -50,7 +50,7 @@ const EmployeeSchema = new mongoose.Schema({
     },
     spu_id: {
         type: String,
-        enum: ['MNL', 'CEB', 'DVO', 'BAG','ILO','ZAM'], // Add other SPUs as needed
+        enum: ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'],
         required: true
     }
 });
