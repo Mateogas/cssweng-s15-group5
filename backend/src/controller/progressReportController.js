@@ -150,9 +150,10 @@ const addProgressReport = async (req, res) => {
 
         // Validate relation_to_sponsor structure
         if (!req.body.relation_to_sponsor || 
-            typeof req.body.relation_to_sponsor.q1 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q2 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q3 === 'undefined') {
+            typeof req.body.relation_to_sponsor.know_sponsor_name === 'undefined' ||
+            typeof req.body.relation_to_sponsor.cooperative === 'undefined' ||
+            typeof req.body.relation_to_sponsor.personalized_letter === 'undefined') {
+
             return res.status(400).json({ 
                 error: 'Invalid relation_to_sponsor structure',
                 message: 'relation_to_sponsor must include q1, q2, and q3 properties'
@@ -170,9 +171,9 @@ const addProgressReport = async (req, res) => {
             services_to_family: req.body.services_to_family,
             participation: req.body.participation,
             relation_to_sponsor: {
-                know_sponsor_name: req.body.relation_to_sponsor.q1,
-                cooperative: req.body.relation_to_sponsor.q2,
-                personalized_letter: req.body.relation_to_sponsor.q3,
+                know_sponsor_name: req.body.relation_to_sponsor.know_sponsor_name,
+                cooperative: req.body.relation_to_sponsor.cooperative,
+                personalized_letter: req.body.relation_to_sponsor.personalized_letter,
             },
         };
 
@@ -310,9 +311,9 @@ const editProgressReport = async (req, res) => {
 
         // Validate relation_to_sponsor structure
         if (!req.body.relation_to_sponsor || 
-            typeof req.body.relation_to_sponsor.q1 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q2 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q3 === 'undefined') {
+            typeof req.body.relation_to_sponsor.know_sponsor_name === 'undefined' ||
+            typeof req.body.relation_to_sponsor.cooperative === 'undefined' ||
+            typeof req.body.relation_to_sponsor.personalized_letter === 'undefined') {
             return res.status(400).json({ 
                 error: 'Invalid relation_to_sponsor structure',
                 message: 'relation_to_sponsor must include q1, q2, and q3 properties'
@@ -329,9 +330,9 @@ const editProgressReport = async (req, res) => {
         progressReport.services_to_family = req.body.services_to_family;
         progressReport.participation = req.body.participation;
         progressReport.relation_to_sponsor = {
-            know_sponsor_name: req.body.relation_to_sponsor.q1,
-            cooperative: req.body.relation_to_sponsor.q2,
-            personalized_letter: req.body.relation_to_sponsor.q3,
+            know_sponsor_name: req.body.relation_to_sponsor.know_sponsor_name,
+            cooperative: req.body.relation_to_sponsor.cooperative,
+            personalized_letter: req.body.relation_to_sponsor.personalized_letter,
         };
         await progressReport.save();
         console.log('Progress report updated:', progressReport);

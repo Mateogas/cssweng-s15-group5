@@ -4,6 +4,8 @@ import { TextInput, DateInput, TextArea } from "../Components/TextField";
 
 // API Import
 import  {   fetchProgressReport, 
+            addProgressReport,
+            editProgressReport
         } 
 from '../fetch-connections/progress-report-connection'; 
 
@@ -35,7 +37,7 @@ function ProgressReport() {
         participation: "",
     });
 
-    // ===== START :: Create New Form ===== //
+    // < START :: Auto-Filled Data > //
 
     useEffect(() => {
         const loadData = async () => {
@@ -73,9 +75,9 @@ function ProgressReport() {
         setSubproject(data.subproject || "");
     }, [data]);
 
-    // ===== END :: Create New Form ===== //
+    // < END :: Auto-Filled Data > //
 
-    // ===== START :: View Form ===== //
+    // < START :: View Form > //
 
     // [TO UPDATE] :: Temporary state
     const viewForm = true;
@@ -86,7 +88,7 @@ function ProgressReport() {
                 setLoading(true);
     
                 // [TO UPDATE] :: Case ID
-                const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+                const returnData = await fetchProgressReport('687172244bf09e0e26d6899a');
                 const formData = returnData
     
                 console.log(formData)
@@ -105,7 +107,7 @@ function ProgressReport() {
                     participation: formData.participation || "",
                 }));
                 
-                setResponses(formData.relation_to_sponsor)
+                setRelationToSponsor(formData.relation_to_sponsor)
                 setLoading(false);
             };
             loadData();
@@ -123,7 +125,7 @@ function ProgressReport() {
         }, [data]);
     }
 
-    // ===== END :: View Form ===== //
+    // < END :: View Form > //
 
     useEffect(() => {
         if (data?.dob) {
@@ -158,7 +160,7 @@ function ProgressReport() {
         day: '2-digit',
     });
         
-    const relation_to_sponsor = [
+    const questions = [
         { id: "know_sponsor_name", text: "Knows his/her sponsor's name?" },
         { id: "cooperative", text: "Cooperative with the program?" },
         { id: "personalized_letter", text: "Writes personalized letters in a timely manner?" },
@@ -167,6 +169,56 @@ function ProgressReport() {
     const options = ["Yes", "Sometimes", "No"];
     
     // ===== END :: Setting Data ===== //
+
+    // ===== START :: Backend Connection ===== //
+        
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            sponsor_name,
+            sponsorship_date,
+            date_accomplished,
+            period_covered,
+            sm_update,
+            family_update,
+            services_to_family,
+            participation,
+            relation_to_sponsor
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await addProgressReport(payload, "6849646feaa08161083d1aec"); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            sponsor_name,
+            sponsorship_date,
+            date_accomplished,
+            period_covered,
+            sm_update,
+            family_update,
+            services_to_family,
+            participation,
+            relation_to_sponsor
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Form ID
+        const response = await editProgressReport("687172244bf09e0e26d6899a", updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
 
     // ===== START :: Use States ===== //
 
@@ -198,7 +250,7 @@ function ProgressReport() {
     const [participation, setParticipation] = useState(
         data?.participation || "",
     );
-    const [responses, setResponses] = useState({});
+    const [relation_to_sponsor, setRelationToSponsor] = useState({});
 
     // ===== END :: Use States ===== //
 
@@ -226,7 +278,7 @@ function ProgressReport() {
     };
 
     const handleCheckboxChange = (questionID, value) => {
-        setResponses((prev) => ({
+        setRelationToSponsor((prev) => ({
             ...prev,
             [questionID]: value,
         }));
@@ -394,7 +446,7 @@ function ProgressReport() {
                         Relationship to Sponsor & Unbound
                     </h4>
                     <div className="flex gap-x-40 gap-y-16 flex-wrap">
-                        {relation_to_sponsor.map((q) => (
+                        {questions.map((q) => (
                             <div
                                 key={q.id}
                                 className="flex flex-col justify-end gap-8"
@@ -411,7 +463,7 @@ function ProgressReport() {
                                                 name={q.id}
                                                 value={option}
                                                 checked={
-                                                    responses[q.id] === option
+                                                    relation_to_sponsor[q.id] === option
                                                 }
                                                 onChange={(e) => {
                                                     handleCheckboxChange(
@@ -434,19 +486,28 @@ function ProgressReport() {
                 </section>
 
                 {/* Buttons */}
-                <div className="mt-10 flex w-[22.5rem] justify-between">
+                <div className="flex w-full justify-center gap-20">
                     <button
-                        className="btn-outline-rounded"
+                        className="btn-outline font-bold-label"
                         onClick={() => navigate(-1)}
                     >
                         Cancel
                     </button>
-                    <button
-                        className="btn-primary"
-                        onClick={() => navigate(-1)}
-                    >
-                        Create Progress Report
-                    </button>
+                    {viewForm ? (
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleUpdate}
+                        >
+                            Save Changes
+                        </button>
+                    ) : (
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleCreate}
+                        >
+                            Create Progress Report
+                        </button>
+                    )}
                 </div>
             </div>
         </main>
