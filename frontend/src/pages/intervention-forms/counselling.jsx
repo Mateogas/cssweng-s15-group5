@@ -7,7 +7,9 @@ import {
     fetchCaseData,
     fetchCounselingIntervention,
     addCounselingIntervention,
+    editCounselingIntervention
 } from "../../fetch-connections/intervention-connection";
+import { editAssessment } from "../../fetch-connections/case-connection";
 
 function CounselingForm() {
 
@@ -31,7 +33,7 @@ function CounselingForm() {
         sm_comments: "",
     });
 
-    // ===== START :: Create New Form ===== //
+    // < START :: Auto-Filled Data > //
 
     // LOAD DATA
     useEffect(() => {
@@ -61,9 +63,9 @@ function CounselingForm() {
         loadData();
     }, []);
 
-    // ===== END :: Create New Form ===== //
+    // < END :: Auto-Filled Data > //
 
-    // ===== START :: View Form ===== //
+    // < START :: View Form > //
 
     // [TO UPDATE] :: Temporary state
     const viewForm = true;
@@ -73,7 +75,7 @@ function CounselingForm() {
         useEffect(() => {
             const loadData = async () => {
                 // setLoading(true);
-                const fetchedData = await fetchCounselingIntervention('686e92a63c1f53d3ee659679');
+                const fetchedData = await fetchCounselingIntervention('687158bbfc374d212d0e7270');
                 setData(fetchedData);
                 // setLoading(false);
 
@@ -98,9 +100,57 @@ function CounselingForm() {
         }, []);
     }
 
-    // ===== END :: View Form ===== //
+    // < END :: View Form > //
 
     // ===== END :: Setting Data ===== //
+
+    // ===== START :: Backend Connection ===== //
+    
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            grade_year_level,
+            school,
+            area_self_help,
+            counseling_date,
+            reason_for_counseling,
+            corrective_action,
+            recommendation,
+            sm_comments
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await addCounselingIntervention(payload, "6849646feaa08161083d1aec"); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            grade_year_level,
+            school,
+            area_self_help,
+            counseling_date,
+            reason_for_counseling,
+            corrective_action,
+            recommendation,
+            sm_comments
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Form ID
+        const response = await editCounselingIntervention(updatedPayload, "687158bbfc374d212d0e7270"); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
 
     // ===== START :: Use States ===== //
 
@@ -293,9 +343,21 @@ function CounselingForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );
