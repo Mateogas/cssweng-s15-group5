@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { fetchSDWs } from '../fetch-connections/case-connection';
 
 export default function RegisterWorker({
   isOpen,
@@ -7,6 +8,7 @@ export default function RegisterWorker({
   onRegister,
   projectLocations = [],
 }) {
+
   const [formData, setFormData] = useState({
     sdw_id: '',
     username: '',
@@ -15,7 +17,42 @@ export default function RegisterWorker({
     contact_number: '',
     spu_id: '',
     role: '',
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    manager: ""
   });
+
+  const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
+  const [supervisors, setSupervisors] = useState([]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        sdw_id: '',
+        username: '',
+        password: '',
+        email: '',
+        contact_number: '',
+        spu_id: '',
+        role: '',
+        first_name: '',
+        middle_name: '',
+        last_name: '',
+        manager: '',
+      });
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const loadSDWs = async () => {
+      const sdws = await fetchSDWs();
+      setSocialDevelopmentWorkers(sdws);
+    };
+    loadSDWs();
+
+    console.log("ALL WORKERS", socialDevelopmentWorkers);
+  }, [formData.spu_id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +63,14 @@ export default function RegisterWorker({
     onRegister?.(formData);
     onClose?.();
   };
+
+  useEffect(() => {
+      const filtered = socialDevelopmentWorkers.filter(
+        (w) => w.spu_id === formData.spu_id && w.role === 'sdw'
+      );
+      setSupervisors(filtered);
+      console.log("SUPERVISORS", supervisors);
+  }, [formData.spu_id, socialDevelopmentWorkers]);
 
   return (
     <AnimatePresence>
@@ -44,26 +89,84 @@ export default function RegisterWorker({
             </div>
 
             <div className="flex flex-col gap-5 flex-1 p-10">
-              <div className="flex flex-col gap-2">
-                <p className="font-bold-label">SDW ID</p>
-                <input
-                  type="text"
-                  name="sdw_id"
-                  value={formData.sdw_id}
-                  onChange={handleChange}
-                  className="text-input font-label"
-                />
+
+              <div className='flex gap-3'>
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="font-bold-label">First Name</p>
+                  <input
+                    type="text"
+                    name="first_name"
+                    placeholder='First Name'
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2  w-full">
+                  <p className="font-bold-label">Middle Name</p>
+                  <input
+                    type="text"
+                    name="middle_name"
+                    placeholder="Middle Name"
+                    value={formData.middle_name}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2  w-full">
+                  <p className="font-bold-label">Last Name</p>
+                  <input
+                    type="text"
+                    name="last_name"
+                    placeholder="Last Name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <p className="font-bold-label">Username</p>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="text-input font-label"
-                />
+              <div className='flex gap-3'>
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="font-bold-label">Username</p>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    placeholder='Username'
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="font-bold-label">SDW ID</p>
+                  <input
+                    type="text"
+                    name="sdw_id"
+                    placeholder='SDW ID'
+                    value={formData.sdw_id}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="font-bold-label">Role</p>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  >
+                    <option value="">Select Role</option>
+                    <option value="sdw">Social Development Worker</option>
+                    <option value="super">Supervisor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -72,6 +175,7 @@ export default function RegisterWorker({
                   type="password"
                   name="password"
                   value={formData.password}
+                  placeholder='Password'
                   onChange={handleChange}
                   className="text-input font-label"
                 />
@@ -85,6 +189,7 @@ export default function RegisterWorker({
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    placeholder='Email'
                     className="text-input font-label"
                   />
                 </div>
@@ -95,6 +200,7 @@ export default function RegisterWorker({
                     type="text"
                     name="contact_number"
                     value={formData.contact_number}
+                    placeholder='Contact Number'
                     onChange={handleChange}
                     className="text-input font-label"
                   />
@@ -120,17 +226,22 @@ export default function RegisterWorker({
                 </div>
 
                 <div className="flex flex-col gap-2 w-full">
-                  <p className="font-bold-label">Role</p>
+                  <p className="font-bold-label">Supervisor</p>
                   <select
-                    name="role"
-                    value={formData.role}
+                    name="manager_id"
+                    value={formData.manager_id}
                     onChange={handleChange}
                     className="text-input font-label"
                   >
-                    <option value="">Select Role</option>
-                    <option value="sdw">Social Development Worker</option>
-                    <option value="super">Supervisor</option>
-                    <option value="admin">Admin</option>
+                    <option value="">Select Supervisor</option>
+                    {supervisors.map((supervisor) => (
+                      <option
+                        key={supervisor.id}
+                        value={supervisor.id}
+                      >
+                        {supervisor.username} ({supervisor.id})
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

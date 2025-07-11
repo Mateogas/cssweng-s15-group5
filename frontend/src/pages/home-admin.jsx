@@ -100,29 +100,33 @@ function HomeAdmin() {
 
     const [projectLocation, setProjectLocation] = useState([
         {
-            name: "Manila",
-            projectCode: "MNL",
+            name: "AMP",
+            projectCode: "AMP",
         },
         {
-            name: "Cebu",
-            projectCode: "CEB",
+            name: "FDQ",
+            projectCode: "FDQ",
         },
         {
-            name: "Davao",
-            projectCode: "DVO",
+            name: "MPH",
+            projectCode: "MPH",
         },
         {
-            name: "Baguio",
-            projectCode: "BAG",
+            name: "MS",
+            projectCode: "MS",
         },
         {
-            name: "Iloilo",
-            projectCode: "ILO",
+            name: "AP",
+            projectCode: "AV",
         },
         {
-            name: "Zamboanga",
-            projectCode: "ZAM",
-        }
+            name: "MM",
+            projectCode: "MM",
+        },
+        {
+            name: "MMP",
+            projectCode: "MMP",
+        },
     ]);
 
     const [currentSPU, setCurrentSPU] = useState("");
