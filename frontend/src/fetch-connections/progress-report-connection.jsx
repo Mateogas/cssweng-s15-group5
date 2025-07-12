@@ -30,6 +30,22 @@ export const fetchCaseData = async (caseID) => {
     }
 }
 
+export const fetchProgressReportsForCase = async (caseID) => {
+    try {
+        const response = await fetch(`/api/progress-report/case/${caseID}`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch progress reports for case");
+        }
+
+        const reports = await response.json();
+        return reports;
+    } catch (error) {
+        console.error("Error fetching progress reports for case:", error);
+        throw error;
+    }
+}
+
 export const addProgressReport = async (data, caseID) => {
     try {
         const response = await fetch(`/api/progress-report/add/${caseID}`, {

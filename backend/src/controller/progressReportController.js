@@ -80,6 +80,46 @@ const getCaseData = async (req, res) => {
 }
 
 /**
+ * Gets all progress reports for a case.
+ * 
+ * @route GET /api/progress-report/case/:caseId
+ * 
+ * @param {string} caseId - The ID of the case to fetch progress reports for.
+ * 
+ * @returns {Object} 200 - Array of progress reports.
+ * @returns {Object} 400 - Invalid case ID.
+ * @returns {Object} 404 - Sponsored member not found.
+ * @returns {Object} 500 - Internal server error.
+ */
+const getAllProgressReportsForCase = async (req, res) => {
+    try {
+        const caseId = req.params.caseId;
+
+        // Validate case ID
+        if (!mongoose.Types.ObjectId.isValid(caseId)) {
+            return res.status(400).json({ error: 'Invalid case ID' });
+        }
+
+        // Fetch all progress reports for the sponsored member
+        const sm = await Sponsored_member.findById(caseId).populate('progress_reports');
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
+        }
+
+        const progressReports = sm.progress_reports.map(report => ({
+            _id: report._id,
+            report_number: "Progress Report " + report.report_number,
+            created_at: report.createdAt,
+        }));
+
+        return res.status(200).json(progressReports);
+    } catch (error) {
+        console.error('Error fetching all progress reports:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+/**
  * Adds a progress report to a sponsored member.
  * 
  * @route POST /api/progress-report/add/:caseId
@@ -182,7 +222,10 @@ const addProgressReport = async (req, res) => {
         console.log('Progress report created:', progressReport);
 
         // Add the progress report to the sponsored member's progress_reports array
-        sm.progress_reports.push(progressReport._id);
+        sm.progress_reports.push({
+            progress_report: progressReport._id,
+            report_number: sm.progress_reports.length + 1
+        });
         await sm.save();
         console.log('Progress report added to sponsored member');
 
@@ -350,6 +393,7 @@ const editProgressReport = async (req, res) => {
 module.exports = {
     getProgressReportById,
     getCaseData,
+    getAllProgressReportsForCase,
     addProgressReport,
     deleteProgressReport,
     editProgressReport,
