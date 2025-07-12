@@ -89,8 +89,9 @@ app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
 app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm)
 
-// Log in route
+// Log in and log out route
 app.put('/api/login', authController.loginUser)
+app.put('/api/logout', authController.logoutUser)
 
 /**
  *  ============ Extras ==============
