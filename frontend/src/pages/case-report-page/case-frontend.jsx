@@ -58,13 +58,12 @@ function CaseFrontend() {
             if (!clientId) return;
 
             const fetchedData = await fetchCaseData(clientId);
-            // console.log("FETCHED DATA", fetchedData);
+            console.log("FETCHED DATA", fetchedData);
 
             setData({
                 ...fetchedData,
                 assigned_sdw: fetchedData.assigned_sdw?._id || ""
             });
-
 
             setDrafts({
                 first_name: fetchedData.first_name || "",
@@ -146,6 +145,8 @@ function CaseFrontend() {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
             setSocialDevelopmentWorkers(sdws);
+
+            // console.log("LOADING SDW", sdws);
         };
         loadSDWs();
     }, []);
@@ -588,17 +589,17 @@ function CaseFrontend() {
     //     )?.username || "-"}
     // </p>
 
-    useEffect(() => {
-        // console.log("SOC DEV WORK", socialDevelopmentWorkers);
-        // console.log("DATA:", data);
+    // useEffect(() => {
+    //     console.log("SOC DEV WORK", socialDevelopmentWorkers);
+    //     console.log("DATA:", data);
 
-        let found = socialDevelopmentWorkers.find(
-            (w) => w.id === data.assigned_sdw
-        );
-        // console.log("FOUND:", found);
+    //     let found = socialDevelopmentWorkers.find(
+    //         (w) => w.id === data.assigned_sdw
+    //     );
+    //     console.log("FOUND:", found);
 
 
-    }, [drafts])
+    // }, [drafts])
 
     return (
         <>

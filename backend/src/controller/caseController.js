@@ -33,14 +33,33 @@ const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require(
  *    - 500 Internal Server Error: if something goes wrong during the process
  */
 
-const getCaseById = async (req, res) => {
-     //for now lets do static but replace with req.params.id
+// const getCaseById = async (req, res) => {
+//      //for now lets do static but replace with req.params.id
 
-     //checks if its a valid ObjectId
-     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-          return res.status(400).json({ message: 'Invalid case' });
-     }
-     const id = req.params.id;
+//      //checks if its a valid ObjectId
+//      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//           return res.status(400).json({ message: 'Invalid case' });
+//      }
+//      const id = req.params.id;
+
+//      try {
+//           //finds an id in our mongo
+//           const caseItem = await Sponsored_Member.findById(id).lean().populate(
+//                'assigned_sdw'
+//           );
+//           res.json(caseItem);
+//      } catch (error) {
+
+//           console.error('Error fetching cases:', error);
+//           res.status(500).json({
+//                message: 'Error retrieving case data',
+//                error: error.message
+//           });
+//      }
+// };
+
+const getCaseById = async (req, res) => {
+  const id = req.params.id;
 
      try {
           //finds an id in our mongo
@@ -90,13 +109,17 @@ const getCaseBySMNumber = async (req, res) => {
 
 const getAllSDWs = async (req, res) => {
      try {
-          // If you filter by role, adjust as needed
-          const sdws = await Employee.find({ role: 'sdw' }).lean();
-          res.json(sdws);
+          console.log('Fetching all employees...');
+          const employees = await Employee.find();
+          console.log('Employees found:', employees);
+          res.json(employees);
      } catch (error) {
-          res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
+          console.error('Failed to fetch employees:', error);
+          res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
      }
 };
+
+
 /**  
  *   Gets all cases that are viable to be seen based on user priveleges
  */
