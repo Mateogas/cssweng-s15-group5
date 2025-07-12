@@ -10,6 +10,7 @@ import NavLabelButton from '../../components/NavLabelButton';
 import {
     fetchCaseData,
     fetchFamilyMembers,
+    fetchCaseBySMNumber,
     editProblemsFindings,
     editAssessment,
     editEvalReco,
@@ -60,8 +61,8 @@ function CaseFrontend() {
             // console.log("FETCHED DATA", fetchedData);
 
             setData({
-            ...fetchedData,
-            assigned_sdw: fetchedData.assigned_sdw?._id || ""
+                ...fetchedData,
+                assigned_sdw: fetchedData.assigned_sdw?._id || ""
             });
 
 
@@ -332,26 +333,26 @@ function CaseFrontend() {
         setShowModal(true);
     }
 
-    const checkCore = () => {
+    const checkCore = async () => {
         const missing = [];
 
-    if (!drafts.first_name || drafts.first_name.trim() === "") {
-        missing.push("First Name");
-    } else if (/\d/.test(drafts.first_name)) {
-        missing.push("First Name must not contain numbers");
-    }
+        if (!drafts.first_name || drafts.first_name.trim() === "") {
+            missing.push("First Name");
+        } else if (/\d/.test(drafts.first_name)) {
+            missing.push("First Name must not contain numbers");
+        }
 
-    if (!drafts.middle_name || drafts.middle_name.trim() === "") {
-        missing.push("Middle Name");
-    } else if (/\d/.test(drafts.middle_name)) {
-        missing.push("Middle Name must not contain numbers");
-    }
+        if (!drafts.middle_name || drafts.middle_name.trim() === "") {
+            missing.push("Middle Name");
+        } else if (/\d/.test(drafts.middle_name)) {
+            missing.push("Middle Name must not contain numbers");
+        }
 
-    if (!drafts.last_name || drafts.last_name.trim() === "") {
-        missing.push("Last Name");
-    } else if (/\d/.test(drafts.last_name)) {
-        missing.push("Last Name must not contain numbers");
-    }
+        if (!drafts.last_name || drafts.last_name.trim() === "") {
+            missing.push("Last Name");
+        } else if (/\d/.test(drafts.last_name)) {
+            missing.push("Last Name must not contain numbers");
+        }
 
         if (!drafts.sm_number) {
             missing.push("SM Number");
@@ -360,6 +361,25 @@ function CaseFrontend() {
         } else if (Number(drafts.sm_number) < 0) {
             missing.push("SM Number cannot be negative");
         }
+
+        if (drafts.sm_number) {
+            console.log("checking sm num");
+            const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
+
+            console.log(check.found);
+            console.log(check.data._id);
+            console.log(data._id);
+
+            console.log(check.found && check.data._id !== data._id);
+
+            if (check.found && check.data._id !== data._id) {
+                missing.push(`SM Number already exists and belongs to another case`);
+            }
+
+            console.log(check);
+        }
+
+        console.log(missing);
 
         if (!drafts.spu) missing.push("SPU Project");
         if (!drafts.assigned_sdw) missing.push("Social Development Worker");
@@ -824,12 +844,12 @@ function CaseFrontend() {
                                     <select
                                         className="text-input font-label"
                                         value={drafts.assigned_sdw}
-                                        onChange={(e) =>
-                                            {
-                                                setDrafts((prev) => ({
+                                        onChange={(e) => {
+                                            setDrafts((prev) => ({
                                                 ...prev,
                                                 assigned_sdw: e.target.value,
-                                            }))}
+                                            }))
+                                        }
                                         }
                                         data-cy="assigned-sdw"
                                     >
@@ -954,10 +974,10 @@ function CaseFrontend() {
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
                             onClick={async () => {
-                                const valid = checkCore();
+                                const valid = await checkCore();
                                 if (!valid) return;
 
-                                    // console.log("CURRENT DRAFTS", drafts);
+                                // console.log("CURRENT DRAFTS", drafts);
 
                                 try {
                                     const updated = await updateCoreCaseData(drafts, clientId);

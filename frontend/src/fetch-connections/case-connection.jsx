@@ -57,6 +57,29 @@ export const fetchCaseData = async (caseID) => {
           return defaultCaseData;
      }
 };
+
+
+export const fetchCaseBySMNumber = async (smNumber) => {
+//   console.log('[fetchCaseBySMNumber] Checking SM Number:', smNumber);
+
+  try {
+    const response = await fetch(`/api/cases/case-by-sm-number/${smNumber}`);
+
+    if (!response.ok) {
+      throw new Error(`Case-Connection Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+//     console.log('[fetchCaseBySMNumber] Result:', result);
+
+    return result; 
+  } catch (error) {
+    console.error('[fetchCaseBySMNumber] Error:', error);
+    return { found: false, message: error.message || 'Error fetching case by SM Number' };
+  }
+};
+
+
 /**
  *   Edits chosen data
  * 

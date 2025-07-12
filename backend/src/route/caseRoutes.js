@@ -8,6 +8,7 @@ router.get('/getsdw',caseController.getAllSDWs);
 // Case-Specific Routes
 router.get('/allCases', caseController.getAllCases);
 router.get('/:id', caseController.getCaseById);
+router.get('/case-by-sm-number/:sm_number', caseController.getCaseBySMNumber);
 router.get('/',caseController.getAllCases);
 router.post('/case-create',caseController.addNewCase);
 router.put('/edit/core/:id', caseController.editCaseCore);

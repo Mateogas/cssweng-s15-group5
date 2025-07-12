@@ -805,6 +805,7 @@ function fullname_Formatter(member) {
 
 module.exports = {
      getCaseById,
+     getCaseBySMNumber,
      getFamilyMembers,
      editFamilyMember,
      deleteFamilyMember,
