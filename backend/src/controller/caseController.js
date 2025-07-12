@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
-const { Employee } = require('../model/employee');
+const Employee = require('../model/employee');
 
 const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
@@ -56,7 +56,38 @@ const getCaseById = async (req, res) => {
                error: error.message
           });
      }
-}
+};
+
+const getCaseBySMNumber = async (req, res) => {
+  const smNumber = req.params.sm_number;
+
+  console.log('[getCaseBySMNumber] Called with SM Number:', smNumber);
+
+  try {
+    const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
+      .populate('assigned_sdw')
+      .lean();
+
+    console.log('[getCaseBySMNumber] Found:', caseItem);
+
+    if (!caseItem) {
+      return res.status(200).json({
+        found: false,
+        message: 'Case not found for given SM Number',
+      });
+    }
+
+    res.status(200).json({
+      found: true,
+      data: caseItem,
+    });
+  } catch (error) {
+    console.error('[getCaseBySMNumber] Error:', error);
+    res.status(500).json({ message: 'Error fetching case', error: error.message });
+  }
+};
+
+
 const getAllSDWs = async (req, res) => {
      try {
           // If you filter by role, adjust as needed

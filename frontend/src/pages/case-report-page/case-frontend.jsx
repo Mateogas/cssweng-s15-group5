@@ -335,12 +335,23 @@ function CaseFrontend() {
     const checkCore = () => {
         const missing = [];
 
-        if (!drafts.first_name || drafts.first_name.trim() === "")
-            missing.push("First Name");
-        if (!drafts.middle_name || drafts.middle_name.trim() === "")
-            missing.push("Middle Name");
-        if (!drafts.last_name || drafts.last_name.trim() === "")
-            missing.push("Last Name");
+    if (!drafts.first_name || drafts.first_name.trim() === "") {
+        missing.push("First Name");
+    } else if (/\d/.test(drafts.first_name)) {
+        missing.push("First Name must not contain numbers");
+    }
+
+    if (!drafts.middle_name || drafts.middle_name.trim() === "") {
+        missing.push("Middle Name");
+    } else if (/\d/.test(drafts.middle_name)) {
+        missing.push("Middle Name must not contain numbers");
+    }
+
+    if (!drafts.last_name || drafts.last_name.trim() === "") {
+        missing.push("Last Name");
+    } else if (/\d/.test(drafts.last_name)) {
+        missing.push("Last Name must not contain numbers");
+    }
 
         if (!drafts.sm_number) {
             missing.push("SM Number");
@@ -653,7 +664,7 @@ function CaseFrontend() {
 
                 <section className="flex flex-col gap-5" id="core-fields">
                     <div className="flex items-center justify-between">
-                        {data.is_active === "yes" ? (
+                        {data.is_active === true ? (
                             <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
                                 Active
                             </div>
@@ -827,7 +838,7 @@ function CaseFrontend() {
                                             .filter((sdw) => sdw.spu_id === drafts.spu)
                                             .map((sdw) => (
                                                 <option key={sdw.id} value={sdw.id}>
-                                                    {sdw.username} ({sdw.id})
+                                                    {sdw.username} ({sdw.sdw_id})
                                                 </option>
                                             ))}
                                     </select>

@@ -20,7 +20,7 @@ const defaultCaseData = {
 
      sm_number: '',
      sub_id: '0',
-     sdw_id: '1',
+     sdw_id: '0',
      spu_id: 'MNL',
 };
 // Saved ID locally so no need to pass evertyime
@@ -202,6 +202,7 @@ export const fetchSDWs = async () => {
                id: sdw._id,
                username: `${sdw.first_name} ${sdw.last_name}`,
                spu_id: sdw.spu_id || '', // Adjust as needed
+               sdw_id: sdw.sdw_id
           }));
      } catch (err) {
           console.error('Error fetching SDWs:', err);
