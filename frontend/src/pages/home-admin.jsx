@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import SideItem from "../Components/SideItem"
 import WorkerEntry from "../Components/WorkerEntry";
 import RegisterWorker from "../Components/RegisterWorker";
+import SideBar from "../Components/SideBar";
 
 function HomeAdmin() {
     const [allData, setAllData] = useState([
@@ -97,33 +98,35 @@ function HomeAdmin() {
         },
     ]);
 
-
-
     const [projectLocation, setProjectLocation] = useState([
         {
-            name: "Manila",
-            projectCode: "MNL",
+            name: "AMP",
+            projectCode: "AMP",
         },
         {
-            name: "Cebu",
-            projectCode: "CEB",
+            name: "FDQ",
+            projectCode: "FDQ",
         },
         {
-            name: "Davao",
-            projectCode: "DVO",
+            name: "MPH",
+            projectCode: "MPH",
         },
         {
-            name: "Baguio",
-            projectCode: "BAG",
+            name: "MS",
+            projectCode: "MS",
         },
         {
-            name: "Iloilo",
-            projectCode: "ILO",
+            name: "AP",
+            projectCode: "AP",
         },
         {
-            name: "Zamboanga",
-            projectCode: "ZAM",
-        }
+            name: "MM",
+            projectCode: "MM",
+        },
+        {
+            name: "MMP",
+            projectCode: "MMP",
+        },
     ]);
 
     const [currentSPU, setCurrentSPU] = useState("");
@@ -176,7 +179,6 @@ function HomeAdmin() {
         setCurrentData(filtered);
     }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
 
-
     return (
         <>
             <RegisterWorker
@@ -187,8 +189,6 @@ function HomeAdmin() {
                 }}
                 projectLocations={projectLocation}
             />
-
-
 
             <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
                 items-center py-5 px-8 bg-white">
@@ -211,42 +211,7 @@ function HomeAdmin() {
             </div>
 
             <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
-                <div className="side-nav fixed">
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="home-button"
-                        label="Home"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="progress-button"
-                        label="Progress"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="family-button"
-                        label="Team"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="archive-button"
-                        label="Archive"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="identifying-button"
-                        label="Account"
-                        isActive={false}
-                    />
-                </div>
+                <SideBar></SideBar>
 
                 <div className="flex flex-col w-full gap-15 ml-[15rem]">
                     <div className='flex justify-between gap-10'>

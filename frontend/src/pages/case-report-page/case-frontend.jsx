@@ -1,164 +1,142 @@
-import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useInView } from 'react-intersection-observer';
-
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useInView } from "react-intersection-observer";
+import { useParams } from "react-router-dom";
 import FamilyCard from '../../components/FamilyCard';
 import SimpleModal from '../../components/SimpleModal';
 import NavLabelButton from '../../components/NavLabelButton';
 
 // API Imports
-import {    fetchCaseData, 
-            fetchFamilyMembers, 
-            editProblemsFindings, 
-            editAssessment, 
-            editEvalReco,
-            updateCoreCaseData,
-            updateIdentifyingCaseData,
-            fetchSDWs,   
+import {
+    fetchCaseData,
+    fetchFamilyMembers,
+    fetchCaseBySMNumber,
+    editProblemsFindings,
+    editAssessment,
+    editEvalReco,
+    updateCoreCaseData,
+    updateIdentifyingCaseData,
+    fetchSDWs,
 }
-from '../../fetch-connections/case-connection'; 
+    from '../../fetch-connections/case-connection';
 
 function CaseFrontend() {
+    const navigate = useNavigate();
+    const { clientId } = useParams();
+
     const [data, setData] = useState({
-        first_name: "Hephzi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        sm_number: "12356473",
-        sex: "F",
-        dob: "2000-01-10",
-        civil_status: "Single",
-        edu_attainment: "Senior High School",
-        occupation: "Teacher",
-        pob: "Manila",
-        religion: "Roman Catholic",
-        contact_no: "0917 123 4567",
-        present_address: "Taft Avenue, Metro Manila",
-        relationship_to_client: "Sister",
-        problem_presented: "Client struggles with adjustment to new environment.",
-        observation_findings: "Client appears anxious and has limited coping strategies.",
-        recommendation: "Recommend follow-up sessions and group support.",
-        history_problem: "History of relocation, social withdrawal.",
-        evaluation: "Initial evaluation suggests mild adjustment disorder.",
-        is_active: "yes",
-        assessment: "Yes, very very qualified to wield firearms in public!",
-
-        sdw_id: 23456789,
-        spu_id: "CEB",
-        // sub_id: "CEB-02",
-
-        classifications: ["Solo Parent", "Street Child", "Abandoned Child"]
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        sm_number: "",
+        sex: "",
+        dob: "",
+        civil_status: "",
+        edu_attainment: "",
+        occupation: "",
+        pob: "",
+        religion: "",
+        contact_no: "",
+        present_address: "",
+        relationship_to_client: "",
+        problem_presented: "",
+        observation_findings: "",
+        recommendation: "",
+        history_problem: "",
+        evaluation: "",
+        is_active: "",
+        assessment: "",
+        assigned_sdw: "",
+        spu: "",
+        classifications: []
     });
 
-    const [familyMembers, setFamilyMembers] = useState([
-        {
-            id: 1,
-            first: 'Ana',
-            middle: 'Victoria',
-            last: 'Angat',
-            age: 20,
-            income: 100000.00,
-            civilStatus: 'Single',
-            occupation: 'Software Developer',
-            education: 'Undergraduate',
-            relationship: 'Sister',
-            deceased: false
-        },
-        {
-            id: 2,
-            first: 'Marvin',
-            middle: 'Ivan',
-            last: 'Mangubat',
-            age: 21,
-            income: 0.00,
-            civilStatus: 'Divorced',
-            occupation: 'Unemployed',
-            education: 'Undergraduate',
-            relationship: 'Sister',
-            deceased: false
-        },
-        {
-            id: 3,
-            first: 'Jose',
-            middle: 'Miguel',
-            last: 'Espinosa',
-            age: 21,
-            income: 100000.00,
-            civilStatus: 'Single',
-            occupation: 'Producer',
-            education: 'Undergraduate',
-            relationship: 'Brother',
-            deceased: false
-        },
-        {
-            id: 4,
-            first: 'Jose2',
-            middle: 'Miguel2',
-            last: 'Espinosa2',
-            age: 21,
-            income: 100000.00,
-            civilStatus: 'Single',
-            occupation: 'Producer',
-            education: 'Undergraduate',
-            relationship: 'Brother',
-            deceased: false
-        }
-    ]);
+    const [familyMembers, setFamilyMembers] = useState([]);
+
+    useEffect(() => {
+        const loadCaseData = async () => {
+            if (!clientId) return;
+
+            const fetchedData = await fetchCaseData(clientId);
+            console.log("FETCHED DATA", fetchedData);
+
+            setData({
+                ...fetchedData,
+                assigned_sdw: fetchedData.assigned_sdw?._id || ""
+            });
+
+            setDrafts({
+                first_name: fetchedData.first_name || "",
+                middle_name: fetchedData.middle_name || "",
+                last_name: fetchedData.last_name || "",
+                sm_number: fetchedData.sm_number || "",
+                spu: fetchedData.spu || "",
+                assigned_sdw: fetchedData.assigned_sdw._id || "",
+                classifications: fetchedData.classifications || [],
+
+                dob: fetchedData.dob || "",
+                civil_status: fetchedData.civil_status || "",
+                edu_attainment: fetchedData.edu_attainment || "",
+                sex: fetchedData.sex || "",
+                pob: fetchedData.pob || "",
+                religion: fetchedData.religion || "",
+                occupation: fetchedData.occupation || "",
+                present_address: fetchedData.present_address || "",
+                contact_no: fetchedData.contact_no || "",
+                relationship_to_client: fetchedData.relationship_to_client || "",
+
+                problem_presented: fetchedData.problem_presented || "",
+                history_problem: fetchedData.history_problem || "",
+                observation_findings: fetchedData.observation_findings || "",
+                assessment: fetchedData.assessment || "",
+                recommendation: fetchedData.recommendation || "",
+                evaluation: fetchedData.evaluation || "",
+            });
+
+            setAge(calculateAge(fetchedData.dob));
+        };
+
+        const loadFamilyData = async () => {
+            if (!clientId) return;
+
+            const fetchedData = await fetchFamilyMembers(clientId);
+
+            setFamilyMembers(fetchedData);
+        };
+
+        loadCaseData();
+        loadFamilyData();
+    }, [clientId]);
 
     const [projectLocation, setProjectLocation] = useState([
         {
-            name: "Manila",
-            projectCode: "MNL",
-            // subLocations: [
-            //     { sub_id: "MNL-01", name: "Tondo" },
-            //     { sub_id: "MNL-02", name: "Sampaloc" },
-            //     { sub_id: "MNL-03", name: "Ermita" }
-            // ]
+            name: "AMP",
+            projectCode: "AMP",
         },
         {
-            name: "Cebu",
-            projectCode: "CEB",
-            // subLocations: [
-            //     { sub_id: "CEB-01", name: "Lapu-Lapu" },
-            //     { sub_id: "CEB-02", name: "Mandaue" },
-            //     { sub_id: "CEB-03", name: "Talamban" }
-            // ]
+            name: "FDQ",
+            projectCode: "FDQ",
         },
         {
-            name: "Davao",
-            projectCode: "DVO",
-            // subLocations: [
-            //     { sub_id: "DVO-01", name: "Buhangin" },
-            //     { sub_id: "DVO-02", name: "Talomo" },
-            //     { sub_id: "DVO-03", name: "Toril" }
-            // ]
+            name: "MPH",
+            projectCode: "MPH",
         },
         {
-            name: "Baguio",
-            projectCode: "BAG",
-            // subLocations: [
-            //     { sub_id: "BAG-01", name: "Loakan" },
-            //     { sub_id: "BAG-02", name: "Irisan" },
-            //     { sub_id: "BAG-03", name: "Pacdal" }
-            // ]
+            name: "MS",
+            projectCode: "MS",
         },
         {
-            name: "Iloilo",
-            projectCode: "ILO",
-            // subLocations: [
-            //     { sub_id: "ILO-01", name: "Jaro" },
-            //     { sub_id: "ILO-02", name: "Mandurriao" },
-            //     { sub_id: "ILO-03", name: "Molo" }
-            // ]
+            name: "AP",
+            projectCode: "AV",
         },
         {
-            name: "Zamboanga",
-            projectCode: "ZAM",
-            // subLocations: [
-            //     { sub_id: "ZAM-01", name: "Ayala" },
-            //     { sub_id: "ZAM-02", name: "Putik" },
-            //     { sub_id: "ZAM-03", name: "Tetuan" }
-            // ]
-        }
+            name: "MM",
+            projectCode: "MM",
+        },
+        {
+            name: "MMP",
+            projectCode: "MMP",
+        },
     ]);
 
     const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
@@ -167,25 +145,17 @@ function CaseFrontend() {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
             setSocialDevelopmentWorkers(sdws);
+
+            // console.log("LOADING SDW", sdws);
         };
         loadSDWs();
     }, []);
 
     const [classificationList, setClassificationList] = useState([
-        "Teenage Pregnancy",
-        "Out of School Youth",
-        "Person with Disability",
-        "Senior Citizen",
-        "Solo Parent",
-        "Street Child",
-        "Abandoned Child",
-        "Victim of Abuse",
-        "Indigenous People",
-        "Displaced Individual",
-        "Low Income Family"
+        "Child",
+        "Youth",
+        "Older Adult"
     ]);
-
-
 
     const [age, setAge] = useState(calculateAge(data?.dob));
 
@@ -194,58 +164,61 @@ function CaseFrontend() {
         middle_name: data.middle_name || "",
         last_name: data.last_name || "",
         sm_number: data.sm_number || "",
-        spu_id: data.spu_id || "",
-        sdw_id: data.sdw_id || "",
+        spu: data.spu || "",
+        assigned_sdw: data.assigned_sdw || "",
         classifications: data.classifications || [],
+        is_active: data.is_active || "",
 
         dob: data.dob || "",
-        civilStatus: data.civil_status || "",
-        education: data.edu_attainment || "",
+        civil_status: data.civil_status || "",
+        edu_attainment: data.edu_attainment || "",
         sex: data.sex || "",
         pob: data.pob || "",
         religion: data.religion || "",
         occupation: data.occupation || "",
-        presentAddress: data.present_address || "",
-        contactNo: data.contact_no || "",
-        relationship: data.relationship_to_client || "",
+        present_address: data.present_address || "",
+        contact_no: data.contact_no || "",
+        relationship_to_client: data.relationship_to_client || "",
 
-        problemPresented: data.problem_presented || "",
-        historyProblem: data.history_problem || "",
-        observationFindings: data.observation_findings || "",
-        caseAssessment: data.assessment || "",
-        caseRecommendation: data.recommendation || "",
-        caseEvalutation: data.evaluation || ""
+        problem_presented: data.problem_presented || "",
+        history_problem: data.history_problem || "",
+        observation_findings: data.observation_findings || "",
+        assessment: data.assessment || "",
+        recommendation: data.recommendation || "",
+        evaluation: data.evaluation || "",
     });
 
-
     const resetFields = () => {
+        // console.log("RESET FIEDLS", data.assigned_sdw._id);
+
         setDrafts({
             first_name: data.first_name || "",
             middle_name: data.middle_name || "",
             last_name: data.last_name || "",
             sm_number: data.sm_number || "",
-            spu_id: data.spu_id || "",
-            sdw_id: data.sdw_id || "",
+            spu: data.spu || "",
+            assigned_sdw: data.assigned_sdw._id || "",
             classifications: data.classifications || [],
 
             dob: data.dob || "",
-            civilStatus: data.civil_status || "",
-            education: data.edu_attainment || "",
+            civil_status: data.civil_status || "",
+            edu_attainment: data.edu_attainment || "",
             sex: data.sex || "",
             pob: data.pob || "",
             religion: data.religion || "",
             occupation: data.occupation || "",
-            presentAddress: data.present_address || "",
-            contactNo: data.contact_no || "",
-            relationship: data.relationship_to_client || "",
+            present_address: data.present_address || "",
+            contact_no: data.contact_no || "",
+            relationship_to_client: data.relationship_to_client || "",
 
-            problemPresented: data.problem_presented || "",
-            historyProblem: data.history_problem || "",
-            observationFindings: data.observation_findings || "",
-            caseAssessment: data.assessment || "",
-            caseRecommendation: data.recommendation || "",
-            caseEvalutation: data.evaluation || ""
+            problem_presented: data.problem_presented || "",
+            history_problem: data.history_problem || "",
+            observation_findings: data.observation_findings || "",
+            assessment: data.assessment || "",
+            recommendation: data.recommendation || "",
+            evaluation: data.evaluation || "",
         });
+
         setEditingField(null);
     };
 
@@ -253,7 +226,6 @@ function CaseFrontend() {
     useEffect(() => {
         setAge(calculateAge(drafts.dob));
     }, [drafts.dob]);
-
 
     const [ref1, inView1] = useInView({ threshold: 0.5 });
     const [ref2, inView2] = useInView({ threshold: 0.5 });
@@ -263,16 +235,13 @@ function CaseFrontend() {
     const [ref6, inView6] = useInView({ threshold: 0.5 });
 
     useEffect(() => {
-        if (inView1) setCurrentSection('identifying-data');
-        else if (inView2) setCurrentSection('family-composition');
-        else if (inView3) setCurrentSection('problems-findings');
-        else if (inView4) setCurrentSection('interventions');
-        else if (inView5) setCurrentSection('assessments');
-        else if (inView6) setCurrentSection('evaluation-recommendation');
-
-
+        if (inView1) setCurrentSection("identifying-data");
+        else if (inView2) setCurrentSection("family-composition");
+        else if (inView3) setCurrentSection("problems-findings");
+        else if (inView4) setCurrentSection("interventions");
+        else if (inView5) setCurrentSection("assessments");
+        else if (inView6) setCurrentSection("evaluation-recommendation");
     }, [inView1, inView2, inView3, inView4, inView5, inView6]);
-
 
     const sliderRef = useRef(null);
 
@@ -281,22 +250,22 @@ function CaseFrontend() {
         slider.isDown = true;
         slider.startX = e.pageX - slider.offsetLeft;
         slider.scrollLeft = slider.scrollLeft;
-        slider.classList.add('cursor-grabbing');
-        slider.style.userSelect = 'none';
+        slider.classList.add("cursor-grabbing");
+        slider.style.userSelect = "none";
     };
 
     const handleMouseLeave = () => {
         const slider = sliderRef.current;
         slider.isDown = false;
-        slider.classList.remove('cursor-grabbing');
-        slider.style.userSelect = '';
+        slider.classList.remove("cursor-grabbing");
+        slider.style.userSelect = "";
     };
 
     const handleMouseUp = () => {
         const slider = sliderRef.current;
         slider.isDown = false;
-        slider.classList.remove('cursor-grabbing');
-        slider.style.userSelect = '';
+        slider.classList.remove("cursor-grabbing");
+        slider.style.userSelect = "";
     };
 
     const handleMouseMove = (e) => {
@@ -316,7 +285,8 @@ function CaseFrontend() {
 
         const birthdayDone =
             today.getMonth() > birthday.getMonth() ||
-            (today.getMonth() === birthday.getMonth() && today.getDate() >= birthday.getDate());
+            (today.getMonth() === birthday.getMonth() &&
+                today.getDate() >= birthday.getDate());
 
         if (!birthdayDone) {
             age--;
@@ -332,7 +302,7 @@ function CaseFrontend() {
     const [currentSection, setCurrentSection] = useState("identifying-data");
 
     const [selectedFamily, setSelectedFamily] = useState(null);
-    const [editingFamilyValue, setEditingFamilyValue] = useState({})
+    const [editingFamilyValue, setEditingFamilyValue] = useState({});
 
     const [familyCounter, setFamilyCounter] = useState(familyMembers.length);
 
@@ -349,34 +319,85 @@ function CaseFrontend() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
 
     function formatListWithAnd(arr) {
-        if (arr.length === 0) return '';
+        if (arr.length === 0) return "";
         if (arr.length === 1) return arr[0];
         if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
         const last = arr[arr.length - 1];
-        return `${arr.slice(0, -1).join(', ')}, and ${last}`;
+        return `${arr.slice(0, -1).join(", ")}, and ${last}`;
     }
 
-    const checkNewLocales = () => {
+    function showSuccess(message) {
+        setModalTitle('Success!');
+        setModalBody(message);
+        setModalImageCenter(<div className='success-icon mx-auto'></div>);
+        setModalConfirm(false);
+        setShowModal(true);
+    }
+
+    const checkCore = async () => {
         const missing = [];
 
-        if (!drafts.spu_id) missing.push('SPU Project');
-        // if (!drafts.sub_id) missing.push('Sub-Project'); // if needed
-        if (!drafts.sdw_id) missing.push('Social Development Worker');
-        if (!drafts.classifications || drafts.classifications.length === 0)
-            missing.push('at least one Classification');
-
-        const validSDWIds = socialDevelopmentWorkers
-            .filter((sdw) => sdw.spu_id === drafts.spu_id)
-            .map((sdw) => sdw.id);
-
-        if (drafts.sdw_id && !validSDWIds.includes(drafts.sdw_id)) {
-            missing.push('valid Social Development Worker for selected SPU');
+        if (!drafts.first_name || drafts.first_name.trim() === "") {
+            missing.push("First Name");
+        } else if (/\d/.test(drafts.first_name)) {
+            missing.push("First Name must not contain numbers");
         }
 
+        if (!drafts.middle_name || drafts.middle_name.trim() === "") {
+            missing.push("Middle Name");
+        } else if (/\d/.test(drafts.middle_name)) {
+            missing.push("Middle Name must not contain numbers");
+        }
+
+        if (!drafts.last_name || drafts.last_name.trim() === "") {
+            missing.push("Last Name");
+        } else if (/\d/.test(drafts.last_name)) {
+            missing.push("Last Name must not contain numbers");
+        }
+
+        if (!drafts.sm_number) {
+            missing.push("SM Number");
+        } else if (isNaN(Number(drafts.sm_number))) {
+            missing.push("SM Number must only be numeric");
+        } else if (Number(drafts.sm_number) < 0) {
+            missing.push("SM Number cannot be negative");
+        }
+
+        if (drafts.sm_number) {
+            console.log("checking sm num");
+            const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
+
+            console.log(check.found);
+            console.log(check.data._id);
+            console.log(data._id);
+
+            console.log(check.found && check.data._id !== data._id);
+
+            if (check.found && check.data._id !== data._id) {
+                missing.push(`SM Number already exists and belongs to another case`);
+            }
+
+            console.log(check);
+        }
+
+        console.log(missing);
+
+        if (!drafts.spu) missing.push("SPU Project");
+        if (!drafts.assigned_sdw) missing.push("Social Development Worker");
+
+        const validSDWIds = socialDevelopmentWorkers
+            .filter((sdw) => sdw.spu_id === drafts.spu)
+            .map((sdw) => sdw.id);
+
+        if (drafts.assigned_sdw && !validSDWIds.includes(drafts.assigned_sdw)) {
+            missing.push("valid Social Development Worker for selected SPU");
+        }
+
+
         if (missing.length > 0) {
-            setModalTitle('Invalid Fields');
+            setModalTitle("Invalid Fields");
             setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
-            setModalImageCenter(<div className='warning-icon mx-auto'></div>);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
             setModalConfirm(false);
             setShowModal(true);
             return false;
@@ -385,49 +406,200 @@ function CaseFrontend() {
         return true;
     };
 
+
     useEffect(() => {
         const validSDWIds = socialDevelopmentWorkers
-            .filter((sdw) => sdw.spu_id === drafts.spu_id)
+            .filter((sdw) => sdw.spu_id === drafts.spu)
             .map((sdw) => sdw.id);
 
-        if (drafts.sdw_id && !validSDWIds.includes(drafts.sdw_id)) {
+        if (drafts.assigned_sdw && !validSDWIds.includes(drafts.assigned_sdw)) {
             setDrafts((prev) => ({
-                ...prev,
-                sdw_id: "",
+                ...prev
             }));
         }
-    }, [drafts.spu_id, drafts.sdw_id, socialDevelopmentWorkers]);
+    }, [drafts.spu, drafts.assigned_sdw, socialDevelopmentWorkers]);
 
+
+    function checkIdentifying() {
+        const missing = [];
+
+        if (!drafts.dob) {
+            missing.push('Date of Birth');
+        } else {
+            const selectedDate = new Date(drafts.dob);
+            const today = new Date();
+            if (selectedDate > today) {
+                missing.push('Date of Birth cannot be in the future');
+            }
+        }
+
+        if (!drafts.sex) {
+            missing.push('Sex');
+        }
+
+        if (!drafts.civil_status) {
+            missing.push('Civil Status');
+        }
+
+        if (!drafts.present_address || drafts.present_address.trim() === "") {
+            missing.push("Present Address");
+        }
+
+        if (drafts.contact_no && drafts.contact_no.length !== 11) {
+            missing.push('Contact No. must be exactly 11 digits');
+        }
+
+        if (missing.length > 0) {
+            setModalTitle('Invalid Fields');
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        return true;
+    }
 
 
     const handleAddFamilyMember = () => {
-        const newId = familyCounter + 1;
         const newMember = {
-            id: newId,
-            name: '',
-            age: '',
-            income: '',
-            civilStatus: '',
-            occupation: '',
-            education: '',
-            relationship: '',
-            deceased: false
+            first: "",
+            middle: "",
+            last: "",
+            age: "",
+            income: "",
+            civilStatus: "",
+            occupation: "",
+            education: "",
+            relationship: "",
+            status: "Living",
+            newlyCreated: true,
         };
 
-        setFamilyMembers(prev => [newMember, ...prev]);
+        setFamilyMembers((prev) => [newMember, ...prev]);
         setSelectedFamily(0);
         setEditingFamilyValue(newMember);
-        setFamilyCounter(newId);
     };
 
     const handleDeleteFamilyMember = (familyToDelete) => {
-        const updated = familyMembers.filter(member => member.id !== familyToDelete);
+        const updated = familyMembers.filter(
+            (member) => member.id !== familyToDelete,
+        );
         setFamilyMembers(updated);
         setFamilyToDelete(null);
         setFamilyConfirm(false);
         setSelectedFamily(null);
     };
 
+    const [intervention_selected, setInterventionSelected] = useState("");
+
+    const [home_visitations, setHomeVisitations] = useState([
+        {
+            intervention: "Home Visitation",
+            date: "May 05, 2025",
+        },
+        {
+            intervention: "Home Visitation",
+            date: "May 23, 2025",
+        },
+        {
+            intervention: "Home Visitation",
+            date: "June 02, 2025",
+        },
+    ]);
+
+    const [counsellings, setCounsellings] = useState([
+        {
+            intervention: "Counselling",
+            date: "April 27, 2025",
+        },
+        {
+            intervention: "Counselling",
+            date: "May 02, 2025",
+        },
+        {
+            intervention: "Counselling",
+            date: "June 13, 2025",
+        },
+    ]);
+
+    const [financial_assistances, setFinancialAssistances] = useState([
+        {
+            intervention: "Financial Assistance",
+            date: "March 15, 2025",
+        },
+        {
+            intervention: "Financial Assistance",
+            date: "March 21, 2025",
+        },
+        {
+            intervention: "Financial Assistance",
+            date: "April 07, 2025",
+        },
+    ]);
+
+    const [correspondences, setCorrespondences] = useState([
+        {
+            intervention: "Correspondence",
+            date: "June 03, 2025",
+        },
+        {
+            intervention: "Correspondence",
+            date: "June 19, 2025",
+        },
+        {
+            intervention: "Correspondence",
+            date: "July 04, 2025",
+        },
+    ]);
+
+    const interventions = {
+        "Home Visitation": home_visitations,
+        Counselling: counsellings,
+        "Financial Assistance": financial_assistances,
+        Correspondences: correspondences,
+    };
+
+    const [progress_reports, setProgressReports] = useState([
+        {
+            name: "Progress Report",
+            date: "May 16, 2025",
+        },
+        {
+            name: "Progress Report",
+            date: "June 17, 2025",
+        },
+        {
+            name: "Progress Report",
+            date: "July 02, 2025",
+        },
+    ]);
+
+    const handleInterventionNavigation = (key) => {
+        navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    // <p className="font-label">
+    //     <span className="font-bold-label">
+    //         Social Development Worker:
+    //     </span>{" "}
+    //     {socialDevelopmentWorkers.find(
+    //         (w) => w.id === data.assigned_sdw,
+    //     )?.username || "-"}
+    // </p>
+
+    // useEffect(() => {
+    //     console.log("SOC DEV WORK", socialDevelopmentWorkers);
+    //     console.log("DATA:", data);
+
+    //     let found = socialDevelopmentWorkers.find(
+    //         (w) => w.id === data.assigned_sdw
+    //     );
+    //     console.log("FOUND:", found);
+
+
+    // }, [drafts])
 
     return (
         <>
@@ -451,11 +623,15 @@ function CaseFrontend() {
                 }}
             />
 
-            <main className='flex flex-col gap-20 pt-15'>
+            <main className="flex flex-col gap-20 pt-15">
                 {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
-                <div className='fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
-                items-center bg-white py-3 px-4 '>
-                    <button className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group">
+                <div className="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1280px] items-center justify-between bg-white px-4 py-3">
+                    <button
+                        className="font-bold-label arrow-group flex items-center gap-5 px-4 py-2"
+                        onClick={() => {
+                            navigate("/home-sdw");
+                        }}
+                    >
                         <div className="arrow-left-button"></div>
                         Back
                     </button>
@@ -511,22 +687,32 @@ function CaseFrontend() {
                     </div>
                 </div>
 
-                <section className='flex flex-col gap-5' id="core-fields">
-                    <div className='flex justify-between items-center'>
-                        {data.is_active === "yes" ? (
-                            <div className='rounded-full bg-[var(--color-green)] font-bold-label p-2 px-8 !text-white'>Active</div>
+                <section className="flex flex-col gap-5" id="core-fields">
+                    <div className="flex items-center justify-between">
+                        {data.is_active === true ? (
+                            <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
+                                Active
+                            </div>
                         ) : (
-                            <div className='rounded-full bg-[var(--accent-dark)] font-bold-label p-2 px-8 !text-white'>Inactive</div>
+                            <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
+                                Inactive
+                            </div>
                         )}
-                        <button className="btn-blue font-bold-label drop-shadow-base">Download</button>
+                        <button className="btn-blue font-bold-label drop-shadow-base"
+                            data-cy='download-case'>
+                            Download
+                        </button>
                     </div>
 
                     {editingField === "core-fields" && (
-                        <div className='flex justify-between items-center'>
-
+                        <div className="flex items-center justify-between">
                             <h1 className="header-main">Core Details</h1>
                             <button
-                                className={editingField === "core-fields" ? "icon-button-setup x-button" : "icon-button-setup dots-button"}
+                                className={
+                                    editingField === "core-fields"
+                                        ? "icon-button-setup x-button"
+                                        : "icon-button-setup dots-button"
+                                }
                                 onClick={() => {
                                     if (editingField) {
                                         resetFields();
@@ -542,52 +728,64 @@ function CaseFrontend() {
                         <>
                             <div className="flex gap-5 w-full">
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">First Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
                                         type="text"
                                         value={drafts.first_name}
+                                        placeholder='First Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
                                         className="text-input font-label w-full"
+                                        data-cy='fname'
                                     />
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Middle Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Middle Name</label>
                                     <input
                                         type="text"
                                         value={drafts.middle_name}
+                                        placeholder='Middle Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
                                         className="text-input font-label w-full"
+                                        data-cy='mname'
                                     />
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Last Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
                                         type="text"
                                         value={drafts.last_name}
+                                        placeholder='Last Name'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
                                         className="text-input font-label w-full"
+                                        data-cy='lname'
                                     />
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-5 w-full">
-                                <label className="font-bold-label">SM Number</label>
+                                <label className="font-bold-label"><span className='text-red-500'>*</span> SM Number</label>
                                 <input
                                     type="text"
                                     value={drafts.sm_number}
+                                    placeholder='SM Number'
                                     onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
                                     className="text-input font-label w-full max-w-[30rem]"
+                                    data-cy='sm-number'
                                 />
                             </div>
                         </>
                     ) : (
                         <>
-                            <div className='flex justify-between items-center'>
+                            <div className="flex items-center justify-between">
                                 <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
                                 <button
-                                    className={editingField === "core-fields" ? "icon-button-setup x-button" : "icon-button-setup dots-button"}
+                                    className={
+                                        editingField === "core-fields"
+                                            ? "icon-button-setup x-button"
+                                            : "icon-button-setup dots-button"
+                                    }
                                     onClick={() => {
                                         if (editingField) {
                                             resetFields();
@@ -595,113 +793,170 @@ function CaseFrontend() {
                                             setEditingField("core-fields");
                                         }
                                     }}
+                                    data-cy='edit-core-details-section'
                                 ></button>
                             </div>
-                            <h2 className='header-sub'>{data.sm_number}</h2>
+                            <h2 className="header-sub">{data.sm_number}</h2>
                         </>
                     )}
 
-                    <div className='flex justify-between gap-10 flex-wrap'>
+                    <div className="flex flex-wrap justify-between gap-10">
                         {/* SPU Project */}
-                        <div className='flex flex-col w-full md:w-[48%]'>
+                        <div className="flex w-full flex-col md:w-[48%]">
                             {editingField === "core-fields" ? (
                                 <>
-                                    <label className='font-bold-label'>SPU Project</label>
+                                    <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
                                     <select
                                         className="text-input font-label"
-                                        value={drafts.spu_id}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, spu_id: e.target.value }))}
+                                        value={drafts.spu}
+                                        onChange={(e) =>
+                                            setDrafts((prev) => ({
+                                                ...prev,
+                                                spu: e.target.value,
+                                            }))
+                                        }
+                                        data-cy='spu'
                                     >
                                         <option value="">Select SPU</option>
                                         {projectLocation.map((project) => (
-                                            <option key={project.projectCode} value={project.projectCode}>
-                                                {project.name} ({project.projectCode})
+                                            <option
+                                                key={project.projectCode}
+                                                value={project.projectCode}
+                                            >
+                                                {project.name} (
+                                                {project.projectCode})
                                             </option>
                                         ))}
                                     </select>
                                 </>
                             ) : (
                                 <p className="font-label">
-                                    <span className="font-bold-label">SPU Project:</span>{" "}
-                                    {projectLocation.find(p => p.projectCode === data.spu_id)?.name || "-"}
+                                    <span className="font-bold-label">
+                                        SPU Project:
+                                    </span>{" "}
+                                    {projectLocation.find(
+                                        (p) => p.projectCode === data.spu,
+                                    )?.name || "-"}
                                 </p>
                             )}
                         </div>
 
                         {/* Social Development Worker */}
-                        <div className='flex flex-col w-full md:w-[48%]'>
+                        <div className="flex w-full flex-col md:w-[48%]">
                             {editingField === "core-fields" ? (
                                 <>
-                                    <label className='font-bold-label'>Social Development Worker</label>
+                                    <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
                                     <select
                                         className="text-input font-label"
-                                        value={drafts.sdw_id}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, sdw_id: e.target.value }))}
+                                        value={drafts.assigned_sdw}
+                                        onChange={(e) => {
+                                            setDrafts((prev) => ({
+                                                ...prev,
+                                                assigned_sdw: e.target.value,
+                                            }))
+                                        }
+                                        }
+                                        data-cy="assigned-sdw"
                                     >
                                         <option value="">Select SDW</option>
                                         {socialDevelopmentWorkers
-                                            .filter((sdw) => sdw.spu_id === drafts.spu_id)
+                                            .filter((sdw) => sdw.spu_id === drafts.spu)
                                             .map((sdw) => (
                                                 <option key={sdw.id} value={sdw.id}>
-                                                    {sdw.username} 
+                                                    {sdw.username} ({sdw.sdw_id})
                                                 </option>
                                             ))}
                                     </select>
+
                                 </>
                             ) : (
                                 <p className="font-label">
-                                    <span className="font-bold-label">Social Development Worker:</span>{" "}
-                                    {socialDevelopmentWorkers.find(w => w.id === data.sdw_id)?.username || "-"}
+                                    <span className="font-bold-label">
+                                        Social Development Worker:
+                                    </span>{" "}
+                                    {socialDevelopmentWorkers.find(
+                                        (w) => w.id === data.assigned_sdw,
+                                    )?.username || "-"}
                                 </p>
+
                             )}
                         </div>
                     </div>
-
 
                     <div className='flex flex-col w-full'>
                         <label className="font-bold-label mb-2">Classifications</label>
                         {editingField === "core-fields" ? (
                             <>
-                                <div className="flex items-center max-w-[65rem] w-full self-start">
+                                <div className="flex w-full max-w-[65rem] items-center self-start">
                                     <select
                                         className="text-input font-label"
                                         value={selectedClassification}
-                                        onChange={(e) => setSelectedClassification(e.target.value)}
+                                        onChange={(e) =>
+                                            setSelectedClassification(
+                                                e.target.value,
+                                            )
+                                        }
                                     >
-                                        <option value="">Select Classification</option>
+                                        <option value="">
+                                            Select Classification
+                                        </option>
                                         {classificationList.map((item) => (
-                                            <option key={item} value={item}>{item}</option>
+                                            <option key={item} value={item}>
+                                                {item}
+                                            </option>
                                         ))}
                                     </select>
                                     <button
                                         type="button"
-                                        className="btn-primary font-bold-label ml-5 !w-[4.5rem] !h-[4.5rem]"
+                                        className="btn-primary font-bold-label ml-5 !h-[4.5rem] !w-[4.5rem]"
                                         onClick={() => {
-                                            if (selectedClassification && !drafts.classifications.includes(selectedClassification)) {
-                                                setDrafts(prev => ({
+                                            if (
+                                                selectedClassification &&
+                                                !drafts.classifications.includes(
+                                                    selectedClassification,
+                                                )
+                                            ) {
+                                                setDrafts((prev) => ({
                                                     ...prev,
-                                                    classifications: [...prev.classifications, selectedClassification],
+                                                    classifications: [
+                                                        ...prev.classifications,
+                                                        selectedClassification,
+                                                    ],
                                                 }));
                                                 setSelectedClassification("");
                                             }
                                         }}
-                                    >+</button>
+                                    >
+                                        +
+                                    </button>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 mt-3">
+                                <div className="mt-3 flex flex-wrap gap-2">
                                     {drafts.classifications.map((item) => (
-                                        <div key={item} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full">
-                                            <span className="font-label">{item}</span>
+                                        <div
+                                            key={item}
+                                            className="flex items-center gap-2 rounded-full bg-gray-200 px-3 py-1"
+                                        >
+                                            <span className="font-label">
+                                                {item}
+                                            </span>
                                             <button
                                                 type="button"
-                                                className="text-red-500 font-bold"
+                                                className="font-bold text-red-500"
                                                 onClick={() => {
-                                                    setDrafts(prev => ({
+                                                    setDrafts((prev) => ({
                                                         ...prev,
-                                                        classifications: prev.classifications.filter(c => c !== item),
+                                                        classifications:
+                                                            prev.classifications.filter(
+                                                                (c) =>
+                                                                    c !== item,
+                                                            ),
                                                     }));
                                                 }}
-                                            >✕</button>
+                                                data-cy='cancel-core-details-section'
+                                            >
+                                                ✕
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -709,7 +964,12 @@ function CaseFrontend() {
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {data.classifications.map((item) => (
-                                    <span key={item} className="font-label bg-gray-200 px-3 py-1 rounded-full">{item}</span>
+                                    <span
+                                        key={item}
+                                        className="font-label rounded-full bg-gray-200 px-3 py-1"
+                                    >
+                                        {item}
+                                    </span>
                                 ))}
                             </div>
                         )}
@@ -719,139 +979,128 @@ function CaseFrontend() {
                         <button
                             className="btn-transparent-rounded my-3 ml-auto"
                             onClick={async () => {
-                                if (!checkNewLocales()) return;
+                                const valid = await checkCore();
+                                if (!valid) return;
+
+                                // console.log("CURRENT DRAFTS", drafts);
 
                                 try {
-                                    const updatedFields = {
-                                        first_name: drafts.first_name,
-                                        middle_name: drafts.middle_name,
-                                        last_name: drafts.last_name,
-                                        sm_number: drafts.sm_number,
-                                        spu_id: drafts.spu_id,
-                                        sdw_id: drafts.sdw_id,
-                                        classifications: drafts.classifications || [],
-                                    };
+                                    const updated = await updateCoreCaseData(drafts, clientId);
 
-                                    const updated = await updateCoreCaseData(updatedFields, data._id);
+                                    // console.log("UPDATED: ", updated);
 
-                                    setData(prev => ({
+                                    setData((prev) => ({
                                         ...prev,
-                                        first_name: drafts.first_name,
-                                        middle_name: drafts.middle_name,
-                                        last_name: drafts.last_name,
-                                        sm_number: drafts.sm_number,
-                                        spu_id: drafts.spu_id,
-                                        sdw_id: drafts.sdw_id,
-                                        classifications: drafts.classifications || [],
+                                        first_name: updated.first_name || drafts.first_name,
+                                        middle_name: updated.middle_name || drafts.middle_name,
+                                        last_name: updated.last_name || drafts.last_name,
+                                        sm_number: updated.sm_number || drafts.sm_number,
+                                        spu: updated.spu || drafts.spu,
+                                        assigned_sdw: updated.assigned_sdw || drafts.assigned_sdw,
+                                        classifications: updated.classifications || drafts.classifications || [],
                                     }));
+
                                     setEditingField(null);
+                                    showSuccess("Core details were successfully updated!");
                                 } catch (error) {
-                                    console.error('Error updating core case data:', error);
+                                    setModalTitle("Update Error");
+                                    setModalBody(error.message || "An unexpected error occurred.");
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                    setModalConfirm(false);
+                                    setShowModal(true);
                                 }
                             }}
+                            data-cy="submit-core-details-section"
                         >
                             Submit Changes
                         </button>
-
                     )}
                 </section>
-
 
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <div className="flex justify-between items-center">
                         <h1 className="header-main">Identifying Data</h1>
                         <button
                             className={
-                                editingField === 'identifying-fields'
+                                editingField === "identifying-fields"
                                     ? "icon-button-setup x-button"
-                                    : 'icon-button-setup dots-button'
+                                    : "icon-button-setup dots-button"
                             }
                             onClick={() => {
                                 if (editingField) {
                                     resetFields();
                                 } else {
-                                    setEditingField('identifying-fields');
+                                    setEditingField("identifying-fields");
                                 }
                             }}
+                            data-cy='edit-identifying-data-section'
                         ></button>
                     </div>
 
-                    {editingField === 'identifying-fields' ? (
+                    {editingField === "identifying-fields" ? (
                         <>
                             <div className="flex justify-between gap-20">
-                                <div className="flex flex-col gap-5 w-full">
+                                <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label" htmlFor="age">Age</label>
                                     <input
                                         type="number"
                                         id="age"
                                         value={age}
                                         readOnly
+                                        disabled
                                         className="text-input font-label"
+                                        data-cy='age'
                                     />
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="dob">Date of Birth</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Date of Birth</label>
                                     <input
                                         type="date"
-                                        id="dob"
                                         value={drafts.dob || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
                                         className="text-input font-label"
+                                        data-cy='dob'
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="civil">Civil Status</label>
-                                    <input
-                                        type="text"
-                                        id="civil"
-                                        value={drafts.civilStatus || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, civilStatus: e.target.value }))}
-                                        className="text-input font-label"
-                                    />
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
+                                    <select
+                                        className='text-input font-label'
+                                        value={drafts.sex || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
+                                        data-cy='sex'
+                                    >
+                                        <option value="">Select Sex</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
                                 </div>
 
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label" htmlFor="education">Educational Attainment</label>
+                                <div className="flex w-full flex-col gap-5">
+                                    <label className="font-bold-label">Contact No.</label>
                                     <input
                                         type="text"
-                                        id="education"
-                                        value={drafts.education || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, education: e.target.value }))}
                                         className="text-input font-label"
+                                        placeholder="Contact No."
+                                        value={drafts.contact_no || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, contact_no: e.target.value }))}
+                                        data-cy='contact-num'
                                     />
                                 </div>
                             </div>
 
                             <div className='flex justify-between gap-20'>
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Sex</label>
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label">Educational Attainment</label>
                                     <input
                                         type="text"
-                                        value={drafts.sex || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
-                                        className='text-input font-label'
-                                    />
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Place of Birth</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.pob || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
-                                        className='text-input font-label'
-                                    />
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Religion</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.religion || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
-                                        className='text-input font-label'
+                                        placeholder='Educational Attainment'
+                                        value={drafts.edu_attainment || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, edu_attainment: e.target.value }))}
+                                        data-cy='educational-attainment'
+                                        className="text-input font-label"
                                     />
                                 </div>
 
@@ -860,42 +1109,76 @@ function CaseFrontend() {
                                     <input
                                         type="text"
                                         value={drafts.occupation || ""}
+                                        placeholder='Occupation'
                                         onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
                                         className='text-input font-label'
+                                        data-cy='occupation'
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-5 w-full">
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Civil Status</label>
+                                    <select
+                                        className="text-input font-label"
+                                        value={drafts.civil_status || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, civil_status: e.target.value }))}
+                                        data-cy='civil-status'
+                                    >
+                                        <option value="">Select Civil Status</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Divorced">Divorced</option>
+                                        <option value="Separated">Separated</option>
+                                        <option value="Widowed">Widowed</option>
+                                    </select>
+                                </div>
+
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Religion</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.religion || ""}
+                                        placeholder='Religion'
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
+                                        className='text-input font-label'
+                                        data-cy='religion'
                                     />
                                 </div>
                             </div>
 
                             <div className="flex justify-between gap-20">
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Present Address</label>
-                                    <textarea
-                                        className="text-input font-label"
-                                        placeholder="Taft Avenue, Metro Manila"
-                                        value={drafts.presentAddress || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, presentAddress: e.target.value }))}
-                                    ></textarea>
-                                </div>
-
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Contact No.</label>
-                                    <input
-                                        type="text"
-                                        className="text-input font-label"
-                                        placeholder="0000 000 0000"
-                                        value={drafts.contactNo || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, contactNo: e.target.value }))}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-5 w-full">
+                                <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label">Relationship to Client</label>
                                     <input
                                         type="text"
                                         className="text-input font-label"
-                                        placeholder="Sister"
-                                        value={drafts.relationship || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, relationship: e.target.value }))}
+                                        placeholder="Relationship to Client"
+                                        value={drafts.relationship_to_client || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, relationship_to_client: e.target.value }))}
+                                        data-cy='relationship'
+                                    />
+                                </div>
+
+                                <div className="flex w-full flex-col gap-5">
+                                    <label className="font-bold-label">Present Address</label>
+                                    <textarea
+                                        className="text-input font-label resize-y min-h-[20rem]"
+                                        placeholder="Present Address"
+                                        value={drafts.present_address || ""}
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, present_address: e.target.value }))}
+                                        data-cy='address'
+                                    ></textarea>
+                                </div>
+
+                                <div className='flex flex-col gap-5 w-full'>
+                                    <label className="font-bold-label">Place of Birth</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.pob || ""}
+                                        placeholder='Place of Birth'
+                                        onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
+                                        className='text-input font-label'
+                                        data-cy='pob'
                                     />
                                 </div>
                             </div>
@@ -904,95 +1187,102 @@ function CaseFrontend() {
                                 <button
                                     className="btn-transparent-rounded my-3 ml-auto"
                                     onClick={async () => {
-                                        try {
-                                            const updatedFields = {
-                                                dob: drafts.dob,
-                                                civil_status: drafts.civilStatus,
-                                                edu_attainment: drafts.education,
-                                                sex: drafts.sex,
-                                                pob: drafts.pob,
-                                                religion: drafts.religion,
-                                                occupation: drafts.occupation,
-                                                present_address: drafts.presentAddress,
-                                                contact_no: drafts.contactNo,
-                                                relationship_to_client: drafts.relationship,
-                                            };
+                                        const valid = checkIdentifying();
+                                        if (!valid) return;
 
-                                            const updated = await updateIdentifyingCaseData(updatedFields,data._id);
-                                            
-                                            setData(prev => ({
+                                        try {
+                                            const updated = await updateIdentifyingCaseData(drafts, clientId);
+
+                                            setData((prev) => ({
                                                 ...prev,
-                                                dob: drafts.dob,
-                                                civil_status: drafts.civilStatus,
-                                                edu_attainment: drafts.education,
-                                                sex: drafts.sex,
-                                                pob: drafts.pob,
-                                                religion: drafts.religion,
-                                                occupation: drafts.occupation,
-                                                present_address: drafts.presentAddress,
-                                                contact_no: drafts.contactNo,
-                                                relationship_to_client: drafts.relationship,
+                                                dob: updated.dob || drafts.dob,
+                                                civil_status: updated.civil_status || drafts.civil_status,
+                                                edu_attainment: updated.edu_attainment || drafts.edu_attainment,
+                                                sex: updated.sex || drafts.sex,
+                                                pob: updated.pob || drafts.pob,
+                                                religion: updated.religion || drafts.religion,
+                                                occupation: updated.occupation || drafts.occupation,
+                                                present_address: updated.present_address || drafts.present_address,
+                                                contact_no: updated.contact_no || drafts.contact_no,
+                                                relationship_to_client: updated.relationship_to_client || drafts.relationship_to_client,
                                             }));
+
                                             setEditingField(null);
+                                            showSuccess("Identifying data was successfully updated!");
                                         } catch (error) {
-                                            console.error('Error updating case data:', error);
-                                            
+                                            setModalTitle("Update Error");
+                                            setModalBody(error.message || "An unexpected error occurred.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
                                         }
                                     }}
+                                    data-cy="submit-identifying-data-section"
                                 >
                                     Submit Changes
                                 </button>
+
+
                             </div>
                         </>
                     ) : (
-                        <>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6 font-label">
-                                <p><span className="font-bold-label">Age:</span> {age || "-"}</p>
-                                <p><span className="font-bold-label">Date of Birth:</span> {drafts.dob || "-"}</p>
-                                <p><span className="font-bold-label">Sex:</span> {drafts.sex || "-"}</p>
-                                <p><span className="font-bold-label">Contact No.:</span> {drafts.contactNo || "-"}</p>
-                                <p><span className="font-bold-label">Educational Attainment:</span> {drafts.education || "-"}</p>
-                                <p><span className="font-bold-label">Occupation:</span> {drafts.occupation || "-"}</p>
-                                <p><span className="font-bold-label">Civil Status:</span> {drafts.civilStatus || "-"}</p>
-                                <p><span className="font-bold-label">Religion:</span> {drafts.religion || "-"}</p>
-                                <p><span className="font-bold-label">Relationship to Client:</span> {drafts.relationship || "-"}</p>
-                                <p><span className="font-bold-label">Present Address:</span> {drafts.presentAddress || "-"}</p>
-                                <p><span className="font-bold-label">Place of Birth:</span> {drafts.pob || "-"}</p>
-                            </div>
-
-                        </>
+                        <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
+                            <p><span className="font-bold-label">Age:</span> {age == 0 ? 0 : age || "-"}</p>
+                            <p><span className="font-bold-label">Date of Birth:</span> {data.dob || "-"}</p>
+                            <p><span className="font-bold-label">Sex:</span> {data.sex || "-"}</p>
+                            <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
+                            <p><span className="font-bold-label">Educational Attainment:</span> {data.edu_attainment || "-"}</p>
+                            <p><span className="font-bold-label">Occupation:</span> {data.occupation || "-"}</p>
+                            <p><span className="font-bold-label">Civil Status:</span> {data.civil_status || "-"}</p>
+                            <p><span className="font-bold-label">Religion:</span> {data.religion || "-"}</p>
+                            <p><span className="font-bold-label">Relationship to Client:</span> {data.relationship_to_client || "-"}</p>
+                            <p><span className="font-bold-label">Present Address:</span> {data.present_address || "-"}</p>
+                            <p><span className="font-bold-label">Place of Birth:</span> {data.pob || "-"}</p>
+                        </div>
                     )}
                 </section>
 
-
-                <section className='flex flex-col gap-8' id="family-composition" ref={ref2}>
+                <section
+                    className="flex flex-col gap-8"
+                    id="family-composition"
+                    ref={ref2}
+                >
                     <h1 className="header-main">Family Composition</h1>
 
-                    <button className="btn-primary font-bold-label drop-shadow-base"
-                        onClick={handleAddFamilyMember}>Add New Family Member</button>
+                    <button
+                        className="btn-primary font-bold-label drop-shadow-base"
+                        onClick={handleAddFamilyMember}
+                        data-cy='add-family-member'
+                    >
+                        Add New Family Member
+                    </button>
 
                     <div className="flex justify-between gap-10">
                         <div
                             // ref={sliderRef}
-                            className="flex gap-8 outline-gray w-full rounded-lg p-6 overflow-x-auto"
-                            // onMouseDown={handleMouseDown}
-                            // onMouseLeave={handleMouseLeave}
-                            // onMouseUp={handleMouseUp}
-                            // onMouseMove={handleMouseMove}
+                            className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
+                        // onMouseDown={handleMouseDown}
+                        // onMouseLeave={handleMouseLeave}
+                        // onMouseUp={handleMouseUp}
+                        // onMouseMove={handleMouseMove}
                         >
                             {familyMembers.map((member, index) => (
                                 <FamilyCard
                                     key={index}
+                                    clientId={clientId}
                                     index={index}
                                     member={member}
                                     selectedFamily={selectedFamily}
                                     setSelectedFamily={setSelectedFamily}
                                     editingFamilyValue={editingFamilyValue}
-                                    setEditingFamilyValue={setEditingFamilyValue}
+                                    setEditingFamilyValue={
+                                        setEditingFamilyValue
+                                    }
                                     familyMembers={familyMembers}
                                     setFamilyMembers={setFamilyMembers}
-
-                                    handleDeleteFamilyMember={handleDeleteFamilyMember}
+                                    handleDeleteFamilyMember={
+                                        handleDeleteFamilyMember
+                                    }
                                     // setFamilyToDelete={setFamilyToDelete}
 
                                     setShowModal={setShowModal}
@@ -1005,206 +1295,456 @@ function CaseFrontend() {
                             ))}
                         </div>
                     </div>
-
                 </section>
 
-                <section className='flex flex-col gap-8' id="problems-findings" ref={ref3}>
-                    <div className="flex justify-between items-center gap-4">
-
+                <section
+                    className="flex flex-col gap-8"
+                    id="problems-findings"
+                    ref={ref3}
+                >
+                    <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Problems and Findings</h1>
-                        <button className={editingField == 'history-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
-                            if (editingField) {
-                                resetFields();
-                            } else {
-                                setEditingField('history-fields');
+                        <button
+                            className={
+                                editingField === "history-fields"
+                                    ? "icon-button-setup x-button"
+                                    : "icon-button-setup dots-button"
                             }
-                        }}>
-                        </button>
-
+                            onClick={() => {
+                                if (editingField) {
+                                    resetFields();
+                                } else {
+                                    setEditingField("history-fields");
+                                }
+                            }}
+                            data-cy="edit-problems-findings-section"
+                        ></button>
                     </div>
-
 
                     <div className="grid grid-cols-2 gap-10">
-                        <div className='flex flex-col gap-4'>
+                        <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Problem Presented</h3>
 
-                            {editingField === 'history-fields' ? (
-                                <textarea className="text-input font-label"
-                                    value={drafts.problemPresented}
+                            {editingField === "history-fields" ? (
+                                <textarea
+                                    className="text-input font-label resize-y min-h-[20rem]"
+                                    value={drafts.problem_presented}
+                                    placeholder="Problem Presented"
                                     onChange={(e) =>
-                                        setDrafts((prev) => ({ ...prev, problemPresented: e.target.value }))} />
+                                        setDrafts((prev) => ({
+                                            ...prev,
+                                            problem_presented: e.target.value,
+                                        }))
+                                    }
+                                    data-cy="problem"
+                                />
                             ) : (
-                                <p className='font-label'>{data.problem_presented || '-'}</p>
+                                <p className="font-label" data-cy="disp-problem">
+                                    {data.problem_presented || "-"}
+                                </p>
                             )}
                         </div>
 
-
-                        <div className='flex flex-col gap-4'>
+                        <div className="flex flex-col gap-4">
                             <h3 className="header-sub">History of the Problem</h3>
 
-                            {editingField === 'history-fields' ? (
-                                <textarea className="text-input font-label"
-                                    value={drafts.historyProblem}
+                            {editingField === "history-fields" ? (
+                                <textarea
+                                    className="text-input font-label resize-y min-h-[20rem]"
+                                    placeholder="History of the Problem"
+                                    value={drafts.history_problem}
                                     onChange={(e) =>
-                                        setDrafts((prev) => ({ ...prev, historyProblem: e.target.value }))} />
+                                        setDrafts((prev) => ({
+                                            ...prev,
+                                            history_problem: e.target.value,
+                                        }))
+                                    }
+                                    data-cy="problem-history"
+                                />
                             ) : (
-                                <p className='font-label'>{data.history_problem || '-'}</p>
+                                <p className="font-label" data-cy="disp-problem-history">
+                                    {data.history_problem || "-"}
+                                </p>
                             )}
                         </div>
 
-                        <div className='flex flex-col gap-4'>
+                        <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Findings</h3>
 
-                            {editingField === 'history-fields' ? (
-                                <textarea className="text-input font-label"
-                                    value={drafts.observationFindings}
+                            {editingField === "history-fields" ? (
+                                <textarea
+                                    className="text-input font-label resize-y min-h-[20rem]"
+                                    placeholder="Findings"
+                                    value={drafts.observation_findings}
                                     onChange={(e) =>
-                                        setDrafts((prev) => ({ ...prev, observationFindings: e.target.value }))} />
+                                        setDrafts((prev) => ({
+                                            ...prev,
+                                            observation_findings: e.target.value,
+                                        }))
+                                    }
+                                    data-cy="finding"
+                                />
                             ) : (
-                                <p className='font-label'>{data.observation_findings || '-'}</p>
+                                <p className="font-label" data-cy="disp-finding">
+                                    {data.observation_findings || "-"}
+                                </p>
                             )}
                         </div>
-
                     </div>
 
-                    {editingField == "history-fields" && (
-                        <button className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
-                                setData(prev => ({
-                                    ...prev,
-                                    problem_presented: drafts.problemPresented,
-                                    history_problem: drafts.historyProblem,
-                                    observation_findings: drafts.observationFindings
-                                }));
-                                setEditingField(null);
+                    {editingField === "history-fields" && (
+                        <button
+                            className="btn-transparent-rounded my-3 ml-auto"
+                            onClick={async () => {
+                                try {
+                                    const updated = await editProblemsFindings(clientId, {
+                                        problem_presented: drafts.problem_presented,
+                                        history_problem: drafts.history_problem,
+                                        observation_findings: drafts.observation_findings,
+                                    });
 
-                            }}>
+                                    setData((prev) => ({
+                                        ...prev,
+                                        problem_presented: updated.problemPresented || drafts.problem_presented,
+                                        history_problem: updated.historyProblem || drafts.history_problem,
+                                        observation_findings: updated.observationFindings || drafts.observation_findings,
+                                    }));
+
+                                    setEditingField(null);
+                                    showSuccess("Problems and Findings were successfully updated!");
+                                } catch (error) {
+                                    console.error("❌ Update failed:", error);
+                                    setModalTitle("Update Error");
+                                    setModalBody(error.message || "An unexpected error occurred.");
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                    setModalConfirm(false);
+                                    setShowModal(true);
+                                }
+                            }}
+                            data-cy="submit-problems-findings-section"
+                        >
                             Submit Changes
                         </button>
+
                     )}
-
                 </section>
 
-                <section className='flex flex-col gap-8' id="interventions" ref={ref4}>
+                <section
+                    className="flex flex-col gap-8"
+                    id="interventions"
+                    ref={ref4}
+                >
                     <h1 className="header-main">Interventions</h1>
-
+                    <button
+                        name="add_intervention"
+                        id="add_intervention"
+                        onClick={() => navigate("/intervention-form")}
+                        className="btn-primary font-bold-label self-center"
+                        data-cy='add-intervention'
+                    >
+                        New Intervention
+                    </button>
+                    <div className="flex justify-between">
+                        <select
+                            name="services"
+                            id="services"
+                            value={intervention_selected}
+                            onChange={(e) =>
+                                setInterventionSelected(e.target.value)
+                            }
+                            className="label-base text-input max-w-96"
+                            data-cy='intervention-type'
+                        >
+                            <option value="" className="body-base">
+                                Select Intervention
+                            </option>
+                            {Object.entries(interventions).map(
+                                ([key, value], index) => (
+                                    <option
+                                        key={index}
+                                        value={key}
+                                        className="body-base"
+                                    >
+                                        {key}
+                                    </option>
+                                ),
+                            )}
+                        </select>
+                    </div>
+                    <div className="flex w-full flex-col">
+                        <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
+                            <div className="flex justify-between px-2.5">
+                                <p className="label-base w-80">Intervention</p>
+                                <p className="label-base w-80">Date</p>
+                            </div>
+                        </div>
+                        <div className="flex w-full flex-col flex-wrap gap-2.5">
+                            {interventions[intervention_selected]?.map(
+                                (item, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() =>
+                                            handleInterventionNavigation(
+                                                item.intervention,
+                                            )
+                                        }
+                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                        data-cy={`intervention-item-${item.intervention}-${index}`}
+                                    >
+                                        <p className="label-base w-80">
+                                            {item.intervention} {index + 1}
+                                        </p>
+                                        <p className="label-base w-80">
+                                            {item.date}
+                                        </p>
+                                    </button>
+                                ),
+                            )}
+                        </div>
+                    </div>
                 </section>
 
-                <section className='flex flex-col gap-8' id="assessments" ref={ref5}>
-                    <div className="flex justify-between items-center gap-4">
+                <section
+                    className="flex flex-col gap-8"
+                    id="interventions"
+                    ref={ref4}
+                >
+                    <div className="flex justify-between">
+                        <h1 className="header-main">Progress Reports</h1>
+                    </div>
+                    <button
+                        name="add_progress_report"
+                        id="add_progress_report"
+                        onClick={() => navigate("/progress-report")}
+                        className="btn-primary font-bold-label self-center"
+                        data-cy='add-progress-report'
+                    >
+                        New Progress Report
+                    </button>
+                    <div className="flex w-full flex-col">
+                        <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
+                            <div className="flex justify-between px-2.5">
+                                <p className="label-base w-80">
+                                    Progress Report
+                                </p>
+                                <p className="label-base w-80">Date</p>
+                            </div>
+                        </div>
+                        <div className="flex w-full flex-col flex-wrap gap-2.5">
+                            {progress_reports?.map((item, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => navigate("/progress-report")}
+                                    className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                    data-cy={`progress-report-item-${item.name}-${index}`}
+                                >
+                                    <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
+                                        {item.name} {index + 1}
+                                    </p>
+                                    <p className="label-base w-80">
+                                        {item.date}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
 
+                <section
+                    className="flex flex-col gap-8"
+                    id="assessments"
+                    ref={ref5}
+                >
+                    <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Assessment</h1>
-                        <button className={editingField == 'assessment-field' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
-                            if (editingField) {
-                                resetFields();
-                            } else {
-                                setEditingField('assessment-field');
+                        <button
+                            className={
+                                editingField === "assessment-field"
+                                    ? "icon-button-setup x-button"
+                                    : "icon-button-setup dots-button"
                             }
-                        }}>
-                        </button>
-
+                            onClick={() => {
+                                if (editingField) {
+                                    resetFields();
+                                } else {
+                                    setEditingField("assessment-field");
+                                }
+                            }}
+                            data-cy="assessment-section"
+                        ></button>
                     </div>
 
                     <div className="grid grid-cols-1 gap-10">
-
-                        <div className='flex flex-col gap-4'>
-                            {editingField === 'assessment-field' ? (
-                                <textarea className="text-input font-label"
-                                    value={drafts.caseAssessment}
+                        <div className="flex flex-col gap-4">
+                            {editingField === "assessment-field" ? (
+                                <textarea
+                                    className="text-input font-label resize-y min-h-[20rem]"
+                                    value={drafts.assessment || ""}
+                                    placeholder="Assessment"
                                     onChange={(e) =>
-                                        setDrafts((prev) => ({ ...prev, caseAssessment: e.target.value }))} />
+                                        setDrafts((prev) => ({
+                                            ...prev,
+                                            assessment: e.target.value,
+                                        }))
+                                    }
+                                    data-cy="assessment"
+                                />
                             ) : (
-                                <p className='font-label'>{data.assessment || '-'}</p>
+                                <p className="font-label" data-cy="disp-assessment">
+                                    {data.assessment || "-"}
+                                </p>
                             )}
                         </div>
                     </div>
 
-                    {editingField == "assessment-field" && (
-                        <button className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
-                                setData(prev => ({
-                                    ...prev,
-                                    assessment: drafts.caseAssessment
-                                }));
-                                setEditingField(null);
-                            }}>
+                    {editingField === "assessment-field" && (
+                        <button
+                            className="btn-transparent-rounded my-3 ml-auto"
+                            onClick={async () => {
+                                try {
+                                    const updated = await editAssessment(clientId, {
+                                        assessment: drafts.assessment,
+                                    });
+
+                                    setData((prev) => ({
+                                        ...prev,
+                                        assessment: updated.assessment || drafts.assessment,
+                                    }));
+
+                                    setEditingField(null);
+                                    showSuccess("Assessment was successfully updated!");
+                                } catch (error) {
+                                    console.error("❌ Update failed:", error);
+                                    setModalTitle("Update Error");
+                                    setModalBody(error.message || "An unexpected error occurred.");
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                    setModalConfirm(false);
+                                    setShowModal(true);
+                                }
+                            }}
+                            data-cy="submit-assessment-section"
+                        >
                             Submit Changes
                         </button>
-
                     )}
                 </section>
 
-                <section className='flex flex-col gap-8' id="evaluation-recommendation" ref={ref6}>
-                    <div className="flex justify-between items-center gap-4">
-
-                        <h1 className="header-main">Evaluation and Recommendation</h1>
-                        <button className={editingField == 'evaluation-fields' ? "icon-button-setup x-button" : 'icon-button-setup dots-button'} onClick={() => {
-                            if (editingField) {
-                                resetFields()
-                            } else {
-                                setEditingField('evaluation-fields');
+                <section
+                    className="flex flex-col gap-8"
+                    id="evaluation-recommendation"
+                    ref={ref6}
+                >
+                    <div className="flex items-center justify-between gap-4">
+                        <h1 className="header-main">
+                            Evaluation and Recommendation
+                        </h1>
+                        <button
+                            className={
+                                editingField === "evaluation-fields"
+                                    ? "icon-button-setup x-button"
+                                    : "icon-button-setup dots-button"
                             }
-                        }}>
-                        </button>
-
+                            onClick={() => {
+                                if (editingField) {
+                                    resetFields();
+                                } else {
+                                    setEditingField("evaluation-fields");
+                                }
+                            }}
+                            data-cy="edit-evaluation-recommendation-section"
+                        ></button>
                     </div>
-
 
                     <div className="grid grid-cols-2 gap-10">
-                        <div className='flex flex-col gap-4'>
+                        <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Evaluation</h3>
 
-                            {editingField === 'evaluation-fields' ? (
-                                <textarea className="text-input font-label"
-                                    value={drafts.caseEvalutation}
+                            {editingField === "evaluation-fields" ? (
+                                <textarea
+                                    className="text-input font-label resize-y min-h-[20rem]"
+                                    value={drafts.evaluation}
+                                    placeholder="Evaluation"
                                     onChange={(e) =>
-                                        setDrafts((prev) => ({ ...prev, caseEvalutation: e.target.value }))} />
+                                        setDrafts((prev) => ({
+                                            ...prev,
+                                            evaluation: e.target.value,
+                                        }))
+                                    }
+                                    data-cy="evaluation"
+                                />
                             ) : (
-                                <p className='font-label'>{data.evaluation || '-'}</p>
+                                <p className="font-label" data-cy="disp-evaluation">
+                                    {data.evaluation || "-"}
+                                </p>
                             )}
                         </div>
 
-
-                        <div className='flex flex-col gap-4'>
+                        <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Recommendation</h3>
 
-                            {editingField === 'evaluation-fields' ? (
-                                <textarea className="text-input font-label"
-                                    value={drafts.caseRecommendation}
+                            {editingField === "evaluation-fields" ? (
+                                <textarea
+                                    className="text-input font-label resize-y min-h-[20rem]"
+                                    value={drafts.recommendation}
+                                    placeholder="Recommendation"
                                     onChange={(e) =>
-                                        setDrafts((prev) => ({ ...prev, caseRecommendation: e.target.value }))} />
+                                        setDrafts((prev) => ({
+                                            ...prev,
+                                            recommendation: e.target.value,
+                                        }))
+                                    }
+                                    data-cy="recommendation"
+                                />
                             ) : (
-                                <p className='font-label'>{data.recommendation || '-'}</p>
+                                <p className="font-label" data-cy="disp-recommendation">
+                                    {data.recommendation || "-"}
+                                </p>
                             )}
                         </div>
-
                     </div>
 
-                    {editingField == "evaluation-fields" && (
-                        <button className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={() => {
-                                setData(prev => ({
-                                    ...prev,
-                                    evaluation: drafts.caseEvalutation,
-                                    recommendation: drafts.caseRecommendation
-                                }));
-                                setEditingField(null);
-                            }}>
+                    {editingField === "evaluation-fields" && (
+                        <button
+                            className="btn-transparent-rounded my-3 ml-auto"
+                            onClick={async () => {
+                                try {
+                                    const updated = await editEvalReco(clientId, {
+                                        evaluation: drafts.evaluation,
+                                        recommendation: drafts.recommendation,
+                                    });
+
+                                    setData((prev) => ({
+                                        ...prev,
+                                        evaluation: drafts.evaluation,
+                                        recommendation: drafts.recommendation,
+                                    }));
+                                    setEditingField(null);
+                                    showSuccess("Evaluation and Recommendation were successfully updated.");
+                                } catch (error) {
+                                    console.error("❌ Update failed:", error);
+                                    setModalTitle("Update Error");
+                                    setModalBody(error.message || "An unexpected error occurred.");
+                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                    setModalConfirm(false);
+                                    setShowModal(true);
+                                }
+                            }}
+                            data-cy="submit-evaluation-recommendation-section"
+                        >
                             Submit Changes
                         </button>
 
 
                     )}
-
                 </section>
 
-                <button className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto">
+                <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                    data-cy='terminate-case'>
                     Terminate Case
                 </button>
-
             </main>
         </>
     );
 }
 
-export default CaseFrontend
+export default CaseFrontend;

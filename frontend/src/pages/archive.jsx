@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import SideItem from "../Components/SideItem"
 import ClientEntry from "../Components/ClientEntry";
+import SideBar from "../Components/SideBar";
 
 function Archive() {
     const [allData, setAllData] = useState([
@@ -260,42 +261,7 @@ function Archive() {
             </div>
 
             <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
-                <div className="side-nav fixed">
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="home-button"
-                        label="Home"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="progress-button"
-                        label="Progress"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="family-button"
-                        label="Team"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="archive-button"
-                        label="Archive"
-                        isActive={false}
-                    />
-
-                    <SideItem
-                        href="/home-sdw"
-                        iconClass="identifying-button"
-                        label="Account"
-                        isActive={false}
-                    />
-                </div>
+                <SideBar></SideBar>
 
                 <div className="flex flex-col w-full gap-15 ml-[15rem]">
                     <div className='flex justify-between gap-10'>

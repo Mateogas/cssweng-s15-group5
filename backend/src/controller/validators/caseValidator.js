@@ -19,10 +19,10 @@ const caseSchemaValidate = Joi.object({
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).optional(),
   spu: Joi.string()
-  .valid('MNL', 'CEB', 'DVO', 'BAG', 'ILO', 'ZAM')
+  .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
   .required()
   .messages({
-    'any.only': 'SPU must be one of MNL, CEB, DVO, BAG, ILO, or ZAM',
+    'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
     'any.required': 'SPU is required'
   }),
   assigned_sdw: Joi.string().hex().length(24).required().messages({
@@ -89,10 +89,10 @@ const caseCoreValidate = Joi.object({
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).optional(),
   spu: Joi.string()
-  .valid('MNL', 'CEB', 'DVO', 'BAG', 'ILO', 'ZAM')
+  .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
   .required()
   .messages({
-    'any.only': 'SPU must be one of MNL, CEB, DVO, BAG, ILO, or ZAM',
+    'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
     'any.required': 'SPU is required'
   }),
   assigned_sdw: Joi.string().hex().length(24).required().messages({
@@ -100,8 +100,8 @@ const caseCoreValidate = Joi.object({
   'string.length': 'Assigned SDW must be exactly 24 characters long.',
   'any.required': 'Assigned SDW is required.'
 }),
-is_active: Joi.boolean().required()
-
+is_active: Joi.boolean().required(),
+classifications: Joi.array().items(Joi.string()).optional()
 });
 /*
 //THIS IS FOR IDENTIFYING DATA ONLY

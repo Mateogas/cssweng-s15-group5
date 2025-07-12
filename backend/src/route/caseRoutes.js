@@ -3,11 +3,14 @@ const router = express.Router();
 const caseController = require('../controller/caseController'); // Changed from controllers to controller
 
 //Employees specific routes
-router.get('/getsdw',caseController.getAllSDWs);
+router.get('/getsdw', caseController.getAllSDWs);
 
 // Case-Specific Routes
 router.get('/allCases', caseController.getAllCases);
+router.get('/case-by-sm-number/:sm_number', caseController.getCaseBySMNumber);
+
 router.get('/:id', caseController.getCaseById);
+router.get('/case-by-sm-number/:sm_number', caseController.getCaseBySMNumber);
 router.get('/',caseController.getAllCases);
 router.post('/case-create',caseController.addNewCase);
 router.put('/edit/core/:id', caseController.editCaseCore);
