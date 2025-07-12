@@ -49,6 +49,8 @@ const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 
+const authController = require('./controller/authController.js')
+
 /**
  *  ============ Routes ==============
  */
@@ -86,6 +88,9 @@ app.use('/api/interventions/correspondence',interventCorrespRoutes);
 // Case Closure routes
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
 app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm)
+
+// Log in route
+app.put('/api/login', authController.loginUser)
 
 /**
  *  ============ Extras ==============

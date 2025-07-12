@@ -77,3 +77,8 @@ const logoutUser = async (req, res) => {
 const signUpUser = async (req, res) => {
      // code here
 }
+
+module.exports = {
+     loginUser,
+     logoutUser
+}
