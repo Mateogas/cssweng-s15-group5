@@ -65,8 +65,9 @@ export default function RegisterWorker({
   };
 
   useEffect(() => {
+    console.log("FORMDATA", formData);
     const filtered = socialDevelopmentWorkers.filter(
-      (w) => w.spu_id === formData.spu_id && w.role === 'sdw'
+      (w) => w.spu_id === formData.spu_id && w.role === 'super'
     );
     setSupervisors(filtered);
     console.log("SUPERVISORS", supervisors);

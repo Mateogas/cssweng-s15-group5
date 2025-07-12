@@ -117,7 +117,7 @@ function HomeAdmin() {
         },
         {
             name: "AP",
-            projectCode: "AV",
+            projectCode: "AP",
         },
         {
             name: "MM",
