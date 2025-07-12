@@ -28,7 +28,7 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
   setModalConfirm, setModalOnConfirm
 }) => {
   const isEditing = selectedFamily === index;
-  
+
   const handleInputChange = (field, value) => {
     setEditingFamilyValue({ ...editingFamilyValue, [field]: value })
   }
@@ -98,14 +98,6 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
       } else if (parseFloat(incomeStr) < 0) {
         missing.push('Income cannot be negative');
       }
-    }
-
-    if (!editingFamilyValue.civilStatus || editingFamilyValue.civilStatus === "") {
-      missing.push('Civil Status');
-    }
-
-    if (!editingFamilyValue.status || editingFamilyValue.status === "") {
-      missing.push('Status');
     }
 
     if (missing.length > 0) {
@@ -188,7 +180,7 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
           { label: 'Occupation', key: 'occupation', type: 'text', required: true },
           { label: 'Educational Attainment', key: 'education', type: 'text', required: true },
           { label: 'Relationship to Client', key: 'relationship', type: 'text', required: true },
-          { label: 'Status', key: 'status', type: 'select', required: true },
+          { label: 'Living Status', key: 'status', type: 'select', required: true },
         ].map(({ label, key, type, required }) => (
           <React.Fragment key={key}>
             <div className="font-bold-label">
@@ -251,7 +243,9 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
               <span data-cy={`disp-family-${key}-${index}`}>
                 {key === 'status' || key === 'civilStatus'
                   ? `: ${member[key] ? member[key][0].toUpperCase() + member[key].slice(1) : '-'}`
-                  : `: ${member[key] || '-'}`}
+                  : key === 'age'
+                    ? `: ${member[key] === 0 ? 0 : member[key] || '-'}`
+                    : `: ${member[key] || '-'}`}
               </span>
             )}
           </React.Fragment>
@@ -263,6 +257,15 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
           <button
             className='mt-5 icon-button-setup trash-button'
             onClick={() => {
+
+            if (member.newlyCreated) {
+              const updatedList = [...familyMembers];
+              updatedList.splice(index, 1);
+              setFamilyMembers(updatedList);
+              setSelectedFamily(null);
+              return;
+            }
+
               const idToDelete = member.id;
 
               setModalTitle("Delete Family Member");
@@ -285,12 +288,14 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
             }}
             data-cy={`delete-family-${index}`}
           ></button>
-          <button
-            className='btn-transparent-rounded'
-            onClick={handleSave}
-            data-cy={`save-family-${index}`}>
-            Save Changes
-          </button>
+        <button
+          className='btn-transparent-rounded'
+          onClick={handleSave}
+          data-cy={`save-family-${index}`}
+        >
+          {member.newlyCreated ? 'Save Member' : 'Save Changes'}
+        </button>
+
         </div>
       )}
     </div>

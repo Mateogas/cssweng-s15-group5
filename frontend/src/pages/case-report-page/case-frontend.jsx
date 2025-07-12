@@ -440,6 +440,10 @@ function CaseFrontend() {
             missing.push('Civil Status');
         }
 
+        if (!drafts.present_address || drafts.present_address.trim() === "") {
+            missing.push("Present Address");
+        }
+
         if (drafts.contact_no && drafts.contact_no.length !== 11) {
             missing.push('Contact No. must be exactly 11 digits');
         }
