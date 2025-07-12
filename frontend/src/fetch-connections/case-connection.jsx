@@ -192,17 +192,58 @@ export const updateIdentifyingCaseData = async (updatedData, caseID) => {
           throw error;
      }
 };
+
+export const fetchCaseBySMNumber = async (smNumber) => {
+     try {
+          const response = await fetch(`/api/cases/case-by-sm-number/${smNumber}`);
+
+          if (!response.ok) {
+               throw new Error(`API error: ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          if (!result.found) {
+               console.warn(result.message);
+               return result;
+          }
+
+          const formattedDob = result.data?.dob
+               ? new Date(result.data.dob).toISOString().split('T')[0]
+               : '';
+
+          return {
+               found: true,
+               data: {
+                    ...defaultCaseData,
+                    ...result.data,
+                    dob: formattedDob,
+               }
+          };
+
+     } catch (error) {
+          console.error('Error fetching case by SM Number:', error);
+          return {
+               found: false,
+               message: error.message || 'Error fetching case by SM Number'
+          };
+     }
+};
+
 export const fetchSDWs = async () => {
      try {
           const response = await fetch('/api/cases/getsdw');
           if (!response.ok) throw new Error('Failed to fetch SDWs');
           const data = await response.json();
           // Map to expected format
+
           return data.map(sdw => ({
+               sdw_id: sdw.sdw_id,
                id: sdw._id,
                username: `${sdw.first_name} ${sdw.last_name}`,
                spu_id: sdw.spu_id || '', // Adjust as needed
           }));
+
      } catch (err) {
           console.error('Error fetching SDWs:', err);
           return [];

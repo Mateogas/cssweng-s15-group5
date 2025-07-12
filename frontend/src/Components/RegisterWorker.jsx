@@ -65,11 +65,11 @@ export default function RegisterWorker({
   };
 
   useEffect(() => {
-      const filtered = socialDevelopmentWorkers.filter(
-        (w) => w.spu_id === formData.spu_id && w.role === 'sdw'
-      );
-      setSupervisors(filtered);
-      console.log("SUPERVISORS", supervisors);
+    const filtered = socialDevelopmentWorkers.filter(
+      (w) => w.spu_id === formData.spu_id && w.role === 'sdw'
+    );
+    setSupervisors(filtered);
+    console.log("SUPERVISORS", supervisors);
   }, [formData.spu_id, socialDevelopmentWorkers]);
 
   return (

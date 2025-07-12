@@ -5,9 +5,9 @@
 
 const mongoose = require('mongoose');
 const Family_Relationship = require('../model/family_relationship');
-const Sponsored_Member = require('../model/sponsored_member')
-const Family_Member = require('../model/family_member')
-const { Employee } = require('../model/employee');
+const Sponsored_Member = require('../model/sponsored_member');
+const Family_Member = require('../model/family_member');
+const Employee = require('../model/employee');
 
 const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
@@ -33,39 +33,112 @@ const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require(
  *    - 500 Internal Server Error: if something goes wrong during the process
  */
 
+// const getCaseById = async (req, res) => {
+//      //for now lets do static but replace with req.params.id
+
+//      //checks if its a valid ObjectId
+//      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//           return res.status(400).json({ message: 'Invalid case' });
+//      }
+//      const id = req.params.id;
+
+//      try {
+//           //finds an id in our mongo
+//           const caseItem = await Sponsored_Member.findById(id).lean().populate(
+//                'assigned_sdw'
+//           );
+//           res.json(caseItem);
+//      } catch (error) {
+
+//           console.error('Error fetching cases:', error);
+//           res.status(500).json({
+//                message: 'Error retrieving case data',
+//                error: error.message
+//           });
+//      }
+// };
+
 const getCaseById = async (req, res) => {
-     //for now lets do static but replace with req.params.id
+  const id = req.params.id;
 
-     //checks if its a valid ObjectId
-     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-          return res.status(400).json({ message: 'Invalid case' });
-     }
-     const id = req.params.id;
+  console.log('[getCaseById] Called with ID:', id);
 
-     try {
-          //finds an id in our mongo
-          const caseItem = await Sponsored_Member.findById(id).lean().populate(
-               'assigned_sdw'
-          );
-          res.json(caseItem);
-     } catch (error) {
+  // Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    console.log('[getCaseById] Invalid ID format.');
+    return res.status(400).json({ message: 'Invalid case ID' });
+  }
 
-          console.error('Error fetching cases:', error);
-          res.status(500).json({
-               message: 'Error retrieving case data',
-               error: error.message
-          });
-     }
-}
+  try {
+    const caseItem = await Sponsored_Member.findById(id)
+      .populate('assigned_sdw')
+      .lean();
+
+    console.log('[getCaseById] Query result:', caseItem);
+
+    if (!caseItem) {
+      console.log('[getCaseById] No case found for ID:', id);
+      return res.status(404).json({ message: 'Case not found' });
+    }
+
+    res.status(200).json(caseItem);
+  } catch (error) {
+    console.error('[getCaseById] Error:', error);
+    res.status(500).json({
+      message: 'Error retrieving case data',
+      error: error.message,
+    });
+  }
+};
+
+
+const getCaseBySMNumber = async (req, res) => {
+  const smNumber = req.params.sm_number;
+
+  try {
+    const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber }).populate('assigned_sdw');
+
+    if (!caseItem) {
+      return res.status(200).json({
+        found: false,
+        message: 'Case not found for given SM Number'
+      });
+    }
+
+    res.status(200).json({
+      found: true,
+      data: caseItem
+    }); // ✅ Wrap your result in `{ found: true, data: ... }`
+  } catch (error) {
+    console.error('Error fetching case by SM Number:', error);
+    res.status(500).json({ message: 'Error fetching case', error: error.message });
+  }
+};
+
+
+// const getAllSDWs = async (req, res) => {
+//      try {
+//           // If you filter by role, adjust as needed
+//           const sdws = await Employee.find({ role: 'sdw' }).lean();
+//           res.json(sdws);
+//      } catch (error) {
+//           res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
+//      }
+// };
+
 const getAllSDWs = async (req, res) => {
      try {
-          // If you filter by role, adjust as needed
-          const sdws = await Employee.find({ role: 'sdw' }).lean();
-          res.json(sdws);
+          console.log('Fetching all employees...');
+          const employees = await Employee.find();
+          console.log('Employees found:', employees);
+          res.json(employees);
      } catch (error) {
-          res.status(500).json({ message: 'Failed to fetch SDWs', error: error.message });
+          console.error('Failed to fetch employees:', error);
+          res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
      }
 };
+
+
 /**  
  *   Gets all cases that are viable to be seen based on user priveleges
  */
