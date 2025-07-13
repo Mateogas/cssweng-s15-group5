@@ -48,6 +48,7 @@ const interventionRoutes = require('./route/interventionRoutes');
 const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
+const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 
 const authController = require('./controller/authController.js')
 
@@ -84,10 +85,16 @@ app.use('/api/progress-report', progressReportRoutes);
 
 app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
+app.use('/api/intervention', homeVisRoutes);
 
 // Case Closure routes
-app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
-app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm)
+app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
+app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
+app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm);
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found', path: req.originalUrl });
+});
 
 // Log in and log out route
 app.put('/api/login', authController.loginUser)

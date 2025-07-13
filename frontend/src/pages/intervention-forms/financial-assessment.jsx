@@ -2,24 +2,30 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
+// API Import
+import  {   fetchFinInterventionData,
+            createFinancialForm,
+            editFinancialForm,
+        }
+from '../../fetch-connections/financialForm-connection'; 
+
 function FinancialAssessmentForm() {
-    /********** TEST DATA **********/
 
+    // ===== START :: Setting Data ===== //
 
-    /********** TEST DATA **********/
+    const [loading, setLoading] = useState(true);
+    const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
         form_num: "3",
-        type_of_assistance: [
-            "Food Assistance",
-            "IGP Capital",
-            "Medical Assistance to the Sponsored Member",
-        ],
-        first_name: "Hepzhi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        area_and_subproject: "FDQ",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        ch_number: "",
+        date: "",
+        area_and_subproject: "",
+        other_assistance_detail: "",
         problem_presented: "",
         recommendation: "",
     });
@@ -35,16 +41,134 @@ function FinancialAssessmentForm() {
         "Other: Please Indicate Below",
     ];
 
-    const [type_of_assistance, setTypeOfAssistance] = useState([
-        "Food Assistance",
-        "IGP Capital",
-        "Medical Assistance to the Sponsored Member",
-    ]);
+    const [type_of_assistance, setTypeOfAssistance] = useState([]);
 
-    /********** TEST DATA **********/
+    // ===== START :: Create New Form ===== // 
 
-    /********** USE STATES **********/
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
 
+            // [TO UPDATE] :: Case ID, Form ID
+            const returnData = await fetchFinInterventionData('686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669');
+            const caseData = returnData.sponsored_member;
+
+            console.log(caseData)
+
+            setRawCaseData(caseData);
+
+            setData((prev) => ({
+                ...prev,
+                first_name: caseData.first_name || "",
+                middle_name: caseData.middle_name || "",
+                last_name: caseData.last_name || "",
+                ch_number: caseData.sm_number || "",
+                area_and_subproject: caseData.spu || "",
+            }));
+
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        setFirstName(data.first_name || "");
+        setMiddleName(data.middle_name || "");
+        setLastName(data.last_name || "");
+        setCHNumber(data.ch_number || "");
+        setAreaAndSubproject(data.area_and_subproject || "");
+    }, [data]);
+
+    // ===== END :: Create New Form ===== // 
+
+    // ===== START :: View Form ===== //
+    
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
+    if (viewForm) {
+        useEffect(() => {
+            const loadFormData = async () => {
+                setLoading(true);
+
+                // [TO UPDATE] :: Case ID, Form ID
+                const returnFormData = await fetchFinInterventionData(
+                    '686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669'
+                );
+                const formData = returnFormData.form;
+
+                console.log("form Data", formData);
+
+                setRawFormData(formData);
+
+                setData((prev) => ({
+                    ...prev,
+                    date: formData.createdAt || "",
+                    problem_presented: formData.problem_presented || "",
+                    recommendation: formData.recommendation || "",
+                    other_assistance_detail: formData.other_assistance_detail_detail || "",
+                }));
+        
+                setLoading(false);
+            };
+            loadFormData();
+        }, []);
+
+        useEffect(() => {
+            setOtherAssistance(data.other_assistance_detail || "");
+            setProblemPresented(data.problem_presented || "");
+            setRecommendation(data.recommendation || "");
+        }, [data]);
+    }
+    
+    // ===== END :: View Form ===== //
+
+    // ===== END :: Setting Data ===== // 
+
+    // ===== START :: Backend Connection ===== //
+    
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            type_of_assistance,
+            other_assistance_detail,
+            area_and_subproject,
+            problem_presented,
+            recommendation
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createFinancialForm("686e92a63c1f53d3ee65966e", payload); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            type_of_assistance,
+            other_assistance_detail,
+            area_and_subproject,
+            problem_presented,
+            recommendation
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Case ID, Form ID
+        const response = await editFinancialForm("686e92a63c1f53d3ee659669", updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
+
+    // ===== START :: Use States ===== //
+    
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -53,17 +177,17 @@ function FinancialAssessmentForm() {
     const [area_and_subproject, setAreaAndSubproject] = useState(
         data?.area_and_subproject || "",
     );
-    const [other_assistance, setOtherAssistance] = useState("");
+    const [other_assistance_detail, setOtherAssistance] = useState("");
     const [problem_presented, setProblemPresented] = useState(
         data?.problem_presented || "",
     );
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
     );
+    
+    // ===== END :: USE STATES ===== //
 
-    /********** USE STATES **********/
-
-    /********** FUNCTIONS **********/
+    // ===== START :: Local Functions ===== //
 
     const navigate = useNavigate();
 
@@ -94,7 +218,9 @@ function FinancialAssessmentForm() {
         );
     };
 
-    /********** FUNCTIONS **********/
+    // ===== END :: Local Functions ===== //
+
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
@@ -142,15 +268,15 @@ function FinancialAssessmentForm() {
                         ))}
                         
                         <textarea
-                            id="other_assistance"
-                            name="other_assistance"
-                            value={other_assistance}
+                            id="other_assistance_detail"
+                            name="other_assistance_detail"
+                            value={other_assistance_detail}
                             onChange={(e) => {
                                 setOtherAssistance(e.target.value);
                                 handleChange("Type of Assistance")(e);
                             }}
                             placeholder="Form of Assistance"
-                            className="text-input h-32 w-full"
+                            className="body-base text-input h-32 w-full"
                         ></textarea>
                     </div>
                 </div>
@@ -226,9 +352,21 @@ function FinancialAssessmentForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );

@@ -11,7 +11,7 @@ export const fetchCaseData = async(caseID) => {
                throw new Error('API error');
 
           const rawData = await response.json();
-          localID = rawData._id
+          // localID = rawData._id
 
           /*if (rawData.dob) {
                const dobDate = new Date(rawData.dob);
@@ -25,6 +25,17 @@ export const fetchCaseData = async(caseID) => {
           console.error('Error fetching case data:', err);
           return null;
      }
+};
+
+export const fetchCaseClosureData = async (caseId, formId) => {
+    try {
+        const response = await fetch(`/api/case-closure/${caseId}/${formId}`);
+        if (!response.ok) throw new Error('API error');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching financial intervention data:', error);
+        return null;
+    }
 };
 
 export const createCaseClosureForm = async(createdData, caseID) => {

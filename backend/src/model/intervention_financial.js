@@ -8,21 +8,14 @@ const InterventionFinancialAssessmentSchema = new Schema ({
         required:true
     },
     type_of_assistance: {
-        type: String,
-        enum: ['Funeral Assistance to the family member',
-                'Medical Assistance to Family Member',
-                'Food Assistance',
-                'IGP Capital',
-                'Funeral Assistance to Sponsored Member',
-                'Medical Assistance to Sponsored Member',
-                'Home Improvement/Needs',
-                'Other'], 
+        type: [String], // Changed from String to array of Strings
         required: true
     },
     other_assistance_detail: {
         type: String,
         required: function() {
-            return this.type_of_assistance === 'Other';
+            // Check if 'Other' is included in the array
+            return this.type_of_assistance && this.type_of_assistance.includes('Other');
         }
     },
     area_and_subproject: {
@@ -36,13 +29,7 @@ const InterventionFinancialAssessmentSchema = new Schema ({
     recommendation: {
         type: String,
         required: true        
-    },
-     progress_reports: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Progress Report',
-
-          required: false
-     }         
+    },       
 }, { timestamps: true });
 
 const Intervention_Financial_Assessment = mongoose.model('Intervention Financial Assessment', InterventionFinancialAssessmentSchema);

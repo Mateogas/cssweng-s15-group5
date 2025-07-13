@@ -58,7 +58,8 @@ const createFinForm = async (req, res) => {
 
         //gets last number
         const maxNumber = sameTypeInterventions.length > 0
-            ? Math.max(...sameTypeInterventions.map(i => i.intervention_number))
+            /* ? Math.max(...sameTypeInterventions.map(i => i.intervention_number)) */
+            ? sameTypeInterventions.length
             : 0;
 
         //pushes 

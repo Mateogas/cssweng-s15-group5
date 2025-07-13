@@ -1,23 +1,36 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TextInput, TextArea, DateInput } from "../Components/TextField";
+import { TextInput, DateInput, TextArea } from "../Components/TextField";
+
+// API Import
+import  {   fetchProgressReport, 
+            addProgressReport,
+            editProgressReport
+        } 
+from '../fetch-connections/progress-report-connection'; 
 
 function ProgressReport() {
     /********** TEST DATA **********/
 
 
-    /********** TEST DATA **********/
+
+
+    const [loading, setLoading] = useState(true);
+    const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
+    
 
     const [data, setData] = useState({
-        form_num: "2",
-        first_name: "Hepzhi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        dob: "2000-01-10",
+        form_num: "3",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        ch_number: "",
+        date: "",
+        dob: "",
         sponsor_name: "",
         sponsorship_date: "",
-        subproject: "FDQ",
+        subproject: "",
         date_accomplished: "",
         period_covered: "",
         sm_update: "",
@@ -26,31 +39,198 @@ function ProgressReport() {
         participation: "",
     });
 
-    const relation_to_sponsor = [
-        { id: "q1", text: "Knows his/her sponsor's name?" },
-        { id: "q2", text: "Cooperative with the program?" },
-        { id: "q3", text: "Writes personalized letters in a timely manner?" },
-    ];
+    // < START :: Auto-Filled Data > //
 
-    const options = ["Yes", "Sometimes", "No"];
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
 
-    /********** TEST DATA **********/
+            // [TO UPDATE] :: Case ID
+            const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+            const caseData = returnData
 
-    /********** USE STATES **********/
+            console.log(caseData)
 
-    const [responses, setResponses] = useState({
-        q1: "",
-        q2: "",
-        q3: "",
+            setRawCaseData(caseData);
+
+            setData((prev) => ({
+                ...prev,
+                first_name: caseData.first_name || "",
+                middle_name: caseData.middle_name || "",
+                last_name: caseData.last_name || "",
+                ch_number: caseData.sm_number || "",
+                dob: caseData.dob || "",
+                subproject: caseData.spu || "",
+            }));
+
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        setFirstName(data.first_name || "");
+        setMiddleName(data.middle_name || "");
+        setLastName(data.last_name || "");
+        setCHNumber(data.ch_number || "");
+        setDOB(data.dob || "");
+        setSubproject(data.subproject || "");
+    }, [data]);
+
+    // < END :: Auto-Filled Data > //
+
+    // < START :: View Form > //
+
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
+    if (viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
+    
+                // [TO UPDATE] :: Case ID
+                const returnData = await fetchProgressReport('687172244bf09e0e26d6899a');
+                const formData = returnData
+    
+                console.log(formData)
+    
+                setRawFormData(formData);
+    
+                setData((prev) => ({
+                    ...prev,
+                    sponsor_name: formData.sponsor_name || "",
+                    sponsorship_date: formData.sponsorship_date || "",
+                    date_accomplished: formData.date_accomplished || "",
+                    period_covered: formData.period_covered || "",
+                    sm_update: formData.sm_update || "",
+                    family_update: formData.family_update || "",
+                    services_to_family: formData.services_to_family || "",
+                    participation: formData.participation || "",
+                }));
+                
+                setRelationToSponsor(formData.relation_to_sponsor)
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+
+        useEffect(() => {
+            setSponsorName(data.sponsor_name || "");
+            setSponsorshipDate(data.sponsorship_date || "");
+            setDateAccomplished(data.date_accomplished || "");
+            setPeriodCovered(data.period_covered || "");
+            setSMUpdate(data.sm_update || "");
+            setFamilyUpdate(data.family_update || "");
+            setServicesToFamily(data.services_to_family || "");
+            setParticipation(data.participation || "");
+        }, [data]);
+    }
+
+    // < END :: View Form > //
+
+    useEffect(() => {
+        if (data?.dob) {
+            const date = new Date(data.dob);
+            if (!isNaN(date)) {
+                setDOB(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.date_accomplished) {
+            const date = new Date(data.date_accomplished);
+            if (!isNaN(date)) {
+                setDateAccomplished(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.sponsorship_date) {
+            const date = new Date(data.sponsorship_date);
+            if (!isNaN(date)) {
+                setSponsorshipDate(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
     });
+        
+    const questions = [
+        { id: "know_sponsor_name", text: "Knows his/her sponsor's name?" },
+        { id: "cooperative", text: "Cooperative with the program?" },
+        { id: "personalized_letter", text: "Writes personalized letters in a timely manner?" },
+    ];
+    
+    const options = ["Yes", "Sometimes", "No"];
+    
+    // ===== END :: Setting Data ===== //
+
+    // ===== START :: Backend Connection ===== //
+        
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            sponsor_name,
+            sponsorship_date,
+            date_accomplished,
+            period_covered,
+            sm_update,
+            family_update,
+            services_to_family,
+            participation,
+            relation_to_sponsor
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await addProgressReport(payload, "6849646feaa08161083d1aec"); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            sponsor_name,
+            sponsorship_date,
+            date_accomplished,
+            period_covered,
+            sm_update,
+            family_update,
+            services_to_family,
+            participation,
+            relation_to_sponsor
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Form ID
+        const response = await editProgressReport("687172244bf09e0e26d6899a", updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
+
+    // ===== START :: Use States ===== //
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
     const [ch_number, setCHNumber] = useState(data?.ch_number || "");
     const [form_num, setFormNum] = useState(data?.form_num || "");
-    const [dob, setDOB] = useState(data?.dob || "");
-    const [age, setAge] = useState(calculateAge(data?.dob));
+    const [dob, setDOB] = useState("");
+    const [age, setAge] = useState("");
     const [sponsor_name, setSponsorName] = useState(data?.sponsor_name || "");
     const [sponsorship_date, setSponsorshipDate] = useState(
         data?.sponsorship_date || "",
@@ -72,10 +252,11 @@ function ProgressReport() {
     const [participation, setParticipation] = useState(
         data?.participation || "",
     );
+    const [relation_to_sponsor, setRelationToSponsor] = useState({});
 
-    /********** USE STATES **********/
+    // ===== END :: Use States ===== //
 
-    /********** FUNCTIONS **********/
+    // ===== START :: Functions ===== //
 
     const navigate = useNavigate();
 
@@ -99,7 +280,7 @@ function ProgressReport() {
     };
 
     const handleCheckboxChange = (questionID, value) => {
-        setResponses((prev) => ({
+        setRelationToSponsor((prev) => ({
             ...prev,
             [questionID]: value,
         }));
@@ -123,7 +304,7 @@ function ProgressReport() {
         return age;
     }
 
-    /********** FUNCTIONS **********/
+    // ===== END :: Functions ===== //
 
     return (
         <main className="flex justify-center p-32">
@@ -267,7 +448,7 @@ function ProgressReport() {
                         Relationship to Sponsor & Unbound
                     </h4>
                     <div className="flex gap-x-40 gap-y-16 flex-wrap">
-                        {relation_to_sponsor.map((q) => (
+                        {questions.map((q) => (
                             <div
                                 key={q.id}
                                 className="flex flex-col justify-end gap-8"
@@ -284,7 +465,7 @@ function ProgressReport() {
                                                 name={q.id}
                                                 value={option}
                                                 checked={
-                                                    responses[q.id] === option
+                                                    relation_to_sponsor[q.id] === option
                                                 }
                                                 onChange={(e) => {
                                                     handleCheckboxChange(
@@ -307,19 +488,28 @@ function ProgressReport() {
                 </section>
 
                 {/* Buttons */}
-                <div className="mt-10 flex w-[22.5rem] justify-between">
+                <div className="flex w-full justify-center gap-20">
                     <button
-                        className="btn-outline-rounded"
+                        className="btn-outline font-bold-label"
                         onClick={() => navigate(-1)}
                     >
                         Cancel
                     </button>
-                    <button
-                        className="btn-primary"
-                        onClick={() => navigate(-1)}
-                    >
-                        Create Progress Report
-                    </button>
+                    {viewForm ? (
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleUpdate}
+                        >
+                            Save Changes
+                        </button>
+                    ) : (
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleCreate}
+                        >
+                            Create Progress Report
+                        </button>
+                    )}
                 </div>
             </div>
         </main>

@@ -2,51 +2,207 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
+// API Import
+import  {   fetchCorrespFormData, 
+            createCorrespForm,
+            addCorrespInterventionPlan,
+            editCorrespForm,
+        }
+from '../../fetch-connections/correspFormConnection'; 
+
 function CorrespondenceForm() {
-    /********** TEST DATA **********/
+    
+    // ===== START :: Setting Data ===== //
+
+    const [loading, setLoading] = useState(true);
+    const [rawCaseData, setRawCaseData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
-        form_num: "7",
-        first_name: "Hephzi-Bah",
-        middle_name: "Gamac",
-        last_name: "Tolentino",
-        ch_number: "12356473",
-        dob: "2000-01-10",
-        school: "",
+        form_num: "3",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        ch_number: "",
+        date: "",
+        dob: "",
         address: "",
-        sponsor_name: "",
+        name_of_sponsor: "",
         subproject: "",
-        sponsorship_date: "",
+        date_of_sponsorship: "",
         identified_problem: "",
-        assessment: "",
+        assesment: "",
         objective: "",
         recommendation: "",
     });
 
-    const [intervention_plan, setInterventionPlan] = useState([
-        {
-            action: "action 1",
-            time_frame: "7 Days",
-            results: "results 1",
-            person_responsible: "SDW 1",
-        },
-        {
-            action: "action 2",
-            time_frame: "2 Months",
-            results: "results 2",
-            person_responsible: "SDW 2",
-        },
-        {
-            action: "action 3",
-            time_frame: "3 Weeks",
-            results: "results 3",
-            person_responsible: "SDW 3",
-        },
-    ]);
+    const [intervention_plans, setInterventionPlan] = useState([]);
 
-    /********** TEST DATA **********/
+    // < START :: Auto-Filled Data > //
 
-    /********** USE STATES **********/
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+
+            // [TO UPDATE] :: Case ID, Form ID
+            const returnData = await fetchCorrespFormData('686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a');
+            const caseData = returnData.sponsored_member
+
+            console.log("Case Data: ", caseData)
+
+            setRawCaseData(caseData);
+
+            setData((prev) => ({
+                ...prev,
+                first_name: caseData.first_name || "",
+                middle_name: caseData.middle_name || "",
+                last_name: caseData.last_name || "",
+                ch_number: caseData.sm_number || "",
+                dob: caseData.dob || "",
+                address: caseData.present_address || "",
+                subproject: caseData.spu || "",
+            }));
+
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    useEffect(() => {
+        setFirstName(data.first_name || "");
+        setMiddleName(data.middle_name || "");
+        setLastName(data.last_name || "");
+        setCHNumber(data.ch_number || "");
+        setDOB(data.dob || "");
+        setAddress(data.address || "");
+        setSubproject(data.subproject || "");
+    }, [data]);
+
+    // < END :: Auto-Filled Data > //
+
+    // < START :: View Form > //
+
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
+    if (viewForm) {
+        useEffect(() => {
+            const loadFormData = async () => {
+                setLoading(true);
+    
+                // [TO UPDATE] :: Case ID, Form ID
+                const returnFormData = await fetchCorrespFormData(
+                    '686e92a53c1f53d3ee659650', '6871636d243ca1e0023e6ca7'
+                );
+                const formData = returnFormData.form;
+    
+                console.log("form Data", formData);
+    
+                setRawFormData(formData);
+    
+                setData((prev) => ({
+                    ...prev,
+                    date: formData.createdAt || "",
+                    name_of_sponsor: formData.name_of_sponsor || "",
+                    date_of_sponsorship: formData.date_of_sponsorship || "",
+                    identified_problem: formData.identified_problem || "",
+                    assesment: formData.assesment || "",
+                    objective: formData.objective || "",
+                    recommendation: formData.recommendation || "",
+                }));
+    
+                setInterventionPlan(formData.intervention_plans)
+        
+                setLoading(false);
+            };
+            loadFormData();
+        }, []);
+
+        useEffect(() => {
+            setSponsorName(data.name_of_sponsor || "");
+            setSponsorshipDate(data.date_of_sponsorship || "");
+            setIdentifiedProblem(data.identified_problem || "");
+            setAssessment(data.assesment || "");
+            setObjective(data.objective || "");
+            setRecommendation(data.recommendation || "");
+        }, [data]);
+    }
+
+    // < END :: View Form > //
+
+    useEffect(() => {
+        if (data?.date_of_sponsorship) {
+            const date = new Date(data.date_of_sponsorship);
+            if (!isNaN(date)) {
+                setSponsorshipDate(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.dob) {
+            const date = new Date(data.dob);
+            if (!isNaN(date)) {
+                setDOB(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    // ===== END :: Setting Data ===== // 
+
+    // ===== START :: Backend Connection ===== //
+        
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            name_of_sponsor,
+            date_of_sponsorship,
+            identified_problem,
+            assesment,
+            objective,
+            recommendation,
+            intervention_plans
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createCorrespForm("686e92a53c1f53d3ee659650", payload); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            name_of_sponsor,
+            date_of_sponsorship,
+            identified_problem,
+            assesment,
+            objective,
+            recommendation,
+            intervention_plans
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Form ID
+        const response = await editCorrespForm("6871636d243ca1e0023e6ca7", updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
+
+    // ===== START :: Use States ===== // 
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -54,25 +210,24 @@ function CorrespondenceForm() {
     const [ch_number, setCHNumber] = useState(data?.ch_number || "");
     const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState(data?.dob || "");
-    const [school, setSchool] = useState(data?.school || "");
     const [address, setAddress] = useState(data?.address || "");
-    const [sponsor_name, setSponsorName] = useState(data?.sponsor_name || "");
+    const [name_of_sponsor, setSponsorName] = useState(data?.name_of_sponsor || "");
     const [subproject, setSubproject] = useState(data?.subproject || "");
-    const [sponsorship_date, setSponsorshipDate] = useState(
-        data?.sponsorship_date || "",
+    const [date_of_sponsorship, setSponsorshipDate] = useState(
+        data?.date_of_sponsorship || "",
     );
     const [identified_problem, setIdentifiedProblem] = useState(
         data?.identified_problem || "",
     );
-    const [assessment, setAssessment] = useState(data?.assessment || "");
+    const [assesment, setAssessment] = useState(data?.assesment || "");
     const [objective, setObjective] = useState(data?.objective || "");
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
     );
 
-    /********** USE STATES **********/
+    // ===== END :: Use States ===== // 
 
-    /********** FUNCTIONS **********/
+    // ===== START :: Local Functions ===== //
 
     const navigate = useNavigate();
 
@@ -118,7 +273,9 @@ function CorrespondenceForm() {
         setInterventionPlan((prev) => prev.filter((_, i) => i !== indexToDelete));
     };
 
-    /********** FUNCTIONS **********/
+    // ===== END :: Local Functions ===== //
+
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
@@ -150,30 +307,24 @@ function CorrespondenceForm() {
                                 value={middle_name}
                                 disabled={true}
                             ></TextInput>
+                        </div>
+                        <div className="flex flex-col gap-8">
                             <TextInput
                                 label="CH ID #"
                                 value={ch_number}
                                 disabled={true}
                             ></TextInput>
-                        </div>
-                        <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Birth"
                                 value={dob}
                                 disabled={true}
                             ></DateInput>
-                            <TextInput
-                                label="School"
-                                value={school}
-                                setValue={setSchool}
-                                handleChange={handleChange("Sponsored Member")}
-                            ></TextInput>
                             <div className="flex gap-16">
                                 <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
                                     disabled={true}
-                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
+                                    className="body-base text-area h-32 cursor-not-allowed bg-gray-200"
                                 ></textarea>
                             </div>
                         </div>
@@ -190,7 +341,7 @@ function CorrespondenceForm() {
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Name of Sponsor"
-                                value={sponsor_name}
+                                value={name_of_sponsor}
                                 setValue={setSponsorName}
                                 handleChange={handleChange("General Information")}
                             ></TextInput>
@@ -198,13 +349,14 @@ function CorrespondenceForm() {
                                 label="Sub-Project"
                                 value={subproject}
                                 setValue={setSubproject}
+                                disabled={true}
                                 handleChange={handleChange("General Information")}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date of Sponsorship"
-                                value={sponsorship_date}
+                                value={date_of_sponsorship}
                                 setValue={setSponsorshipDate}
                                 handleChange={handleChange("General Information")}
                             ></DateInput>
@@ -229,7 +381,7 @@ function CorrespondenceForm() {
             <section className="flex w-full gap-16">
                 <TextArea
                     label="SDW's Assessment"
-                    value={assessment}
+                    value={assesment}
                     setValue={setAssessment}
                 ></TextArea>
                 <TextArea
@@ -254,7 +406,7 @@ function CorrespondenceForm() {
                         </div>
                     </div>
                     <div className="flex flex-col flex-wrap gap-4">
-                        {intervention_plan.map((item, index) => (
+                        {intervention_plans.map((item, index) => (
                             <div
                                 key={index}
                                 className="flex w-full justify-between items-center px-4 gap-6"
@@ -354,9 +506,21 @@ function CorrespondenceForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label" onClick={() => navigate(-1)}>
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );

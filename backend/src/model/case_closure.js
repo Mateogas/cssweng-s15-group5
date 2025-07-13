@@ -11,6 +11,10 @@ const CaseClosureSchema = new Schema ({
           type: Date,
           required: true
      },
+     sponsorship_date: {
+          type: Date,
+          required: true
+     },
      reason_for_retirement: {
           type: String,
           required: true
@@ -25,6 +29,16 @@ const CaseClosureSchema = new Schema ({
                return this.sm_awareness; // Only required if sm_awareness is true
           }
      },
+     services_provided: [{
+        service: {
+            type: String,
+            required: true
+        },
+        description: {
+            type: String,
+            required: true
+        },
+     }],
      evaluation: {
           type: String,
           required: true

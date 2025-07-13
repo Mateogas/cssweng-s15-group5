@@ -37,7 +37,7 @@ const InterventionHomeVisitSchema = new Schema ({
      },
      family_type: {
           type: String,
-          enum: [], // Add family type here
+          enum: ["Nuclear", "Extended", "Blended"], // Add family type here
           required: true
      },
      father: {
@@ -107,12 +107,6 @@ const InterventionHomeVisitSchema = new Schema ({
           type: String,
           required: false
      },
-     progress_reports: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Progress Report',
-
-          required: false
-     }     
 }, { timestamps: true });
 
 const InterventionHomeVisit = mongoose.model('Intervention Home Visit', InterventionHomeVisitSchema);

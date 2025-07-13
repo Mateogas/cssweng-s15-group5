@@ -5,11 +5,15 @@ import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 // API Imports
 import {
     fetchCaseData,
+    fetchCounselingIntervention,
     addCounselingIntervention,
+    editCounselingIntervention
 } from "../../fetch-connections/intervention-connection";
+import { editAssessment } from "../../fetch-connections/case-connection";
 
-function CounsellingForm() {
-    /********** TEST DATA **********/
+function CounselingForm() {
+
+    // ===== START :: Setting Data ===== //
 
     const [data, setData] = useState({
         form_num: "",
@@ -22,8 +26,8 @@ function CounsellingForm() {
         address: "",
         subproject: "",
         area_self_help: "",
-        counselling_date: "",
-        reason_for_counselling: "",
+        counseling_date: "",
+        reason_for_counseling: "",
         corrective_action: "",
         recommendation: "",
         sm_comments: "",
@@ -33,39 +37,13 @@ function CounsellingForm() {
 
     /********** USE STATES **********/
 
-    const [last_name, setLastName] = useState(data?.last_name || "");
-    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
-    const [first_name, setFirstName] = useState(data?.first_name || "");
-    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
-    const [grade_year_level, setGradeYearLevel] = useState(
-        data?.grade_year_level || "",
-    );
-    const [school, setSchool] = useState(data?.school || "");
-    const [address, setAddress] = useState(data?.address || "");
-    const [subproject, setSubproject] = useState(data?.subproject || "");
-    const [area_self_help, setAreaSelfHelp] = useState(
-        data?.area_self_help || "",
-    );
-    const [counseling_date, setCounselingDate] = useState(
-        data?.counselling_date || "",
-    );
-    const [reason_for_counseling, setReasonForCounseling] = useState(
-        data?.reason_for_counselling || "",
-    );
-    const [corrective_action, setCorrectiveAction] = useState(
-        data?.corrective_action || "",
-    );
-    const [recommendation, setRecommendation] = useState(
-        data?.recommendation || "",
-    );
-    const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
-    
+    // < START :: Auto-Filled Data > //
+
     // LOAD DATA
     useEffect(() => {
         const loadData = async () => {
             // setLoading(true);
-            const fetchedData = await fetchCaseData('685e536add2b486dad9efd88');
+            const fetchedData = await fetchCaseData('6849646feaa08161083d1aec');
             setData(fetchedData);
             // setLoading(false);
 
@@ -89,10 +67,129 @@ function CounsellingForm() {
         loadData();
     }, []);
 
-    /********** USE STATES **********/
+    // < END :: Auto-Filled Data > //
 
-    /********** FUNCTIONS **********/
+    // < START :: View Form > //
+
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
+    // View Form
+    if (viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                // setLoading(true);
+                const fetchedData = await fetchCounselingIntervention('687158bbfc374d212d0e7270');
+                setData(fetchedData);
+                // setLoading(false);
+
+                setLastName(fetchedData.last_name || "");
+                setMiddleName(fetchedData.middle_name || "");
+                setFirstName(fetchedData.first_name || "");
+                setCHNumber(fetchedData.ch_number || "");
+                setFormNum(fetchedData.form_num || "");
+                setGradeYearLevel(fetchedData.grade_year_level || "");
+                setSchool(fetchedData.school || "");
+                setAddress(fetchedData.address || "");
+                setSubproject(fetchedData.subproject || "");
+                setAreaSelfHelp(fetchedData.area_self_help || "");
+                setCounselingDate(fetchedData.counseling_date || "");
+                setReasonForCounseling(fetchedData.reason_for_counseling || "");
+                setCorrectiveAction(fetchedData.corrective_action || "");
+                setRecommendation(fetchedData.recommendation || "");
+                setSMComments(fetchedData.sm_comments || "");
+            };
+            
+            loadData();
+        }, []);
+    }
+
+    // < END :: View Form > //
+
+    // ===== END :: Setting Data ===== //
+
+    // ===== START :: Backend Connection ===== //
     
+    // < START :: Create Form > //
+
+    const handleCreate = async () => {
+        const payload = {
+            grade_year_level,
+            school,
+            area_self_help,
+            counseling_date,
+            reason_for_counseling,
+            corrective_action,
+            recommendation,
+            sm_comments
+        };
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await addCounselingIntervention(payload, "6849646feaa08161083d1aec"); 
+    };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            grade_year_level,
+            school,
+            area_self_help,
+            counseling_date,
+            reason_for_counseling,
+            corrective_action,
+            recommendation,
+            sm_comments
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Form ID
+        const response = await editCounselingIntervention(updatedPayload, "687158bbfc374d212d0e7270"); 
+    };
+
+    // < END :: Edit Form > //
+
+    // ===== END :: Backend Connection ===== //
+
+    // ===== START :: Use States ===== //
+
+    const [last_name, setLastName] = useState(data?.last_name || "");
+    const [middle_name, setMiddleName] = useState(data?.middle_name || "");
+    const [first_name, setFirstName] = useState(data?.first_name || "");
+    const [ch_number, setCHNumber] = useState(data?.ch_number || "");
+    const [form_num, setFormNum] = useState(data?.form_num || "");
+    const [grade_year_level, setGradeYearLevel] = useState(
+        data?.grade_year_level || "",
+    );
+    const [school, setSchool] = useState(data?.school || "");
+    const [address, setAddress] = useState(data?.address || "");
+    const [subproject, setSubproject] = useState(data?.subproject || "");
+    const [area_self_help, setAreaSelfHelp] = useState(
+        data?.area_self_help || "",
+    );
+    const [counseling_date, setCounselingDate] = useState(
+        data?.counseling_date || "",
+    );
+    const [reason_for_counseling, setReasonForCounseling] = useState(
+        data?.reason_for_counseling || "",
+    );
+    const [corrective_action, setCorrectiveAction] = useState(
+        data?.corrective_action || "",
+    );
+    const [recommendation, setRecommendation] = useState(
+        data?.recommendation || "",
+    );
+    const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
+
+    // ===== END :: Use States ===== //
+
+    // ===== START :: Local Functions  ===== //
+
     const navigate = useNavigate();
 
     const [savedTime, setSavedTime] = useState(null);
@@ -114,12 +211,14 @@ function CounsellingForm() {
         }, 3000);
     };
 
-    /********** FUNCTIONS **********/
+    // ===== END :: Local Functions  ===== //
+
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <h4 className="header-sm self-end">Form #: {form_num}</h4>
-            <h3 className="header-md">Counselling Form</h3>
+            <h3 className="header-md">Counseling Form</h3>
 
             {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-16">
@@ -167,8 +266,8 @@ function CounsellingForm() {
                                 <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
-                                    disabled={true}
-                                    className="text-area h-32 cursor-not-allowed bg-gray-200"
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    className="text-area"
                                 ></textarea>
                             </div>
                         </div>
@@ -197,9 +296,9 @@ function CounsellingForm() {
                         </div>
                         <div className="flex flex-col gap-8">
                             <DateInput
-                                label="Date of Counselling"
-                                value={counselling_date}
-                                setValue={setCounsellingDate}
+                                label="Date of Counseling"
+                                value={counseling_date}
+                                setValue={setCounselingDate}
                                 handleChange={handleChange("General Information")}
                             ></DateInput>
                         </div>
@@ -210,10 +309,10 @@ function CounsellingForm() {
                 </div>
             </section>
 
-            {/* Reason for Counselling and Corrective Action */}
+            {/* Reason for Counseling and Corrective Action */}
             <section className="flex w-full items-end gap-16">
                 <TextArea
-                    label="Purpose/Reason for Counselling"
+                    label="Purpose/Reason for Counseling"
                     value={reason_for_counseling}
                     setValue={setReasonForCounseling}
                 ></TextArea>
@@ -241,47 +340,30 @@ function CounsellingForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-
-                <button 
-                    className="btn-primary"
-                    onClick={async (e) => {
-                        e.preventDefault();
-
-                        const counselingData = {
-                            first_name,
-                            middle_name,
-                            last_name,
-                            ch_number,
-                            grade_year_level,
-                            school,
-                            address,
-                            subproject,
-                            area_self_help,
-                            counseling_date,
-                            reason_for_counseling,
-                            corrective_action,
-                            recommendation,
-                            sm_comments
-                        };
-                        
-                        try {
-                            const response = await addCounselingIntervention(counselingData, '685e536add2b486dad9efd88'); // Replace with actual ID
-                            console.log("Intervention created successfully:", response);
-                            
-                            // TODO Navigate to the next page or show a success message
-                            navigate("/case-frontend")
-                        } catch (error) {
-                            console.error("Error creating intervention:", error);
-                            // TODO Handle error appropriately, e.g., show a notification
-                        }
-                    }}
+            <div className="flex w-full justify-center gap-20">
+                <button
+                    className="btn-outline font-bold-label"
+                    onClick={() => navigate(-1)}
+                >
+                    Cancel
+                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
                     >
                         Create Intervention
-                </button>
+                    </button>
+                )}
             </div>
         </main>
     );
 }
-export default CounsellingForm;
+export default CounselingForm;

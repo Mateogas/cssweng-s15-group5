@@ -98,6 +98,16 @@ const SponsoredMemberSchema = new mongoose.Schema({
             required: false
         },
     }],
+    progress_reports: {
+        progress_report: {
+            type: [mongoose.Schema.Types.ObjectId], 
+            ref: 'Progress Report',
+            required: false
+        },
+        report_number: {
+            type: Number
+        },
+    },
     history_problem: {
         type: String,
         required: false

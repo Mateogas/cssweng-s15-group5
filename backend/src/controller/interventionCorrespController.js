@@ -33,7 +33,8 @@ const createCorespForm = async(req,res)=>{
 
         //gets last number
         const maxNumber = sameTypeInterventions.length > 0
-            ? Math.max(...sameTypeInterventions.map(i => i.intervention_number))
+            /* ? Math.max(...sameTypeInterventions.map(i => i.intervention_number)) */
+            ? sameTypeInterventions.length
             : 0;
 
         //pushes 
@@ -69,7 +70,8 @@ const addInterventionPlan = async (req, res) => {
         !newPlan ||
         typeof newPlan.action !== 'string' || newPlan.action.length < 1 ||
         typeof newPlan.time_frame !== 'string' || newPlan.time_frame.length < 1 ||
-        typeof newPlan.results !== 'string' || newPlan.results.length < 1
+        typeof newPlan.results !== 'string' || newPlan.results.length < 1 ||
+        typeof newPlan.person_responsible !== 'string' || newPlan.results.length < 1
     ) {
         return res.status(400).json({ message: 'Invalid intervention plan data' });
     }
@@ -155,6 +157,7 @@ const getCorrespondenceForm = async(req,res)=>{
                 last_name: sponsoredData.last_name,
                 sm_number: sponsoredData.sm_number,
                 dob: sponsoredData.dob,
+                spu: sponsoredData.spu,
                 present_address: sponsoredData.present_address,
                 spu:sponsoredData.spu,
             },

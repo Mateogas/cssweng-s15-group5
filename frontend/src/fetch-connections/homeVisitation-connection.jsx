@@ -1,75 +1,82 @@
-export const fetchCaseData = async(caseID) => {
-     try {
-          const response = await fetch(`/api/intervention/home-visit-form/${caseID}`);
-          
-          if (!response.ok) 
-               throw new Error('API error');
+export const fetchCaseData = async (caseID) => {
+    try {
+        const response = await fetch(
+            `/api/intervention/home-visit-form/${caseID}`,
+        );
 
-          const rawData = await response.json();
-          localID = rawData.case._id
+        if (!response.ok) throw new Error("API error");
 
-          return rawData
-     } catch (err) {
-          console.error('Error fetching case data:', err);
-          return defaultCaseData;
-     }
+        const rawData = await response.json();
+        // localID = rawData.case._id
+
+        return rawData;
+    } catch (err) {
+        console.error("Error fetching case data:", err);
+        return defaultCaseData;
+    }
 };
 
-export const fetchFormData = async(caseID, formID) => {
-     try {
-          const response = await fetch(`/api/intervention/home-visit-form/${caseID}/${formID}`);
-          
-          if (!response.ok) 
-               throw new Error('API error');
+export const fetchFormData = async (caseID, formID) => {
+    try {
+        const response = await fetch(
+            `/api/intervention/home-visit-form/${caseID}/${formID}`,
+        );
 
-          const rawData = await response.json();
-          localID = rawData.case._id
+        if (!response.ok) throw new Error("API error");
 
-          return rawData
-     } catch (err) {
-          console.error('Error fetching case data:', err);
-          return defaultCaseData;
-     }
+        const rawData = await response.json();
+        // rawData.dob = new Date(rawData.dob).toISOString().split("T")[0];
+        // localID = rawData.case._id
+
+        return rawData;
+    } catch (err) {
+        console.error("Error fetching form data:", err);
+        return null;
+    }
 };
 
-export const createHomeVis = async(createdData, caseID) => {
-     try {
-          const response = await fetch(`/api/intervention/create/home-visit-form/${caseID}`, {
-               method: 'PUT',
-               headers: {
-               'Content-Type': 'application/json',
-               },
-               body: JSON.stringify(createdData),
-          });
-          
-          if (!response.ok) 
-               throw new Error('API error');
+export const createHomeVis = async (createdData, caseID) => {
+    try {
+        const response = await fetch(
+            `/api/intervention/create/home-visit-form/${caseID}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(createdData),
+            },
+        );
 
-          const newHomeVis = await response.json();
-          console.log(newHomeVis)
-     } catch (err) {
-          console.error('Error creating form:', err);
-          return null;
-     }
+        if (!response.ok) throw new Error("API error");
+
+        const newHomeVis = await response.json();
+        console.log(newHomeVis);
+    } catch (err) {
+        console.error("Error creating form:", err);
+        return null;
+    }
 };
 
-export const editHomeVis = async(updatedData, caseID, formID) => {
-     try {
-          const response = await fetch(`/api/intervention/edit/home-visit-form/${caseID}/${formID}`, {
-               method: 'PUT',
-               headers: {
-               'Content-Type': 'application/json',
-               },
-               body: JSON.stringify(updatedData),
-          });
-          
-          if (!response.ok) 
-               throw new Error('API error');
+export const editHomeVis = async (updatedData, caseID, formID) => {
+    try {
+        const response = await fetch(
+            `/api/intervention/edit/home-visit-form/${caseID}/${formID}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updatedData),
+            },
+        );
 
-          const editedHomeVis = await response.json();
-          console.log(editedHomeVis)
-     } catch (err) {
-          console.error('Error editing form:', err);
-          return null;
-     }
+        if (!response.ok) throw new Error("API error");
+
+        const editedHomeVis = await response.json();
+        console.log(editedHomeVis);
+    } catch (err) {
+        console.error("Error editing form:", err);
+        return null;
+    }
 };

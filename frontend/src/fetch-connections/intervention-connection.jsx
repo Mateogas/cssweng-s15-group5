@@ -84,6 +84,28 @@ export const addCounselingIntervention = async (data, caseID) => {
     }
 };
 
+export const editCounselingIntervention = async (data, counselingId) => {
+    try {
+        const response = await fetch(`/api/intervention/counseling/edit/${counselingId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to edit counseling intervention");
+        }
+
+        const result = await response.json();        
+        return result;
+    } catch (error) {
+        console.error("Error editing counseling intervention:", error);
+        throw error;
+    }
+};
+
 export const deleteCounselingIntervention = async (interventionID) => {
     try {
         const response = await fetch(`/api/intervention/counseling/delete/${interventionID}`, {

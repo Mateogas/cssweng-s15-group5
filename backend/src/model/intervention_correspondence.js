@@ -45,15 +45,11 @@ const InterventionCorrespondenceSchema = new Schema ({
                type: String,
                required: true
           },
+          person_responsible:{
+               type:String,
+               required: true
+          },
      }],
-
-     progress_reports: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Progress Report',
-
-          required: false
-     }     
-     
 }, { timestamps: true });
 
 const Intervention_Correspondence = mongoose.model('Intervention Correspondence', InterventionCorrespondenceSchema);

@@ -4,20 +4,23 @@ import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import FamilyCard from "../../components/FamilyCard";
 
 // API Import
-import  {   fetchCaseData, 
-            createHomeVis
-        }
-from '../../fetch-connections/homeVisitation-connection'; 
+import {
+    fetchCaseData,
+    fetchFormData,
+    createHomeVis,
+    editHomeVis,
+} from "../../fetch-connections/homeVisitation-connection";
 
 function HomeVisitationForm() {
-    /********** TEST DATA **********/
 
-    // ===== START :: Setting Data ===== // 
+    // ===== START :: Setting Data ===== //
+
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFatherData, setRawFatherData] = useState(null);
     const [rawMotherData, setRawMotherData] = useState(null);
     const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
+    const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
         form_num: "",
@@ -46,6 +49,10 @@ function HomeVisitationForm() {
         agreement: "",
     });
 
+    const [familyMembers, setFamilyMembers] = useState([]);
+
+    // < START :: Auto-Filled Data > //
+
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -57,7 +64,7 @@ function HomeVisitationForm() {
             const motherData = returnData.mother
             const otherFamilyData = returnData.otherFamily
 
-            console.log(caseData)
+            console.log("Case Data: ", caseData);
 
             setRawCaseData(caseData);
             setRawFatherData(fatherData);
@@ -70,18 +77,20 @@ function HomeVisitationForm() {
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
 
-                father_first_name: fatherData.first_name || "",
-                father_middle_name: fatherData.middle_name || "",
-                father_last_name: fatherData.last_name || "",
-                father_work: fatherData.occupation || "",
-                father_income: fatherData.income || "",
+                father_first_name: fatherData?.first_name || "",
+                father_middle_name: fatherData?.middle_name || "",
+                father_last_name: fatherData?.last_name || "",
+                father_work: fatherData?.occupation || "",
+                father_income: fatherData?.income || "",
 
-                mother_first_name: motherData.first_name || "",
-                mother_middle_name: motherData.middle_name || "",
-                mother_last_name: motherData.last_name || "",
-                mother_work: motherData.occupation || "",
-                mother_income: motherData.income || "",
+                mother_first_name: motherData?.first_name || "",
+                mother_middle_name: motherData?.middle_name || "",
+                mother_last_name: motherData?.last_name || "",
+                mother_work: motherData?.occupation || "",
+                mother_income: motherData?.income || "",
             }));
+
+            setFamilyMembers(otherFamilyData);
             setLoading(false);
         };
         loadData();
@@ -104,9 +113,90 @@ function HomeVisitationForm() {
         setMotherWork(data.mother_work || "");
         setMotherIncome(data.mother_income || "");
     }, [data]);
-    // ===== END :: Setting Data ===== // 
+
+    // < END :: Auto-Filled Data > //
+
+    // < START :: View Form > //
+
+    // [TO UPDATE] :: Temporary state
+    const viewForm = true;
+
+    if (viewForm) {
+        useEffect(() => {
+            const loadFormData = async () => {
+                setLoading(true);
+
+                // [TO UPDATE] :: Case ID, Form ID
+                const returnFormData = await fetchFormData(
+                    "6849646feaa08161083d1aec",
+                    "686e92a53c1f53d3ee659662",
+                );
+                const formData = returnFormData.form;
+
+                console.log("Form Data", formData);
+
+                setRawFormData(formData);
+
+                setData((prev) => ({
+                    ...prev,
+                    grade_year_course: formData.grade_year_course || "",
+                    years_in_program: formData.years_in_program || "",
+                    date: formData.createdAt || "",
+                    community: formData.community || "",
+                    sponsor_name: formData.sponsor_name || "",
+                    family_type: formData.family_type || "",
+                    sm_progress: formData.sm_progress || "",
+                    family_progress: formData.family_progress || "",
+                    observation_findings: formData.observation_findings || [],
+                    interventions: formData.interventions || [],
+                    recommendation: formData.recommendations || "",
+                    agreement: formData.agreement || "",
+                }));
+
+                setLoading(false);
+            };
+            loadFormData();
+        }, []);
+
+        useEffect(() => {
+            setGradeYearCourse(data.grade_year_course || "");
+            setYearsInProgram(data.years_in_program || "");
+            setDate(data.date || "");
+            setCommunity(data.community || "");
+            setSponsorName(data.sponsor_name || "");
+            setFamilyType(data.family_type || "");
+            setSMProgress(data.sm_progress || "");
+            setFamilyProgress(data.family_progress || "");
+            setObservationFindings(data.observation_findings || []);
+            setInterventions(data.interventions || []);
+            setRecommendation(data.recommendation || "");
+            setAgreement(data.agreement || "");
+        }, [data]);
+    }
+
+    // < END :: View Form > //
+
+    useEffect(() => {
+        if (data?.date) {
+            const date = new Date(data.date);
+            if (!isNaN(date)) {
+                setDate(formatter.format(date));
+            }
+        }
+    }, [data]);
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    // ===== END :: Setting Data ===== //
 
     // ===== START :: Backend Connection ===== //
+
+    // < START :: Create Form > //
+
     const handleCreate = async () => {
         const payload = {
             form_num,
@@ -145,13 +235,108 @@ function HomeVisitationForm() {
 
             familyMembers,
             observation_findings,
-            interventions
+            interventions,
         };
-        const response = await createHomeVis(payload);
+
+        console.log("Payload: ", payload);
+
+        // [TO UPDATE] :: Case ID
+        const response = await createHomeVis(payload, "6849646feaa08161083d1aec"); 
     };
+
+    // < END :: Create Form > //
+
+    // < START :: Edit Form > //
+
+    const handleUpdate = async () => {
+        const updatedPayload = {
+            form_num,
+            first_name,
+            middle_name,
+            last_name,
+
+            grade_year_course,
+            years_in_program,
+
+            date,
+            community,
+            sponsor_name,
+
+            family_type,
+            father_first_name,
+            father_middle_name,
+            father_last_name,
+            father_work,
+            father_income,
+            rawFatherData,
+
+            mother_first_name,
+            mother_middle_name,
+            mother_last_name,
+            mother_work,
+            mother_income,
+            rawMotherData,
+
+            rawOtherFamilyData,
+
+            sm_progress,
+            family_progress,
+            recommendation,
+            agreement,
+
+            familyMembers,
+            observation_findings,
+            interventions,
+        };
+
+        console.log("Payload: ", updatedPayload);
+
+        // [TO UPDATE] :: Case ID, Form ID
+        const response = await editHomeVis(updatedPayload, "6849646feaa08161083d1aec", "686e92a53c1f53d3ee659662"); 
+    };
+
+    // < END :: Edit Form > //
+
     // ===== END :: Backend Connection ===== //
 
+    // ===== START :: Modals ===== //
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => {});
+    const [modalImageCenter, setModalImageCenter] = useState(null);
+
+    // ===== END :: Modals ===== //
+
     // ===== START :: Local Functions ===== //
+
+    const navigate = useNavigate();
+
+    const [savedTime, setSavedTime] = useState(null);
+    const timeoutRef = useRef(null);
+    const [sectionEdited, setSectionEdited] = useState("");
+
+    const handleChange = (section) => (e) => {
+        setSectionEdited(section);
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+        });
+        setSavedTime(`Saved at ${timeString}`);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+            setSavedTime(null);
+        }, 3000);
+    };
+
     const handleAddObservation = () => {
         const newObservation = "";
 
@@ -161,6 +346,12 @@ function HomeVisitationForm() {
     const updateObservations = (index, value) => {
         setObservationFindings((prev) =>
             prev.map((item, i) => (i === index ? value : item)),
+        );
+    };
+
+    const deleteObservation = (indexToDelete) => {
+        setObservationFindings((prev) =>
+            prev.filter((_, i) => i !== indexToDelete),
         );
     };
 
@@ -175,14 +366,19 @@ function HomeVisitationForm() {
             prev.map((item, i) => (i === index ? value : item)),
         );
     };
+
+    const deleteIntervention = (indexToDelete) => {
+        setInterventions((prev) => prev.filter((_, i) => i !== indexToDelete));
+    };
+
     // ===== END :: Local Functions ===== //
 
     /**
      *   Formats the currency
-     * 
+     *
      *   @param {*} value : Value to be formatted (assumed Number)
      *   @returns : The formatted string
-     * 
+     *
      *   [NOTE]: Applied this in income display; changed the income input to of type number
      */
     function currency_Formatter(value) {
@@ -191,81 +387,15 @@ function HomeVisitationForm() {
             style: "currency",
             currency: "PHP",
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
         });
     }
 
-    const [familyMembers, setFamilyMembers] = useState([
-        {
-            id: 1,
-            first: "Ana",
-            middle: "Victoria",
-            last: "Angat",
-            age: 20,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Software Developer",
-            education: "Undergraduate",
-            relationship: "Sister",
-            deceased: false,
-        },
-        {
-            id: 2,
-            first: "Marvin",
-            middle: "Ivan",
-            last: "Mangubat",
-            age: 21,
-            income: 0.0,
-            civilStatus: "Divorced",
-            occupation: "Unemployed",
-            education: "Undergraduate",
-            relationship: "Sister",
-            deceased: false,
-        },
-        {
-            id: 3,
-            first: "Jose",
-            middle: "Miguel",
-            last: "Espinosa",
-            age: 21,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Producer",
-            education: "Undergraduate",
-            relationship: "Brother",
-            deceased: false,
-        },
-        {
-            id: 4,
-            first: "Jose2",
-            middle: "Miguel2",
-            last: "Espinosa2",
-            age: 21,
-            income: 100000.0,
-            civilStatus: "Single",
-            occupation: "Producer",
-            education: "Undergraduate",
-            relationship: "Brother",
-            deceased: false,
-        },
-    ]);
+    // ===== START :: Use States ===== //
 
-    const [observation_findings, setObservationFindings] = useState([
-        "Observation 1",
-        "Observation 2",
-        "Observation 3",
-    ]);
-
-    const [interventions, setInterventions] = useState([
-        "Intervention 1",
-        "Intervention 2",
-        "Intervention 3",
-    ]);
-
-    /********** TEST DATA **********/
-
-    /********** USE STATES **********/
-
+    const [observation_findings, setObservationFindings] = useState([]);
+    const [interventions, setInterventions] = useState([]);
+    
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
@@ -318,71 +448,9 @@ function HomeVisitationForm() {
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [editingFamilyValue, setEditingFamilyValue] = useState({});
 
-    /********** USE STATES **********/
+    // ===== END :: Use States ===== //
 
-    /********** MODALS **********/
-
-    const [showModal, setShowModal] = useState(false);
-
-    const [modalTitle, setModalTitle] = useState("");
-    const [modalBody, setModalBody] = useState("");
-    const [modalConfirm, setModalConfirm] = useState(false);
-    const [modalOnConfirm, setModalOnConfirm] = useState(() => {});
-    const [modalImageCenter, setModalImageCenter] = useState(null);
-
-    /********** MODALS **********/
-
-    /********** FUNCTIONS **********/
-
-    const navigate = useNavigate();
-
-    const [savedTime, setSavedTime] = useState(null);
-    const timeoutRef = useRef(null);
-    const [sectionEdited, setSectionEdited] = useState("");
-
-    const handleChange = (section) => (e) => {
-        setSectionEdited(section);
-
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        setSavedTime(`Saved at ${timeString}`);
-
-        if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        }
-        timeoutRef.current = setTimeout(() => {
-        setSavedTime(null);
-        }, 3000);
-    };
-
-
-    const handleAddFamilyMember = () => {
-        const newMember = {
-            name: "",
-            age: "",
-            income: "",
-            civilStatus: "",
-            occupation: "",
-            education: "",
-            relationship: "",
-        };
-
-        setFamilyMembers((prev) => [newMember, ...prev]);
-        setSelectedFamily(0);
-        setEditingFamilyValue(newMember);
-    };
-
-    const deleteObservation = (indexToDelete) => {
-        setObservationFindings((prev) =>
-            prev.filter((_, i) => i !== indexToDelete),
-        );
-    };
-
-    const deleteIntervention = (indexToDelete) => {
-        setInterventions((prev) => prev.filter((_, i) => i !== indexToDelete));
-    };
-
-    /********** FUNCTIONS **********/
+    if (!data) return <div>No data found.</div>;
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
@@ -417,12 +485,18 @@ function HomeVisitationForm() {
                             <TextInput
                                 label="Grade/Year Course"
                                 value={grade_year_course}
-                                disabled={true}
+                                setValue={setGradeYearCourse}
+                                handleChange={handleChange(
+                                    "Sponsored Member",
+                                )}
                             ></TextInput>
                             <TextInput
                                 label="Year/s in the Program"
                                 value={years_in_program}
-                                disabled={true}
+                                setValue={setYearsInProgram}
+                                handleChange={handleChange(
+                                    "Sponsored Member",
+                                )}
                             ></TextInput>
                             <div className="flex items-center gap-16">
                                 <p className="label-base w-64">Family Type</p>
@@ -431,8 +505,8 @@ function HomeVisitationForm() {
                                     id="family_type"
                                     value={family_type}
                                     onChange={(e) => {
-                                        handleChange("Sponsored Member")(e) 
-                                        setFamilyType(e.target.value)
+                                        handleChange("Sponsored Member")(e);
+                                        setFamilyType(e.target.value);
                                     }}
                                     className="label-base text-input"
                                 >
@@ -440,19 +514,19 @@ function HomeVisitationForm() {
                                         Select
                                     </option>
                                     <option
-                                        value="nuclear"
+                                        value="Nuclear"
                                         className="body-base"
                                     >
                                         Nuclear
                                     </option>
                                     <option
-                                        value="extended"
+                                        value="Extended"
                                         className="body-base"
                                     >
                                         Extended
                                     </option>
                                     <option
-                                        value="blended"
+                                        value="Blended"
                                         className="body-base"
                                     >
                                         Blended
@@ -462,7 +536,7 @@ function HomeVisitationForm() {
                         </div>
                     </div>
                     {savedTime && sectionEdited === "Sponsored Member" && (
-                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                        <p className="mt-2 self-end text-sm">{savedTime}</p>
                     )}
                 </div>
             </section>
@@ -479,13 +553,17 @@ function HomeVisitationForm() {
                                 label="Date"
                                 value={date}
                                 setValue={setDate}
-                                handleChange={handleChange("General Information")}
+                                handleChange={handleChange(
+                                    "General Information",
+                                )}
                             ></DateInput>
                             <TextInput
                                 label="Community"
                                 value={community}
                                 setValue={setCommunity}
-                                handleChange={handleChange("General Information")}
+                                handleChange={handleChange(
+                                    "General Information",
+                                )}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -493,12 +571,14 @@ function HomeVisitationForm() {
                                 label="Sponsor Name"
                                 value={sponsor_name}
                                 setValue={setSponsorName}
-                                handleChange={handleChange("General Information")}
+                                handleChange={handleChange(
+                                    "General Information",
+                                )}
                             ></TextInput>
                         </div>
                     </div>
                     {savedTime && sectionEdited === "General Information" && (
-                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                        <p className="mt-2 self-end text-sm">{savedTime}</p>
                     )}
                 </div>
             </section>
@@ -533,7 +613,7 @@ function HomeVisitationForm() {
                             ></TextInput>
                             <TextInput
                                 label="Income"
-                                value={father_income}
+                                value={currency_Formatter(father_income)}
                                 disabled={true}
                             ></TextInput>
                         </div>
@@ -568,7 +648,7 @@ function HomeVisitationForm() {
                             ></TextInput>
                             <TextInput
                                 label="Income"
-                                value={mother_income}
+                                value={currency_Formatter(mother_income)}
                                 disabled={true}
                             ></TextInput>
                         </div>
@@ -577,22 +657,35 @@ function HomeVisitationForm() {
             </section>
 
             {/* Family Members */}
-            <section className="flex flex-col gap-8">
-                <h1 className="header-main">
+            <section className="flex w-full flex-col gap-16">
+                <h3 className="header-md">
                     Members and/or Other Members of the Family
-                </h1>
+                </h3>
 
-                <div className="flex justify-between gap-10">
-                    <div className="flex flex-wrap gap-8">
-                        {familyMembers.map((member, index) => (
-                            <FamilyCard
-                                key={index}
-                                index={index}
-                                member={member}
-                                familyMembers={familyMembers}
-                                setFamilyMembers={setFamilyMembers}
-                            />
-                        ))}
+                <div className="flex w-full justify-between gap-16">
+                    <div className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6">
+                        <div
+                            className="flex gap-8"
+                            style={{ minWidth: "max-content" }}
+                        >
+                            {familyMembers.map((member, index) => (
+                                <FamilyCard
+                                    key={index}
+                                    index={index}
+                                    member={member}
+                                    selectedFamily={selectedFamily}
+                                    editingFamilyValue={editingFamilyValue}
+                                    familyMembers={familyMembers}
+                                    setShowModal={setShowModal}
+                                    setModalTitle={setModalTitle}
+                                    setModalBody={setModalBody}
+                                    setModalImageCenter={setModalImageCenter}
+                                    setModalConfirm={setModalConfirm}
+                                    setModalOnConfirm={setModalOnConfirm}
+                                    editable={false}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -619,29 +712,33 @@ function HomeVisitationForm() {
             {/* Observation/Findings */}
             <section className="flex w-full flex-col gap-8">
                 <h4 className="header-sm">Worker's Observation/Findings</h4>
-                {observation_findings.map((item, index) => (
-                    <div key={index} className="flex items-center">
-                        <p className="body-base pr-4">{index + 1}.</p>
-                        <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => {
-                                updateObservations(index, e.target.value)
-                                handleChange("Observations")(e)
-                            }}
-                            className="body-base text-area w-full"
-                        />
-                        <button
-                            onClick={() => deleteObservation(index)}
-                            className="icon-button-setup trash-button px-10"
-                        ></button>
-                    </div>
-                ))}
-                <button className="btn-primary font-bold-label" onClick={handleAddObservation}>
+                {Array.isArray(observation_findings) &&
+                    observation_findings.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                            <p className="body-base pr-4">{index + 1}.</p>
+                            <input
+                                type="text"
+                                value={item}
+                                onChange={(e) => {
+                                    updateObservations(index, e.target.value);
+                                    handleChange("Observations")(e);
+                                }}
+                                className="body-base text-area w-full"
+                            />
+                            <button
+                                onClick={() => deleteObservation(index)}
+                                className="icon-button-setup trash-button px-10"
+                            ></button>
+                        </div>
+                    ))}
+                <button
+                    className="btn-primary font-bold-label"
+                    onClick={handleAddObservation}
+                >
                     Add Observation/Findings
                 </button>
                 {savedTime && sectionEdited === "Observations" && (
-                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                    <p className="mt-2 self-end text-sm">{savedTime}</p>
                 )}
             </section>
 
@@ -655,8 +752,8 @@ function HomeVisitationForm() {
                             type="text"
                             value={item}
                             onChange={(e) => {
-                                updateInterventions(index, e.target.value)
-                                handleChange("Interventions")(e)
+                                updateInterventions(index, e.target.value);
+                                handleChange("Interventions")(e);
                             }}
                             className="body-base text-area w-full"
                         />
@@ -666,11 +763,14 @@ function HomeVisitationForm() {
                         ></button>
                     </div>
                 ))}
-                <button className="btn-primary font-bold-label" onClick={handleAddIntervention}>
+                <button
+                    className="btn-primary font-bold-label"
+                    onClick={handleAddIntervention}
+                >
                     Add Intervention
                 </button>
                 {savedTime && sectionEdited === "Interventions" && (
-                    <p className="text-sm self-end mt-2">{savedTime}</p>
+                    <p className="mt-2 self-end text-sm">{savedTime}</p>
                 )}
             </section>
 
@@ -698,9 +798,21 @@ function HomeVisitationForm() {
                 >
                     Cancel
                 </button>
-                <button className="btn-primary font-bold-label w-min" onClick={() => navigate(-1)}>
-                    Create Intervention
-                </button>
+                {viewForm ? (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleUpdate}
+                    >
+                        Save Changes
+                    </button>
+                ) : (
+                    <button
+                        className="btn-primary font-bold-label w-min"
+                        onClick={handleCreate}
+                    >
+                        Create Intervention
+                    </button>
+                )}
             </div>
         </main>
     );

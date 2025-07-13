@@ -7,9 +7,9 @@ const homVisController = require('../controller/interventionHomeVisController');
  * 
  *   /api/intervention
  */
-router.get('/home-visit-form/:caseID', homVisController.loadHomeVisitationForm)
-router.get('/home-visit-form/:caseID/:formID', homVisController.loadHomeVisitationFormEdit)
-router.put('/create/home-visit-form/:caseID', homVisController.createHomVis)
-router.put('/edit/home-visit-form/:caseID/:formID', homVisController.editHomeVis)
+router.get('/home-visit-form/:caseID', homVisController.loadHomeVisitationForm);
+router.get('/home-visit-form/:caseID/:formID', homVisController.loadHomeVisitationFormEdit);
+router.put('/create/home-visit-form/:caseID', homVisController.createHomVis);
+router.put('/edit/home-visit-form/:caseID/:formID', homVisController.editHomeVis);
 
 module.exports = router;
