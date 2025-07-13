@@ -29,7 +29,22 @@ const getProgressReportById = async (req, res) => {
             return res.status(404).json({ error: 'Progress report not found' });
         }
 
-        return res.status(200).json(progressReport);
+        // Get the sponsored member associated with the report
+        const sm = await Sponsored_member.findOne({ progress_reports: reportId });
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found for this report' });
+        }
+
+        // Get report number from the sponsored member's progress reports
+        const reportNumber = sm.progress_reports.find(report => report.progress_report.toString() === reportId)?.report_number;
+        if (!reportNumber) {
+            return res.status(404).json({ error: 'Report number not found for this progress report' });
+        }
+
+        return res.status(200).json({
+            progressReport,
+            reportNumber
+        });
     } catch (error) {
         console.error('Error fetching progress report:', error);
         return res.status(500).json({ error: 'Internal server error' });
