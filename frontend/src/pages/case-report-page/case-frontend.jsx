@@ -22,7 +22,9 @@ import {
 }
     from '../../fetch-connections/case-connection';
 
-function CaseFrontend() {
+function CaseFrontend({creating = false}) {
+    console.log(creating);
+
     const navigate = useNavigate();
     const { clientId } = useParams();
 
@@ -312,6 +314,12 @@ function CaseFrontend() {
     const [selectedClassification, setSelectedClassification] = useState("");
 
     const [editingField, setEditingField] = useState(null);
+
+    useEffect(() => {
+    if (creating) {
+        setEditingField("all");
+    }
+    }, [creating]);
 
     const [currentSection, setCurrentSection] = useState("identifying-data");
 
@@ -615,6 +623,8 @@ function CaseFrontend() {
 
     // }, [drafts])
 
+    console.log("EDITIGN FIELF", editingField);
+
     return (
         <>
             <SimpleModal
@@ -675,13 +685,13 @@ function CaseFrontend() {
                             setCurrentSection={setCurrentSection}
                         />
 
-                        <NavLabelButton
+                        {!creating && <NavLabelButton
                             title="Interventions"
                             iconClass="interventions-button"
                             sectionId="interventions"
                             currentSection={currentSection}
                             setCurrentSection={setCurrentSection}
-                        />
+                        />}
 
                         <NavLabelButton
                             title="Assessments"
@@ -702,7 +712,7 @@ function CaseFrontend() {
                 </div>
 
                 <section className="flex flex-col gap-5" id="core-fields">
-                    <div className="flex items-center justify-between">
+                    {!creating && <div className="flex items-center justify-between">
                         {data.is_active === true ? (
                             <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
                                 Active
@@ -716,12 +726,12 @@ function CaseFrontend() {
                             data-cy='download-case'>
                             Download
                         </button>
-                    </div>
+                    </div>}
 
-                    {editingField === "core-fields" && (
+                    {(editingField === "all" || editingField === "core-fields") && (
                         <div className="flex items-center justify-between">
                             <h1 className="header-main">Core Details</h1>
-                            <button
+                            {!creating && <button
                                 className={
                                     editingField === "core-fields"
                                         ? "icon-button-setup x-button"
@@ -734,11 +744,11 @@ function CaseFrontend() {
                                         setEditingField("core-fields");
                                     }
                                 }}
-                            ></button>
+                            ></button>}
                         </div>
                     )}
 
-                    {editingField === "core-fields" ? (
+                    {(editingField === "all" ||editingField === "core-fields") ? (
                         <>
                             <div className="flex gap-5 w-full">
                                 <div className="flex flex-col gap-5 w-full">
@@ -817,7 +827,7 @@ function CaseFrontend() {
                     <div className="flex flex-wrap justify-between gap-10">
                         {/* SPU Project */}
                         <div className="flex w-full flex-col md:w-[48%]">
-                            {editingField === "core-fields" ? (
+                            {(editingField === "all" ||editingField === "core-fields") ? (
                                 <>
                                     <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
                                     <select
@@ -857,7 +867,7 @@ function CaseFrontend() {
 
                         {/* Social Development Worker */}
                         <div className="flex w-full flex-col md:w-[48%]">
-                            {editingField === "core-fields" ? (
+                            {(editingField === "all" || editingField === "core-fields") ? (
                                 <>
                                     <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
                                     <select
@@ -899,7 +909,7 @@ function CaseFrontend() {
 
                     <div className='flex flex-col w-full'>
                         <label className="font-bold-label mb-2">Classifications</label>
-                        {editingField === "core-fields" ? (
+                        {(editingField === "all" || editingField === "core-fields") ? (
                             <>
                                 <div className="flex w-full max-w-[65rem] items-center self-start">
                                     <select
@@ -1034,7 +1044,7 @@ function CaseFrontend() {
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <div className="flex justify-between items-center">
                         <h1 className="header-main">Identifying Data</h1>
-                        {user?.role == "sdw" && <button
+                        {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "identifying-fields"
                                     ? "icon-button-setup x-button"
@@ -1051,7 +1061,7 @@ function CaseFrontend() {
                         ></button>}
                     </div>
 
-                    {editingField === "identifying-fields" ? (
+                    {(editingField === "all" || editingField === "identifying-fields") ? (
                         <>
                             <div className="flex justify-between gap-20">
                                 <div className="flex w-full flex-col gap-5">
@@ -1197,7 +1207,7 @@ function CaseFrontend() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end">
+                            {!creating && <div className="flex justify-end">
                                 <button
                                     className="btn-transparent-rounded my-3 ml-auto"
                                     onClick={async () => {
@@ -1235,9 +1245,7 @@ function CaseFrontend() {
                                 >
                                     Submit Changes
                                 </button>
-
-
-                            </div>
+                            </div>}
                         </>
                     ) : (
                         <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
@@ -1320,7 +1328,7 @@ function CaseFrontend() {
                 >
                     <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Problems and Findings</h1>
-                        {user?.role == "sdw" && <button
+                        {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "history-fields"
                                     ? "icon-button-setup x-button"
@@ -1341,7 +1349,7 @@ function CaseFrontend() {
                         <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Problem Presented</h3>
 
-                            {editingField === "history-fields" ? (
+                            {(editingField === "all" || editingField === "history-fields") ? (
                                 <textarea
                                     className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.problem_presented}
@@ -1364,7 +1372,7 @@ function CaseFrontend() {
                         <div className="flex flex-col gap-4">
                             <h3 className="header-sub">History of the Problem</h3>
 
-                            {editingField === "history-fields" ? (
+                            {(editingField === "all" || editingField === "history-fields") ? (
                                 <textarea
                                     className="text-input font-label resize-y min-h-[20rem]"
                                     placeholder="History of the Problem"
@@ -1387,7 +1395,7 @@ function CaseFrontend() {
                         <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Findings</h3>
 
-                            {editingField === "history-fields" ? (
+                            {(editingField === "all" || editingField === "history-fields") ? (
                                 <textarea
                                     className="text-input font-label resize-y min-h-[20rem]"
                                     placeholder="Findings"
@@ -1445,7 +1453,7 @@ function CaseFrontend() {
                     )}
                 </section>
 
-                <section
+                {!creating && <section
                     className="flex flex-col gap-8"
                     id="interventions"
                     ref={ref4}
@@ -1518,9 +1526,9 @@ function CaseFrontend() {
                             )}
                         </div>
                     </div>
-                </section>
+                </section>}
 
-                <section
+                {!creating && <section
                     className="flex flex-col gap-8"
                     id="interventions"
                     ref={ref4}
@@ -1564,7 +1572,7 @@ function CaseFrontend() {
                             ))}
                         </div>
                     </div>
-                </section>
+                </section>}
 
                 <section
                     className="flex flex-col gap-8"
@@ -1573,7 +1581,7 @@ function CaseFrontend() {
                 >
                     <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Assessment</h1>
-                        {user?.role == "sdw" && <button
+                        {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "assessment-field"
                                     ? "icon-button-setup x-button"
@@ -1592,7 +1600,7 @@ function CaseFrontend() {
 
                     <div className="grid grid-cols-1 gap-10">
                         <div className="flex flex-col gap-4">
-                            {editingField === "assessment-field" ? (
+                            {(editingField === "all" || editingField === "assessment-field") ? (
                                 <textarea
                                     className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.assessment || ""}
@@ -1654,7 +1662,7 @@ function CaseFrontend() {
                         <h1 className="header-main">
                             Evaluation and Recommendation
                         </h1>
-                        {user?.role == "sdw" && <button
+                        {!creating && user?.role == "sdw" && <button
                             className={
                                 editingField === "evaluation-fields"
                                     ? "icon-button-setup x-button"
@@ -1675,7 +1683,7 @@ function CaseFrontend() {
                         <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Evaluation</h3>
 
-                            {editingField === "evaluation-fields" ? (
+                            {(editingField === "all" || editingField === "evaluation-fields") ? (
                                 <textarea
                                     className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.evaluation}
@@ -1698,7 +1706,7 @@ function CaseFrontend() {
                         <div className="flex flex-col gap-4">
                             <h3 className="header-sub">Recommendation</h3>
 
-                            {editingField === "evaluation-fields" ? (
+                            {(editingField === "all" || editingField === "evaluation-fields") ? (
                                 <textarea
                                     className="text-input font-label resize-y min-h-[20rem]"
                                     value={drafts.recommendation}
@@ -1754,10 +1762,15 @@ function CaseFrontend() {
                     )}
                 </section>
 
-                <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                {creating &&  <button onClick={() => {}} className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
+                    data-cy='create-case'>
+                    Create Case
+                </button>}
+
+                {!creating && <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
                     data-cy='terminate-case'>
                     Terminate Case
-                </button>
+                </button>}
             </main>
         </>
     );
