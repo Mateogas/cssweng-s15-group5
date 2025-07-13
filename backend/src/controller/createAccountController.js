@@ -16,7 +16,7 @@ const Employee = require("../model/employee");
  * - username: The username for the employee account.
  * - password: The password for the employee account (minimum 8 characters).
  * - email: The email address of the employee.
- * - contact_number: The contact number of the employee.
+ * - contact_no: The contact number of the employee.
  * - spu_id: The SPU ID of the employee (must be one of the valid SPUs).
  * - role: The role of the employee (must be one of "Head", "Supervisor", or "Social Development Worker").
  * 
@@ -29,16 +29,18 @@ const Employee = require("../model/employee");
  */
 const createAccount = async (req, res) => {
     try {
-        const { sdw_id, username, password, email, contact_number, spu_id, role } = req.body;
-        const { _id } = req.session.user;
+        const { sdw_id, username, password, email, contact_no, spu_id, role, manager } = req.body;
+        // const { _id } = req.session.user;
     
+        console.log("REQ.BODY", req.body);
+
         // Check if the logged-in user is a head
-        if (req.session.user.role !== "Head") {
-            return res.status(403).json({ message: "Only heads can create accounts." });
-        }
+        // if (req.session.user.role !== "Head") {
+        //     return res.status(403).json({ message: "Only heads can create accounts." });
+        // }
     
         // Validate required fields
-        if (!sdw_id || !username || !password || !email || !contact_number || !spu_id || !role) {
+        if (!sdw_id || !username || !password || !email || !contact_no || !spu_id || !role) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -66,25 +68,25 @@ const createAccount = async (req, res) => {
         }
 
         // Set manager and validate role
-        let manager = _id; // Default to the logged-in user
-        if (role === "Head") {
-            // Head does not have a manager
-            manager = null;
-        } else if (role === "Supervisor") {
-            // Manager is the logged-in user
-            manager = _id;
-        } else if (role === "Social Development Worker") {
-            // Manager is the supervisor of the SPU
-            const supervisor = await Employee.findOne({ role: "Supervisor", spu_id });
-            if (!supervisor) {
-                return res.status(400).json({ message: "No supervisor found for the specified SPU." });
-            }
+        // let manager = _id; // Default to the logged-in user
+        // if (role === "Head") {
+        //     // Head does not have a manager
+        //     manager = null;
+        // } else if (role === "Supervisor") {
+        //     // Manager is the logged-in user
+        //     manager = _id;
+        // } else if (role === "Social Development Worker") {
+        //     // Manager is the supervisor of the SPU
+        //     const supervisor = await Employee.findOne({ role: "Supervisor", spu_id });
+        //     if (!supervisor) {
+        //         return res.status(400).json({ message: "No supervisor found for the specified SPU." });
+        //     }
 
-            // Set the manager to the supervisor's ID
-            manager = supervisor._id;
-        } else {
-            return res.status(400).json({ message: "Invalid role." });
-        }
+        //     // Set the manager to the supervisor's ID
+        //     manager = supervisor._id;
+        // } else {
+        //     return res.status(400).json({ message: "Invalid role." });
+        // }
 
         // Hash the password
         const saltRounds = 10;
@@ -96,7 +98,7 @@ const createAccount = async (req, res) => {
             username,
             password: hashedPassword,
             email,
-            contact_number,
+            contact_no,
             spu_id,
             role,
             manager,

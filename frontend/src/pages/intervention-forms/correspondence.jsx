@@ -391,103 +391,6 @@ function CorrespondenceForm() {
                 ></TextArea>
             </section>
 
-            {/* Intervention Plan */}
-            <section className="flex w-full flex-col gap-16">
-                <h3 className="header-md">Intervention Plan</h3>
-                <div className="flex flex-col gap-2">
-                    <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
-                        <div className="flex justify-between px-4 gap-6 pr-30">
-                            <p className="label-base w-lg">Actions</p>
-                            <p className="label-base w-sm">Time Frame</p>
-                            <p className="label-base w-lg">Results</p>
-                            <p className="label-base w-lg">
-                                Person Responsible
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex flex-col flex-wrap gap-4">
-                        {intervention_plans.map((item, index) => (
-                            <div
-                                key={index}
-                                className="flex w-full justify-between items-center px-4 gap-6"
-                            >
-                                <div className="flex w-lg">
-                                    <TextArea
-                                        value={item.action}
-                                        handleChange={(e) => {
-                                            updateIntervention(
-                                                index,
-                                                "action",
-                                                e.target.value,
-                                            );
-                                            handleChange("Intervention Plan")(e);
-                                        }}
-                                        showTime={false}
-                                    ></TextArea>
-                                </div>
-                                <div className="flex w-sm">
-                                    <TextArea
-                                        value={item.time_frame}
-                                        handleChange={(e) => {
-                                            updateIntervention(
-                                                index,
-                                                "time_frame",
-                                                e.target.value,
-                                            );
-                                            handleChange("Intervention Plan")(e);
-                                        }}
-                                        showTime={false}
-                                    ></TextArea>
-                                </div>
-                                <div className="flex w-lg">
-                                    <TextArea
-                                        value={item.results}
-                                        handleChange={(e) => {
-                                            updateIntervention(
-                                                index,
-                                                "results",
-                                                e.target.value,
-                                            );
-                                            handleChange("Intervention Plan")(e);
-                                        }}
-                                        showTime={false}
-                                    ></TextArea>
-                                </div>
-                                <div className="flex w-lg">
-                                    <TextArea
-                                        value={item.person_responsible}
-                                        handleChange={(e) => {
-                                            updateIntervention(
-                                                index,
-                                                "person_responsible",
-                                                e.target.value,
-                                            );
-                                            handleChange("Intervention Plan")(e);
-                                        }}
-                                        showTime={false}
-                                    ></TextArea>
-                                </div>
-                                <button
-                                    onClick={() => deleteIntervention(index)}
-                                    className="icon-button-setup trash-button px-10"
-                                ></button>
-                            </div>
-                        ))}
-                    </div>
-                    {savedTime && sectionEdited === "Intervention Plan" && (
-                        <p className="text-sm self-end mt-2">{savedTime}</p>
-                    )}
-                </div>
-                <button
-                    name="add_intervention"
-                    id="add_intervention"
-                    onClick={handleAddIntervention}
-                    className="btn-primary font-bold-label self-center"
-                >
-                    Add Intervention
-                </button>
-            </section>
-
             {/* Recommendation */}
             <section className="flex w-full items-end">
                 <TextArea
@@ -499,28 +402,9 @@ function CorrespondenceForm() {
             </section>
 
             {/* Buttons */}
-            <div className="flex w-full justify-center gap-20">
-                <button
-                    className="btn-outline font-bold-label"
-                    onClick={() => navigate(-1)}
-                >
-                    Cancel
-                </button>
-                {viewForm ? (
-                    <button
-                        className="btn-primary font-bold-label w-min"
-                        onClick={handleUpdate}
-                    >
-                        Save Changes
-                    </button>
-                ) : (
-                    <button
-                        className="btn-primary font-bold-label w-min"
-                        onClick={handleCreate}
-                    >
-                        Create Intervention
-                    </button>
-                )}
+            <div className="flex w-[22.5rem] justify-between">
+                <button className="btn-outline-rounded">Cancel</button>
+                <button className="btn-primary">Create Intervention</button>
             </div>
         </main>
     );

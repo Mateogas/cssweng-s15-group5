@@ -42,6 +42,8 @@ app.use(
  *  Require controllers and routes
  */
 const caseRoutes = require('./route/caseRoutes');
+const accountRoutes = require('./route/accountRoutes');
+
 const caseClosureController = require("./controller/caseClosureController");
 
 const interventionRoutes = require('./route/interventionRoutes');
@@ -76,6 +78,9 @@ app.get("/test-session", (req, res) => {
 
 // All case routes
 app.use('/api/cases', caseRoutes);
+
+// All account routes
+app.use('/api', accountRoutes);
 
 // Intervention routes
 app.use('/api/intervention', interventionRoutes);

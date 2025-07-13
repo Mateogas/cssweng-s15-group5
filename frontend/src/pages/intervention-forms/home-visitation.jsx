@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
-import FamilyCard from "../../components/FamilyCard";
+import FamilyCard from "../../Components/FamilyCard";
 
 // API Import
 import {

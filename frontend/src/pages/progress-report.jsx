@@ -12,9 +12,6 @@ from '../fetch-connections/progress-report-connection';
 function ProgressReport() {
     /********** TEST DATA **********/
 
-
-
-
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);

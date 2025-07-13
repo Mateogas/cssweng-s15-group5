@@ -308,14 +308,6 @@ function CaseClosure() {
         );
     };
 
-    const deleteService = (indexToDelete) => {
-        setServicesProvided((prev) => prev.filter((_, i) => i !== indexToDelete));
-    };
-
-    const handleCheckboxChange = (value) => {
-        setSMAwareness(value);
-    };
-
     function calculateAge(dateValue) {
         const birthday = new Date(dateValue);
         const today = new Date();
