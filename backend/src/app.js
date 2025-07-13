@@ -24,8 +24,10 @@ const interventionRoutes = require('./route/interventionRoutes');
 const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
+const profileRoute = require('./route/profile');
 
 const createAccountController = require('./controller/createAccountController');
+
 
 /**
  *  ============ Routes ==============
@@ -55,6 +57,9 @@ app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClos
 
 // Create Account routes
 app.post('/api/create-account', createAccountController.createAccount);
+
+// User Profile route
+app.use('/api/profile', profileRoute);
 
 /**
  *  ============ Extras ==============
