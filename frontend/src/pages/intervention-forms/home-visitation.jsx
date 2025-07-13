@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
+import Signature from "../../Components/Signature"
 import FamilyCard from "../../Components/FamilyCard";
 
 // API Import
@@ -802,6 +803,12 @@ function HomeVisitationForm() {
                     ></TextArea>
                 </div>
             </section>
+
+            {/* Signature */}
+            <div className="flex w-full justify-between px-16 pt-24">
+                <Signature label="Visited by:"></Signature>
+                <Signature label="Attested by:"></Signature>
+            </div>
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">

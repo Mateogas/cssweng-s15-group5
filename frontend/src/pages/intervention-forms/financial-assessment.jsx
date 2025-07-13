@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
+import Signature from "../../Components/Signature";
 
 // API Import
 import  {   fetchFinInterventionData,
@@ -368,6 +369,18 @@ function FinancialAssessmentForm() {
                     setValue={setRecommendation}
                 ></TextArea>
             </section>
+
+            {/* Signature */}
+            <div className="flex w-full flex-col gap-16 px-16 pt-24">
+                <div className="flex w-full justify-between">
+                    <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
+                    <Signature label="Noted by:" signer="OIC-Cluster Coordinator"></Signature>
+                </div>
+                
+                <div className="flex w-full justify-between">
+                    <Signature label="Checked and Reviewed by:" signer="Finance Staff"></Signature>
+                </div>
+            </div>
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">

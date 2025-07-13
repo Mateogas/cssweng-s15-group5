@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, DateInput, TextArea } from "../Components/TextField";
+import Signature from "../Components/Signature";
 
 // API Import
 import  {   fetchProgressReport, 
@@ -325,7 +326,7 @@ function ProgressReport() {
     // ===== END :: Functions ===== //
 
     return (
-        <main className="flex justify-center p-32">
+        <main className="flex justify-center w-full p-16">
             <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
                 <div className="flex w-full justify-between">
                     <button 
@@ -512,6 +513,12 @@ function ProgressReport() {
                         <p className="text-sm self-end mt-2">{savedTime}</p>
                     )}
                 </section>
+
+                {/* Signature */}
+                <div className="flex w-full justify-between px-16 pt-24">
+                    <Signature label="Prepared by:" signer="SDW/SEDO/SPC"></Signature>
+                    <Signature label="Reviewed and Noted by:" signer="SPC/SDDH"></Signature>
+                </div>
 
                 {/* Buttons */}
                 <div className="flex w-full justify-center gap-20">

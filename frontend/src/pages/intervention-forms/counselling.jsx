@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
+import Signature from "../../Components/Signature";
 
 // API Imports
 import {
@@ -359,6 +360,11 @@ function CounselingForm() {
                     setValue={setSMComments}
                 ></TextArea>
             </section>
+
+            {/* Signature */}
+            <div className="flex w-full justify-between px-16 pt-24">
+                <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
+            </div>
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
