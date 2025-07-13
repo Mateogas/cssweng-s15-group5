@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import { useParams } from "react-router-dom";
 import FamilyCard from "../../Components/FamilyCard";
-import SimpleModal from '../../components/SimpleModal';
+import SimpleModal from '../../Components/SimpleModal';
 import NavLabelButton from '../../components/NavLabelButton';
 
 // API Imports
