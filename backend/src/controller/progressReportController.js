@@ -116,15 +116,15 @@ const getAllProgressReportsForCase = async (req, res) => {
         }
 
         // Fetch all progress reports for the sponsored member
-        const sm = await Sponsored_member.findById(caseId).populate('progress_reports');
+        const sm = await Sponsored_member.findById(caseId).populate('progress_reports.progress_report');
         if (!sm) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
 
         const progressReports = sm.progress_reports.map(report => ({
-            _id: report._id,
+            _id: report.progress_report._id,
             report_number: "Progress Report " + report.report_number,
-            created_at: report.createdAt,
+            created_at: report.progress_report.createdAt,
         }));
 
         return res.status(200).json(progressReports);
@@ -144,7 +144,7 @@ const getAllProgressReportsForCase = async (req, res) => {
  * @param {Object} req.body - The progress report data.
  * 
  * @returns {Object} 201 - Progress report added successfully.
- * @returns {Object} 400 - Invalid intervention ID, type, or missing required fields.
+ * @returns {Object} 400 - Invalid case ID, type, or missing required fields.
  * @returns {Object} 404 - Sponsored member not found.
  * @returns {Object} 500 - Internal server error.
  */
@@ -152,9 +152,9 @@ const addProgressReport = async (req, res) => {
     try {
         const caseId = req.params.caseId;
 
-        // Validate intervention ID
+        // Validate case ID
         if (!mongoose.Types.ObjectId.isValid(caseId)) {
-            return res.status(400).json({ error: 'Invalid intervention ID' });
+            return res.status(400).json({ error: 'Invalid case ID' });
         }
 
         // Find sponsored member
@@ -211,7 +211,7 @@ const addProgressReport = async (req, res) => {
 
             return res.status(400).json({ 
                 error: 'Invalid relation_to_sponsor structure',
-                message: 'relation_to_sponsor must include q1, q2, and q3 properties'
+                message: 'relation_to_sponsor must include know_sponsor_name, cooperative, and personalized_letter properties'
             });
         }
 
@@ -250,7 +250,7 @@ const addProgressReport = async (req, res) => {
         });
     } catch (error) {
         console.error('Error adding progress report:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }
 
@@ -283,8 +283,8 @@ const deleteProgressReport = async (req, res) => {
 
         // Find the sponsored member and delete the progress report
         const sm = await Sponsored_member.findOneAndUpdate(
-            { progress_reports: reportId },
-            { $pull: { progress_reports: reportId } },
+            { "progress_reports.progress_report": reportId },
+            { $pull: { progress_reports: { progress_report: reportId } } },
             { new: true }
         );
 
