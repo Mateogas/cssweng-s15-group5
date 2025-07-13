@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 // API Import
@@ -10,9 +10,18 @@ import  {   fetchCorrespFormData,
         }
 from '../../fetch-connections/correspFormConnection'; 
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function CorrespondenceForm() {
     
     // ===== START :: Setting Data ===== //
+
+    const query = useQuery();
+    const action = query.get('action'); // "create", "edit", or "delete"
+    const caseID = query.get('caseID'); 
+    const formID = query.get('formID') || "";
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -44,8 +53,7 @@ function CorrespondenceForm() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID, Form ID
-            const returnData = await fetchCorrespFormData('686e92a53c1f53d3ee659650', '686e92a53c1f53d3ee65964a');
+            const returnData = await fetchCorrespFormData(caseID, formID);
             const caseData = returnData.sponsored_member
 
             console.log("Case Data: ", caseData)
@@ -82,17 +90,15 @@ function CorrespondenceForm() {
 
     // < START :: View Form > //
 
-    // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadFormData = async () => {
                 setLoading(true);
     
-                // [TO UPDATE] :: Case ID, Form ID
                 const returnFormData = await fetchCorrespFormData(
-                    '686e92a53c1f53d3ee659650', '6871636d243ca1e0023e6ca7'
+                    caseID, formID
                 );
                 const formData = returnFormData.form;
     
@@ -173,8 +179,7 @@ function CorrespondenceForm() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await createCorrespForm("686e92a53c1f53d3ee659650", payload); 
+        const response = await createCorrespForm(caseID, payload); 
     };
 
     // < END :: Create Form > //
@@ -194,11 +199,21 @@ function CorrespondenceForm() {
 
         console.log("Payload: ", updatedPayload);
 
-        // [TO UPDATE] :: Form ID
-        const response = await editCorrespForm("6871636d243ca1e0023e6ca7", updatedPayload); 
+        const response = await editCorrespForm(formID, updatedPayload); 
     };
 
     // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    /*
+    const handleDelete = async () => {
+        
+        const response = await editCorrespForm(formID, updatedPayload); 
+    };
+    */
+
+    // < END :: Delete Form > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -279,7 +294,15 @@ function CorrespondenceForm() {
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-            <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                </div>
             <h3 className="header-md">
                 SMs, Families, and SHGs Intervention Plan
             </h3>

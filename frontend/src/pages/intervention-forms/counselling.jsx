@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 
 // API Imports
@@ -7,13 +7,23 @@ import {
     fetchCaseData,
     fetchCounselingIntervention,
     addCounselingIntervention,
-    editCounselingIntervention
+    editCounselingIntervention,
+    deleteCounselingIntervention
 } from "../../fetch-connections/intervention-connection";
 import { editAssessment } from "../../fetch-connections/case-connection";
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 function CounselingForm() {
 
     // ===== START :: Setting Data ===== //
+
+    const query = useQuery();
+    const action = query.get('action'); // "create", "edit", or "delete"
+    const caseID = query.get('caseID'); 
+    const formID = query.get('formID') || "";
 
     const [data, setData] = useState({
         form_num: "",
@@ -39,7 +49,7 @@ function CounselingForm() {
     useEffect(() => {
         const loadData = async () => {
             // setLoading(true);
-            const fetchedData = await fetchCaseData('6849646feaa08161083d1aec');
+            const fetchedData = await fetchCaseData(caseID);
             setData(fetchedData);
             // setLoading(false);
 
@@ -68,14 +78,14 @@ function CounselingForm() {
     // < START :: View Form > //
 
     // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     // View Form
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 // setLoading(true);
-                const fetchedData = await fetchCounselingIntervention('687158bbfc374d212d0e7270');
+                const fetchedData = await fetchCounselingIntervention(formID);
                 setData(fetchedData);
                 // setLoading(false);
 
@@ -122,8 +132,7 @@ function CounselingForm() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await addCounselingIntervention(payload, "6849646feaa08161083d1aec"); 
+        const response = await addCounselingIntervention(payload, caseID); 
     };
 
     // < END :: Create Form > //
@@ -144,11 +153,19 @@ function CounselingForm() {
 
         console.log("Payload: ", updatedPayload);
 
-        // [TO UPDATE] :: Form ID
-        const response = await editCounselingIntervention(updatedPayload, "687158bbfc374d212d0e7270"); 
+        const response = await editCounselingIntervention(updatedPayload, formID); 
     };
 
     // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    const handleDelete = async () => {
+
+        const response = await deleteCounselingIntervention(updatedPayload, formID); 
+    };
+
+    // < END :: Delete Form > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -213,7 +230,15 @@ function CounselingForm() {
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-            <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                </div>
             <h3 className="header-md">Counseling Form</h3>
 
             {/* Sponsored Member and General Info */}
@@ -337,26 +362,36 @@ function CounselingForm() {
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
-                <button
-                    className="btn-outline font-bold-label"
-                    onClick={() => navigate(-1)}
-                >
-                    Cancel
-                </button>
                 {viewForm ? (
-                    <button
-                        className="btn-primary font-bold-label w-min"
-                        onClick={handleUpdate}
-                    >
-                        Save Changes
-                    </button>
+                    <>
+                        <button
+                            className="btn-outline font-bold-label"
+                            onClick={handleDelete}
+                        >
+                            Delete Form
+                        </button>
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleUpdate}
+                        >
+                            Save Changes
+                        </button>
+                    </>
                 ) : (
-                    <button
-                        className="btn-primary font-bold-label w-min"
-                        onClick={handleCreate}
-                    >
-                        Create Intervention
-                    </button>
+                    <>
+                        <button
+                            className="btn-outline font-bold-label"
+                            onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleCreate}
+                        >
+                            Create Intervention
+                        </button>
+                    </>
                 )}
             </div>
         </main>

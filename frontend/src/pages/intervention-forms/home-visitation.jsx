@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import FamilyCard from "../../Components/FamilyCard";
 
@@ -11,9 +11,19 @@ import {
     editHomeVis,
 } from "../../fetch-connections/homeVisitation-connection";
 
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function HomeVisitationForm() {
 
     // ===== START :: Setting Data ===== //
+
+    const query = useQuery();
+    const action = query.get('action'); // "create", "edit", or "delete"
+    const caseID = query.get('caseID'); 
+    const formID = query.get('formID') || ""; 
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -57,8 +67,7 @@ function HomeVisitationForm() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
+            const returnData = await fetchCaseData(caseID);
             const caseData = returnData.case
             const fatherData = returnData.father
             const motherData = returnData.mother
@@ -118,18 +127,16 @@ function HomeVisitationForm() {
 
     // < START :: View Form > //
 
-    // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadFormData = async () => {
                 setLoading(true);
 
-                // [TO UPDATE] :: Case ID, Form ID
                 const returnFormData = await fetchFormData(
-                    "6849646feaa08161083d1aec",
-                    "686e92a53c1f53d3ee659662",
+                    caseID,
+                    formID,
                 );
                 const formData = returnFormData.form;
 
@@ -240,8 +247,7 @@ function HomeVisitationForm() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await createHomeVis(payload, "6849646feaa08161083d1aec"); 
+        const response = await createHomeVis(payload, caseID); 
     };
 
     // < END :: Create Form > //
@@ -291,8 +297,7 @@ function HomeVisitationForm() {
 
         console.log("Payload: ", updatedPayload);
 
-        // [TO UPDATE] :: Case ID, Form ID
-        const response = await editHomeVis(updatedPayload, "6849646feaa08161083d1aec", "686e92a53c1f53d3ee659662"); 
+        const response = await editHomeVis(updatedPayload, caseID, formID); 
     };
 
     // < END :: Edit Form > //
@@ -454,7 +459,15 @@ function HomeVisitationForm() {
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-            <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            <div className="flex w-full justify-between">
+                <button 
+                    onClick={() => navigate(-1)} 
+                    className="flex items-center gap-5 label-base arrow-group">
+                    <div className="arrow-left-button"></div>
+                    Go Back
+                </button>
+                <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            </div>
             <h3 className="header-md">Home Visitation Report</h3>
 
             {/* Sponsored Member */}
@@ -793,21 +806,21 @@ function HomeVisitationForm() {
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 <button
-                    className="btn-outline font-bold-label"
+                    className="label-base btn-outline font-bold-label"
                     onClick={() => navigate(-1)}
                 >
                     Cancel
                 </button>
                 {viewForm ? (
                     <button
-                        className="btn-primary font-bold-label w-min"
+                        className="label-base btn-primary font-bold-label w-min"
                         onClick={handleUpdate}
                     >
                         Save Changes
                     </button>
                 ) : (
                     <button
-                        className="btn-primary font-bold-label w-min"
+                        className="label-base btn-primary font-bold-label w-min"
                         onClick={handleCreate}
                     >
                         Create Intervention

@@ -1,18 +1,28 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, DateInput, TextArea } from "../Components/TextField";
 
 // API Import
 import  {   fetchProgressReport, 
+            fetchCaseData,
             addProgressReport,
             editProgressReport,
-            fetchCaseData
+            deleteProgressReport,
         } 
 from '../fetch-connections/progress-report-connection'; 
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 function ProgressReport() {
 
     // ===== START :: Setting Data ===== //
+
+    const query = useQuery();
+    const action = query.get('action'); // "create", "edit", or "delete"
+    const caseID = query.get('caseID'); 
+    const formID = query.get('formID') || ""; 
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -44,8 +54,7 @@ function ProgressReport() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
+            const returnData = await fetchCaseData(caseID);
             const caseData = returnData
 
             console.log("CaseData: ", caseData)
@@ -81,16 +90,14 @@ function ProgressReport() {
 
     // < START :: View Form > //
 
-    // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 setLoading(true);
     
-                // [TO UPDATE] :: Case ID
-                const returnData = await fetchProgressReport('687172244bf09e0e26d6899a');
+                const returnData = await fetchProgressReport(formID);
                 const formData = returnData.progressReport
                 const report_number = returnData.reportNumber
     
@@ -196,8 +203,7 @@ function ProgressReport() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await addProgressReport(payload, "6849646feaa08161083d1aec"); 
+        const response = await addProgressReport(payload, caseID); 
     };
 
     // < END :: Create Form > //
@@ -219,11 +225,18 @@ function ProgressReport() {
 
         console.log("Payload: ", updatedPayload);
 
-        // [TO UPDATE] :: Form ID
-        const response = await editProgressReport("687172244bf09e0e26d6899a", updatedPayload); 
+        const response = await editProgressReport(formID, updatedPayload); 
     };
 
     // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    const handleDelete = async () => {
+        const response = await deleteProgressReport(formID); 
+    };
+
+    // < END :: Delete Form > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -314,7 +327,15 @@ function ProgressReport() {
     return (
         <main className="flex justify-center p-32">
             <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-                <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                </div>
                 <h3 className="header-md">Individual Progress Report</h3>
 
                 {/* Sponsored Member and General Info */}
@@ -494,26 +515,36 @@ function ProgressReport() {
 
                 {/* Buttons */}
                 <div className="flex w-full justify-center gap-20">
-                    <button
-                        className="btn-outline font-bold-label"
-                        onClick={() => navigate(-1)}
-                    >
-                        Cancel
-                    </button>
                     {viewForm ? (
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={handleUpdate}
-                        >
-                            Save Changes
-                        </button>
+                        <>
+                            <button
+                                className="label-base btn-outline font-bold-label"
+                                onClick={handleDelete}
+                            >
+                                Delete Report
+                            </button>
+                            <button
+                                className="btn-primary font-bold-label w-min"
+                                onClick={handleUpdate}
+                            >
+                                Save Changes
+                            </button>
+                        </>
                     ) : (
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={handleCreate}
-                        >
-                            Create Progress Report
-                        </button>
+                        <>
+                            <button
+                                className="btn-outline font-bold-label"
+                                onClick={() => navigate(-1)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="btn-primary font-bold-label w-min"
+                                onClick={handleCreate}
+                            >
+                                Create Progress Report
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

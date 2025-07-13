@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 // API Import
@@ -9,9 +9,21 @@ import  {   fetchFinInterventionData,
         }
 from '../../fetch-connections/financialForm-connection'; 
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function FinancialAssessmentForm() {
 
     // ===== START :: Setting Data ===== //
+
+    const query = useQuery();
+    const action = query.get('action'); // "create", "edit", or "delete"
+    const caseID = query.get('caseID'); 
+    const formID = query.get('formID') || ""; 
+
+    console.log("Case ID: ", caseID);
+    console.log("Form ID: ", formID);
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -49,8 +61,7 @@ function FinancialAssessmentForm() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID, Form ID
-            const returnData = await fetchFinInterventionData('686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669');
+            const returnData = await fetchFinInterventionData(caseID, formID);
             const caseData = returnData.sponsored_member;
 
             console.log(caseData)
@@ -83,17 +94,15 @@ function FinancialAssessmentForm() {
 
     // ===== START :: View Form ===== //
     
-    // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadFormData = async () => {
                 setLoading(true);
 
-                // [TO UPDATE] :: Case ID, Form ID
                 const returnFormData = await fetchFinInterventionData(
-                    '686e92a63c1f53d3ee65966e', '686e92a63c1f53d3ee659669'
+                    caseID, formID
                 );
                 const formData = returnFormData.form;
 
@@ -140,8 +149,7 @@ function FinancialAssessmentForm() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await createFinancialForm("686e92a63c1f53d3ee65966e", payload); 
+        const response = await createFinancialForm(caseID, payload); 
     };
 
     // < END :: Create Form > //
@@ -159,8 +167,16 @@ function FinancialAssessmentForm() {
 
         console.log("Payload: ", updatedPayload);
 
-        // [TO UPDATE] :: Case ID, Form ID
-        const response = await editFinancialForm("686e92a63c1f53d3ee659669", updatedPayload); 
+        const response = await editFinancialForm(formID, updatedPayload); 
+    };
+
+    // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    const handleDelete = async () => {
+
+        const response = await editFinancialForm(formID, updatedPayload); 
     };
 
     // < END :: Edit Form > //
@@ -224,7 +240,15 @@ function FinancialAssessmentForm() {
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-            <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                </div>
             <h3 className="header-md">
                 Assessment Form for Special Family Assistance
             </h3>
@@ -347,21 +371,21 @@ function FinancialAssessmentForm() {
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 <button
-                    className="btn-outline font-bold-label"
+                    className="label-base btn-outline font-bold-label"
                     onClick={() => navigate(-1)}
                 >
                     Cancel
                 </button>
                 {viewForm ? (
                     <button
-                        className="btn-primary font-bold-label w-min"
+                        className="label-base btn-primary font-bold-label w-min"
                         onClick={handleUpdate}
                     >
                         Save Changes
                     </button>
                 ) : (
                     <button
-                        className="btn-primary font-bold-label w-min"
+                        className="label-base btn-primary font-bold-label w-min"
                         onClick={handleCreate}
                     >
                         Create Intervention
