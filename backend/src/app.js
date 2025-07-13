@@ -97,13 +97,22 @@ app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
 app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
 app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm);
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found', path: req.originalUrl });
-});
-
 // Log in and log out route
 app.put('/api/login', authController.loginUser)
 app.put('/api/logout', authController.logoutUser)
+
+app.get('/api/session', (req, res) => {
+  if (req.session && req.session.user) {
+    res.status(200).json({ user: req.session.user });
+  } else {
+    res.status(200).json({ user: null });
+  }
+});
+
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found', path: req.originalUrl });
+});
 
 /**
  *  ============ Extras ==============

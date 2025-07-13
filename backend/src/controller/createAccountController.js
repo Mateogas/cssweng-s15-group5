@@ -32,7 +32,7 @@ const createAccount = async (req, res) => {
         const { sdw_id, username, password, email, contact_no, spu_id, role, manager } = req.body;
         // const { _id } = req.session.user;
     
-        console.log("REQ.BODY", req.body);
+        // console.log("REQ.BODY", req.body);
 
         // Check if the logged-in user is a head
         // if (req.session.user.role !== "Head") {

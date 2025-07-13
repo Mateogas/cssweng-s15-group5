@@ -37,3 +37,22 @@ export const createAccount = async (payload) => {
     return { ok: false, data: { message: "Network error" } };
   }
 };
+
+// create-account-connection.js
+export const loginUser = async (payload) => {
+  const response = await fetch('/api/login', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // ✅ good for sessions/cookies
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  return { ok: response.ok, data };
+};
+
+export const fetchSession = async () => {
+  const response = await fetch('/api/session', {
+    credentials: 'include'
+  });
+  return response.json();
+};

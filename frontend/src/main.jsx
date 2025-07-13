@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 
+import Authorization from "./Components/Authorization.jsx";
+
 import Login from "./pages/login.jsx";
 import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
@@ -30,8 +32,21 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route path="/case/:clientId" element={<CaseFrontend />} />
 
 
-                <Route path="/home-sdw" element={<HomeSDW />} />
-                <Route path="/home-admin" element={<HomeAdmin />} />
+                {/* <Route path="/home-sdw" element={<HomeSDW />} />
+                <Route path="/home-admin" element={<HomeAdmin />} /> */}
+
+                <Route path="/home-sdw" element={
+                    <Authorization allowedRoles={['sdw']}>
+                        <HomeSDW />
+                    </Authorization>
+                } />
+
+                <Route path="/home-admin" element={
+                    <Authorization allowedRoles={['admin']}>
+                        <HomeAdmin />
+                    </Authorization>
+                } />
+
                 <Route path="/archive" element={<Archive />} />
 
                 <Route path="/worker-profile" element={<WorkerProfile />} />

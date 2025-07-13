@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchSDWs } from '../fetch-connections/case-connection';
 import SimpleModal from './SimpleModal';
-import { createAccount } from '../fetch-connections/create-account-connection';
+import { createAccount } from '../fetch-connections/account-connection';
 
 export default function RegisterWorker({
   isOpen,
@@ -71,8 +71,11 @@ export default function RegisterWorker({
 
     const payload = {
       ...formData,
-      manager: formData.manager?.trim() === "" ? null : formData.manager
+      manager: (formData.role === "sdw" || formData.manager?.trim() === "")
+        ? null
+        : formData.manager
     };
+
 
     const res = await createAccount(payload);
 
@@ -311,7 +314,7 @@ export default function RegisterWorker({
                     </select>
                   </div>
 
-                  <div className="flex flex-col gap-2 w-full">
+                  {(formData.role == "" || formData.role == "sdw") && <div className="flex flex-col gap-2 w-full">
                     <p className="font-bold-label">Supervisor</p>
                     <select
                       name="manager"
@@ -326,7 +329,7 @@ export default function RegisterWorker({
                         </option>
                       ))}
                     </select>
-                  </div>
+                  </div>}
                 </div>
 
                 <div className="flex justify-end gap-4 mt-8">

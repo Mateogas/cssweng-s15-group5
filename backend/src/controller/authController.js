@@ -2,7 +2,7 @@
  *   AUTHENTICATION CONTROLLER
  *        > handles login, logout, and signup
  */
-
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const Employee = require('../model/employee');
 
@@ -22,37 +22,36 @@ const renderLoginPage = async (req, res) => {
  */
 const loginUser = async (req, res) => {
      try {
-          const { email, password } = req.body
-          const remember_me = req.body.rememberMe;
+          const { username, password, rememberMe } = req.body;
 
-          const active_user = await Employee.findOne({ email: email });
+          console.log("Incoming username:", username);
+          console.log("Incoming password:", password);
 
-          if (!active_user)
-               return res.send(200).json({ errorMsg: "Invalid email or password" })
 
-          // assumed account password is already hashed
-          const isPasswordValid = await active_user.comparePassword(password)
+          const active_user = await Employee.findOne({ username });
+          if (!active_user) {
+               return res.status(401).json({ errorMsg: "Invalid username or password" });
+          }
+
+          console.log("CURRENT USER", active_user);
+
+          const isPasswordValid = await bcrypt.compare(password, active_user.password);
           if (!isPasswordValid) {
-               // force, compare text
-               if (password === active_user.password) {
-                    req.session.user = active_user;
-                    return res.send(200).json( active_user )
-               }
-               // case that none really matched
-               else
-                    return res.send(200).json({ errorMsg: "Invalid email or password" })
+               return res.status(401).json({ errorMsg: "Invalid email or password" });
           }
 
           req.session.user = active_user;
 
-          if (remember_me)
-               req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; 
+          if (rememberMe) {
+               req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+          }
 
-          return res.send(200).json( active_user )
-     } catch(error) {
-          return res.send(200).json({ errorMsg: "An error occured. Please refresh the page and try again." })
+          return res.status(200).json(active_user);
+     } catch (error) {
+          console.error("Login error:", error);
+          return res.status(500).json({ errorMsg: "An error occurred. Please refresh and try again." });
      }
-}
+};
 
 /**
  *   Handles log out feature
@@ -61,10 +60,13 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
      req.session.destroy();
      res.clearCookie('connect.sid');
+     return res.status(200).json(true);
+};
 
-     // [TO UPDATE], ask what to return for log out
-     return res.send(200).json( true )
-}
+module.exports = {
+     loginUser,
+     logoutUser
+};
 
 /**
  *   Handle sign up account feature
