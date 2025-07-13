@@ -7,6 +7,7 @@ router.get('/getsdw', caseController.getAllSDWs);
 
 // Case-Specific Routes
 router.get('/allCases', caseController.getAllCases);
+
 router.get('/case-by-sm-number/:sm_number', caseController.getCaseBySMNumber);
 
 router.get('/:id', caseController.getCaseById);

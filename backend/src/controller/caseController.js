@@ -155,7 +155,10 @@ const getAllCases = async (req, res) => {
           const simplifiedCases = cases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
-               ch_number: c.sm_number,
+               sm_number: c.sm_number,
+               spu: c.spu,
+               is_active: c.is_active,
+               assigned_sdw: c.assigned_sdw._id,
                assigned_sdw_name: c.assigned_sdw
                     ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
                     : null

@@ -136,6 +136,11 @@
   -webkit-mask-image: url("/archive.svg");
 }
 
+.case-button {
+  mask-image: url("/case.svg");
+  -webkit-mask-image: url("/case.svg");
+}
+
 .order-button {
   mask-image: url("/order.svg");
   -webkit-mask-image: url("/order.svg");

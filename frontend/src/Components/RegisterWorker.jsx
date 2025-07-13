@@ -71,11 +71,10 @@ export default function RegisterWorker({
 
     const payload = {
       ...formData,
-      manager: (formData.role === "sdw" || formData.manager?.trim() === "")
+      manager: (formData.role !== "sdw" || formData.manager?.trim() === "")
         ? null
         : formData.manager
     };
-
 
     const res = await createAccount(payload);
 
@@ -141,18 +140,24 @@ export default function RegisterWorker({
     return true;
   };
 
+  const handleModalClose = () => {
+    if (modalOnConfirm) {
+      modalOnConfirm();
+    }
+    setShowModal(false);
+    setModalTitle("");
+    setModalBody("");
+    setModalImageCenter(null);
+    setModalConfirm(false);
+    setModalOnConfirm(() => { });
+  };
+
+
   return (
     <>
       <SimpleModal
         isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setModalTitle("");
-          setModalBody("");
-          setModalImageCenter(null);
-          setModalConfirm(false);
-          setModalOnConfirm(() => { });
-        }}
+        onClose={handleModalClose}
         title={modalTitle}
         bodyText={modalBody}
         imageCenter={modalImageCenter}
@@ -253,7 +258,7 @@ export default function RegisterWorker({
                       <option value="">Select Role</option>
                       <option value="sdw">Social Development Worker</option>
                       <option value="super">Supervisor</option>
-                      <option value="admin">Admin</option>
+                      <option value="head">Head</option>
                     </select>
                   </div>
                 </div>

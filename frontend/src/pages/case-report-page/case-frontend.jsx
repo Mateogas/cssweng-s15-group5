@@ -6,6 +6,8 @@ import FamilyCard from "../../Components/FamilyCard";
 import SimpleModal from '../../Components/SimpleModal';
 import NavLabelButton from '../../components/NavLabelButton';
 
+import { fetchSession } from "../../fetch-connections/account-connection";
+
 // API Imports
 import {
     fetchCaseData,
@@ -23,6 +25,18 @@ import {
 function CaseFrontend() {
     const navigate = useNavigate();
     const { clientId } = useParams();
+
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+    const loadSession = async () => {
+        const sessionData = await fetchSession();
+        setUser(sessionData?.user || null);
+        console.log("Session:", sessionData?.user);
+    };
+
+    loadSession();
+    }, []);
 
     const [data, setData] = useState({
         first_name: "",
@@ -629,7 +643,7 @@ function CaseFrontend() {
                     <button
                         className="font-bold-label arrow-group flex items-center gap-5 px-4 py-2"
                         onClick={() => {
-                            navigate("/home-sdw");
+                            navigate("/");
                         }}
                     >
                         <div className="arrow-left-button"></div>
@@ -780,7 +794,7 @@ function CaseFrontend() {
                         <>
                             <div className="flex items-center justify-between">
                                 <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
-                                <button
+                                {user?.role == "sdw" && <button
                                     className={
                                         editingField === "core-fields"
                                             ? "icon-button-setup x-button"
@@ -794,7 +808,7 @@ function CaseFrontend() {
                                         }
                                     }}
                                     data-cy='edit-core-details-section'
-                                ></button>
+                                ></button>}
                             </div>
                             <h2 className="header-sub">{data.sm_number}</h2>
                         </>
@@ -1020,7 +1034,7 @@ function CaseFrontend() {
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <div className="flex justify-between items-center">
                         <h1 className="header-main">Identifying Data</h1>
-                        <button
+                        {user?.role == "sdw" && <button
                             className={
                                 editingField === "identifying-fields"
                                     ? "icon-button-setup x-button"
@@ -1034,7 +1048,7 @@ function CaseFrontend() {
                                 }
                             }}
                             data-cy='edit-identifying-data-section'
-                        ></button>
+                        ></button>}
                     </div>
 
                     {editingField === "identifying-fields" ? (
@@ -1249,13 +1263,13 @@ function CaseFrontend() {
                 >
                     <h1 className="header-main">Family Composition</h1>
 
-                    <button
+                    {user?.role == "sdw" && <button
                         className="btn-primary font-bold-label drop-shadow-base"
                         onClick={handleAddFamilyMember}
                         data-cy='add-family-member'
                     >
                         Add New Family Member
-                    </button>
+                    </button>}
 
                     <div className="flex justify-between gap-10">
                         <div
@@ -1291,6 +1305,8 @@ function CaseFrontend() {
                                     setModalImageCenter={setModalImageCenter}
                                     setModalConfirm={setModalConfirm}
                                     setModalOnConfirm={setModalOnConfirm}
+
+                                    editable={user.role}
                                 />
                             ))}
                         </div>
@@ -1304,7 +1320,7 @@ function CaseFrontend() {
                 >
                     <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Problems and Findings</h1>
-                        <button
+                        {user?.role == "sdw" && <button
                             className={
                                 editingField === "history-fields"
                                     ? "icon-button-setup x-button"
@@ -1318,7 +1334,7 @@ function CaseFrontend() {
                                 }
                             }}
                             data-cy="edit-problems-findings-section"
-                        ></button>
+                        ></button>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-10">
@@ -1435,7 +1451,7 @@ function CaseFrontend() {
                     ref={ref4}
                 >
                     <h1 className="header-main">Interventions</h1>
-                    <button
+                    {user?.role == "sdw" && <button
                         name="add_intervention"
                         id="add_intervention"
                         onClick={() => navigate("/intervention-form")}
@@ -1443,7 +1459,7 @@ function CaseFrontend() {
                         data-cy='add-intervention'
                     >
                         New Intervention
-                    </button>
+                    </button>}
                     <div className="flex justify-between">
                         <select
                             name="services"
@@ -1512,7 +1528,7 @@ function CaseFrontend() {
                     <div className="flex justify-between">
                         <h1 className="header-main">Progress Reports</h1>
                     </div>
-                    <button
+                    {user?.role == "sdw" && <button
                         name="add_progress_report"
                         id="add_progress_report"
                         onClick={() => navigate("/progress-report")}
@@ -1520,7 +1536,7 @@ function CaseFrontend() {
                         data-cy='add-progress-report'
                     >
                         New Progress Report
-                    </button>
+                    </button>}
                     <div className="flex w-full flex-col">
                         <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
                             <div className="flex justify-between px-2.5">
@@ -1557,7 +1573,7 @@ function CaseFrontend() {
                 >
                     <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Assessment</h1>
-                        <button
+                        {user?.role == "sdw" && <button
                             className={
                                 editingField === "assessment-field"
                                     ? "icon-button-setup x-button"
@@ -1571,7 +1587,7 @@ function CaseFrontend() {
                                 }
                             }}
                             data-cy="assessment-section"
-                        ></button>
+                        ></button>}
                     </div>
 
                     <div className="grid grid-cols-1 gap-10">
@@ -1638,7 +1654,7 @@ function CaseFrontend() {
                         <h1 className="header-main">
                             Evaluation and Recommendation
                         </h1>
-                        <button
+                        {user?.role == "sdw" && <button
                             className={
                                 editingField === "evaluation-fields"
                                     ? "icon-button-setup x-button"
@@ -1652,7 +1668,7 @@ function CaseFrontend() {
                                 }
                             }}
                             data-cy="edit-evaluation-recommendation-section"
-                        ></button>
+                        ></button>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-10">

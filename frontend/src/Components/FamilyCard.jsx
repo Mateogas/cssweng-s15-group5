@@ -25,7 +25,7 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
   // handleDeleteFamilyMember, setFamilyToDelete,
   handleDeleteFamilyMember,
   setShowModal, setModalTitle, setModalBody, setModalImageCenter,
-  setModalConfirm, setModalOnConfirm
+  setModalConfirm, setModalOnConfirm, editable
 }) => {
   const isEditing = selectedFamily === index;
 
@@ -155,7 +155,7 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
           </h3>
         )}
 
-        <button
+        {editable == "sdw" && <button
           className={isEditing ? "icon-button-setup x-button" : 'icon-button-setup dots-button'}
           onClick={() => {
             if (isEditing) {
@@ -166,7 +166,7 @@ const FamilyCard = ({ clientId, member, index, selectedFamily, setSelectedFamily
             }
           }}
           data-cy={`edit-family-${index}`}
-        ></button>
+        ></button>}
       </div>
 
       <div className="grid grid-cols-[max-content_1fr] gap-5 items-center text-sm font-label">

@@ -9,7 +9,7 @@ import Login from "./pages/login.jsx";
 import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
-import HomeAdmin from "./pages/home-admin.jsx";
+import HomeLeader from "./pages/home-leader.jsx";
 import Archive from "./pages/archive.jsx";
 import WorkerProfile from "./pages/WorkerProfile.jsx";
 
@@ -33,7 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 
                 {/* <Route path="/home-sdw" element={<HomeSDW />} />
-                <Route path="/home-admin" element={<HomeAdmin />} /> */}
+                <Route path="/home-leader" element={<HomeLeader />} /> */}
 
                 {/* <Route path="/home-sdw" element={
                     <Authorization allowedRoles={['sdw']}>
@@ -41,8 +41,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     </Authorization>
                 } />
 
-                <Route path="/home-admin" element={
-                        <HomeAdmin />
+                <Route path="/home-leader" element={
+                        <HomeLeader />
                 } /> */}
 
                 <Route path="/archive" element={<Archive />} />
@@ -50,8 +50,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route path="/worker-profile" element={<WorkerProfile />} />
 
 
-                <Route path="/home-sdw" element={<HomeSDW />} />
-                <Route path="/home-admin" element={<HomeAdmin />} />
+                <Route path="/case" element={<HomeSDW />} />
+                <Route path="/team" element={<HomeLeader />} />
                 <Route path="/archive" element={<Archive />} />
 
                 <Route

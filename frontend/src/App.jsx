@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSession } from './fetch-connections/account-connection';
 import HomeSDW from './pages/home-sdw';
-import HomeAdmin from './pages/home-admin';
+import HomeLeader from './pages/home-leader';
 import Login from './pages/login';
 
 function App() {
@@ -38,8 +38,8 @@ function App() {
     return <Login />;
   }
 
-  if (user.role === 'admin') {
-    return <HomeAdmin />;
+  if (user.role === 'head' || user.role === 'super' ) {
+    return <HomeLeader />;
   } else if (user.role === 'sdw') {
     return <HomeSDW />;
   } else {

@@ -1,231 +1,76 @@
 import { useState, useEffect } from "react";
-import SideItem from "../Components/SideItem"
+import SideItem from "../Components/SideItem";
 import ClientEntry from "../Components/ClientEntry";
 import SideBar from "../Components/SideBar";
+import { fetchAllCases } from "../fetch-connections/case-connection";
+import { fetchSession } from "../fetch-connections/account-connection";
 
 function HomeSDW() {
-    const [allData, setAllData] = useState([
-        {
-            first_name: "Hephzi-Bah",
-            middle_name: "Gamac",
-            last_name: "Tolentino",
-            sm_number: 12356473,
-            is_active: "yes",
-            sdw_id: 900001,
-            spu_id: "MNL",
-        },
-        {
-            first_name: "John",
-            middle_name: "David",
-            last_name: "Santos",
-            sm_number: 22356474,
-            is_active: "no",
-            sdw_id: 900002,
-            spu_id: "CEB",
-        },
-        {
-            first_name: "Maria",
-            middle_name: "Clara",
-            last_name: "Reyes",
-            sm_number: 32356475,
-            is_active: "yes",
-            sdw_id: 900003,
-            spu_id: "DVO",
-        },
-        {
-            first_name: "Miguel",
-            middle_name: "Luis",
-            last_name: "Gonzales",
-            sm_number: 42356476,
-            is_active: "no",
-            sdw_id: 900004,
-            spu_id: "BAG",
-        },
-        {
-            first_name: "Sophia",
-            middle_name: "Isabel",
-            last_name: "Mendoza",
-            sm_number: 52356477,
-            is_active: "yes",
-            sdw_id: 900005,
-            spu_id: "ILO",
-        },
-        {
-            first_name: "Enrico",
-            middle_name: "Jose",
-            last_name: "Lopez",
-            sm_number: 62356478,
-            is_active: "no",
-            sdw_id: 900001,
-            spu_id: "ZAM",
-        },
-        {
-            first_name: "Althea",
-            middle_name: "Rose",
-            last_name: "Cruz",
-            sm_number: 72356479,
-            is_active: "yes",
-            sdw_id: 900002,
-            spu_id: "MNL",
-        },
-        {
-            first_name: "Gabriel",
-            middle_name: "Santos",
-            last_name: "Delos Reyes",
-            sm_number: 82356480,
-            is_active: "yes",
-            sdw_id: 900003,
-            spu_id: "CEB",
-        },
-        {
-            first_name: "Diana",
-            middle_name: "Mae",
-            last_name: "Fernandez",
-            sm_number: 92356481,
-            is_active: "no",
-            sdw_id: 900004,
-            spu_id: "DVO",
-        },
-        {
-            first_name: "Patrick",
-            middle_name: "Joseph",
-            last_name: "Garcia",
-            sm_number: 10235648,
-            is_active: "yes",
-            sdw_id: 900005,
-            spu_id: "BAG",
-        },
-        {
-            first_name: "Andrea",
-            middle_name: "Marie",
-            last_name: "Valdez",
-            sm_number: 11235648,
-            is_active: "no",
-            sdw_id: 900001,
-            spu_id: "ILO",
-        },
-        {
-            first_name: "Samuel",
-            middle_name: "Noel",
-            last_name: "Torres",
-            sm_number: 12235648,
-            is_active: "yes",
-            sdw_id: 900002,
-            spu_id: "ZAM",
-        },
-        {
-            first_name: "Cassandra",
-            middle_name: "Faith",
-            last_name: "Martinez",
-            sm_number: 13235648,
-            is_active: "no",
-            sdw_id: 900003,
-            spu_id: "MNL",
-        },
-        {
-            first_name: "Nathan",
-            middle_name: "Allan",
-            last_name: "Ramos",
-            sm_number: 14235648,
-            is_active: "yes",
-            sdw_id: 900004,
-            spu_id: "CEB",
-        },
-        {
-            first_name: "Bianca",
-            middle_name: "Grace",
-            last_name: "Gutierrez",
-            sm_number: 15235648,
-            is_active: "yes",
-            sdw_id: 900005,
-            spu_id: "DVO",
-        },
-    ]);
+    const [allData, setAllData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const [socialDevWorkers, setSocialDevWorkers] = useState([
-        {
-            sdw_id: 900001,
-            username: "gmadisonkelsey",
-        },
-        {
-            sdw_id: 900002,
-            username: "alexander.cortez",
-        },
-        {
-            sdw_id: 900003,
-            username: "rachelle.mendez",
-        },
-        {
-            sdw_id: 900004,
-            username: "marklouis_torres",
-        },
-        {
-            sdw_id: 900005,
-            username: "sophia.luna",
-        },
-    ]);
-
-    const [projectLocation, setProjectLocation] = useState([
-        {
-            name: "Manila",
-            projectCode: "MNL",
-        },
-        {
-            name: "Cebu",
-            projectCode: "CEB",
-        },
-        {
-            name: "Davao",
-            projectCode: "DVO",
-        },
-        {
-            name: "Baguio",
-            projectCode: "BAG",
-        },
-        {
-            name: "Iloilo",
-            projectCode: "ILO",
-        },
-        {
-            name: "Zamboanga",
-            projectCode: "ZAM",
-        }
-    ]);
+    const [user, setUser] = useState(null);
 
     const [currentSPU, setCurrentSPU] = useState("");
     const [sortBy, setSortBy] = useState("");
-    const [currentData, setCurrentData] = useState(allData);
     const [sortOrder, setSortOrder] = useState("desc");
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentData, setCurrentData] = useState([]);
+
+    const projectLocation = [
+        { name: "AMP", projectCode: "AMP" },
+        { name: "FDQ", projectCode: "FDQ" },
+        { name: "MPH", projectCode: "MPH" },
+        { name: "MS", projectCode: "MS" },
+        { name: "AP", projectCode: "AP" },
+        { name: "AV", projectCode: "AV" },
+        { name: "MM", projectCode: "MM" },
+        { name: "MMP", projectCode: "MMP" },
+    ];
+
+    useEffect(() => {
+        const loadSessionAndCases = async () => {
+            const sessionData = await fetchSession();
+            console.log('Session:', sessionData);
+            setUser(sessionData.user);
+
+            const cases = await fetchAllCases();
+            setAllData(cases);
+        };
+
+        loadSessionAndCases();
+    }, []);
 
     useEffect(() => {
         let filtered = [...allData];
 
-        filtered = filtered.filter((client) => client.is_active === "yes");
+        filtered = filtered.filter((client) => client.is_active);
 
+        if (user) {
+            if (user?.role === "super") {
+                filtered = filtered.filter((client) => client.spu === user?.spu_id);
+            } else if (user?.role === "sdw") {
+                filtered = filtered.filter((client) => {
+                    return client.assigned_sdw_name?.includes(user?.first_name);
+                });
+            }
+        }
 
         if (currentSPU !== "") {
-            filtered = filtered.filter((client) => client.spu_id === currentSPU);
+            filtered = filtered.filter((client) => client.spu === currentSPU);
         }
 
         if (searchQuery.trim() !== "") {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter((client) => {
-                const fullName = `${client.first_name} ${client.middle_name} ${client.last_name}`.toLowerCase();
-                const smNumberStr = client.sm_number.toString();
-                return (
-                    fullName.includes(query) ||
-                    smNumberStr.includes(query)
-                );
+                const fullName = client.name.toLowerCase();
+                const chNumberStr = client.sm_number?.toString() || '';
+                return fullName.includes(query) || chNumberStr.includes(query);
             });
         }
 
         if (sortBy === "name") {
-            filtered.sort((a, b) => {
-                const nameA = `${a.first_name} ${a.middle_name} ${a.last_name}`.toLowerCase();
-                const nameB = `${b.first_name} ${b.middle_name} ${b.last_name}`.toLowerCase();
-                return nameA.localeCompare(nameB);
-            });
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
         } else if (sortBy === "sm_number") {
             filtered.sort((a, b) => a.sm_number - b.sm_number);
         }
@@ -235,16 +80,16 @@ function HomeSDW() {
         }
 
         setCurrentData(filtered);
+        console.log(currentData);
     }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
-
 
     return (
         <>
-            <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between 
-                items-center py-5 px-8 bg-white">
+            <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
                 <a href="/home-sdw" className="main-logo main-logo-text-nav">
-                    <div className="main-logo-setup folder-logo "></div>
-                    SCSR</a>
+                    <div className="main-logo-setup folder-logo"></div>
+                    SCSR
+                </a>
 
                 <div className="flex gap-5 items-center bg-purple-100 rounded-full px-8 py-4 w-full max-w-[40rem] font-label">
                     <div className="nav-search"></div>
@@ -254,19 +99,18 @@ function HomeSDW() {
                         className="focus:outline-none flex-1"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-
                     />
                 </div>
             </div>
 
             <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
-                <SideBar></SideBar>
+                <SideBar user={user} />
 
                 <div className="flex flex-col w-full gap-15 ml-[15rem]">
-                    <div className='flex justify-between gap-10'>
-                        <div className='flex gap-5 justify-between items-center w-full'>
+                    <div className="flex justify-between gap-10">
+                        <div className="flex gap-5 justify-between items-center w-full">
                             <div className="flex gap-5 w-full">
-                                <select
+                                {user?.role === "head" && <select
                                     className="text-input font-label max-w-[30rem]"
                                     value={currentSPU}
                                     id="spu"
@@ -274,11 +118,14 @@ function HomeSDW() {
                                 >
                                     <option value="">Select SPU</option>
                                     {projectLocation.map((project) => (
-                                        <option key={project.projectCode} value={project.projectCode}>
+                                        <option
+                                            key={project.projectCode}
+                                            value={project.projectCode}
+                                        >
                                             {project.name} ({project.projectCode})
                                         </option>
                                     ))}
-                                </select>
+                                </select>}
 
                                 <select
                                     className="text-input font-label max-w-[20rem]"
@@ -286,22 +133,25 @@ function HomeSDW() {
                                     id="filter"
                                     onChange={(e) => setSortBy(e.target.value)}
                                 >
-                                    <option value="">Filter By</option>
+                                    <option value="">Sort By</option>
                                     <option value="name">Name</option>
                                     <option value="sm_number">SM Number</option>
                                 </select>
 
                                 <button
                                     className="btn-outline font-bold-label"
-                                    onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}>
+                                    onClick={() =>
+                                        setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
+                                    }
+                                >
                                     <div className="icon-static-setup order-button"></div>
                                 </button>
                             </div>
 
-                            <button className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
+                            {user?.role == "sdw" && <button className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
                                 <p>+</p>
                                 <p>New Case</p>
-                            </button>
+                            </button>}
                         </div>
                     </div>
 
@@ -312,29 +162,28 @@ function HomeSDW() {
                             <p className="font-bold-label text-center">SDW Assigned</p>
                         </div>
 
-                        {currentData.map((client) => (
-                            <ClientEntry
-                                key={client.sm_number}
-                                id={client.sm_number}
-                                smNumber={client.sm_number}
-                                firstName={client.first_name}
-                                middleName={client.middle_name}
-                                lastName={client.last_name}
-                                chNumber={client.sm_number}
-                                sdwAssigned={
-                                    socialDevWorkers.find(w => w.sdw_id === client.sdw_id)?.username || "Unassigned"
-                                }
-                            />
-                        ))}
+                        {currentData.length === 0 ? (
+                            <p className="font-bold-label mx-auto">No Clients Found</p>
+                        ) : (
+                            currentData.map((client) => (
+                                <ClientEntry
+                                    key={client.id}
+                                    id={client.id}
+                                    sm_number={client.sm_number}
+                                    spu={client.spu}
+                                    name={client.name}
+                                    assigned_sdw_name={client.assigned_sdw_name}
+                                />
+                            ))
+                        )}
 
                     </div>
 
-                    <button className="font-bold-label mx-auto">Show More</button>
-
+                    {/* <button className="font-bold-label mx-auto">Show More</button> */}
                 </div>
             </main>
         </>
-    )
+    );
 }
 
-export default HomeSDW
+export default HomeSDW;

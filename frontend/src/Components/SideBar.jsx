@@ -5,7 +5,7 @@ import { useState } from "react";
 import SideItem from "./SideItem";
 import ProfileModal from "./ProfileModal";
 
-export default function SideBar() {
+export default function SideBar({ user }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
@@ -16,32 +16,32 @@ export default function SideBar() {
             />
             <div className="side-nav fixed z-20">
                 <SideItem
-                    href="/home-sdw"
+                    href="/"
                     iconClass="home-button"
                     label="Home"
                     isActive={false}
                 />
 
-                <SideItem
+                {(user?.role == "super" || user?.role == "head") && <SideItem
                     href="/"
                     iconClass="progress-button"
                     label="Progress"
                     isActive={false}
-                />
+                />}
 
-                <SideItem
-                    href="/home-admin"
-                    iconClass="family-button"
-                    label="Team"
+                {(user?.role == "super" || user?.role == "head") && <SideItem
+                    href="/case"
+                    iconClass="case-button"
+                    label="Cases"
                     isActive={false}
-                />
+                />}
 
-                <SideItem
+                {(user?.role == "super" || user?.role == "head") && <SideItem
                     href="/archive"
                     iconClass="archive-button"
                     label="Archive"
                     isActive={false}
-                />
+                />}
 
                 <button className={`side-item`}
                     onClick={() => setIsProfileOpen(true)}>

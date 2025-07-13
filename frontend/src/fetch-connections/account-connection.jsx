@@ -56,3 +56,14 @@ export const fetchSession = async () => {
   });
   return response.json();
 };
+
+export const fetchAllSDWs = async () => {
+  try {
+    const response = await fetch('/api/cases/getsdw');
+    if (!response.ok) throw new Error('Failed to fetch employees');
+    return await response.json();
+  } catch (err) {
+    console.error('Error fetching employees:', err);
+    return [];
+  }
+};
