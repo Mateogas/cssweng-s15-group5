@@ -4,8 +4,10 @@ import ClientEntry from "../Components/ClientEntry";
 import SideBar from "../Components/SideBar";
 import { fetchAllCases } from "../fetch-connections/case-connection";
 import { fetchSession } from "../fetch-connections/account-connection";
+import { useNavigate } from "react-router-dom";
 
 function HomeSDW() {
+    const navigate = useNavigate();
     const [allData, setAllData] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -148,7 +150,9 @@ function HomeSDW() {
                                 </button>
                             </div>
 
-                            {user?.role == "sdw" && <button className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
+                            {user?.role == "sdw" && <button
+                                onClick={() => navigate("/create-case")}
+                                className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
                                 <p>+</p>
                                 <p>New Case</p>
                             </button>}
