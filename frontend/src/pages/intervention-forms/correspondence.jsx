@@ -28,7 +28,7 @@ function CorrespondenceForm() {
     const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
-        form_num: "3",
+        form_num: "",
         first_name: "",
         middle_name: "",
         last_name: "",
