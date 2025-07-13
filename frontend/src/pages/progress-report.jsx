@@ -5,7 +5,8 @@ import { TextInput, DateInput, TextArea } from "../Components/TextField";
 // API Import
 import  {   fetchProgressReport, 
             addProgressReport,
-            editProgressReport
+            editProgressReport,
+            fetchCaseData
         } 
 from '../fetch-connections/progress-report-connection'; 
 
@@ -19,7 +20,7 @@ function ProgressReport() {
     
 
     const [data, setData] = useState({
-        form_num: "3",
+        form_num: "",
         first_name: "",
         middle_name: "",
         last_name: "",
@@ -44,10 +45,10 @@ function ProgressReport() {
             setLoading(true);
 
             // [TO UPDATE] :: Case ID
-            const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
             const caseData = returnData
 
-            console.log(caseData)
+            console.log("CaseData: ", caseData)
 
             setRawCaseData(caseData);
 
@@ -56,9 +57,9 @@ function ProgressReport() {
                 first_name: caseData.first_name || "",
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
-                ch_number: caseData.sm_number || "",
+                ch_number: caseData.ch_number || "",
                 dob: caseData.dob || "",
-                subproject: caseData.spu || "",
+                subproject: caseData.subproject || "",
             }));
 
             setLoading(false);
@@ -72,6 +73,7 @@ function ProgressReport() {
         setLastName(data.last_name || "");
         setCHNumber(data.ch_number || "");
         setDOB(data.dob || "");
+        setAge("");
         setSubproject(data.subproject || "");
     }, [data]);
 
@@ -89,14 +91,17 @@ function ProgressReport() {
     
                 // [TO UPDATE] :: Case ID
                 const returnData = await fetchProgressReport('687172244bf09e0e26d6899a');
-                const formData = returnData
+                const formData = returnData.progressReport
+                const report_number = returnData.reportNumber
     
                 console.log(formData)
+                console.log(returnData);
     
                 setRawFormData(formData);
     
                 setData((prev) => ({
                     ...prev,
+                    form_num: report_number || "",
                     sponsor_name: formData.sponsor_name || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     date_accomplished: formData.date_accomplished || "",
@@ -114,6 +119,7 @@ function ProgressReport() {
         }, []);
 
         useEffect(() => {
+            setFormNum(data.form_num || "");
             setSponsorName(data.sponsor_name || "");
             setSponsorshipDate(data.sponsorship_date || "");
             setDateAccomplished(data.date_accomplished || "");
@@ -132,6 +138,7 @@ function ProgressReport() {
             const date = new Date(data.dob);
             if (!isNaN(date)) {
                 setDOB(formatter.format(date));
+                setAge(calculateAge(date));
             }
         }
     }, [data]);
