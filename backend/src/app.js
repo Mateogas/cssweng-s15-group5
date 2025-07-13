@@ -26,6 +26,7 @@ const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 
 const createAccountController = require('./controller/createAccountController');
+const deleteAccountController = require('./controller/deleteAccountController.js')
 
 /**
  *  ============ Routes ==============
@@ -55,6 +56,9 @@ app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClos
 
 // Create Account routes
 app.post('/api/create-account', createAccountController.createAccount);
+
+// Delete Accoute routes
+app.delete('/api/delete-account/:account', deleteAccountController.deleteAccount);
 
 /**
  *  ============ Extras ==============
