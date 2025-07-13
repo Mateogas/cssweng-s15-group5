@@ -54,6 +54,7 @@ app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
 app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm)
 app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm)
 app.delete('/api/case-closure/terminate/:caseID/:formID', caseClosureController.confirmCaseTermination)
+app.delete('/api/case-closure/delete/:caseID/:formID', caseClosureController.deleteCaseClosureForm)
 
 // Create Account routes
 app.post('/api/create-account', createAccountController.createAccount);

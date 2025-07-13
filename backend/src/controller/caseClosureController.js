@@ -156,6 +156,30 @@ const editCaseClosureForm = async (req, res) => {
      }
 }
 
+const deleteCaseClosureForm = async (req, res) => {
+     try {
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
+          if (!caseSelected)
+               return res.send(404).json({ message: "Case not found." })
+
+          const formSelected = await Case_Closure.findById(req.params.formID)
+          if (!formSelected)
+               return res.send(404).json({ message: "No termination request found." })
+
+          if (!caseSelected._id.equals(formSelected.sm))
+               return res.send(404).json({ message: "Case selected does not match the form." })
+
+          if (!caseSelected.assigned_sdw.equals(active_user._id))
+               return res.send(404).json({ message: "You do not have permissions for this case." })
+
+          // delete
+          await formSelected.deleteOne();
+          return res.status(200).json({ message: "Case closure form deleted successfully." });
+     } catch (error) {
+          return res.status(500).json({ message: "An error occured. Please try again." });
+     }
+}
+
 const confirmCaseTermination = async (req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
@@ -229,5 +253,6 @@ module.exports = {
      createCaseClosureForm,
      loadExistingCaseClosureForm,
      editCaseClosureForm,
+     deleteCaseClosureForm,
      confirmCaseTermination
 }

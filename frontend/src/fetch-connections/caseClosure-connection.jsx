@@ -73,9 +73,34 @@ export const editCaseClosureForm = async(updatedData, caseID) => {
  *                  message -- status message
  *                  case -- case selected; sponsored member object
  */
-export const deleteCaseClosureForm = async(caseID, formID) => {
+export const terminateCase = async(caseID, formID) => {
      try {
           const response = await fetch(`/api/case-closure/terminate/${caseID}/${formID}`, {
+               method: 'DELETE',
+               headers: {
+               'Content-Type': 'application/json',
+               },
+          });
+          
+          if (!response.ok) 
+               throw new Error('API error');
+
+          const returnData = await response.json();
+          return returnData
+     } catch (err) {
+          console.error('Error editing form:', err);
+          return null;
+     }
+};
+
+/**
+ *   Deletes a case closure form
+ *   @returns  returnData:
+ *                  message -- status message
+ */
+export const deleteCaseClosureForm = async(caseID, formID) => {
+     try {
+          const response = await fetch(`/api/case-closure/delete/${caseID}/${formID}`, {
                method: 'DELETE',
                headers: {
                'Content-Type': 'application/json',
