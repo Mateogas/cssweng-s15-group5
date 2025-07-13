@@ -30,7 +30,7 @@ const getProgressReportById = async (req, res) => {
         }
 
         // Get the sponsored member associated with the report
-        const sm = await Sponsored_member.findOne({ progress_reports: reportId });
+        const sm = await Sponsored_member.findOne({ "progress_reports.progress_report": reportId });
         if (!sm) {
             return res.status(404).json({ error: 'Sponsored member not found for this report' });
         }
