@@ -3,6 +3,9 @@
  *        > handles login, logout, and signup
  */
 
+const mongoose = require('mongoose');
+const Employee = require('../model/employee');
+
 // ================================================== //
 
 /**
@@ -13,22 +16,54 @@ const renderLoginPage = async (req, res) => {
 }
 
 /**
- *   Handle log in feature
- *        > username and password must match
- *        > redirect to home page
+ *   Handles logging in, username and password must match
+ *   @returns  active_user : an Employee object (if success)
+ *             errorMsg if fail
  */
 const loginUser = async (req, res) => {
-     // code here
+     try {
+          const { email, password } = req.body
+          const remember_me = req.body.rememberMe;
+
+          const active_user = await Employee.findOne({ email: email });
+
+          if (!active_user)
+               return res.send(200).json({ errorMsg: "Invalid email or password" })
+
+          // assumed account password is already hashed
+          const isPasswordValid = await active_user.comparePassword(password)
+          if (!isPasswordValid) {
+               // force, compare text
+               if (password === active_user.password) {
+                    req.session.user = active_user;
+                    return res.send(200).json( active_user )
+               }
+               // case that none really matched
+               else
+                    return res.send(200).json({ errorMsg: "Invalid email or password" })
+          }
+
+          req.session.user = active_user;
+
+          if (remember_me)
+               req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; 
+
+          return res.send(200).json( active_user )
+     } catch(error) {
+          return res.send(200).json({ errorMsg: "An error occured. Please refresh the page and try again." })
+     }
 }
 
 /**
- *   Handle log out feature
- *        > destroy session
- *        > clear cookie
- *        > redirect to log in page
+ *   Handles log out feature
+ *   @returns true
  */
 const logoutUser = async (req, res) => {
-     // code here
+     req.session.destroy();
+     res.clearCookie('connect.sid');
+
+     // [TO UPDATE], ask what to return for log out
+     return res.send(200).json( true )
 }
 
 /**
@@ -41,4 +76,9 @@ const logoutUser = async (req, res) => {
  */
 const signUpUser = async (req, res) => {
      // code here
+}
+
+module.exports = {
+     loginUser,
+     logoutUser
 }
