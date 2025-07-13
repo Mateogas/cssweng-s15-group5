@@ -105,6 +105,10 @@ const loadExistingCaseClosureForm = async (req, res) => {
 
 const editCaseClosureForm = async (req, res) => {
      try {
+          const active_user = req.session.user
+          if (active_user.role != "sdw" || active_user.role != "SDW")
+               return res.send(403).json({ message: "Unauthorized access." })
+
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
           const formSelected = await Case_Closure.findById(req.params.formID)
           const formData = req.body
@@ -113,6 +117,8 @@ const editCaseClosureForm = async (req, res) => {
                return res.send(404).json({ message: "Case or form not found." })
           if (!caseSelected._id.equals(formSelected.sm))
                return res.send(404).json({ message: "Case selected does not match the form." })
+          if (!caseSelected.assigned_sdw.equals(active_user._id))
+               return res.send(404).json({ message: "You do not have permissions for this case." })
 
           if (formData.sm_awareness == "yes" || formData.sm_awareness == true) {
                     formData.sm_awareness = true
