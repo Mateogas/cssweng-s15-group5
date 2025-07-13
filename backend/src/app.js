@@ -24,7 +24,7 @@ const interventionRoutes = require('./route/interventionRoutes');
 const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
-const profileRoute = require('./route/profile');
+const profileRoute = require('./route/profileRoute'); 
 
 const createAccountController = require('./controller/createAccountController');
 
