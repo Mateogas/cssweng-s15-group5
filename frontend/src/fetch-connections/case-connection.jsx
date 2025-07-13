@@ -505,3 +505,61 @@ export const fetchAllCases = async () => {
      }
 };
 
+
+/**
+ *   Creates a new sponsored member case
+ * 
+ *   @param {Object} newCaseData Object containing all required case data fields
+ *                               including personal information, identifying data,
+ *                               and classifications
+ * 
+ *   @returns {Promise<Object>} The newly created case data with generated ID
+ *                              and success message from the server
+ * 
+ *   @throws {Error} If case creation fails due to validation errors,
+ *                   network issues, or server errors
+ */
+export const addNewCase = async(newCaseData) => {
+     try{
+          const response = await fetch('/api/cases/case-create',{
+               method: 'POST',
+               headers: {
+                    'Content-Type': 'application/json',
+               },
+               credentials: 'include',
+               body: JSON.stringify(newCaseData),
+          });
+          if(!response.ok) throw new Error('Failed to create new case');
+          return await response.json();
+     }catch(error){
+          console.error('Error Creating case: ', error);
+          throw error;
+     }
+};
+/**
+ * @route   GET /api/cases/case-by-sdw/:sdwID
+ * @desc    Fetches all cases assigned to a specific Social Development Worker
+ * 
+ * @param {string} sdwID - MongoDB ObjectId of the Social Development Worker
+ * 
+ * @returns {Promise<Array>} Array of simplified case objects with:
+ *    - id: Case ObjectId
+ *    - name: Full name of sponsored member
+ *    - sm_number: Sponsored member number
+ *    - spu: Service providing unit code
+ *    - is_active: Boolean indicating if the case is active
+ *    - assigned_sdw: ObjectId of the assigned social development worker
+ *    - assigned_sdw_name: Full name of the assigned social development worker
+ * 
+ * @throws {Error} If API request fails or network error occurs
+ */
+export const fetchCasebySDW = async(sdwID) => {
+     try{
+          const response = await fetch(`/api/cases/case-by-sdw/${sdwID}`);
+          if(!response.ok) throw new Error('Failed to fetch sdw cases');
+          return await response.json();
+     }catch(error){
+          console.error('Error Fetching cases: ', error);
+          throw error;
+     }
+};

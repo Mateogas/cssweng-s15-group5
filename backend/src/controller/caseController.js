@@ -124,7 +124,7 @@ const getAllSDWs = async (req, res) => {
  *   Gets all cases that are viable to be seen based on user priveleges
  */
 const getAllCaseViable = async (req, res) => {
-     const userPriv = req.userId
+     const userPriv = req.userId;
      try {
           const cases = await Sponsored_Member.find({
                assigned_sdw: userPriv,
@@ -142,7 +142,46 @@ const getAllCaseViable = async (req, res) => {
           });
      }
 }
+/**  
+ *   Gets all cases of social development worker
+ *   returns name of sponsored member and id only
+ */
+const getAllCasesbySDW = async(req,res)=>{
+     const sdwId = req.params.sdwID;
+     if(!mongoose.Types.ObjectId.isValid(sdwId)){
+          return res.status(400).json({ message: "Invalid Social Development Worker Id"});
+     }
+     try{
+          const allCases = await Sponsored_Member.find({
+               is_active: true,
+               assigned_sdw: sdwId
+          })
+          .populate('assigned_sdw')
+          .lean()
 
+          const simplifiedCases = allCases.map(c =>({
+               id: c._id,
+               name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
+               sm_number: c.sm_number,
+               spu: c.spu,
+               is_active: c.is_active,
+               assigned_sdw: c.assigned_sdw._id,
+               assigned_sdw_name: c.assigned_sdw
+                    ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+                    : null
+          }));
+
+          res.status(200).json(simplifiedCases);
+
+     }catch(error){
+          console.error("Error fetching Cases for SDW: ",error);
+          res.status(500).json({
+               message:"Error fetching Cases for SDW",
+               error:error.message
+          })
+     }
+
+}
 /**  
  *   Gets all cases returns name and id only
  */
@@ -249,41 +288,48 @@ const reassignSDW = async (req, res) => {
  */
 
 const addNewCase = async (req, res) => {
-     const newCaseData = req.body;
-     const sdwId = '6849646feaa08161083d1ad8' // ||req.session.userId should be session id but static for now
-     if (!newCaseData) {
-          return res.status(400).json({ message: 'Invalid case' });
-     }
-
-     try {
-          //const latestCase = await Sponsored_Member.findOne().sort({ sm_number: -1 }).lean();
-          //let smNewNumber = latestCase ? Number(latestCase.sm_number) + 1 : 1;
-          //assigns newCase with our current newData
-
-          const newCase = new Sponsored_Member({
-               ...newCaseData,
-               assigned_sdw: sdwId
-          });
-          //here we just validate the newCase before saving it doesnt work lol
-          const { error } = caseSchemaValidate.validate(newCase);
-
-          if (error) {
-               return res.status(400).json({
-                    message: 'Validation error',
-                    details: error.details.map(detail => detail.message)
-               });
-          }
-
-          const savedCase = await newCase.save();
-          res.status(201).json({
-               message: 'New case created successfully',
-               case: savedCase
-          });
-
-     } catch (error) {
+    const newCaseData = req.body;
+    const sdwId = req.session?.user?._id || '6849646feaa08161083d1ad8';
+    
+    if (!newCaseData) {
+        return res.status(400).json({ message: 'Invalid case' });
+    }
+    if(!mongoose.Types.ObjectId.isValid(sdwId)){
+        return res.status(400).json({message:'Invalid SDW'});
+    }
+    
+    try {
+        // First validate the raw data with our assigned_sdw
+        const dataToValidate = {
+            ...newCaseData,// Convert ObjectId to string for validation
+        };
+        
+        // Validate BEFORE creating the Mongoose model
+        const { error } = caseSchemaValidate.validate(dataToValidate);
+        if (error) {
+            return res.status(400).json({
+                message: 'Validation error',
+                details: error.details.map(detail => detail.message)
+            });
+        }
+        
+        // Only create the Mongoose model after validation passes
+          const caseToSave = {
+          ...newCaseData,
+          assigned_sdw: sdwId
+          };
+        
+        const newCase = new Sponsored_Member(caseToSave);
+        const savedCase = await newCase.save();
+        
+        res.status(201).json({
+            message: 'New case created successfully',
+            case: savedCase
+        });
+    } catch (error) {
           console.error('Error creating new case:', error);
           res.status(500).json({ message: 'Failed to create case', error });
-     }
+    }
 }
 
 /**
@@ -402,7 +448,7 @@ const editCaseIdentifyingData = async (req, res) => {
 
 
 const archiveCase = async (req, res) => {
-     const caseId = req.params.id; // Fixed: params not param
+     const caseId = req.params.sdwID; // Fixed: params not param
      if (!mongoose.Types.ObjectId.isValid(caseId)) {
           return res.status(400).json({ message: 'Invalid case ID format' });
      }
@@ -846,4 +892,5 @@ module.exports = {
      editCaseCore,
      editCaseIdentifyingData,
      getAllSDWs,
+     getAllCasesbySDW,
 }
