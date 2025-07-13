@@ -19,9 +19,12 @@ const homeVisitFormValidate = require('./validators/homeVisitValidator');
 const loadCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
+
+          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+          if (formSelected)
+               loadExistingCaseClosureForm(req, res)
 
           return res.status(200).json(caseSelected)
      } catch(error) {
@@ -88,14 +91,14 @@ const createCaseClosureForm = async(req, res) => {
 } 
 
 const loadExistingCaseClosureForm = async (req, res) => {
-     try {
-          const formSelected = await Case_Closure.findById(req.params.formID)
-          if (!formSelected)
-               return res.send(404).json({ message: "No termination request found." })
-          
-          const caseSelected = await Sponsored_Member.findById(formSelected.sm)
+     try {          
+          const caseSelected = await Sponsored_Member.findById(req.params.caseID)
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member (case) not found." });
+
+          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+          if (!formSelected)
+               return res.send(404).json({ message: "No termination request found." })
 
           return res.send(200).json({ form: formSelected, case: caseSelected })
      } catch(error) {
@@ -147,7 +150,7 @@ const editCaseClosureForm = async (req, res) => {
           Object.assign(formSelected, updatedFormData);
           await formSelected.save();
 
-          return res.status(200).json({ message: "Case closure form updated successfully.", form: formSelected });
+          return res.status(200).json({ message: "Case closure form updated successfully.", case: caseSelected, form: formSelected });
      } catch (error) {
           return res.status(500).json({ message: "An error occured. Please try again." });
      }

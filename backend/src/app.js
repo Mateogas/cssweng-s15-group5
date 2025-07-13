@@ -51,8 +51,8 @@ app.use('/api/interventions/correspondence',interventCorrespRoutes);
 
 // Case Closure routes
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
-app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadExistingCaseClosureForm)
-app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm)
+app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm)
+app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm)
 app.delete('/api/case-closure/terminate/:caseID/:formID', caseClosureController.confirmCaseTermination)
 
 // Create Account routes
