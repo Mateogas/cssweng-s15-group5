@@ -118,6 +118,7 @@ function FinancialAssessmentForm() {
                     other_assistance_detail: formData.other_assistance_detail_detail || "",
                 }));
         
+                setTypeOfAssistance(formData.type_of_assistance);
                 setLoading(false);
             };
             loadFormData();
