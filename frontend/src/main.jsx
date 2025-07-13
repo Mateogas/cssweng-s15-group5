@@ -35,17 +35,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 {/* <Route path="/home-sdw" element={<HomeSDW />} />
                 <Route path="/home-admin" element={<HomeAdmin />} /> */}
 
-                <Route path="/home-sdw" element={
+                {/* <Route path="/home-sdw" element={
                     <Authorization allowedRoles={['sdw']}>
                         <HomeSDW />
                     </Authorization>
                 } />
 
                 <Route path="/home-admin" element={
-                    <Authorization allowedRoles={['admin']}>
                         <HomeAdmin />
-                    </Authorization>
-                } />
+                } /> */}
 
                 <Route path="/archive" element={<Archive />} />
 

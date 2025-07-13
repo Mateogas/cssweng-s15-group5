@@ -257,7 +257,6 @@ function HomeSDW() {
 
                     />
                 </div>
-
             </div>
 
             <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
@@ -291,7 +290,6 @@ function HomeSDW() {
                                     <option value="name">Name</option>
                                     <option value="sm_number">SM Number</option>
                                 </select>
-
 
                                 <button
                                     className="btn-outline font-bold-label"
