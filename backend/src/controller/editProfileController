@@ -1,0 +1,104 @@
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+
+const Employee = require("../model/employee");
+/**
+ * Updates an employee's account information.
+ * 
+ * @route PUT /api/profile/edit/:id
+ * 
+ * Precondition(s):
+ * - User must be authenticated.
+ * - User can only edit their own account or must have Head role to edit others.
+ * 
+ * @params
+ * - id: The MongoDB ObjectId of the employee to edit (URL parameter).
+ * - username: The updated username for the employee account.
+ * - email: The updated email address for the employee.
+ * - contact_number: The updated contact number for the employee.
+ * - spu_id (optional): The updated SPU ID (must be one of the valid SPUs).
+ * - first_name (optional): The updated first name of the employee.
+ * - last_name (optional): The updated last name of the employee.
+ * - middle_name (optional): The updated middle name of the employee.
+ * - password (optional): The new password (minimum 8 characters).
+ * 
+ * @returns
+ * - 200 OK: If the account is updated successfully.
+ * - 400 Bad Request: If required fields are missing, username already exists, or SPU is invalid.
+ * - 403 Forbidden: If the user doesn't have permission to edit this account.
+ * - 404 Not Found: If the employee account to edit doesn't exist.
+ * - 500 Internal Server Error: If there is an error during the update process.
+ * 
+ */
+const editAccount = async (req, res) => {
+    try {
+        const { id } = req.params; // Get user ID from URL parameter
+        const { username, email, contact_number, spu_id, first_name, last_name, middle_name } = req.body;
+        const loggedInUser = req.session?.user || req.user;
+    
+        // Check if the logged-in user has permission (Head or editing their own account)
+        if (loggedInUser.role !== "Head" && loggedInUser._id !== id) {
+            return res.status(403).json({ message: "You don't have permission to edit this account." });
+        }
+    
+        // Find the user to edit
+        const userToEdit = await Employee.findById(id);
+        if (!userToEdit) {
+            return res.status(404).json({ message: "User not found." });
+        }
+    
+        // Validate required fields
+        if (!username || !email || !contact_number) {
+            return res.status(400).json({ message: "Username, email, and contact number are required." });
+        }
+
+        // Check if the username already exists (but ignore if it's the same user)
+        if (username !== userToEdit.username) {
+            const existingUser = await Employee.findOne({ username });
+            if (existingUser) {
+                return res.status(400).json({ message: "Username already exists." });
+            }
+        }
+
+        // Validate the SPU ID if it's being changed
+        if (spu_id && spu_id !== userToEdit.spu_id) {
+            const validSPUs = ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'];
+            if (!validSPUs.includes(spu_id)) {
+                return res.status(400).json({ message: "Invalid SPU." });
+            }
+        }
+
+        // Handle password update if provided
+        let passwordUpdate = {};
+        if (req.body.password) {
+            if (req.body.password.length < 8) {
+                return res.status(400).json({ message: "Password must be at least 8 characters long." });
+            }
+            
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+            passwordUpdate = { password: hashedPassword };
+        }
+        
+        // Update the user (without role changes)
+        await Employee.findByIdAndUpdate(id, {
+            username,
+            email,
+            contact_number,
+            ...(spu_id && { spu_id }),
+            ...(first_name !== undefined && { first_name }),
+            ...(last_name !== undefined && { last_name }),
+            ...(middle_name !== undefined && { middle_name }),
+            ...passwordUpdate
+        });
+
+        return res.status(200).json({ message: "Account updated successfully." });
+    } catch (error) {
+        console.error("Error updating account:", error);
+        return res.status(500).json({ message: "Internal server error." });
+    }
+};
+
+module.exports = {
+    editAccount
+};
