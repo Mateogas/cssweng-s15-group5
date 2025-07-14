@@ -22,7 +22,7 @@ const Employee = require("../model/employee");
  * 
  * @returns
  * - 201 Created: If the account is created successfully.
- * - 400 Bad Request: If any required field is missing, if the username or SDW ID already exists, if the password is too short, or if the role is invalid.
+ * - 400 Bad Request: If any required field is missing or invalid, if the username or SDW ID already exists, or if the password is too short.
  * - 403 Forbidden: If the logged-in user is not a head.
  * - 500 Internal Server Error: If there is an error during the account creation process.
  * 
@@ -67,15 +67,21 @@ const createAccount = async (req, res) => {
             return res.status(400).json({ message: "Invalid SPU." });
         }
 
+        // Validate the role
+        const validRoles = ['head', 'supervisor', 'sdw'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ message: "Invalid role." });
+        }
+
         // Set manager and validate role
         // let manager = _id; // Default to the logged-in user
-        // if (role === "Head") {
+        // if (role === "head") {
         //     // Head does not have a manager
         //     manager = null;
-        // } else if (role === "Supervisor") {
+        // } else if (role === "supervisor") {
         //     // Manager is the logged-in user
         //     manager = _id;
-        // } else if (role === "Social Development Worker") {
+        // } else if (role === "sdw") {
         //     // Manager is the supervisor of the SPU
         //     const supervisor = await Employee.findOne({ role: "Supervisor", spu_id });
         //     if (!supervisor) {
