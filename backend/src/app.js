@@ -26,6 +26,7 @@ const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 
 const createAccountController = require('./controller/createAccountController');
+const profileRoute = require('../src/route/employeeRoute.js');
 
 /**
  *  ============ Routes ==============
@@ -56,6 +57,9 @@ app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClos
 // Create Account routes
 app.post('/api/create-account', createAccountController.createAccount);
 
+// Edit account routes
+
+app.use('/api/profile', profileRoute);
 /**
  *  ============ Extras ==============
  */
