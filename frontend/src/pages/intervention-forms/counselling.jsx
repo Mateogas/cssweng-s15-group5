@@ -44,6 +44,10 @@ function CounselingForm() {
         sm_comments: "",
     });
 
+    /********** TEST DATA **********/
+
+    /********** USE STATES **********/
+
     // < START :: Auto-Filled Data > //
 
     // LOAD DATA
@@ -288,8 +292,8 @@ function CounselingForm() {
                                 <p className="label-base w-72">Address</p>
                                 <textarea
                                     value={address}
-                                    disabled={true}
-                                    className="body-base text-area h-32 cursor-not-allowed bg-gray-200"
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    className="text-area"
                                 ></textarea>
                             </div>
                         </div>
@@ -331,8 +335,7 @@ function CounselingForm() {
                 </div>
             </section>
 
-            {/* Reason for Counseling and Corrective Action */}
-            <section className="flex w-full items-end gap-16">
+            <section className="flex w-full items-end gap-10">
                 <TextArea
                     label="Purpose/Reason for Counseling"
                     value={reason_for_counseling}

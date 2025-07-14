@@ -23,6 +23,10 @@ const EmployeeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    contact_no: {
+        type: String,
+        required: false
+    },
     password: {
         type: String,
         required: true
@@ -38,26 +42,22 @@ const EmployeeSchema = new mongoose.Schema({
         default: null,
         required: false
     },
-    department: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Departments',
-        default: null,
-        required: false
-    },
     spu_id: {
         type: String,
-        enum: ['MNL', 'CEB', 'DVO', 'BAG','ILO','ZAM'], // Add other SPUs as needed
+        enum: ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'], // Updated SPU IDs
         required: true
+    },
+
+      sdw_id: {
+        type: Number,
+        required: false
+    },
+
+    contact_no: {
+        type: String,
+        required: false
     }
 });
 
 const Employee = mongoose.model('Employee', EmployeeSchema);
-
-// Add methods here
-
-
-
-module.exports = {
-    Employee,
-    
-};
+module.exports = Employee

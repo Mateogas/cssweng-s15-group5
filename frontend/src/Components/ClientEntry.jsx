@@ -32,16 +32,13 @@ function getTextColorForBackground(hsl) {
 
 export default function ClientEntry({
   id,
-  smNumber,
-  firstName,
-  middleName,
-  lastName,
-  chNumber,
-  sdwAssigned,
-  archive = false
+  sm_number,
+  spu,
+  name,
+  assigned_sdw_name,
+  archive
 }) {
-  const initials = firstName.charAt(0).toUpperCase();
-  const name = `${firstName} ${middleName} ${lastName}`;
+  const initials = name.charAt(0).toUpperCase();
 
   let bgColor = getColorFromId(name);
   let textColor = getTextColorForBackground(bgColor);
@@ -65,8 +62,8 @@ export default function ClientEntry({
         </div>
         <p>{name}</p>
       </div>
-      <p className="text-center">{chNumber}</p>
-      <p className="text-center">{sdwAssigned}</p>
+      <p className="text-center">{sm_number}</p>
+      <p className="text-center">{assigned_sdw_name}</p>
     </a>
   );
 }

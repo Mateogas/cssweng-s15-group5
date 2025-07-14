@@ -159,6 +159,7 @@ const getCorrespondenceForm = async(req,res)=>{
                 dob: sponsoredData.dob,
                 spu: sponsoredData.spu,
                 present_address: sponsoredData.present_address,
+                spu:sponsoredData.spu,
             },
             form: formData
         };

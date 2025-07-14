@@ -32,18 +32,19 @@ function getTextColorForBackground(hsl) {
 
 export default function WorkerEntry({
   id,
-  username,
+  fullName,
   role,
-  spuAssigned
+  spu_id
 }) {
-  const initials = username.charAt(0).toUpperCase();
+  const initials = fullName.charAt(0).toUpperCase();
 
-  let bgColor = getColorFromId(username);
+  let bgColor = getColorFromId(fullName);
   let textColor = getTextColorForBackground(bgColor);
 
   return (
     <a
-      href={`/workers/${id}`}
+      href={`/worker-profile`}
+      // href={`/workers/${id}`}
       className="client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 bg-white rounded-lg font-bold-label"
     >
       <div className="flex items-center gap-6">
@@ -54,12 +55,12 @@ export default function WorkerEntry({
           {initials}
         </div>
         <div className="flex flex-col gap-2">
-        <p>{username}</p>
-        <p>{id}</p>
+          <p>{fullName}</p>
+          <p>{id}</p>
         </div>
       </div>
       <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Admin"}</p>
-      <p className="text-center">{spuAssigned}</p>
+      <p className="text-center">{spu_id}</p>
     </a>
   );
 }

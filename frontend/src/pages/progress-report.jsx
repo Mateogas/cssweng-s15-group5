@@ -17,8 +17,7 @@ function useQuery() {
 }
 
 function ProgressReport() {
-
-    // ===== START :: Setting Data ===== //
+    /********** TEST DATA **********/
 
     const query = useQuery();
     const action = query.get('action'); // "create", "edit", or "delete"

@@ -2,6 +2,9 @@
  *   AUTHENTICATION CONTROLLER
  *        > handles login, logout, and signup
  */
+const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+const Employee = require('../model/employee');
 
 // ================================================== //
 
@@ -13,23 +16,57 @@ const renderLoginPage = async (req, res) => {
 }
 
 /**
- *   Handle log in feature
- *        > username and password must match
- *        > redirect to home page
+ *   Handles logging in, username and password must match
+ *   @returns  active_user : an Employee object (if success)
+ *             errorMsg if fail
  */
 const loginUser = async (req, res) => {
-     // code here
-}
+     try {
+          const { username, password, rememberMe } = req.body;
+
+          console.log("Incoming username:", username);
+          console.log("Incoming password:", password);
+
+
+          const active_user = await Employee.findOne({ username });
+          if (!active_user) {
+               return res.status(401).json({ errorMsg: "Invalid username or password" });
+          }
+
+          console.log("CURRENT USER", active_user);
+
+          const isPasswordValid = await bcrypt.compare(password, active_user.password);
+          if (!isPasswordValid) {
+               return res.status(401).json({ errorMsg: "Invalid email or password" });
+          }
+
+          req.session.user = active_user;
+
+          if (rememberMe) {
+               req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+          }
+
+          return res.status(200).json(active_user);
+     } catch (error) {
+          console.error("Login error:", error);
+          return res.status(500).json({ errorMsg: "An error occurred. Please refresh and try again." });
+     }
+};
 
 /**
- *   Handle log out feature
- *        > destroy session
- *        > clear cookie
- *        > redirect to log in page
+ *   Handles log out feature
+ *   @returns true
  */
 const logoutUser = async (req, res) => {
-     // code here
-}
+     req.session.destroy();
+     res.clearCookie('connect.sid');
+     return res.status(200).json(true);
+};
+
+module.exports = {
+     loginUser,
+     logoutUser
+};
 
 /**
  *   Handle sign up account feature
@@ -41,4 +78,9 @@ const logoutUser = async (req, res) => {
  */
 const signUpUser = async (req, res) => {
      // code here
+}
+
+module.exports = {
+     loginUser,
+     logoutUser
 }
