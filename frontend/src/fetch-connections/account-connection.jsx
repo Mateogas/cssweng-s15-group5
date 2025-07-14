@@ -43,7 +43,7 @@ export const loginUser = async (payload) => {
   const response = await fetch('/api/login', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // ✅ good for sessions/cookies
+    credentials: 'include',
     body: JSON.stringify(payload),
   });
   const data = await response.json();
@@ -66,4 +66,55 @@ export const fetchAllSDWs = async () => {
     console.error('Error fetching employees:', err);
     return [];
   }
+};
+
+
+export const fetchHeadView = async () => {
+  const response = await fetch('/api/head', {
+    credentials: 'include'
+  });
+  return response.json();
+};
+
+export const fetchHeadViewBySpu = async (spu) => {
+  // GET can’t have body, so use query param:
+  const response = await fetch(`/api/head/spu?spu=${encodeURIComponent(spu)}`, {
+    credentials: 'include'
+  });
+  return response.json();
+};
+
+export const fetchSupervisorView = async () => {
+  const response = await fetch('/api/supervisor', {
+    credentials: 'include'
+  });
+  return response.json();
+};
+
+export const fetchSDWView = async () => {
+  const response = await fetch('/api/socialdevelopmentworker', {
+    credentials: 'include'
+  });
+  return response.json();
+};
+
+export const fetchHeadViewBySupervisor = async (supervisorId) => {
+  const response = await fetch(`/api/head/${supervisorId}`, {
+    credentials: 'include'
+  });
+  return response.json();
+};
+
+export const fetchSDWViewByParam = async (supervisorId, sdwId) => {
+  const response = await fetch(`/api/head/${supervisorId}/${sdwId}`, {
+    credentials: 'include'
+  });
+  return response.json();
+};
+
+export const fetchSDWViewById = async (sdwId) => {
+  const response = await fetch(`/api/supervisors/${sdwId}`, {
+    credentials: 'include'
+  });
+  return response.json();
 };

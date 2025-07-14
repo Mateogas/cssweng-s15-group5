@@ -24,7 +24,7 @@ const getHeadView = async (req, res) => {
     let cases = [];
     let employee = [];
     
-    if (user.role == 'Head') {
+    if (user.role == 'head') {
       cases = await Sponsored_Member.find({ is_active: true })
         .populate('assigned_sdw')
         .lean();
@@ -88,7 +88,7 @@ const getHeadViewbySpu = async (req, res) => {
     let cases = [];
     let employee = [];
 
-    if (user.role == 'Head') {
+    if (user.role == 'head') {
       cases = await Sponsored_Member.find({ is_active: true, spu:spuFilter})
         .populate('assigned_sdw')
         .lean();
@@ -153,12 +153,12 @@ const getSupervisorViewbySpu = async (req, res) => {
     let cases = [];
     let employee = [];
 
-    if (user.role == 'Supervisor') {//changed depending on what actual value
+    if (user.role == 'super') {//changed depending on what actual value
       cases = await Sponsored_Member.find({ is_active: true, spu:user.spu_id})
         .populate('assigned_sdw')
         .lean();
 
-       employee = await Employee.find({role: {$nin: ['Head','head','admin']}, spu_id: user.spu_id}).lean(); 
+       employee = await Employee.find({role: {$nin: ['head','admin']}, spu_id: user.spu_id}).lean(); 
     }else{
       return res.status(403).json({ message: "Permission Error: Supervisor access required" });
     }

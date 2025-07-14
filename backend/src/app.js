@@ -84,6 +84,7 @@ app.use('/api/cases', caseRoutes);
 
 // All account routes
 app.use('/api', accountRoutes);
+app.use('/api', fetchingRoute);
 
 // Intervention routes
 app.use('/api/intervention', interventionRoutes);
@@ -119,7 +120,7 @@ app.use((req, res) => {
 
 // Fetching for viewing
 
-app.use('/api/dashboard',fetchingRoute);
+// app.use('/api/dashboard',fetchingRoute);
 
 
 

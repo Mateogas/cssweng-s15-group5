@@ -5,6 +5,7 @@ import SideBar from "../Components/SideBar";
 import { fetchAllCases } from "../fetch-connections/case-connection";
 import { fetchSession } from "../fetch-connections/account-connection";
 import { useNavigate } from "react-router-dom";
+import { fetchHeadView, fetchSupervisorView, fetchSDWView } from "../fetch-connections/account-connection";
 
 function HomeSDW() {
     const navigate = useNavigate();
@@ -30,14 +31,41 @@ function HomeSDW() {
         { name: "MMP", projectCode: "MMP" },
     ];
 
+    // useEffect(() => {
+    //     const loadSessionAndCases = async () => {
+    //         const sessionData = await fetchSession();
+    //         console.log('Session:', sessionData);
+    //         setUser(sessionData.user);
+
+    //         const cases = await fetchAllCases();
+    //         setAllData(cases);
+    //     };
+
+    //     loadSessionAndCases();
+    // }, []);
+
     useEffect(() => {
         const loadSessionAndCases = async () => {
             const sessionData = await fetchSession();
             console.log('Session:', sessionData);
             setUser(sessionData.user);
 
-            const cases = await fetchAllCases();
+            let cases = [];
+            if (sessionData.user) {
+                if (sessionData.user.role === 'head') {
+                    const data = await fetchHeadView();
+                    cases = data.cases || [];
+                } else if (sessionData.user.role === 'super') {
+                    const data = await fetchSupervisorView();
+                    cases = data.cases || [];
+                } else if (sessionData.user.role === 'sdw') {
+                    const data = await fetchSDWView();
+                    cases = data.cases || [];
+                }
+            }
+
             setAllData(cases);
+            setLoading(false);
         };
 
         loadSessionAndCases();
