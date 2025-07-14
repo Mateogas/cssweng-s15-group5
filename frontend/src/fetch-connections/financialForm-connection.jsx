@@ -90,3 +90,22 @@ export const editFinancialForm = async (formId, newData) => {
         return null;
     }
 };
+
+/**
+ * Deletes an  financial form by formId.
+ * @param {string} formId - The ObjectId of the correspondence form.
+ * @returns {Promise<object|null>} The updated form object, or null on error.
+ */
+export const deleteCorrespInterventionForm = async(formId) => {
+    try {
+        const response = await fetch(`/api/interventions/financial/deleteform/${formId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('API error');
+        const result = await response.json();
+        return result.form;
+    } catch (error) {
+        console.error('Error deleting intervention financial plan:', error);
+        return null;
+    }
+}

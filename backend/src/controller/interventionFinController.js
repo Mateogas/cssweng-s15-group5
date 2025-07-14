@@ -167,18 +167,18 @@ const getAllFinancialInterventions = async (req, res) => {
     }
 
     try {
-        const sponsoredMember = await Sponsored_Member.findById(sponsored_id).lean();
+        const sponsoredMember = await Sponsored_Member.findById(sponsored_id).populate('interventions.intervention').lean();
 
         if (!sponsoredMember) {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
 
-        // Filter interventions in memory instead
         const financialInterventions = (sponsoredMember.interventions || [])
             .filter(i => i.interventionType === 'Intervention Financial Assessment')
             .map(i => ({
-                id: i.intervention,
-                intervention_number: i.intervention_number
+                id: i.intervention._id || i.intervention,
+                intervention_number: i.intervention_number,
+                createdAt: i.intervention.createdAt || null
             }));
 
         return res.status(200).json(financialInterventions);
@@ -187,7 +187,6 @@ const getAllFinancialInterventions = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
 
 
 const editFinancialForm = async(req,res) =>{
@@ -226,9 +225,70 @@ const editFinancialForm = async(req,res) =>{
     }
 
 }
+
+/**
+ * @route   DELETE /api/interventions/financial/delete/:formId
+ * @desc    Deletes an Intervention Financial Assessment form and removes it from the Sponsored Member's interventions
+ * 
+ * @required
+ *    - :formId URL parameter: ObjectId of the Intervention Financial Assessment form to delete
+ * 
+ * @notes
+ *    - Validates if the provided id is a valid Mongo ObjectId
+ *    - Finds and deletes the form document
+ *    - Removes the intervention reference from the Sponsored Member's interventions array
+ * 
+ * @returns
+ *    - 200 OK: Success message with deleted form ID
+ *    - 404 Not Found: If the form or associated Sponsored Member doesn't exist
+ *    - 500 Internal Server Error: If something goes wrong during the process
+ */
+const deleteFinForm = async(req, res) => {
+    const formId = req.params.formId;
+
+    if (!mongoose.Types.ObjectId.isValid(formId)) {
+        return res.status(400).json({ message: 'Invalid Form ID' });
+    }
+
+    try {
+        const financialForm = await Intervention_Financial.findById(formId);
+        
+        if (!financialForm) {
+            return res.status(404).json({ message: 'Financial intervention form not found' });
+        }
+
+        // Remove the intervention from the sponsored member's interventions array
+        const sponsoredMember = await Sponsored_Member.findOneAndUpdate(
+            { 'interventions.intervention': formId },
+            { $pull: { interventions: { intervention: formId } } },
+            { new: true }
+        );
+
+        if (!sponsoredMember) {
+            return res.status(404).json({ message: 'Sponsored member not found' });
+        }
+
+        await Intervention_Financial.findByIdAndDelete(formId);
+
+        return res.status(200).json({
+            message: 'Financial intervention form deleted successfully',
+            formId: formId,
+            sponsored_member: {
+                id: sponsoredMember._id
+            }
+        });
+    } catch (error) {
+        console.error('Error deleting financial intervention form:', error);
+        return res.status(500).json({ 
+            message: 'Failed to delete financial intervention form', 
+            error: error.message 
+        });
+    }
+}
 module.exports = {
     createFinForm,
     getFinancialForm,
     getAllFinancialInterventions,
     editFinancialForm,
+    deleteFinForm,
 }
