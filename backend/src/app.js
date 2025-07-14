@@ -3,6 +3,7 @@
  */
 const express = require('express');
 const dotenv = require('dotenv');
+
 //const path = require('path');
 
 /**
@@ -11,6 +12,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
 
 
@@ -26,7 +28,7 @@ const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 
 const createAccountController = require('./controller/createAccountController');
-
+const fetchingRoute = require('./route/fetchingRoute.js');
 /**
  *  ============ Routes ==============
  */
@@ -56,6 +58,12 @@ app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClos
 // Create Account routes
 app.post('/api/create-account', createAccountController.createAccount);
 
+// Fetching for viewing
+
+app.use('/api/dashboard',fetchingRoute);
+
+
+
 /**
  *  ============ Extras ==============
  */
@@ -71,6 +79,22 @@ app.use(express.static(path.join(__dirname, '../frontend-dev-test/dist')))
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend-dev-test/dist/index.html'))
 })
-*/
+for testing
+//const session = require('express-session');
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'yourSecretHere', // use env or fallback
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // set to true if using HTTPS
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+  }
+}));
+  //For testing
+app.get('/setTestSession', (req, res) => {
+  req.session.user = { role: 'head', name: 'Test Head User',spu_id : 'AMP', _id: '686e92a03c1f53d3ee65962b'};
+  res.send('Session set!');
+});*/
+
 
 module.exports = app;
