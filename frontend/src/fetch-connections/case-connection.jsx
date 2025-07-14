@@ -227,8 +227,7 @@ export const fetchSDWs = async () => {
                sdw_id: sdw.sdw_id,
                id: sdw._id,
                username: `${sdw.first_name} ${sdw.last_name}`,
-               spu_id: sdw.spu_id || '', // Adjust as needed
-               sdw_id: sdw.sdw_id,
+               spu_id: sdw.spu_id || '',
                role: sdw.role,
                manager: sdw.manager
           }));
