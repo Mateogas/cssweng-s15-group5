@@ -106,13 +106,19 @@ const getFinancialForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).select('first_name middle_name last_name sm_number spu')
-            .lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).lean();
         const formData = await Intervention_Financial.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
             return res.status(404).json({ message: 'Sponsored Member or Form not found' });
         }
+        const interventionEntry = sponsoredData.interventions.find(
+            i => i.intervention && i.intervention.toString() === formId.toString() && 
+                i.interventionType === 'Intervention Financial Assessment'
+        );
+
+        const intervention_number = interventionEntry ? interventionEntry.intervention_number : null;
+
 
         const mergedData = {
             sponsored_member: {
@@ -122,7 +128,9 @@ const getFinancialForm = async(req,res)=>{
                 sm_number: sponsoredData.sm_number,
                 spu: sponsoredData.spu
             },
-            form: formData
+            form: {
+            ...formData,
+            intervention_number}
         };
         
         return res.status(200).json(mergedData);
