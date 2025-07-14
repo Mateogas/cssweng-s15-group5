@@ -13,4 +13,6 @@ router.get('/head/:supervisorId/:sdwId',EmployeeFetch.getSDWViewbyParam);
 router.get('/supervisors/:sdwId',EmployeeFetch.getSDWViewbyParam);
 
 router.get('/employee/:id', EmployeeFetch.getEmployeeById);
+router.put('/employees/edit/:id', EmployeeFetch.editEmployeeCore);
+router.put('/employees/edit-password/:id', EmployeeFetch.editEmployeePassword);
 module.exports = router;

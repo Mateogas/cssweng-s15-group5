@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Employee = require('../model/employee');
 const Sponsored_Member = require('../model/sponsored_member');
-
+const bcrypt = require('bcrypt');``
 
 /**
  * Fetches a single employee by its ObjectId.
@@ -36,6 +36,77 @@ const getEmployeeById = async (req, res) => {
   }
 };
 
+const editEmployeeCore = async (req, res) => {
+  const user = req.session ? req.session.user : req.user;
+  const employeeId = req.params.id;
+  const updatedEmployeeData = req.body;
+
+  // if (!user) {
+  //   return res.status(401).json({ message: "Authentication Error" });
+  // }
+
+  if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+    return res.status(400).json({ message: 'Invalid employee ID format' });
+  }
+
+  try {
+    const existingEmployee = await Employee.findById(employeeId);
+    if (!existingEmployee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      employeeId,
+      updatedEmployeeData,
+      { new: true }
+    ).lean();
+
+    return res.status(200).json({
+      message: 'Employee updated successfully',
+      employee: updatedEmployee
+    });
+
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    return res.status(500).json({
+      message: 'Failed to update employee',
+      error: error.message
+    });
+  }
+};
+
+const editEmployeePassword = async (req, res) => {
+  const employeeId = req.params.id;
+  const { password } = req.body;
+
+  if (!password || password.length < 8) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+  }
+
+  try {
+    const existingEmployee = await Employee.findById(employeeId);
+    if (!existingEmployee) {
+      return res.status(404).json({ message: 'Employee not found.' });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    existingEmployee.password = hashedPassword;
+    await existingEmployee.save();
+
+    return res.status(200).json({ message: 'Password updated successfully.' });
+
+  } catch (error) {
+    console.error('Error updating password:', error);
+    return res.status(500).json({ message: 'Failed to update password.', error: error.message });
+  }
+};
+
+module.exports = {
+  editEmployeePassword
+};
+
 /**
  * Retrieves all active sponsored members and all employees for the Head view.
  * - Only accessible by users with the 'Head' role.
@@ -50,9 +121,9 @@ const getEmployeeById = async (req, res) => {
 const getHeadView = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   try {
-    if (!user) {
-      return res.status(401).json({ message: "Authentication Error" });
-    }
+    // if (!user) {
+    //   return res.status(401).json({ message: "Authentication Error" });
+    // }
 
     let cases = [];
     let employee = [];
@@ -114,9 +185,9 @@ const getHeadViewbySpu = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const spuFilter = req.query.spu
   try {
-    if (!user) {
-      return res.status(401).json({ message: "Authentication Error what" });
-    }
+    // if (!user) {
+    //   return res.status(401).json({ message: "Authentication Error what" });
+    // }
 
     let cases = [];
     let employee = [];
@@ -179,9 +250,9 @@ const getHeadViewbySpu = async (req, res) => {
 const getSupervisorViewbySpu = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   try {
-    if (!user) {
-      return res.status(401).json({ message: "Authentication Error what" });
-    }
+    // if (!user) {
+    //   return res.status(401).json({ message: "Authentication Error what" });
+    // }
 
     let cases = [];
     let employee = [];
@@ -246,9 +317,9 @@ const getSDWView = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   
   try {
-    if (!user) {
-      return res.status(401).json({ message: "Authentication Error what" });
-    }
+    // if (!user) {
+    //   return res.status(401).json({ message: "Authentication Error what" });
+    // }
     const userId = user._id;
     let cases = [];
     let employee = [];
@@ -287,12 +358,12 @@ const getSDWView = async (req, res) => {
 const getHeadViewbySupervisor = async(req,res) =>{
     const user = req.session ? req.session.user : req.user;
     const supervisorId = req.params.supervisorId;
-    if (!user || !mongoose.Types.ObjectId.isValid(supervisorId)) {
-      return res.status(401).json({ message: "Authentication Error" });
-    }
-    if(user.role != 'head'){//change when needed
-    return res.status(401).json({ message: "Permission Error" });
-    }
+    // if (!user || !mongoose.Types.ObjectId.isValid(supervisorId)) {
+    //   return res.status(401).json({ message: "Authentication Error" });
+    // }
+    // if(user.role != 'head'){//change when needed
+    // return res.status(401).json({ message: "Permission Error" });
+    // }
     try{
         let sdws = []
 
@@ -317,9 +388,9 @@ const getHeadViewbySupervisor = async(req,res) =>{
 const getSDWViewbyParam = async(req,res) =>{
     const user = req.session ? req.session.user : req.user;
     const sdwId = req.params.sdwId;
-    if (!user || !mongoose.Types.ObjectId.isValid(sdwId)) {
-      return res.status(401).json({ message: "Authentication Error" });
-    }
+    // if (!user || !mongoose.Types.ObjectId.isValid(sdwId)) {
+    //   return res.status(401).json({ message: "Authentication Error" });
+    // }
 
     try{
         let cases = []
@@ -354,5 +425,7 @@ module.exports = {
     getSDWView,
     getHeadViewbySupervisor,
     getSDWViewbyParam,
-    getEmployeeById
+    getEmployeeById,
+    editEmployeeCore,
+    editEmployeePassword
 }

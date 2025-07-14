@@ -428,7 +428,6 @@ function CaseFrontend({creating = false}) {
         return true;
     };
 
-
     useEffect(() => {
         const validSDWIds = socialDevelopmentWorkers
             .filter((sdw) => sdw.spu_id === drafts.spu)

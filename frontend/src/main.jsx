@@ -11,7 +11,7 @@ import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
 import HomeLeader from "./pages/home-leader.jsx";
 import Archive from "./pages/archive.jsx";
-import WorkerProfile from "./pages/WorkerProfile.jsx";
+import WorkerProfile from "./pages/worker-profile.jsx";
 
 import ProgressReport from "./pages/progress-report.jsx";
 import CaseClosure from "./pages/case-closure.jsx";

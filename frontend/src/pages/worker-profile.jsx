@@ -1,14 +1,44 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchSDWs } from "../fetch-connections/case-connection";
-import { fetchEmployeeById } from "../fetch-connections/account-connection";
-
+import { fetchEmployeeById, updateEmployeeById } from "../fetch-connections/account-connection";
+import SimpleModal from "../Components/SimpleModal";
+import { fetchSDWViewById, fetchHeadViewBySupervisor, fetchHeadViewBySpu } from "../fetch-connections/account-connection";
+import WorkerEntry from "../Components/WorkerEntry";
+import ClientEntry from "../Components/ClientEntry";
+import { fetchSession } from "../fetch-connections/account-connection";
+import { logoutUser } from "../fetch-connections/account-connection";
+import ChangePassword from "../Components/ChangePassword";
+import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
     const { workerId } = useParams();
     const [supervisors, setSupervisors] = useState([]);
     const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
+
+    const [showModal, setShowModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalImageCenter, setModalImageCenter] = useState(null);
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+
+    const [handledClients, setHandledClients] = useState([]);
+    const [handledWorkers, setHandledWorkers] = useState([]);
+
+    const [user, setUser] = useState(null);
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+
+    useEffect(() => {
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            setUser(sessionData?.user || null);
+            console.log("Session:", sessionData?.user);
+        };
+
+        loadSession();
+    }, []);
 
     const [data, setData] = useState({
         first_name: "",
@@ -49,8 +79,6 @@ export default function WorkerProfile() {
         { name: "MMP", projectCode: "MMP" },
     ];
 
-    const [activityList, setActivityList] = useState([]);
-
     useEffect(() => {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
@@ -58,7 +86,6 @@ export default function WorkerProfile() {
         };
         loadSDWs();
     }, []);
-
 
     useEffect(() => {
         const loadWorker = async () => {
@@ -107,8 +134,6 @@ export default function WorkerProfile() {
             (w) => w.spu_id === drafts.spu_id && w.role === 'super'
         );
         setSupervisors(filtered);
-
-        console.log(supervisors);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
 
     useEffect(() => {
@@ -116,6 +141,34 @@ export default function WorkerProfile() {
             setDrafts((prev) => ({ ...prev, manager: "" }));
         }
     }, [drafts.role]);
+
+    useEffect(() => {
+        if (!data.role || !workerId) return;
+
+        const loadHandled = async () => {
+            if (data.role === "sdw") {
+                const res = await fetchSDWViewById(workerId);
+                setHandledClients(res || []);
+            } else if (data.role === "super") {
+                const res = await fetchHeadViewBySupervisor(workerId);
+                setHandledWorkers(res || []);
+            } else if (data.role === "head") {
+                const res = await fetchHeadViewBySpu(data.spu_id);
+                setHandledWorkers(res.employees || []);
+            }
+        };
+
+        loadHandled();
+    }, [data.role, data.spu_id, workerId]);
+
+
+    useEffect(() => {
+        console.log("handledWorkers updated:", handledWorkers);
+    }, [handledWorkers]);
+
+    useEffect(() => {
+        console.log("handledClients updated:", handledClients);
+    }, [handledClients]);
 
 
     const resetFields = () => {
@@ -134,20 +187,149 @@ export default function WorkerProfile() {
         setEditingField(null);
     };
 
-
-    const checkInputs = () => {
+    const checkEmployeeCore = async () => {
         const missing = [];
-        if (!drafts.spu_id) missing.push("SPU Project");
-        if (!drafts.sdw_id) missing.push("Social Development Worker");
+
+        if (!drafts.first_name || drafts.first_name.trim() === "") {
+            missing.push("First Name");
+        } else if (/\d/.test(drafts.first_name)) {
+            missing.push("First Name must not contain numbers");
+        }
+
+        if (!drafts.middle_name || drafts.middle_name.trim() === "") {
+            missing.push("Middle Name");
+        } else if (/\d/.test(drafts.middle_name)) {
+            missing.push("Middle Name must not contain numbers");
+        }
+
+        if (!drafts.last_name || drafts.last_name.trim() === "") {
+            missing.push("Last Name");
+        } else if (/\d/.test(drafts.last_name)) {
+            missing.push("Last Name must not contain numbers");
+        }
+
+        if (!drafts.username || drafts.username.trim() === "") {
+            missing.push("Username");
+        }
+
+        if (!drafts.email || drafts.email.trim() === "") {
+            missing.push("Email");
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(drafts.email)) {
+                missing.push("Email must be valid");
+            }
+        }
+
+        if (!drafts.contact_no) {
+            missing.push("Contact Number");
+        } else if (!/^\d{11}$/.test(drafts.contact_no)) {
+            missing.push("Contact Number must be 11 digits");
+        }
+
+        if (!drafts.sdw_id) {
+            missing.push("SDW ID");
+        } else if (isNaN(Number(drafts.sdw_id))) {
+            missing.push("SDW ID must be numeric");
+        } else if (Number(drafts.sdw_id) <= 0) {
+            missing.push("SDW ID must be greater than zero");
+        }
+
+        if (!drafts.spu_id) {
+            missing.push("SPU Project");
+        }
+
+        if (!drafts.role) {
+            missing.push("Role");
+        }
+
+        if (drafts.role === "sdw") {
+            if (!drafts.manager || drafts.manager.trim() === "") {
+                drafts.manager = "";
+                // missing.push("Supervisor must be selected for SDW role");
+            } else {
+                const validSupervisorIds = socialDevelopmentWorkers
+                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "super")
+                    .map((w) => w._id || w.id);
+
+                if (!validSupervisorIds.includes(drafts.manager)) {
+                    missing.push("Supervisor is not valid for the selected SPU");
+                }
+            }
+        }
+
+
+        if (drafts.role !== "sdw") {
+            drafts.manager = null;
+        }
+
         if (missing.length > 0) {
-            alert("Missing fields: " + missing.join(", "));
+            setModalTitle("Invalid Fields");
+            setModalBody(`The following fields are missing or invalid:\n\n${missing.join("\n")}`);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
             return false;
         }
+
         return true;
     };
 
+    const handleLogout = async () => {
+        const ok = await logoutUser();
+        if (ok) {
+            navigate("/");
+        } else {
+            setModalTitle("Logout Failed");
+            setModalBody("An error occurred while trying to log you out. Please try again.");
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+        }
+    };
+
+
     return (
         <>
+
+            <ChangePassword
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+                onSubmit={async (passwordData) => {
+                    const { ok, data } = await updateEmployeePasswordById(workerId, passwordData);
+
+                    if (ok) {
+                        setIsChangePasswordOpen(false);
+                    } else {
+                        setModalTitle("Error");
+                        setModalBody(data.message || "Failed to update password.");
+                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                        setShowModal(true);
+                    }
+                }}
+                userId={workerId}
+            />
+
+            <SimpleModal
+                isOpen={showModal}
+                onClose={() => {
+                    setShowModal(false);
+                    setModalTitle("");
+                    setModalBody("");
+                    setModalImageCenter(null);
+                    setModalConfirm(false);
+                    setModalOnConfirm(() => { });
+                }}
+                title={modalTitle}
+                bodyText={modalBody}
+                imageCenter={modalImageCenter}
+                confirm={modalConfirm}
+                onConfirm={() => {
+                    modalOnConfirm?.();
+                    setShowModal(false);
+                }}
+            />
+
             <main className="flex flex-col gap-20 pt-15">
                 <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3 px-4">
                     <button
@@ -323,14 +505,38 @@ export default function WorkerProfile() {
 
                             <button
                                 className="btn-transparent-rounded my-3 ml-auto"
-                                onClick={() => {
-                                    if (!checkInputs()) return;
-                                    setData({ ...drafts });
-                                    setEditingField(null);
+                                onClick={async () => {
+                                    const isValid = await checkEmployeeCore();
+                                    if (!isValid) return;
+
+                                    const payload = {
+                                        ...drafts,
+                                        manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
+                                    };
+                                    const { ok, data: result } = await updateEmployeeById(workerId, payload);
+
+                                    if (ok) {
+                                        setModalTitle("Success");
+                                        setModalBody("Worker profile updated successfully!");
+                                        setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                        setModalConfirm(false);
+                                        setShowModal(true);
+                                        setModalOnConfirm(() => () => {
+                                            setData(result.employee);
+                                            setEditingField(null);
+                                        });
+                                    } else {
+                                        setModalTitle("Error");
+                                        setModalBody(result.message || "Failed to update worker.");
+                                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                        setModalConfirm(false);
+                                        setShowModal(true);
+                                    }
                                 }}
                             >
                                 Submit Changes
                             </button>
+
                         </>
                     ) : (
                         <>
@@ -352,16 +558,16 @@ export default function WorkerProfile() {
                                 <p><span className="font-bold-label">Role:</span> {data.role || "-"}</p>
 
                                 {(data.role === "" || data.role === "sdw") && (
-                                <p className="font-label">
-                                    <span className="font-bold-label">Manager:</span>{" "}
-                                    {socialDevelopmentWorkers.find(
-                                    (w) => w._id === data.manager || w.id === data.manager
-                                    )
-                                    ? `${socialDevelopmentWorkers.find(
-                                        (w) => w._id === data.manager || w.id === data.manager
-                                        ).username}`
-                                    : "-"}
-                                </p>
+                                    <p className="font-label">
+                                        <span className="font-bold-label">Manager:</span>{" "}
+                                        {socialDevelopmentWorkers.find(
+                                            (w) => w._id === data.manager || w.id === data.manager
+                                        )
+                                            ? `${socialDevelopmentWorkers.find(
+                                                (w) => w._id === data.manager || w.id === data.manager
+                                            ).username}`
+                                            : "-"}
+                                    </p>
                                 )}
 
                             </div>
@@ -369,10 +575,89 @@ export default function WorkerProfile() {
                     )}
                 </section>
 
+                <section className="flex flex-col gap-5">
+                    {data.role === "sdw" && (
+                        <>
+                            <h2 className="header-sub">Clients Assigned</h2>
 
-                <button className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto">
-                    Terminate Worker
-                </button>
+                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                <p className="font-bold-label ml-[20%]">Name</p>
+                                <p className="font-bold-label text-center">CH Number</p>
+                                <p className="font-bold-label text-center">SDW Assigned</p>
+                            </div>
+
+                            {handledClients.length === 0 ? (
+                                <p className="font-bold-label">No Clients Found</p>
+                            ) : (
+                                handledClients.map((client) => (
+                                    <ClientEntry
+                                        key={client.id}
+                                        id={client.id}
+                                        sm_number={client.sm_number}
+                                        spu={client.spu}
+                                        name={client.name}
+                                        assigned_sdw_name={client.assigned_sdw_name}
+                                    />
+                                ))
+                            )}
+                        </>
+                    )}
+
+                    {(data.role === "super" || data.role === "head") && (
+                        <>
+                            <h2 className="header-sub">
+                                {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
+                            </h2>
+
+                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                <p className="font-bold-label ml-[20%]">Worker</p>
+                                <p className="font-bold-label text-center">Type</p>
+                                <p className="font-bold-label text-center">SPU</p>
+                            </div>
+
+                            {handledWorkers.length === 0 ? (
+                                <p className="font-bold-label">No Workers Found</p>
+                            ) : (
+                                handledWorkers.map((worker) => (
+                                    <WorkerEntry
+                                        key={worker._id}
+                                        id={worker.id}
+                                        sdw_id={worker.sdw_id}
+                                        name={
+                                            worker.name ||
+                                            `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`
+                                        }
+                                        role={worker.role}
+                                        spu_id={worker.spu_id}
+                                    />
+                                ))
+                            )}
+                        </>
+                    )}
+                </section>
+
+                <div className="flex justify-between">
+                    {(user?._id == workerId) && (
+                        <button
+                            className="btn-outline font-bold-label drop-shadow-base my-3"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+                    )}
+
+
+                    <button
+                        className="btn-outline font-bold-label drop-shadow-base my-3"
+                        onClick={() => setIsChangePasswordOpen(true)}
+                    >
+                        Change Password
+                    </button>
+
+                    <button className="btn-primary font-bold-label drop-shadow-base my-3">
+                        Terminate Worker
+                    </button>
+                </div>
             </main>
         </>
     );

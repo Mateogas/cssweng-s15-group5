@@ -43,11 +43,12 @@ export default function SideBar({ user }) {
                     isActive={false}
                 />}
 
-                <button className={`side-item`}
-                    onClick={() => setIsProfileOpen(true)}>
-                    <div className={`side-icon-setup identifying-button`}></div>
-                    <p>Account</p>
-                </button>
+                {(user?._id) && <SideItem
+                    href={`/profile/${user._id}`}
+                    iconClass="identifying-button"
+                    label="Profile"
+                    isActive={false}
+                />}
             </div>
         </>
     );

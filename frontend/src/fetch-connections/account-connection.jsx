@@ -35,6 +35,55 @@ export const fetchEmployeeById = async (employeeId) => {
   }
 };
 
+/**
+ * Updates an employee by ID.
+ * 
+ * @param {string} employeeId - The ID of the employee to update.
+ * @param {object} updatedData - The fields to update.
+ * @returns {Promise<{ ok: boolean, data: object }>}
+ */
+export const updateEmployeeById = async (employeeId, updatedData) => {
+  try {
+    const response = await fetch(`/api/employees/edit/${employeeId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(updatedData),
+    });
+
+    const data = await response.json();
+
+    return { ok: response.ok, data };
+
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    return { ok: false, data: { message: 'Network error' } };
+  }
+};
+
+export const updateEmployeePasswordById = async (employeeId, updatedPasswordData) => {
+  try {
+    const response = await fetch(`/api/employees/edit-password/${employeeId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(updatedPasswordData),
+    });
+
+    const data = await response.json();
+
+    return { ok: response.ok, data };
+
+  } catch (error) {
+    console.error('Error updating employee password:', error);
+    return { ok: false, data: { message: 'Network error' } };
+  }
+};
+
 export const createAccount = async (payload) => {
   try {
     const response = await fetch('/api/create-account', {
@@ -61,6 +110,14 @@ export const loginUser = async (payload) => {
   });
   const data = await response.json();
   return { ok: response.ok, data };
+};
+
+export const logoutUser = async () => {
+  const res = await fetch("/api/logout", {
+    method: "PUT",
+    credentials: "include",
+  });
+  return res.ok;
 };
 
 export const fetchSession = async () => {
