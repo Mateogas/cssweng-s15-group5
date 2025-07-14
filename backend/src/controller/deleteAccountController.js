@@ -20,7 +20,7 @@ const deleteAccount = async (req, res) => {
      if (!active_user)
           return res.send(200).json({ message: "Unauthorized access." })
 
-     if (active_user === account_selected)
+     if (active_user._id.equals(account_selected._id))
           return res.send(200).json({ message: "Unauthorized access. You cannot delete your own account." })
 
      if (active_user.role != "head" || active_user.role != "Head")
