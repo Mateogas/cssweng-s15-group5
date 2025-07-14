@@ -257,7 +257,7 @@ export default function RegisterWorker({
                     >
                       <option value="">Select Role</option>
                       <option value="sdw">Social Development Worker</option>
-                      <option value="super">Supervisor</option>
+                      <option value="supervisor">Supervisor</option>
                       <option value="head">Head</option>
                     </select>
                   </div>
