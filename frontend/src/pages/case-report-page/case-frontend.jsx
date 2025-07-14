@@ -551,20 +551,7 @@ function CaseFrontend({creating = false}) {
         },
     ]);
 
-    const [counsellings, setCounsellings] = useState([
-        {
-            intervention: "Counselling",
-            date: "April 27, 2025",
-        },
-        {
-            intervention: "Counselling",
-            date: "May 02, 2025",
-        },
-        {
-            intervention: "Counselling",
-            date: "June 13, 2025",
-        },
-    ]);
+    const [counsellings, setCounsellings] = useState([]);
 
     useEffect(() => {
         const loadData = async () => {
