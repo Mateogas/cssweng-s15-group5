@@ -568,6 +568,8 @@ function CaseFrontend({creating = false}) {
                 const date = new Date(item.intervention.createdAt);
 
                 return {
+                    formID: item.intervention._id,
+                    route: "counselling-form",
                     intervention: item.interventionType,
                     date: isNaN(date) ? '' : formatter.format(date),
                 };
@@ -599,6 +601,8 @@ function CaseFrontend({creating = false}) {
                 // const date = new Date(item.intervention.createdAt);
 
                 return {
+                    formID: item.id,
+                    route: "financial-assessment-form",
                     intervention: "Financial Assistance",
                     // date: isNaN(date) ? '' : formatter.format(date),
                     date: "May 05, 2025",
@@ -631,6 +635,8 @@ function CaseFrontend({creating = false}) {
                 // const date = new Date(item.intervention.createdAt);
 
                 return {
+                    formID: item.id,
+                    route: "correspondence-form",
                     intervention: "Correspondence",
                     // date: isNaN(date) ? '' : formatter.format(date),
                     date: "July 04, 2025",
@@ -647,9 +653,9 @@ function CaseFrontend({creating = false}) {
 
     const interventions = {
         "Home Visitation": home_visitations,
-        Counselling: counsellings,
+        "Counselling": counsellings,
         "Financial Assistance": financial_assistances,
-        Correspondences: correspondences,
+        "Correspondences": correspondences,
     };
 
     const [progress_reports, setProgressReports] = useState([]);
@@ -669,7 +675,9 @@ function CaseFrontend({creating = false}) {
                 const date = new Date(item.created_at);
 
                 return {
+                    formID: item._id,
                     name: "Progress Report",
+                    route: "progress-reports",
                     date: isNaN(date) ? '' : formatter.format(date),
                 };
             });
@@ -682,8 +690,40 @@ function CaseFrontend({creating = false}) {
         loadData();
     }, []);
 
-    const handleInterventionNavigation = (key) => {
-        navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    const handleNewIntervention = (caseID) => {
+
+        const path = `/intervention-form/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleNewProgressReport = (caseID) => {
+
+        const path = `/progress-report/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleInterventionNavigation = (intervention, caseID, formID) => {
+
+        const path = `/${intervention}/?action=view&caseID=${caseID}&formID=${formID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleProgressReportNavigation = (caseID, formID) => {
+
+        const path = `/progress-report/?action=view&caseID=${caseID}&formID=${formID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     // <p className="font-label">
@@ -1594,7 +1634,9 @@ function CaseFrontend({creating = false}) {
                                             key={index}
                                             onClick={() =>
                                                 handleInterventionNavigation(
-                                                    item.intervention,
+                                                    item.route,
+                                                    clientId,
+                                                    item.formID,
                                                 )
                                             }
                                             className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
@@ -1613,6 +1655,15 @@ function CaseFrontend({creating = false}) {
                                     <p className="body-base self-center mt-8">No Interventions Available</p>
                                 )
                             }
+                            <button 
+                                className="btn-primary label-base self-center mt-8"
+                                onClick={() =>
+                                    handleNewIntervention(
+                                        clientId
+                                    )
+                                }>
+                                New Intervention
+                            </button>
                         </div>
                     </div>
                 </section>}
@@ -1648,7 +1699,12 @@ function CaseFrontend({creating = false}) {
                                 progress_reports?.map((item, index) => (
                                     <button
                                         key={index}
-                                        onClick={() => navigate("/progress-report")}
+                                        onClick={() =>
+                                                handleProgressReportNavigation(
+                                                    clientId,
+                                                    item.formID,
+                                                )
+                                            }
                                         className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
                                         data-cy={`progress-report-item-${item.name}-${index}`}
                                     >
@@ -1663,6 +1719,15 @@ function CaseFrontend({creating = false}) {
                             ) : (
                                 <p className="body-base self-center mt-8">No Progress Reports Available</p>
                             )}
+                            <button 
+                                className="btn-primary label-base self-center mt-8"
+                                onClick={() =>
+                                    handleNewProgressReport(
+                                        clientId
+                                    )
+                                }>
+                                New Progress Report
+                            </button>
                         </div>
                     </div>
                 </section>}

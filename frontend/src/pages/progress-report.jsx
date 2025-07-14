@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, DateInput, TextArea } from "../Components/TextField";
 import Signature from "../Components/Signature";
 
@@ -20,8 +20,8 @@ function ProgressReport() {
     /********** TEST DATA **********/
 
     const query = useQuery();
-    const action = query.get('action'); // "create", "edit", or "delete"
-    const caseID = query.get('caseID'); 
+    const action = query.get('action') || ""; 
+    const caseID = query.get('caseID') || ""; 
     const formID = query.get('formID') || ""; 
 
     const [loading, setLoading] = useState(true);

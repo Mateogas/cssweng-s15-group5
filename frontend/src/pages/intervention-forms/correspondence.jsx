@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import Signature from "../../Components/Signature";
 
@@ -20,9 +20,9 @@ function CorrespondenceForm() {
     // ===== START :: Setting Data ===== //
 
     const query = useQuery();
-    const action = query.get('action'); // "create", "edit", or "delete"
-    const caseID = query.get('caseID'); 
-    const formID = query.get('formID') || "";
+    const action = query.get('action') || ""; 
+    const caseID = query.get('caseID') || ""; 
+    const formID = query.get('formID') || ""; 
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);

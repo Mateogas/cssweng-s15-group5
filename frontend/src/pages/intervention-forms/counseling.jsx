@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import Signature from "../../Components/Signature";
 
@@ -22,9 +22,9 @@ function CounselingForm() {
     // ===== START :: Setting Data ===== //
 
     const query = useQuery();
-    const action = query.get('action'); // "create", "edit", or "delete"
-    const caseID = query.get('caseID'); 
-    const formID = query.get('formID') || "";
+    const action = query.get('action') || ""; 
+    const caseID = query.get('caseID') || ""; 
+    const formID = query.get('formID') || ""; 
 
     const [data, setData] = useState({
         form_num: "",
@@ -62,7 +62,6 @@ function CounselingForm() {
             setMiddleName(fetchedData.middle_name || "");
             setFirstName(fetchedData.first_name || "");
             setCHNumber(fetchedData.ch_number || "");
-            setFormNum(fetchedData.form_num || "");
             setGradeYearLevel(fetchedData.grade_year_level || "");
             setSchool(fetchedData.school || "");
             setAddress(fetchedData.address || "");
@@ -94,11 +93,13 @@ function CounselingForm() {
                 setData(fetchedData);
                 // setLoading(false);
 
+                console.log("Fetched Counselling Form: ", fetchedData);
+
                 setLastName(fetchedData.last_name || "");
                 setMiddleName(fetchedData.middle_name || "");
                 setFirstName(fetchedData.first_name || "");
                 setCHNumber(fetchedData.ch_number || "");
-                setFormNum(fetchedData.form_num || "");
+                // setFormNum(fetchedData.intervention_number || "");
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");
