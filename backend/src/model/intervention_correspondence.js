@@ -50,6 +50,10 @@ const InterventionCorrespondenceSchema = new Schema ({
                required: true
           },
      }],
+     school:{
+          type:String,
+          required: true,
+     }
 }, { timestamps: true });
 
 const Intervention_Correspondence = mongoose.model('Intervention Correspondence', InterventionCorrespondenceSchema);
