@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Employee } = require('../model/employee');
+const Employee = require('../model/employee');
 const editProfileController = require('../controller/editProfileController')
 
 
