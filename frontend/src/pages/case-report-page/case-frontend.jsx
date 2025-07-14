@@ -1587,27 +1587,32 @@ function CaseFrontend({creating = false}) {
                             </div>
                         </div>
                         <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {interventions[intervention_selected]?.map(
-                                (item, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() =>
-                                            handleInterventionNavigation(
-                                                item.intervention,
-                                            )
-                                        }
-                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                        data-cy={`intervention-item-${item.intervention}-${index}`}
-                                    >
-                                        <p className="label-base w-80">
-                                            {item.intervention} {index + 1}
-                                        </p>
-                                        <p className="label-base w-80">
-                                            {item.date}
-                                        </p>
-                                    </button>
-                                ),
-                            )}
+                            {interventions[intervention_selected]?.length > 0 ? (
+                                interventions[intervention_selected]?.map(
+                                    (item, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() =>
+                                                handleInterventionNavigation(
+                                                    item.intervention,
+                                                )
+                                            }
+                                            className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                            data-cy={`intervention-item-${item.intervention}-${index}`}
+                                        >
+                                            <p className="label-base w-80">
+                                                {item.intervention} {index + 1}
+                                            </p>
+                                            <p className="label-base w-80">
+                                                {item.date}
+                                            </p>
+                                        </button>
+                                    ),
+                                )
+                            ) : intervention_selected && (
+                                    <p className="body-base self-center mt-8">No Interventions Available</p>
+                                )
+                            }
                         </div>
                     </div>
                 </section>}
@@ -1639,21 +1644,25 @@ function CaseFrontend({creating = false}) {
                             </div>
                         </div>
                         <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {progress_reports?.map((item, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => navigate("/progress-report")}
-                                    className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                    data-cy={`progress-report-item-${item.name}-${index}`}
-                                >
-                                    <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
-                                        {item.name} {index + 1}
-                                    </p>
-                                    <p className="label-base w-80">
-                                        {item.date}
-                                    </p>
-                                </button>
-                            ))}
+                            {progress_reports?.length > 0 ? (
+                                progress_reports?.map((item, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => navigate("/progress-report")}
+                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                        data-cy={`progress-report-item-${item.name}-${index}`}
+                                    >
+                                        <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
+                                            {item.name} {index + 1}
+                                        </p>
+                                        <p className="label-base w-80">
+                                            {item.date}
+                                        </p>
+                                    </button>
+                                ))
+                            ) : (
+                                <p className="body-base self-center mt-8">No Progress Reports Available</p>
+                            )}
                         </div>
                     </div>
                 </section>}
