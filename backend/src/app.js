@@ -55,6 +55,7 @@ const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 
+const authController = require('./controller/authController.js')  
 const createAccountController = require('./controller/createAccountController');
 const fetchingRoute = require('./route/fetchingRoute.js');
 /**
