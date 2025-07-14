@@ -12,10 +12,6 @@ const homeVisitFormValidate = require('./validators/homeVisitValidator');
 
 // ================================================== //
 
-/**
- *   Fetches the avaliable sponsored member data
- *   @returns the data needed for sponsored member
- */
 const loadCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
@@ -32,18 +28,26 @@ const loadCaseClosureForm = async(req, res) => {
      }
 } 
 
-/**
- *   Creates new case closure form and updates the sponsored member to inactive
- *   @returns New intervention made
- */
 const createCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-          const formData = req.body
-
-          if (!caseSelected) {
+          if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
-          }
+
+          // if a form is found, load the form immediately
+          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+          if (formSelected)
+               return res.status(200).json({ form: formSelected, case: caseSelected })
+
+          // Uses sessions already, please comment out if needed or force assign an employee
+          const active_user = req.session.user
+          if (!active_user)
+               return res.status(404).json({ message: "Unauthorized access." });
+          if (!active_user._id.isequal(caseSelected._id))
+               return res.status(404).json({ message: "Unauthorized access." });
+
+          // proceed to creation of form
+          const formData = req.body
 
           // Validation
           const requiredFields = [
@@ -98,9 +102,9 @@ const loadExistingCaseClosureForm = async (req, res) => {
 
           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
           if (!formSelected)
-               return res.send(404).json({ message: "No termination request found." })
+               return res.status(404).json({ message: "No termination request found." })
 
-          return res.send(200).json({ form: formSelected, case: caseSelected })
+          return res.status(200).json({ form: formSelected, case: caseSelected })
      } catch(error) {
           return res.status(500).json({ message: "An error occured. Please try again." });
      }
@@ -108,20 +112,26 @@ const loadExistingCaseClosureForm = async (req, res) => {
 
 const editCaseClosureForm = async (req, res) => {
      try {
-          const active_user = req.session.user
-          if (active_user.role != "sdw" || active_user.role != "SDW")
-               return res.send(403).json({ message: "Unauthorized access." })
-
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-          const formSelected = await Case_Closure.findById(req.params.formID)
+          var formSelected
+          if (req.params.formID)
+               formSelected = await Case_Closure.findById(req.params.formID)
+          else
+               formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+
           const formData = req.body
 
           if (!caseSelected || !formSelected)
-               return res.send(404).json({ message: "Case or form not found." })
+               return res.status(400).json({ message: "Case or form not found." })
           if (!caseSelected._id.equals(formSelected.sm))
-               return res.send(404).json({ message: "Case selected does not match the form." })
-          if (!caseSelected.assigned_sdw.equals(active_user._id))
-               return res.send(404).json({ message: "You do not have permissions for this case." })
+               return res.status(400).json({ message: "Case selected does not match the form." })
+
+          // Uses sessions already, please comment out if needed or force assign an employee
+          const active_user = req.session.user
+          if (!active_user)
+               return res.status(400).json({ message: "Unauthorized access." })
+          if (active_user && !caseSelected.assigned_sdw.equals(active_user._id))
+               return res.status(400).json({ message: "You do not have permissions for this case." })
 
           if (formData.sm_awareness == "yes" || formData.sm_awareness == true) {
                     formData.sm_awareness = true
@@ -137,7 +147,7 @@ const editCaseClosureForm = async (req, res) => {
           }
 
           const updatedFormData = {
-               sm: formSelected._id,
+               sm: caseSelected._id,
                closure_date: formData.closure_date || formSelected.closure_date,
                reason_for_retirement: formData.reason_for_retirement || formSelected.reason_for_retirement,
                sm_awareness: formData.sm_awareness !== undefined ? formData.sm_awareness : formSelected.sm_awareness,
@@ -145,6 +155,7 @@ const editCaseClosureForm = async (req, res) => {
                evaluation: formData.evaluation || formSelected.evaluation,
                recommendation: formData.recommendation || formSelected.recommendation
           }
+          console.log(updatedFormData)
 
           // update
           Object.assign(formSelected, updatedFormData);
@@ -160,21 +171,30 @@ const deleteCaseClosureForm = async (req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
           if (!caseSelected)
-               return res.send(404).json({ message: "Case not found." })
+               return res.status(404).json({ message: "Case not found." })
 
-          const formSelected = await Case_Closure.findById(req.params.formID)
+          var formSelected
+          if (req.params.formID)
+               formSelected = await Case_Closure.findById(req.params.formID)
+          else
+               formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+
           if (!formSelected)
-               return res.send(404).json({ message: "No termination request found." })
+               return res.status(400).json({ message: "No termination request found." })
 
           if (!caseSelected._id.equals(formSelected.sm))
-               return res.send(404).json({ message: "Case selected does not match the form." })
+               return res.status(400).json({ message: "Case selected does not match the form." })
 
-          if (!caseSelected.assigned_sdw.equals(active_user._id))
-               return res.send(404).json({ message: "You do not have permissions for this case." })
+          // Uses sessions already, please comment out if needed or force assign an employee
+          const active_user = req.session.user
+          if (!active_user)
+               return res.status(404).json({ message: "Unauthorized access." })
+          if (active_user && !caseSelected.assigned_sdw.equals(active_user._id))
+               return res.status(404).json({ message: "You do not have permissions for this case." })
 
           // delete
           await formSelected.deleteOne();
-          return res.status(200).json({ message: "Case closure form deleted successfully." });
+          return res.status(200).json({ message: "Case closure form deleted successfully.", case: caseSelected });
      } catch (error) {
           return res.status(500).json({ message: "An error occured. Please try again." });
      }
@@ -184,30 +204,35 @@ const confirmCaseTermination = async (req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
           if (!caseSelected)
-               return res.send(404).json({ message: "Case not found." })
+               return res.status(404).json({ message: "Case not found." })
 
-          const formSelected = await Case_Closure.findById(req.params.formID)
+          var formSelected
+          if (req.params.formID)
+               formSelected = await Case_Closure.findById(req.params.formID)
+          else
+               formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+
           if (!formSelected)
-               return res.send(404).json({ message: "No termination request found." })
-
+               return res.status(404).json({ message: "No termination request found." })
           if (!caseSelected._id.equals(formSelected.sm))
-               return res.send(404).json({ message: "Case selected does not match the form." })
+               return res.status(404).json({ message: "Case selected does not match the form." })
 
           // assuming sessions is already set up
           const active_user = req.session.user
+          // const active_user = await Employee.findById("686e92a03c1f53d3ee65962d") // this id is the supervisor of the sdw assigned
           if (!active_user)
-               return res.send(403).json({ message: "Unauthorized access." })
+               return res.status(403).json({ message: "Unauthorized access." })
 
           // check if it is the appropriate supervisor or head
           const handler = await Employee.findById(caseSelected.assigned_sdw)
           var supervisor
-          if (active_user.role == "super") {
+          if (active_user.role == "super" || active_user.role == "supervisor") {
                if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
-               } else if (handler.role === "super") {
+               } else if (handler.role === "super" || handler.role === "supervisor") {
                     if (!handler._id.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
@@ -223,7 +248,7 @@ const confirmCaseTermination = async (req, res) => {
                     if (!supervisor || !supervisor.manager.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
-               } else if (handler.role === "super") {
+               } else if (handler.role === "super" || handler.role === "supervisor") {
                     if (!handler.manager.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
@@ -234,7 +259,7 @@ const confirmCaseTermination = async (req, res) => {
                }
           }
           else {
-               return res.send(403).json({ message: "Unauthorized access." })
+               return res.status(403).json({ message: "Unauthorized access." })
           }
 
           // security checks passed, proceed to deactivation
