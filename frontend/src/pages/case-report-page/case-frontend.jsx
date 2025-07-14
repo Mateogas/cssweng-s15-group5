@@ -22,6 +22,26 @@ import {
 }
     from '../../fetch-connections/case-connection';
 
+// Financial Intervention API Imports
+import {
+    fetchAllFinInterventions
+} from "../../fetch-connections/financialForm-connection";
+
+// Counselling Intervention API Imports
+import {
+    fetchAllCounselingInterventionsByMemberId
+} from "../../fetch-connections/intervention-connection";
+
+// Counselling Intervention API Imports
+import {
+    fetchAllCorrespInterventions
+} from "../../fetch-connections/correspFormConnection";
+
+// Progress Reports API Imports
+import {
+    fetchProgressReportsForCase
+} from "../../fetch-connections/progress-report-connection";
+
 function CaseFrontend({creating = false}) {
     console.log(creating);
 
@@ -545,6 +565,34 @@ function CaseFrontend({creating = false}) {
             date: "June 13, 2025",
         },
     ]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const counsellingInterventions = fetchedCounsellingData.interventions.map(item => {
+                const date = new Date(item.intervention.createdAt);
+
+                return {
+                    intervention: item.interventionType,
+                    date: isNaN(date) ? '' : formatter.format(date),
+                };
+            });
+
+            console.log("Fetched Counselling: ", counsellingInterventions);
+    
+            setCounsellings(counsellingInterventions);
+        };
+
+        
+        loadData();
+    }, []);
 
     const [financial_assistances, setFinancialAssistances] = useState([
         {
