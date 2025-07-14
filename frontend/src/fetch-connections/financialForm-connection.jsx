@@ -108,4 +108,16 @@ export const deleteCorrespInterventionForm = async(formId) => {
         console.error('Error deleting intervention financial plan:', error);
         return null;
     }
-}
+};
+
+export const fetchAutoFillFinancialData = async(caseId) =>{
+    try{
+        const response = await fetch(`/api/interventions/financial/getAutoFillForm/${caseId}`)
+        if(!response.ok) throw new Error('API Error');
+        const result = await response.json();
+        return result
+    }catch(error){
+        console.error('Error fetching Case Data', error);
+        return null;
+    }
+};

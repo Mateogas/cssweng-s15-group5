@@ -285,10 +285,36 @@ const deleteFinForm = async(req, res) => {
         });
     }
 }
+
+const getAutoFillData = async(req,res)=>{
+    const smId = req.params.smId;
+    if(!mongoose.Types.ObjectId.isValid(smId)){
+        return res.status(400).json({message:'Invalid User Id'});
+    }
+    try{
+        const caseData = await Sponsored_Member.findById(smId).lean();
+        if(!caseData){
+            return res.status(404).json({message:'Not Found'});
+        }
+        const returningData = {
+            last_name : caseData.last_name,
+            first_name: caseData.first_name,
+            middle_name: caseData.middle_name,
+            sm_number:caseData.sm_number,
+            spu:caseData.spu
+        };
+
+        return res.status(200).json({message: 'Fetched Succesfully', returningData});
+    }catch(error){
+        console.error(error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
 module.exports = {
     createFinForm,
     getFinancialForm,
     getAllFinancialInterventions,
     editFinancialForm,
     deleteFinForm,
+    getAutoFillData,
 }

@@ -152,3 +152,15 @@ export const deleteCorrespInterventionForm = async(formId) => {
         return null;
     }
 }
+
+export const fetchAutoFillCorrespData = async(caseId) =>{
+    try{
+        const response = await fetch(`/api/interventions/correspondence/getAutoFillForm/${caseId}`)
+        if(!response.ok) throw new Error('API Error');
+        const result = await response.json();
+        return result
+    }catch(error){
+        console.error('Error fetching Case Data', error);
+        return null;
+    }
+};
