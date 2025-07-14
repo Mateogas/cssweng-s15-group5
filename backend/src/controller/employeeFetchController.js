@@ -23,13 +23,15 @@ const getHeadView = async (req, res) => {
 
     let cases = [];
     let employee = [];
-
+    
     if (user.role == 'Head') {
       cases = await Sponsored_Member.find({ is_active: true })
         .populate('assigned_sdw')
         .lean();
 
       employee = await Employee.find({}).lean();
+    }else{
+      return res.status(403).json({ message: "Permission Error: Head access required" });
     }
 
     // Simplify Sponsored Members
@@ -92,7 +94,10 @@ const getHeadViewbySpu = async (req, res) => {
         .lean();
 
       employee = await Employee.find({spu_id:spuFilter}).lean();
+    }else{
+      return res.status(403).json({ message: "Permission Error: Head access required" });
     }
+
 
     // Simplify Sponsored Members
     const simplifiedCases = cases.map(c => ({
@@ -154,7 +159,10 @@ const getSupervisorViewbySpu = async (req, res) => {
         .lean();
 
        employee = await Employee.find({role: {$nin: ['Head','head','admin']}, spu_id: user.spu_id}).lean(); 
+    }else{
+      return res.status(403).json({ message: "Permission Error: Supervisor access required" });
     }
+
 
     // Simplify Sponsored Members
     const simplifiedCases = cases.map(c => ({
@@ -216,7 +224,10 @@ const getSDWView = async (req, res) => {
       cases = await Sponsored_Member.find({assigned_sdw: userId, is_active: true, spu:user.spu_id})
         .populate('assigned_sdw')
         .lean();
+    }else{
+      return res.status(403).json({ message: "Permission Error: SDW access required" });
     }
+
 
     // Simplify Sponsored Members
     const simplifiedCases = cases.map(c => ({
