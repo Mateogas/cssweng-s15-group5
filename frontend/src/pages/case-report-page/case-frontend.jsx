@@ -556,6 +556,7 @@ function CaseFrontend({creating = false}) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
+            console.log("Fetched Counselling: ", fetchedCounsellingData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -572,7 +573,7 @@ function CaseFrontend({creating = false}) {
                 };
             });
 
-            console.log("Fetched Counselling: ", counsellingInterventions);
+            console.log("Counselling Data: ", counsellingInterventions);
     
             setCounsellings(counsellingInterventions);
         };
@@ -596,20 +597,66 @@ function CaseFrontend({creating = false}) {
         },
     ]);
 
-    const [correspondences, setCorrespondences] = useState([
-        {
-            intervention: "Correspondence",
-            date: "June 03, 2025",
-        },
-        {
-            intervention: "Correspondence",
-            date: "June 19, 2025",
-        },
-        {
-            intervention: "Correspondence",
-            date: "July 04, 2025",
-        },
-    ]);
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedFinancialData = await fetchAllFinInterventions(clientId);
+            console.log("Fetched Financial: ", fetchedFinancialData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const financialInterventions = fetchedFinancialData.map(item => {
+                // const date = new Date(item.intervention.createdAt);
+
+                return {
+                    intervention: "Financial Assistance",
+                    // date: isNaN(date) ? '' : formatter.format(date),
+                    date: "May 05, 2025",
+                };
+            });
+
+            console.log("Financial Data: ", financialInterventions);
+    
+            setFinancialAssistances(financialInterventions);
+        };
+
+        
+        loadData();
+    }, []);
+
+    const [correspondences, setCorrespondences] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedCorrespondenceData = await fetchAllCorrespInterventions(clientId);
+            console.log("Fetched Correspondence: ", fetchedCorrespondenceData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const correspondenceInterventions = fetchedCorrespondenceData.map(item => {
+                // const date = new Date(item.intervention.createdAt);
+
+                return {
+                    intervention: "Correspondence",
+                    // date: isNaN(date) ? '' : formatter.format(date),
+                    date: "July 04, 2025",
+                };
+            });
+
+            console.log("Correspondence Data: ", correspondenceInterventions);
+    
+            setCorrespondences(correspondenceInterventions);
+        };
+
+        loadData();
+    }, []);
 
     const interventions = {
         "Home Visitation": home_visitations,
