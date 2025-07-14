@@ -582,20 +582,7 @@ function CaseFrontend({creating = false}) {
         loadData();
     }, []);
 
-    const [financial_assistances, setFinancialAssistances] = useState([
-        {
-            intervention: "Financial Assistance",
-            date: "March 15, 2025",
-        },
-        {
-            intervention: "Financial Assistance",
-            date: "March 21, 2025",
-        },
-        {
-            intervention: "Financial Assistance",
-            date: "April 07, 2025",
-        },
-    ]);
+    const [financial_assistances, setFinancialAssistances] = useState([]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -665,20 +652,35 @@ function CaseFrontend({creating = false}) {
         Correspondences: correspondences,
     };
 
-    const [progress_reports, setProgressReports] = useState([
-        {
-            name: "Progress Report",
-            date: "May 16, 2025",
-        },
-        {
-            name: "Progress Report",
-            date: "June 17, 2025",
-        },
-        {
-            name: "Progress Report",
-            date: "July 02, 2025",
-        },
-    ]);
+    const [progress_reports, setProgressReports] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedProgressData = await fetchProgressReportsForCase(clientId);
+            console.log("Fetched Progress Reports: ", fetchedProgressData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const progressReportsData = fetchedProgressData.map(item => {
+                const date = new Date(item.created_at);
+
+                return {
+                    name: "Progress Report",
+                    date: isNaN(date) ? '' : formatter.format(date),
+                };
+            });
+
+            console.log("Progress Report Data: ", progressReportsData);
+    
+            setProgressReports(progressReportsData);
+        };
+
+        loadData();
+    }, []);
 
     const handleInterventionNavigation = (key) => {
         navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
