@@ -4,6 +4,39 @@ const Sponsored_Member = require('../model/sponsored_member');
 
 
 /**
+ * Fetches a single employee by its ObjectId.
+ * - Requires a valid ObjectId in req.params.id
+ * - Only accessible if user is authenticated
+ *
+ * @route   GET /api/employees/:id
+ */
+const getEmployeeById = async (req, res) => {
+  const user = req.session ? req.session.user : req.user;
+  const employeeId = req.params.id;
+
+  console.log("Employee fetch controller", req.params);
+
+  // Validate session & ObjectId
+  if (!user || !mongoose.Types.ObjectId.isValid(employeeId)) {
+    return res.status(400).json({ message: "Invalid session or Employee ID." });
+  }
+
+  try {
+    const employee = await Employee.findById(employeeId).lean();
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    return res.status(200).json(employee);
+
+  } catch (error) {
+    console.error('Error fetching employee:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+/**
  * Retrieves all active sponsored members and all employees for the Head view.
  * - Only accessible by users with the 'Head' role.
  * - Returns simplified lists of sponsored members and employees.
@@ -79,7 +112,7 @@ const getHeadView = async (req, res) => {
  */
 const getHeadViewbySpu = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
-  const spuFilter = req.body.spu
+  const spuFilter = req.query.spu
   try {
     if (!user) {
       return res.status(401).json({ message: "Authentication Error what" });
@@ -251,7 +284,6 @@ const getSDWView = async (req, res) => {
   }
 };
 
-
 const getHeadViewbySupervisor = async(req,res) =>{
     const user = req.session ? req.session.user : req.user;
     const supervisorId = req.params.supervisorId;
@@ -280,7 +312,6 @@ const getHeadViewbySupervisor = async(req,res) =>{
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });     
     }
-
 }
 
 const getSDWViewbyParam = async(req,res) =>{
@@ -323,4 +354,5 @@ module.exports = {
     getSDWView,
     getHeadViewbySupervisor,
     getSDWViewbyParam,
+    getEmployeeById
 }

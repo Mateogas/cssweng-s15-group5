@@ -21,6 +21,7 @@ export default function RegisterWorker({
     sdw_id: '',
     username: '',
     password: '',
+    confirmPassword: '',
     email: '',
     contact_no: '',
     spu_id: '',
@@ -40,6 +41,7 @@ export default function RegisterWorker({
         sdw_id: '',
         username: '',
         password: '',
+        confirmPassword: '',
         email: '',
         contact_no: '',
         spu_id: '',
@@ -125,6 +127,13 @@ export default function RegisterWorker({
     if (!formData.role) missing.push("Role");
     if (!formData.spu_id) missing.push("SPU");
     if (!formData.password || formData.password.length < 8) missing.push("Password (min 8 chars)");
+
+    if (!formData.confirmPassword) {
+      missing.push("Confirm Password");
+    } else if (formData.password !== formData.confirmPassword) {
+      missing.push("Passwords do not match");
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) missing.push("Valid Email");
     if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 digits)");
@@ -270,6 +279,18 @@ export default function RegisterWorker({
                     name="password"
                     placeholder="Password"
                     value={formData.password}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <p className="font-bold-label">Confirm Password</p>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    value={formData.confirmPassword}
                     onChange={handleChange}
                     className="text-input font-label"
                   />

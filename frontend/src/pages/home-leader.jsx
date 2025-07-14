@@ -3,7 +3,7 @@ import SideBar from "../Components/SideBar";
 import WorkerEntry from "../Components/WorkerEntry";
 import RegisterWorker from "../Components/RegisterWorker";
 import { fetchAllSDWs } from "../fetch-connections/account-connection";
-import { fetchSession } from "../fetch-connections/account-connection";
+import { fetchHeadViewBySpu, fetchSupervisorView, fetchSession } from "../fetch-connections/account-connection";
 
 function HomeLeader() {
   const [allData, setAllData] = useState([]);
@@ -32,25 +32,29 @@ useEffect(() => {
     console.log("Session:", sessionData);
     setUser(sessionData.user);
 
-    const employees = await fetchAllSDWs();
+    let employees = [];
+
+    if (sessionData.user?.role === "head") {
+      if (currentSPU) {
+        employees = await fetchHeadViewBySpu(currentSPU);
+        employees = employees.employees || [];
+      }
+    } else if (sessionData.user?.role === "super") {
+      if (sessionData.user?.spu_id) {
+        const data = await fetchSupervisorView();
+        employees = data.employees || [];
+      }
+    }
+
     console.log("Fetched employees:", employees);
     setAllData(employees);
   };
 
   loadUserAndEmployees();
-}, []);
+}, [currentSPU]);
 
   useEffect(() => {
     let filtered = [...allData];
-
-  if (user) {
-    if (user.role === "super") {
-      filtered = filtered.filter(w =>
-        w.spu_id === user.spu_id &&
-        w.manager?.toString() === user._id?.toString()
-      );
-    }
-  }
 
     if (currentSPU !== "") {
       filtered = filtered.filter((w) => w.spu_id === currentSPU);
@@ -59,14 +63,14 @@ useEffect(() => {
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((w) => {
-        const name = w.username?.toLowerCase() || "";
+        const name = w.name?.toLowerCase() || "";
         const idStr = w.sdw_id?.toString() || "";
         return name.includes(query) || idStr.includes(query);
       });
     }
 
     if (sortBy === "name") {
-      filtered.sort((a, b) => a.username.localeCompare(b.username));
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === "sdw_id") {
       filtered.sort((a, b) => a.sdw_id - b.sdw_id);
     } else if (sortBy === "role") {
@@ -174,8 +178,9 @@ useEffect(() => {
               currentData.map((worker) => (
                 <WorkerEntry
                   key={worker._id}
-                  id={worker.sdw_id}
-                  fullName={`${worker.first_name} ${worker.middle_name || ''} ${worker.last_name}`}
+                  id={worker.id}
+                  sdw_id={worker.sdw_id}
+                  name={worker.name}
                   role={worker.role}
                   spu_id={
                     projectLocation.find(

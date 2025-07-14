@@ -48,7 +48,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
                 <Route path="/archive" element={<Archive />} />
 
-                <Route path="/worker-profile" element={<WorkerProfile />} />
+                <Route path="/profile/:workerId" element={<WorkerProfile />} />
 
 
                 <Route path="/case" element={<HomeSDW />} />
@@ -68,8 +68,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     path="/case-closure"
                     element={<CaseClosure />}
                 />
-
-                <Route path="/home-sdw" element={<HomeSDW />} />
 
             </Routes>
         </BrowserRouter>

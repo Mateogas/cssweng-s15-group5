@@ -31,7 +31,7 @@
             if (res.ok && !res.data.errorMsg) {
                 console.log('Login success:', res.data);
                 setErrorMessage('');
-                navigate('/');
+                window.location.href = '/';
             } else {
                 setErrorMessage(res.data.errorMsg || 'Username and password do not match.');
             }

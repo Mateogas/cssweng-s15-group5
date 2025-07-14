@@ -11,4 +11,6 @@ router.get('/socialdevelopmentworker',EmployeeFetch.getSDWView);
 router.get('/head/:supervisorId',EmployeeFetch.getHeadViewbySupervisor);
 router.get('/head/:supervisorId/:sdwId',EmployeeFetch.getSDWViewbyParam);
 router.get('/supervisors/:sdwId',EmployeeFetch.getSDWViewbyParam);
+
+router.get('/employee/:id', EmployeeFetch.getEmployeeById);
 module.exports = router;

@@ -197,7 +197,7 @@ const getAllCases = async (req, res) => {
                sm_number: c.sm_number,
                spu: c.spu,
                is_active: c.is_active,
-               assigned_sdw: c.assigned_sdw._id,
+                assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
                     ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
                     : null

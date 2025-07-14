@@ -22,6 +22,19 @@
 
 // fetch-connections/create-account-connection.js
 
+export const fetchEmployeeById = async (employeeId) => {
+  try {
+    const response = await fetch(`/api/employee/${employeeId}`, {
+      credentials: 'include',
+    });
+    const data = await response.json();
+    return { ok: response.ok, data };
+  } catch (error) {
+    console.error("Error fetching employee by ID:", error);
+    return { ok: false, data: { message: "Network error" } };
+  }
+};
+
 export const createAccount = async (payload) => {
   try {
     const response = await fetch('/api/create-account', {
