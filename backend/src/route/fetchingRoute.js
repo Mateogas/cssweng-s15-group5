@@ -1,0 +1,14 @@
+const express = require('express');
+const session = require('express-session');
+const EmployeeFetch = require('../controller/employeeFetchController');
+const router = express.Router();
+
+
+router.get('/head',EmployeeFetch.getHeadView);
+router.get('/head/spu',EmployeeFetch.getHeadViewbySpu);
+router.get('/supervisor',EmployeeFetch.getSupervisorViewbySpu);
+router.get('/socialdevelopmentworker',EmployeeFetch.getSDWView);
+router.get('/head/:supervisorId',EmployeeFetch.getHeadViewbySupervisor);
+router.get('/head/:supervisorId/:sdwId',EmployeeFetch.getSDWViewbyParam);
+router.get('/supervisors/:sdwId',EmployeeFetch.getSDWViewbyParam);
+module.exports = router;
