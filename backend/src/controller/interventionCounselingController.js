@@ -34,8 +34,14 @@ const getCounselingInterventionById = async (req, res) => {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
 
+        // Get the intervention number associated with the counseling intervention
+        const intervention_number = sponsored_member.interventions.find(
+            entry => entry.intervention.toString() === counselingId
+        )?.intervention_number;
+
         return res.status(200).json({
             message: 'Counseling intervention retrieved successfully',
+            intervention_number,
             grade_year_level: intervention.grade_year_level,
             school: intervention.school,
             area_self_help: intervention.area_self_help,
