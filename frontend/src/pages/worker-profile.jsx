@@ -10,6 +10,7 @@ import { fetchSession } from "../fetch-connections/account-connection";
 import { logoutUser } from "../fetch-connections/account-connection";
 import ChangePassword from "../Components/ChangePassword";
 import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
+import { fetchEmployeeBySDWId } from "../fetch-connections/account-connection";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
@@ -233,7 +234,28 @@ export default function WorkerProfile() {
             missing.push("SDW ID must be numeric");
         } else if (Number(drafts.sdw_id) <= 0) {
             missing.push("SDW ID must be greater than zero");
+        } else {
+            // Check uniqueness
+            const check = await fetchEmployeeBySDWId(Number(drafts.sdw_id));
+            console.log("Fetched employee by SDW ID:", check);
+
+            if (check.ok && check.data) {
+                console.log(
+                    "Comparing found SDW ID:", String(check.data.sdw_id),
+                    "vs current employee SDW ID:", String(data.sdw_id)
+                );
+
+                if (String(check.data.sdw_id).trim() !== String(data.sdw_id).trim()) {
+                    // Found same SDW ID owned by another employee → block
+                    missing.push(`SDW ID already exists and belongs to another employee`);
+                } else {
+                    console.log("SDW ID belongs to same employee — valid");
+                }
+            } else {
+                console.log("SDW ID is unique — valid");
+            }
         }
+
 
         if (!drafts.spu_id) {
             missing.push("SPU Project");
