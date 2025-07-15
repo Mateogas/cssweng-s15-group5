@@ -36,6 +36,36 @@ const getEmployeeById = async (req, res) => {
   }
 };
 
+const getEmployeeBySDWId = async (req, res) => {
+  const user = req.session ? req.session.user : req.user;
+  const sdwId = req.params.sdw_id;
+
+  console.log("Employee fetch by SDW ID:", sdwId);
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid session." });
+  }
+
+  if (!sdwId || isNaN(Number(sdwId))) {
+    return res.status(400).json({ message: "Invalid SDW ID provided." });
+  }
+
+  try {
+    const employee = await Employee.findOne({ sdw_id: Number(sdwId) }).lean();
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    return res.status(200).json(employee);
+
+  } catch (error) {
+    console.error('Error fetching employee by SDW ID:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
 const editEmployeeCore = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const employeeId = req.params.id;
@@ -416,8 +446,8 @@ const getSDWViewbyParam = async(req,res) =>{
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });     
     }
-
 }
+
 module.exports = {
     getHeadView,
     getHeadViewbySpu,
@@ -426,6 +456,7 @@ module.exports = {
     getHeadViewbySupervisor,
     getSDWViewbyParam,
     getEmployeeById,
+    getEmployeeBySDWId,
     editEmployeeCore,
     editEmployeePassword
 }
