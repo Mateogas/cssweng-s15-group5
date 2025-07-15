@@ -386,18 +386,29 @@ function CaseFrontend({ creating = false }) {
             missing.push("SM Number cannot be negative");
         }
 
-        if (drafts.sm_number) {
-            console.log("checking sm num");
-            const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
+if (drafts.sm_number) {
+  const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
+  console.log("Fetched case by SM:", check);
 
-            console.log(check);
+  if (check.found) {
+    console.log(
+      "Comparing found sm_number:", String(check.data.sm_number),
+      "vs current draft sm_number:", String(drafts.sm_number)
+    );
 
-            if (check.found && check.data._id !== drafts.sm_number) {
-                missing.push(`SM Number already exists and belongs to another case`);
-            }
+    if (String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
+      // Same SM Number used by a different case → block
+      missing.push(`SM Number already exists and belongs to another case`);
+    } else {
+      // Same SM Number as current case → allow
+      console.log("SM Number belongs to same case — valid");
+    }
+  } else {
+    console.log("SM Number is unique — valid");
+  }
+}
 
-            console.log(check);
-        }
+
 
         console.log(missing);
 
@@ -654,15 +665,15 @@ function CaseFrontend({ creating = false }) {
 
 
         if (ok && data?.case?._id) {
-        showSuccess("New case created successfully!");
-        navigate(`/case/${data.case._id}`);
+            showSuccess("New case created successfully!");
+            navigate(`/case/${data.case._id}`);
         } else {
-        console.error("Invalid _id:", data.case);
-        setModalTitle("Error");
-        setModalBody(data.message || "An unexpected error occurred.");
-        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-        setModalConfirm(false);
-        setShowModal(true);
+            console.error("Invalid _id:", data.case);
+            setModalTitle("Error");
+            setModalBody(data.message || "An unexpected error occurred.");
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
         }
 
     };
@@ -846,7 +857,7 @@ function CaseFrontend({ creating = false }) {
                         <>
                             <div className="flex items-center justify-between">
                                 <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
-                                {user?.role == "sdw" && <button
+                                {<button
                                     className={
                                         editingField === "core-fields"
                                             ? "icon-button-setup x-button"

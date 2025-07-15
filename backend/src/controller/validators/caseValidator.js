@@ -3,10 +3,6 @@ const Joi = require('joi');
 /*
 //THIS IS FOR ALL
 
-
-
-
-
 */
 const caseSchemaValidate = Joi.object({
   sm_number: Joi.number().required(),
@@ -19,15 +15,15 @@ const caseSchemaValidate = Joi.object({
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
   spu: Joi.string()
-  .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
-  .required()
-  .messages({
-    'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
-    'any.required': 'SPU is required'
-  }),
+    .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
+    .required()
+    .messages({
+      'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
+      'any.required': 'SPU is required'
+    }),
   is_active: Joi.boolean().required(),
 
-present_address: Joi.string().min(1).required().messages({
+  present_address: Joi.string().min(1).required().messages({
     'string.empty': 'Present address cannot be empty',
     'any.required': 'Present address is required'
   }),
@@ -43,7 +39,7 @@ present_address: Joi.string().min(1).required().messages({
     'any.required': 'Place of birth is required'
   }),
 
-    assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
+  assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
     .messages({
       'string.pattern.base': 'assigned_sdw must be a valid ObjectId'
     }),
@@ -72,7 +68,7 @@ present_address: Joi.string().min(1).required().messages({
 
   problem_presented: Joi.string().empty('').allow(null).optional(),
 
-  observation_findings:Joi.string().empty('').allow(null).optional(),
+  observation_findings: Joi.string().empty('').allow(null).optional(),
 
   recommendation: Joi.string().empty('').allow(null).optional(),
 
@@ -80,7 +76,7 @@ present_address: Joi.string().min(1).required().messages({
 
   evaluation: Joi.string().empty('').allow(null).optional(),
   assessment: Joi.string().empty('').allow(null).optional(),
-  
+
   classifications: Joi.array().items(Joi.string()).allow(null).default([]).optional(),
 });
 /*
@@ -102,14 +98,18 @@ const caseCoreValidate = Joi.object({
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
   spu: Joi.string()
-  .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
-  .required()
-  .messages({
-    'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
-    'any.required': 'SPU is required'
-  }),
-is_active: Joi.boolean().required(),
-classifications: Joi.array().items(Joi.string()).optional()
+    .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
+    .required()
+    .messages({
+      'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
+      'any.required': 'SPU is required'
+    }),
+  is_active: Joi.boolean().required(),
+  classifications: Joi.array().items(Joi.string()).optional(),
+    assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
+    .messages({
+      'string.pattern.base': 'assigned_sdw must be a valid ObjectId'
+    }),
 });
 /*
 //THIS IS FOR IDENTIFYING DATA ONLY
@@ -158,4 +158,4 @@ const caseIdentifyingValidate = Joi.object({
 
   relationship_to_client: Joi.string().empty('').optional()
 });
-module.exports = [caseSchemaValidate,caseCoreValidate,caseIdentifyingValidate];
+module.exports = [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate];
