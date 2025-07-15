@@ -20,7 +20,7 @@ const loadCaseClosureForm = async(req, res) => {
 
           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
           if (formSelected)
-               loadExistingCaseClosureForm(req, res)
+                return res.status(200).json({form: formSelected, case: caseSelected})
 
           return res.status(200).json(caseSelected)
      } catch(error) {
@@ -43,7 +43,7 @@ const createCaseClosureForm = async(req, res) => {
           const active_user = req.session.user
           if (!active_user)
                return res.status(404).json({ message: "Unauthorized access." });
-          if (!active_user._id.isequal(caseSelected._id))
+          if (!active_user._id.equal(caseSelected.assigned_sdw))
                return res.status(404).json({ message: "Unauthorized access." });
 
           // proceed to creation of form
@@ -57,7 +57,7 @@ const createCaseClosureForm = async(req, res) => {
                "evaluation",
                "recommendation",
           ];
-          const missingFields = requiredFields.filter(field => !formData[field]);
+          const missingFields = requiredFields.filter(field => formData[field] === undefined || formData[field] === null || formData[field] === "");
           if (missingFields.length > 0) {
                console.log("Missing field/s found.")
                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` });
@@ -71,8 +71,10 @@ const createCaseClosureForm = async(req, res) => {
                     return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` });
                }
           }
-          else 
+          else { 
                formData.sm_awareness = false
+               formData.sm_notification = ""
+          }
 
           // New Object
           const newCaseClose = new Case_Closure({
