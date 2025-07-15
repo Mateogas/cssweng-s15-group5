@@ -23,7 +23,27 @@ import {
 }
     from '../../fetch-connections/case-connection';
 
-function CaseFrontend({ creating = false }) {
+// Financial Intervention API Imports
+import {
+    fetchAllFinInterventions
+} from "../../fetch-connections/financialForm-connection";
+
+// Counselling Intervention API Imports
+import {
+    fetchAllCounselingInterventionsByMemberId
+} from "../../fetch-connections/intervention-connection";
+
+// Counselling Intervention API Imports
+import {
+    fetchAllCorrespInterventions
+} from "../../fetch-connections/correspFormConnection";
+
+// Progress Reports API Imports
+import {
+    fetchProgressReportsForCase
+} from "../../fetch-connections/progress-report-connection";
+
+function CaseFrontend({creating = false}) {
     console.log(creating);
 
     const navigate = useNavigate();
@@ -542,75 +562,179 @@ if (drafts.sm_number) {
         },
     ]);
 
-    const [counsellings, setCounsellings] = useState([
-        {
-            intervention: "Counselling",
-            date: "April 27, 2025",
-        },
-        {
-            intervention: "Counselling",
-            date: "May 02, 2025",
-        },
-        {
-            intervention: "Counselling",
-            date: "June 13, 2025",
-        },
-    ]);
+    const [counsellings, setCounsellings] = useState([]);
 
-    const [financial_assistances, setFinancialAssistances] = useState([
-        {
-            intervention: "Financial Assistance",
-            date: "March 15, 2025",
-        },
-        {
-            intervention: "Financial Assistance",
-            date: "March 21, 2025",
-        },
-        {
-            intervention: "Financial Assistance",
-            date: "April 07, 2025",
-        },
-    ]);
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
+            console.log("Fetched Counselling: ", fetchedCounsellingData);
 
-    const [correspondences, setCorrespondences] = useState([
-        {
-            intervention: "Correspondence",
-            date: "June 03, 2025",
-        },
-        {
-            intervention: "Correspondence",
-            date: "June 19, 2025",
-        },
-        {
-            intervention: "Correspondence",
-            date: "July 04, 2025",
-        },
-    ]);
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const counsellingInterventions = fetchedCounsellingData.interventions.map(item => {
+                const date = new Date(item.intervention.createdAt);
+
+                return {
+                    formID: item.intervention._id,
+                    route: "counselling-form",
+                    intervention: item.interventionType,
+                    date: isNaN(date) ? '' : formatter.format(date),
+                };
+            });
+
+            console.log("Counselling Data: ", counsellingInterventions);
+    
+            setCounsellings(counsellingInterventions);
+        };
+
+        
+        loadData();
+    }, []);
+
+    const [financial_assistances, setFinancialAssistances] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedFinancialData = await fetchAllFinInterventions(clientId);
+            console.log("Fetched Financial: ", fetchedFinancialData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const financialInterventions = fetchedFinancialData.map(item => {
+                // const date = new Date(item.intervention.createdAt);
+
+                return {
+                    formID: item.id,
+                    route: "financial-assessment-form",
+                    intervention: "Financial Assistance",
+                    // date: isNaN(date) ? '' : formatter.format(date),
+                    date: "May 05, 2025",
+                };
+            });
+
+            console.log("Financial Data: ", financialInterventions);
+    
+            setFinancialAssistances(financialInterventions);
+        };
+
+        
+        loadData();
+    }, []);
+
+    const [correspondences, setCorrespondences] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedCorrespondenceData = await fetchAllCorrespInterventions(clientId);
+            console.log("Fetched Correspondence: ", fetchedCorrespondenceData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const correspondenceInterventions = fetchedCorrespondenceData.map(item => {
+                // const date = new Date(item.intervention.createdAt);
+
+                return {
+                    formID: item.id,
+                    route: "correspondence-form",
+                    intervention: "Correspondence",
+                    // date: isNaN(date) ? '' : formatter.format(date),
+                    date: "July 04, 2025",
+                };
+            });
+
+            console.log("Correspondence Data: ", correspondenceInterventions);
+    
+            setCorrespondences(correspondenceInterventions);
+        };
+
+        loadData();
+    }, []);
 
     const interventions = {
         "Home Visitation": home_visitations,
-        Counselling: counsellings,
+        "Counselling": counsellings,
         "Financial Assistance": financial_assistances,
-        Correspondences: correspondences,
+        "Correspondences": correspondences,
     };
 
-    const [progress_reports, setProgressReports] = useState([
-        {
-            name: "Progress Report",
-            date: "May 16, 2025",
-        },
-        {
-            name: "Progress Report",
-            date: "June 17, 2025",
-        },
-        {
-            name: "Progress Report",
-            date: "July 02, 2025",
-        },
-    ]);
+    const [progress_reports, setProgressReports] = useState([]);
 
-    const handleInterventionNavigation = (key) => {
-        navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedProgressData = await fetchProgressReportsForCase(clientId);
+            console.log("Fetched Progress Reports: ", fetchedProgressData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const progressReportsData = fetchedProgressData.map(item => {
+                const date = new Date(item.created_at);
+
+                return {
+                    formID: item._id,
+                    name: "Progress Report",
+                    route: "progress-reports",
+                    date: isNaN(date) ? '' : formatter.format(date),
+                };
+            });
+
+            console.log("Progress Report Data: ", progressReportsData);
+    
+            setProgressReports(progressReportsData);
+        };
+
+        loadData();
+    }, []);
+
+    const handleNewIntervention = (caseID) => {
+
+        const path = `/intervention-form/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleNewProgressReport = (caseID) => {
+
+        const path = `/progress-report/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleInterventionNavigation = (intervention, caseID, formID) => {
+
+        const path = `/${intervention}/?action=view&caseID=${caseID}&formID=${formID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleProgressReportNavigation = (caseID, formID) => {
+
+        const path = `/progress-report/?action=view&caseID=${caseID}&formID=${formID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     // <p className="font-label">
@@ -1560,27 +1684,43 @@ if (drafts.sm_number) {
                             </div>
                         </div>
                         <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {interventions[intervention_selected]?.map(
-                                (item, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() =>
-                                            handleInterventionNavigation(
-                                                item.intervention,
-                                            )
-                                        }
-                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                        data-cy={`intervention-item-${item.intervention}-${index}`}
-                                    >
-                                        <p className="label-base w-80">
-                                            {item.intervention} {index + 1}
-                                        </p>
-                                        <p className="label-base w-80">
-                                            {item.date}
-                                        </p>
-                                    </button>
-                                ),
-                            )}
+                            {interventions[intervention_selected]?.length > 0 ? (
+                                interventions[intervention_selected]?.map(
+                                    (item, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() =>
+                                                handleInterventionNavigation(
+                                                    item.route,
+                                                    clientId,
+                                                    item.formID,
+                                                )
+                                            }
+                                            className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                            data-cy={`intervention-item-${item.intervention}-${index}`}
+                                        >
+                                            <p className="label-base w-80">
+                                                {item.intervention} {index + 1}
+                                            </p>
+                                            <p className="label-base w-80">
+                                                {item.date}
+                                            </p>
+                                        </button>
+                                    ),
+                                )
+                            ) : intervention_selected && (
+                                    <p className="body-base self-center mt-8">No Interventions Available</p>
+                                )
+                            }
+                            <button 
+                                className="btn-primary label-base self-center mt-8"
+                                onClick={() =>
+                                    handleNewIntervention(
+                                        clientId
+                                    )
+                                }>
+                                New Intervention
+                            </button>
                         </div>
                     </div>
                 </section>}
@@ -1612,21 +1752,39 @@ if (drafts.sm_number) {
                             </div>
                         </div>
                         <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {progress_reports?.map((item, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => navigate("/progress-report")}
-                                    className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                    data-cy={`progress-report-item-${item.name}-${index}`}
-                                >
-                                    <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
-                                        {item.name} {index + 1}
-                                    </p>
-                                    <p className="label-base w-80">
-                                        {item.date}
-                                    </p>
-                                </button>
-                            ))}
+                            {progress_reports?.length > 0 ? (
+                                progress_reports?.map((item, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() =>
+                                                handleProgressReportNavigation(
+                                                    clientId,
+                                                    item.formID,
+                                                )
+                                            }
+                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                        data-cy={`progress-report-item-${item.name}-${index}`}
+                                    >
+                                        <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
+                                            {item.name} {index + 1}
+                                        </p>
+                                        <p className="label-base w-80">
+                                            {item.date}
+                                        </p>
+                                    </button>
+                                ))
+                            ) : (
+                                <p className="body-base self-center mt-8">No Progress Reports Available</p>
+                            )}
+                            <button 
+                                className="btn-primary label-base self-center mt-8"
+                                onClick={() =>
+                                    handleNewProgressReport(
+                                        clientId
+                                    )
+                                }>
+                                New Progress Report
+                            </button>
                         </div>
                     </div>
                 </section>}

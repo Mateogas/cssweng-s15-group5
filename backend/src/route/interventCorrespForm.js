@@ -10,4 +10,6 @@ router.get('/getAllForms/:smId',interventionCorrespController.getAllCorresponden
 router.put('/edit-form/:formId',interventionCorrespController.editCorrespondenceForm);
 router.delete('/delete-plan/:formId/:planId', interventionCorrespController.deleteInterventionPlanById);
 router.put('/add-plans/:formId', interventionCorrespController.addInterventionPlan);
+router.delete('/correspondence/delete/:formId', interventionCorrespController.deleteCorrespondenceForm);
+router.get('/getAutoFillForm/:smId',interventionCorrespController.getAutoFillData);
 module.exports = router;
