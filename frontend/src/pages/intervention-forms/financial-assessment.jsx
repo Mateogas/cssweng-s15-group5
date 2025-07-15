@@ -7,6 +7,7 @@ import Signature from "../../Components/Signature";
 import  {   fetchFinInterventionData,
             createFinancialForm,
             editFinancialForm,
+            fetchAutoFillFinancialData
         }
 from '../../fetch-connections/financialForm-connection'; 
 
@@ -62,8 +63,8 @@ function FinancialAssessmentForm() {
         const loadData = async () => {
             setLoading(true);
 
-            const returnData = await fetchFinInterventionData(caseID, formID);
-            const caseData = returnData.sponsored_member;
+            const returnData = await fetchAutoFillFinancialData(caseID);
+            const caseData = returnData.returningData;
 
             console.log(caseData)
 
