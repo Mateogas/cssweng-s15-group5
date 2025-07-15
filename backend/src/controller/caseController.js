@@ -289,7 +289,7 @@ const reassignSDW = async (req, res) => {
 
 const addNewCase = async (req, res) => {
     const newCaseData = req.body;
-    const sdwId = req.session?.user?._id || '6849646feaa08161083d1ad8';
+    const sdwId = req.session?.user?._id;
     
     if (!newCaseData) {
         return res.status(400).json({ message: 'Invalid case' });
@@ -885,7 +885,7 @@ module.exports = {
      getAllCases,
      getAllCaseViable,
      reassignSDW,
-     addNewCase, // Also add this if needed
+     addNewCase,
      editProblemsAndFindings,
      editAssessment,
      editEvaluationAndRecommendation,

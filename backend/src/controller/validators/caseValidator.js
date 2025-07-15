@@ -43,6 +43,11 @@ present_address: Joi.string().min(1).required().messages({
     'any.required': 'Place of birth is required'
   }),
 
+    assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
+    .messages({
+      'string.pattern.base': 'assigned_sdw must be a valid ObjectId'
+    }),
+
   civil_status: Joi.string().valid('Single', 'Married', 'Divorced', 'Widowed', 'Separated').required().messages({
     'any.only': 'Civil status must be one of Single, Married, Divorced, Widowed, or Separated',
     'any.required': 'Civil Status is required'
@@ -74,6 +79,7 @@ present_address: Joi.string().min(1).required().messages({
   history_problem: Joi.string().empty('').allow(null).optional(),
 
   evaluation: Joi.string().empty('').allow(null).optional(),
+  assessment: Joi.string().empty('').allow(null).optional(),
   
   classifications: Joi.array().items(Joi.string()).allow(null).default([]).optional(),
 });

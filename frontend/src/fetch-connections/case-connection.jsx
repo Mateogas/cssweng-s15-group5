@@ -28,6 +28,31 @@ var localID
 
 // ======== API calls ======== // 
 /**
+ * Creates a new Sponsored Member case
+ * @param {object} newCaseData - the case fields to send
+ * @returns {Promise<{ ok: boolean, data: object }>}
+ */
+export const createNewCase = async (newCaseData) => {
+  try {
+    const response = await fetch('/api/cases/case-create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newCaseData),
+    });
+
+    const data = await response.json();
+    return { ok: response.ok, data };
+
+  } catch (error) {
+    console.error('Error creating new case:', error);
+    return { ok: false, data: { message: 'Network error' } };
+  }
+};
+
+/**
  *   Fetches case data
  * 
  *   @param {*} caseID Case ID to fetch

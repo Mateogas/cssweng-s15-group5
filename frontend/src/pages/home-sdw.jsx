@@ -7,7 +7,7 @@ import { fetchSession } from "../fetch-connections/account-connection";
 import { useNavigate } from "react-router-dom";
 import { fetchHeadView, fetchSupervisorView, fetchSDWView } from "../fetch-connections/account-connection";
 
-function HomeSDW() {
+function HomeSDW(archive=false) {
     const navigate = useNavigate();
     const [allData, setAllData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -138,6 +138,8 @@ function HomeSDW() {
 
                 <div className="flex flex-col w-full gap-15 ml-[15rem]">
                     <div className="flex justify-between gap-10">
+                                    <h1>HOME SDW</h1>
+
                         <div className="flex gap-5 justify-between items-center w-full">
                             <div className="flex gap-5 w-full">
                                 {user?.role === "head" && <select

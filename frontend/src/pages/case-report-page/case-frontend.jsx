@@ -7,6 +7,7 @@ import SimpleModal from '../../Components/SimpleModal';
 import NavLabelButton from '../../components/NavLabelButton';
 
 import { fetchSession } from "../../fetch-connections/account-connection";
+import { createNewCase } from "../../fetch-connections/case-connection";
 
 // API Imports
 import {
@@ -22,7 +23,7 @@ import {
 }
     from '../../fetch-connections/case-connection';
 
-function CaseFrontend({creating = false}) {
+function CaseFrontend({ creating = false }) {
     console.log(creating);
 
     const navigate = useNavigate();
@@ -31,13 +32,13 @@ function CaseFrontend({creating = false}) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-    const loadSession = async () => {
-        const sessionData = await fetchSession();
-        setUser(sessionData?.user || null);
-        console.log("Session:", sessionData?.user);
-    };
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            setUser(sessionData?.user || null);
+            console.log("Session:", sessionData?.user);
+        };
 
-    loadSession();
+        loadSession();
     }, []);
 
     const [data, setData] = useState({
@@ -316,9 +317,9 @@ function CaseFrontend({creating = false}) {
     const [editingField, setEditingField] = useState(null);
 
     useEffect(() => {
-    if (creating) {
-        setEditingField("all");
-    }
+        if (creating) {
+            setEditingField("all");
+        }
     }, [creating]);
 
     const [currentSection, setCurrentSection] = useState("identifying-data");
@@ -389,13 +390,9 @@ function CaseFrontend({creating = false}) {
             console.log("checking sm num");
             const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
 
-            console.log(check.found);
-            console.log(check.data._id);
-            console.log(data._id);
+            console.log(check);
 
-            console.log(check.found && check.data._id !== data._id);
-
-            if (check.found && check.data._id !== data._id) {
+            if (check.found && check.data._id !== drafts.sm_number) {
                 missing.push(`SM Number already exists and belongs to another case`);
             }
 
@@ -464,6 +461,10 @@ function CaseFrontend({creating = false}) {
 
         if (!drafts.present_address || drafts.present_address.trim() === "") {
             missing.push("Present Address");
+        }
+
+        if (!drafts.pob || drafts.pob.trim() === "") {
+            missing.push("Place of Birth");
         }
 
         if (drafts.contact_no && drafts.contact_no.length !== 11) {
@@ -622,7 +623,49 @@ function CaseFrontend({creating = false}) {
 
     // }, [drafts])
 
-    console.log("EDITIGN FIELF", editingField);
+    const submitNewCase = async () => {
+        const coreValid = await checkCore();
+
+        if (!coreValid) {
+            setModalOnConfirm(() => () => {
+                document.getElementById("core-fields")?.scrollIntoView({ behavior: "smooth" });
+            });
+            return;
+        }
+
+        const identifyingValid = checkIdentifying();
+
+        if (!identifyingValid) {
+            setModalOnConfirm(() => () => {
+                document.getElementById("identifying-data")?.scrollIntoView({ behavior: "smooth" });
+            });
+            return;
+        }
+
+        const payload = {
+            ...drafts,
+            is_active: true,
+        };
+
+        console.log("Payload for new case:", payload);
+
+        const { ok, data } = await createNewCase(payload);
+        console.log("Create new case response:", data);
+
+
+        if (ok && data?.case?._id) {
+        showSuccess("New case created successfully!");
+        navigate(`/case/${data.case._id}`);
+        } else {
+        console.error("Invalid _id:", data.case);
+        setModalTitle("Error");
+        setModalBody(data.message || "An unexpected error occurred.");
+        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+        setModalConfirm(false);
+        setShowModal(true);
+        }
+
+    };
 
     return (
         <>
@@ -747,7 +790,7 @@ function CaseFrontend({creating = false}) {
                         </div>
                     )}
 
-                    {(editingField === "all" ||editingField === "core-fields") ? (
+                    {(editingField === "all" || editingField === "core-fields") ? (
                         <>
                             <div className="flex gap-5 w-full">
                                 <div className="flex flex-col gap-5 w-full">
@@ -826,7 +869,7 @@ function CaseFrontend({creating = false}) {
                     <div className="flex flex-wrap justify-between gap-10">
                         {/* SPU Project */}
                         <div className="flex w-full flex-col md:w-[48%]">
-                            {(editingField === "all" ||editingField === "core-fields") ? (
+                            {(editingField === "all" || editingField === "core-fields") ? (
                                 <>
                                     <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
                                     <select
@@ -1183,7 +1226,7 @@ function CaseFrontend({creating = false}) {
                                 </div>
 
                                 <div className="flex w-full flex-col gap-5">
-                                    <label className="font-bold-label">Present Address</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Present Address</label>
                                     <textarea
                                         className="text-input font-label resize-y min-h-[20rem]"
                                         placeholder="Present Address"
@@ -1194,7 +1237,7 @@ function CaseFrontend({creating = false}) {
                                 </div>
 
                                 <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Place of Birth</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Place of Birth</label>
                                     <input
                                         type="text"
                                         value={drafts.pob || ""}
@@ -1270,54 +1313,58 @@ function CaseFrontend({creating = false}) {
                 >
                     <h1 className="header-main">Family Composition</h1>
 
-                    {user?.role == "sdw" && <button
-                        className="btn-primary font-bold-label drop-shadow-base"
-                        onClick={handleAddFamilyMember}
-                        data-cy='add-family-member'
-                    >
-                        Add New Family Member
-                    </button>}
+                    {creating && <p className="font-label">Family Composition can be filled out on created cases.</p>}
 
-                    <div className="flex justify-between gap-10">
-                        <div
-                            // ref={sliderRef}
-                            className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
-                        // onMouseDown={handleMouseDown}
-                        // onMouseLeave={handleMouseLeave}
-                        // onMouseUp={handleMouseUp}
-                        // onMouseMove={handleMouseMove}
+                    {!creating && <>
+                        {user?.role == "sdw" && <button
+                            className="btn-primary font-bold-label drop-shadow-base"
+                            onClick={handleAddFamilyMember}
+                            data-cy='add-family-member'
                         >
-                            {familyMembers.map((member, index) => (
-                                <FamilyCard
-                                    key={index}
-                                    clientId={clientId}
-                                    index={index}
-                                    member={member}
-                                    selectedFamily={selectedFamily}
-                                    setSelectedFamily={setSelectedFamily}
-                                    editingFamilyValue={editingFamilyValue}
-                                    setEditingFamilyValue={
-                                        setEditingFamilyValue
-                                    }
-                                    familyMembers={familyMembers}
-                                    setFamilyMembers={setFamilyMembers}
-                                    handleDeleteFamilyMember={
-                                        handleDeleteFamilyMember
-                                    }
-                                    // setFamilyToDelete={setFamilyToDelete}
+                            Add New Family Member
+                        </button>}
 
-                                    setShowModal={setShowModal}
-                                    setModalTitle={setModalTitle}
-                                    setModalBody={setModalBody}
-                                    setModalImageCenter={setModalImageCenter}
-                                    setModalConfirm={setModalConfirm}
-                                    setModalOnConfirm={setModalOnConfirm}
+                        <div className="flex justify-between gap-10">
+                            <div
+                                // ref={sliderRef}
+                                className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
+                            // onMouseDown={handleMouseDown}
+                            // onMouseLeave={handleMouseLeave}
+                            // onMouseUp={handleMouseUp}
+                            // onMouseMove={handleMouseMove}
+                            >
+                                {familyMembers.map((member, index) => (
+                                    <FamilyCard
+                                        key={index}
+                                        clientId={clientId}
+                                        index={index}
+                                        member={member}
+                                        selectedFamily={selectedFamily}
+                                        setSelectedFamily={setSelectedFamily}
+                                        editingFamilyValue={editingFamilyValue}
+                                        setEditingFamilyValue={
+                                            setEditingFamilyValue
+                                        }
+                                        familyMembers={familyMembers}
+                                        setFamilyMembers={setFamilyMembers}
+                                        handleDeleteFamilyMember={
+                                            handleDeleteFamilyMember
+                                        }
+                                        // setFamilyToDelete={setFamilyToDelete}
 
-                                    editable={user.role}
-                                />
-                            ))}
+                                        setShowModal={setShowModal}
+                                        setModalTitle={setModalTitle}
+                                        setModalBody={setModalBody}
+                                        setModalImageCenter={setModalImageCenter}
+                                        setModalConfirm={setModalConfirm}
+                                        setModalOnConfirm={setModalOnConfirm}
+
+                                        editable={user.role}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    </>}
                 </section>
 
                 <section
@@ -1761,7 +1808,8 @@ function CaseFrontend({creating = false}) {
                     )}
                 </section>
 
-                {creating &&  <button onClick={() => {}} className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
+                {creating && <button className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
+                    onClick={submitNewCase}
                     data-cy='create-case'>
                     Create Case
                 </button>}
