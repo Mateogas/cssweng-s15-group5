@@ -43,23 +43,13 @@ import {
     fetchProgressReportsForCase
 } from "../../fetch-connections/progress-report-connection";
 
-function CaseFrontend({creating = false}) {
-    console.log(creating);
+function CaseFrontend({ creating = false }) {
+    // console.log(creating);
 
     const navigate = useNavigate();
     const { clientId } = useParams();
 
     const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const loadSession = async () => {
-            const sessionData = await fetchSession();
-            setUser(sessionData?.user || null);
-            console.log("Session:", sessionData?.user);
-        };
-
-        loadSession();
-    }, []);
 
     const [data, setData] = useState({
         first_name: "",
@@ -314,6 +304,26 @@ function CaseFrontend({creating = false}) {
         slider.scrollLeft -= walk;
     };
 
+    useEffect(() => {
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            const currentUser = sessionData?.user || null;
+            setUser(currentUser);
+            console.log("Session:", currentUser);
+
+            if (creating && currentUser) {
+                setDrafts(prev => ({
+                    ...prev,
+                    spu: currentUser.spu_id || "",
+                    assigned_sdw: currentUser._id || "",
+                }));
+            }
+        };
+        loadSession();
+    }, [creating]);
+
+    console.log(drafts);
+
     function calculateAge(dateValue) {
         const birthday = new Date(dateValue);
         const today = new Date();
@@ -406,31 +416,27 @@ function CaseFrontend({creating = false}) {
             missing.push("SM Number cannot be negative");
         }
 
-if (drafts.sm_number) {
-  const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
-  console.log("Fetched case by SM:", check);
+        if (drafts.sm_number) {
+            const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
+            console.log("Fetched case by SM:", check);
 
-  if (check.found) {
-    console.log(
-      "Comparing found sm_number:", String(check.data.sm_number),
-      "vs current draft sm_number:", String(drafts.sm_number)
-    );
+            if (check.found) {
+                console.log(
+                    "Comparing found sm_number:", String(check.data.sm_number),
+                    "vs current draft sm_number:", String(drafts.sm_number)
+                );
 
-    if (String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
-      // Same SM Number used by a different case → block
-      missing.push(`SM Number already exists and belongs to another case`);
-    } else {
-      // Same SM Number as current case → allow
-      console.log("SM Number belongs to same case — valid");
-    }
-  } else {
-    console.log("SM Number is unique — valid");
-  }
-}
-
-
-
-        console.log(missing);
+                if (String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
+                    // Same SM Number used by a different case → block
+                    missing.push(`SM Number already exists and belongs to another case`);
+                } else {
+                    // Same SM Number as current case → allow
+                    console.log("SM Number belongs to same case — valid");
+                }
+            } else {
+                console.log("SM Number is unique — valid");
+            }
+        }
 
         if (!drafts.spu) missing.push("SPU Project");
         if (!drafts.assigned_sdw) missing.push("Social Development Worker");
@@ -587,11 +593,11 @@ if (drafts.sm_number) {
             });
 
             console.log("Counselling Data: ", counsellingInterventions);
-    
+
             setCounsellings(counsellingInterventions);
         };
 
-        
+
         loadData();
     }, []);
 
@@ -621,11 +627,11 @@ if (drafts.sm_number) {
             });
 
             console.log("Financial Data: ", financialInterventions);
-    
+
             setFinancialAssistances(financialInterventions);
         };
 
-        
+
         loadData();
     }, []);
 
@@ -655,7 +661,7 @@ if (drafts.sm_number) {
             });
 
             console.log("Correspondence Data: ", correspondenceInterventions);
-    
+
             setCorrespondences(correspondenceInterventions);
         };
 
@@ -694,7 +700,7 @@ if (drafts.sm_number) {
             });
 
             console.log("Progress Report Data: ", progressReportsData);
-    
+
             setProgressReports(progressReportsData);
         };
 
@@ -782,15 +788,15 @@ if (drafts.sm_number) {
             is_active: true,
         };
 
-        console.log("Payload for new case:", payload);
+        // console.log("Payload for new case:", payload);
 
         const { ok, data } = await createNewCase(payload);
-        console.log("Create new case response:", data);
+        // console.log("Create new case response:", data);
 
 
         if (ok && data?.case?._id) {
             showSuccess("New case created successfully!");
-            navigate(`/case/${data.case._id}`);
+            navigate(`/`);
         } else {
             console.error("Invalid _id:", data.case);
             setModalTitle("Error");
@@ -1010,6 +1016,7 @@ if (drafts.sm_number) {
                                     <select
                                         className="text-input font-label"
                                         value={drafts.spu}
+                                        disabled={creating}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({
                                                 ...prev,
@@ -1049,6 +1056,7 @@ if (drafts.sm_number) {
                                     <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
                                     <select
                                         className="text-input font-label"
+                                        disabled={creating}
                                         value={drafts.assigned_sdw}
                                         onChange={(e) => {
                                             setDrafts((prev) => ({
@@ -1709,10 +1717,10 @@ if (drafts.sm_number) {
                                     ),
                                 )
                             ) : intervention_selected && (
-                                    <p className="body-base self-center mt-8">No Interventions Available</p>
-                                )
+                                <p className="body-base self-center mt-8">No Interventions Available</p>
+                            )
                             }
-                            <button 
+                            <button
                                 className="btn-primary label-base self-center mt-8"
                                 onClick={() =>
                                     handleNewIntervention(
@@ -1757,11 +1765,11 @@ if (drafts.sm_number) {
                                     <button
                                         key={index}
                                         onClick={() =>
-                                                handleProgressReportNavigation(
-                                                    clientId,
-                                                    item.formID,
-                                                )
-                                            }
+                                            handleProgressReportNavigation(
+                                                clientId,
+                                                item.formID,
+                                            )
+                                        }
                                         className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
                                         data-cy={`progress-report-item-${item.name}-${index}`}
                                     >
@@ -1776,7 +1784,7 @@ if (drafts.sm_number) {
                             ) : (
                                 <p className="body-base self-center mt-8">No Progress Reports Available</p>
                             )}
-                            <button 
+                            <button
                                 className="btn-primary label-base self-center mt-8"
                                 onClick={() =>
                                     handleNewProgressReport(

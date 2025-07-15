@@ -63,6 +63,21 @@ export const updateEmployeeById = async (employeeId, updatedData) => {
   }
 };
 
+export const fetchEmployeeBySDWId = async (sdwId) => {
+  try {
+    const response = await fetch(`/api/employees/by-sdw/${sdwId}`, {
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+    return { ok: response.ok, data };
+    
+  } catch (error) {
+    console.error('Error fetching employee by SDW ID:', error);
+    return { ok: false, data: { message: 'Network error' } };
+  }
+};
+
 export const updateEmployeePasswordById = async (employeeId, updatedPasswordData) => {
   try {
     const response = await fetch(`/api/employees/edit-password/${employeeId}`, {

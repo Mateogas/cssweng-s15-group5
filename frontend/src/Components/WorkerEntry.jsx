@@ -60,7 +60,7 @@ export default function WorkerEntry({
           <p>{sdw_id}</p>
         </div>
       </div>
-      <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Admin"}</p>
+      <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Head"}</p>
       <p className="text-center">{spu_id}</p>
     </a>
   );

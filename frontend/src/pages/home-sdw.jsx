@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import SideBar from "../Components/SideBar";
 import ClientEntry from "../Components/ClientEntry";
-import { fetchSession, fetchSDWViewById, fetchSupervisorView, fetchHeadViewBySpu, fetchHeadView } from "../fetch-connections/account-connection";
+import {
+  fetchSession,
+  fetchSDWViewById,
+  fetchSupervisorView,
+  fetchHeadViewBySpu,
+  fetchHeadView,
+} from "../fetch-connections/account-connection";
 import { useNavigate } from "react-router-dom";
 
 function HomeSDW() {
@@ -52,9 +58,8 @@ function HomeSDW() {
           console.log("Head view by SPU:", res);
           data = res.cases || [];
         } else {
-          const res = await fetchHeadView();
-          console.log("Head view:", res);
-          data = res.cases || [];
+          // Head role with no SPU selected → show none
+          data = [];
         }
       }
       console.log("Clients loaded:", data);
@@ -117,8 +122,9 @@ function HomeSDW() {
         <SideBar user={user} />
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <div className="flex justify-between gap-10">
+          <h1 className="header-main">Sponsored Member Cases</h1>
 
+          <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
                 {user?.role === "head" && (
@@ -148,7 +154,9 @@ function HomeSDW() {
 
                 <button
                   className="btn-outline font-bold-label"
-                  onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
+                  onClick={() =>
+                    setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
+                  }
                 >
                   <div className="icon-static-setup order-button"></div>
                 </button>
@@ -173,7 +181,11 @@ function HomeSDW() {
               <p className="font-bold-label text-center">SDW Assigned</p>
             </div>
 
-            {finalClients.length === 0 ? (
+            {user?.role === "head" && currentSPU === "" ? (
+              <p className="font-bold-label mx-auto">
+                No Sub-Project Unit Selected
+              </p>
+            ) : finalClients.length === 0 ? (
               <p className="font-bold-label mx-auto">No Clients Found</p>
             ) : (
               finalClients.map((client) => (

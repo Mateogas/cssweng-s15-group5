@@ -59,7 +59,7 @@ const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require(
 // };
 
 const getCaseById = async (req, res) => {
-  const id = req.params.id;
+     const id = req.params.id;
 
      try {
           //finds an id in our mongo
@@ -78,32 +78,32 @@ const getCaseById = async (req, res) => {
 };
 
 const getCaseBySMNumber = async (req, res) => {
-  const smNumber = req.params.sm_number;
+     const smNumber = req.params.sm_number;
 
-  console.log('[getCaseBySMNumber] Called with SM Number:', smNumber);
+     console.log('[getCaseBySMNumber] Called with SM Number:', smNumber);
 
-  try {
-    const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
-      .populate('assigned_sdw')
-      .lean();
+     try {
+          const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
+               .populate('assigned_sdw')
+               .lean();
 
-    console.log('[getCaseBySMNumber] Found:', caseItem);
+          console.log('[getCaseBySMNumber] Found:', caseItem);
 
-    if (!caseItem) {
-      return res.status(200).json({
-        found: false,
-        message: 'Case not found for given SM Number',
-      });
-    }
+          if (!caseItem) {
+               return res.status(200).json({
+                    found: false,
+                    message: 'Case not found for given SM Number',
+               });
+          }
 
-    res.status(200).json({
-      found: true,
-      data: caseItem,
-    });
-  } catch (error) {
-    console.error('[getCaseBySMNumber] Error:', error);
-    res.status(500).json({ message: 'Error fetching case', error: error.message });
-  }
+          res.status(200).json({
+               found: true,
+               data: caseItem,
+          });
+     } catch (error) {
+          console.error('[getCaseBySMNumber] Error:', error);
+          res.status(500).json({ message: 'Error fetching case', error: error.message });
+     }
 };
 
 
@@ -146,20 +146,20 @@ const getAllCaseViable = async (req, res) => {
  *   Gets all cases of social development worker
  *   returns name of sponsored member and id only
  */
-const getAllCasesbySDW = async(req,res)=>{
+const getAllCasesbySDW = async (req, res) => {
      const sdwId = req.params.sdwID;
-     if(!mongoose.Types.ObjectId.isValid(sdwId)){
-          return res.status(400).json({ message: "Invalid Social Development Worker Id"});
+     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
+          return res.status(400).json({ message: "Invalid Social Development Worker Id" });
      }
-     try{
+     try {
           const allCases = await Sponsored_Member.find({
                is_active: true,
                assigned_sdw: sdwId
           })
-          .populate('assigned_sdw')
-          .lean()
+               .populate('assigned_sdw')
+               .lean()
 
-          const simplifiedCases = allCases.map(c =>({
+          const simplifiedCases = allCases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
                sm_number: c.sm_number,
@@ -173,11 +173,11 @@ const getAllCasesbySDW = async(req,res)=>{
 
           res.status(200).json(simplifiedCases);
 
-     }catch(error){
-          console.error("Error fetching Cases for SDW: ",error);
+     } catch (error) {
+          console.error("Error fetching Cases for SDW: ", error);
           res.status(500).json({
-               message:"Error fetching Cases for SDW",
-               error:error.message
+               message: "Error fetching Cases for SDW",
+               error: error.message
           })
      }
 
@@ -197,7 +197,7 @@ const getAllCases = async (req, res) => {
                sm_number: c.sm_number,
                spu: c.spu,
                is_active: c.is_active,
-                assigned_sdw: c.assigned_sdw?._id || null,
+               assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
                     ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
                     : null
@@ -288,48 +288,50 @@ const reassignSDW = async (req, res) => {
  */
 
 const addNewCase = async (req, res) => {
-    const newCaseData = req.body;
-    const sdwId = req.session?.user?._id;
-    
-    if (!newCaseData) {
-        return res.status(400).json({ message: 'Invalid case' });
-    }
-    if(!mongoose.Types.ObjectId.isValid(sdwId)){
-        return res.status(400).json({message:'Invalid SDW'});
-    }
-    
-    try {
-        // First validate the raw data with our assigned_sdw
-        const dataToValidate = {
-            ...newCaseData,// Convert ObjectId to string for validation
-        };
-        
-        // Validate BEFORE creating the Mongoose model
-        const { error } = caseSchemaValidate.validate(dataToValidate);
-        if (error) {
-            return res.status(400).json({
-                message: 'Validation error',
-                details: error.details.map(detail => detail.message)
-            });
-        }
-        
-        // Only create the Mongoose model after validation passes
-          const caseToSave = {
-          ...newCaseData,
-          assigned_sdw: sdwId
+     const newCaseData = req.body;
+     const sdwId = req.session?.user?._id;
+     const spu_id = req.session?.user?.spu_id;
+
+     if (!newCaseData) {
+          return res.status(400).json({ message: 'Invalid case' });
+     }
+     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
+          return res.status(400).json({ message: 'Invalid SDW' });
+     }
+
+     try {
+          // First validate the raw data with our assigned_sdw
+          const dataToValidate = {
+               ...newCaseData,// Convert ObjectId to string for validation
           };
-        
-        const newCase = new Sponsored_Member(caseToSave);
-        const savedCase = await newCase.save();
-        
-        res.status(201).json({
-            message: 'New case created successfully',
-            case: savedCase
-        });
-    } catch (error) {
+
+          // Validate BEFORE creating the Mongoose model
+          const { error } = caseSchemaValidate.validate(dataToValidate);
+          if (error) {
+               return res.status(400).json({
+                    message: 'Validation error',
+                    details: error.details.map(detail => detail.message)
+               });
+          }
+
+          // Only create the Mongoose model after validation passes
+          const caseToSave = {
+               ...newCaseData,
+               assigned_sdw: sdwId,
+               spu_id: spu_id
+          };
+
+          const newCase = new Sponsored_Member(caseToSave);
+          const savedCase = await newCase.save();
+
+          res.status(201).json({
+               message: 'New case created successfully',
+               case: savedCase
+          });
+     } catch (error) {
           console.error('Error creating new case:', error);
           res.status(500).json({ message: 'Failed to create case', error });
-    }
+     }
 }
 
 /**
