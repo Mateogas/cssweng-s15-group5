@@ -18,6 +18,38 @@ const loadCaseClosureForm = async(req, res) => {
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
 
+          // assuming sessions is already set up
+          const active_user = req.session.user
+          // const active_user = await Employee.findById("68732fa1c9de746d02ac3755") 
+          if (!active_user)
+               return res.status(403).json({ message: "Unauthorized access." })
+
+          // check if it is the appropriate supervisor or head
+          const handler = await Employee.findById(caseSelected.assigned_sdw)
+          var supervisor
+          if (active_user.role == "super" || active_user.role == "supervisor") {
+               if (handler.role === "sdw") {
+                    supervisor = await Employee.findById(handler.manager);
+                    if (!supervisor || !supervisor._id.equals(active_user._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               } else if (handler.role === "super" || handler.role === "supervisor") {
+                    if (!handler._id.equals(active_user._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               } else if (handler.role === "head") {
+                    if (!active_user.manager || !active_user.manager.equals(handler._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               }
+          } 
+          else if (active_user.role == "head") {
+               // no further checks needed
+          }
+          else {
+               return res.status(403).json({ message: "Unauthorized access." })
+          }
+
           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
           if (formSelected)
                 return res.status(200).json({form: formSelected, case: caseSelected})
@@ -101,6 +133,32 @@ const loadExistingCaseClosureForm = async (req, res) => {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member (case) not found." });
+
+          // check if it is the appropriate supervisor or head
+          const handler = await Employee.findById(caseSelected.assigned_sdw)
+          var supervisor
+          if (active_user.role == "super" || active_user.role == "supervisor") {
+               if (handler.role === "sdw") {
+                    supervisor = await Employee.findById(handler.manager);
+                    if (!supervisor || !supervisor._id.equals(active_user._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               } else if (handler.role === "super" || handler.role === "supervisor") {
+                    if (!handler._id.equals(active_user._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               } else if (handler.role === "head") {
+                    if (!active_user.manager || !active_user.manager.equals(handler._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               }
+          } 
+          else if (active_user.role == "head") {
+               // no further checks needed
+          }
+          else {
+               return res.status(403).json({ message: "Unauthorized access." })
+          }
 
           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
           if (!formSelected)
@@ -221,7 +279,7 @@ const confirmCaseTermination = async (req, res) => {
 
           // assuming sessions is already set up
           const active_user = req.session.user
-          // const active_user = await Employee.findById("686e92a03c1f53d3ee65962d") // this id is the supervisor of the sdw assigned
+          // const active_user = await Employee.findById("686e92a03c1f53d3ee65962d") 
           if (!active_user)
                return res.status(403).json({ message: "Unauthorized access." })
 
@@ -245,20 +303,7 @@ const confirmCaseTermination = async (req, res) => {
                }
           } 
           else if (active_user.role == "head") {
-               if (handler.role == "sdw") {
-                    supervisor = await Employee.findById(handler.manager);
-                    if (!supervisor || !supervisor.manager.equals(active_user._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-               } else if (handler.role === "super" || handler.role === "supervisor") {
-                    if (!handler.manager.equals(active_user._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-               } else if (handler.role === "head") {
-                    if (!active_user._id.equals(handler._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-               }
+               // no further checks needed
           }
           else {
                return res.status(403).json({ message: "Unauthorized access." })
