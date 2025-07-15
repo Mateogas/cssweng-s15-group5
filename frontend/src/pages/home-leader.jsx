@@ -3,7 +3,7 @@ import SideBar from "../Components/SideBar";
 import WorkerEntry from "../Components/WorkerEntry";
 import RegisterWorker from "../Components/RegisterWorker";
 import { fetchAllSDWs } from "../fetch-connections/account-connection";
-import { fetchHeadViewBySpu, fetchSupervisorView, fetchSession } from "../fetch-connections/account-connection";
+import { fetchHeadViewBySpu, fetchSupervisorView, fetchHeadViewBySupervisor, fetchSession } from "../fetch-connections/account-connection";
 
 function HomeLeader() {
   const [allData, setAllData] = useState([]);
@@ -26,6 +26,33 @@ function HomeLeader() {
     { name: "MMP", projectCode: "MMP" },
   ];
 
+// useEffect(() => {
+//   const loadUserAndEmployees = async () => {
+//     const sessionData = await fetchSession();
+//     console.log("Session:", sessionData);
+//     setUser(sessionData.user);
+
+//     let employees = [];
+
+//     if (sessionData.user?.role === "head") {
+//       if (currentSPU) {
+//         employees = await fetchHeadViewBySpu(currentSPU);
+//         employees = employees.employees || [];
+//       }
+//     } else if (sessionData.user?.role === "super") {
+//       if (sessionData.user?.spu_id) {
+//         const data = await fetchSupervisorView();
+//         employees = data.employees || [];
+//       }
+//     }
+
+//     console.log("Fetched employees:", employees);
+//     setAllData(employees);
+//   };
+
+//   loadUserAndEmployees();
+// }, [currentSPU]);
+
 useEffect(() => {
   const loadUserAndEmployees = async () => {
     const sessionData = await fetchSession();
@@ -35,15 +62,15 @@ useEffect(() => {
     let employees = [];
 
     if (sessionData.user?.role === "head") {
-      if (currentSPU) {
-        employees = await fetchHeadViewBySpu(currentSPU);
-        employees = employees.employees || [];
-      }
-    } else if (sessionData.user?.role === "super") {
-      if (sessionData.user?.spu_id) {
-        const data = await fetchSupervisorView();
+      const spuToUse = currentSPU || sessionData.user?.spu_id;
+      console.log("Head view SPU:", spuToUse);
+      if (spuToUse) {
+        const data = await fetchHeadViewBySpu(spuToUse);
         employees = data.employees || [];
       }
+    } else if (sessionData.user?.role === "super") {
+      const data = await fetchHeadViewBySupervisor(sessionData.user._id);
+      employees = data || [];
     }
 
     console.log("Fetched employees:", employees);
@@ -53,36 +80,69 @@ useEffect(() => {
   loadUserAndEmployees();
 }, [currentSPU]);
 
+
+  // useEffect(() => {
+  //   let filtered = [...allData];
+
+  //   if (currentSPU !== "") {
+  //     filtered = filtered.filter((w) => w.spu_id === currentSPU);
+  //   }
+
+  //   if (searchQuery.trim() !== "") {
+  //     const query = searchQuery.toLowerCase();
+  //     filtered = filtered.filter((w) => {
+  //       const name = w.name?.toLowerCase() || "";
+  //       const idStr = w.sdw_id?.toString() || "";
+  //       return name.includes(query) || idStr.includes(query);
+  //     });
+  //   }
+
+  //   if (sortBy === "name") {
+  //     filtered.sort((a, b) => a.name.localeCompare(b.name));
+  //   } else if (sortBy === "sdw_id") {
+  //     filtered.sort((a, b) => a.sdw_id - b.sdw_id);
+  //   } else if (sortBy === "role") {
+  //     filtered.sort((a, b) => a.role.localeCompare(b.role));
+  //   }
+
+  //   if (sortOrder === "desc") {
+  //     filtered.reverse();
+  //   }
+
+  //   setCurrentData(filtered);
+  // }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
+
   useEffect(() => {
-    let filtered = [...allData];
+  let filtered = [...allData];
 
-    if (currentSPU !== "") {
-      filtered = filtered.filter((w) => w.spu_id === currentSPU);
-    }
+  if (currentSPU !== "") {
+    filtered = filtered.filter((w) => w.spu_id === currentSPU);
+  }
 
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((w) => {
-        const name = w.name?.toLowerCase() || "";
-        const idStr = w.sdw_id?.toString() || "";
-        return name.includes(query) || idStr.includes(query);
-      });
-    }
+  if (searchQuery.trim() !== "") {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter((w) => {
+      const name = `${w.first_name} ${w.middle_name || ""} ${w.last_name || ""}`.toLowerCase();
+      const idStr = w.sdw_id?.toString() || "";
+      return name.includes(query) || idStr.includes(query);
+    });
+  }
 
-    if (sortBy === "name") {
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === "sdw_id") {
-      filtered.sort((a, b) => a.sdw_id - b.sdw_id);
-    } else if (sortBy === "role") {
-      filtered.sort((a, b) => a.role.localeCompare(b.role));
-    }
+  if (sortBy === "name") {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortBy === "sdw_id") {
+    filtered.sort((a, b) => a.sdw_id - b.sdw_id);
+  } else if (sortBy === "role") {
+    filtered.sort((a, b) => a.role.localeCompare(b.role));
+  }
 
-    if (sortOrder === "desc") {
-      filtered.reverse();
-    }
+  if (sortOrder === "desc") {
+    filtered.reverse();
+  }
 
-    setCurrentData(filtered);
-  }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
+  setCurrentData(filtered);
+}, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
+
 
   return (
     <>
@@ -119,8 +179,6 @@ useEffect(() => {
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
           <div className="flex justify-between gap-10">
-            <h1>LEADER SDW</h1>
-
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
                 {user?.role == "head" && <select
