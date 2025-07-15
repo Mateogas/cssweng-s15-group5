@@ -78,7 +78,7 @@ useEffect(() => {
   };
 
   loadUserAndEmployees();
-}, [currentSPU]);
+}, [currentSPU, isRegisterOpen]);
 
 
   // useEffect(() => {
@@ -178,6 +178,7 @@ useEffect(() => {
         <SideBar user={user}/>
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
+          <h1 className="header-main">Teams</h1>
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
