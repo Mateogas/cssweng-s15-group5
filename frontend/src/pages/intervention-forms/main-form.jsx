@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 import FinancialAssessmentForm from "./financial-assessment";
-import CounsellingForm from "./counselling";
+import CounselingForm from "./counseling";
 import CorrespondenceForm from "./correspondence";
 import HomeVisitationForm from "./home-visitation";
 
@@ -11,24 +11,49 @@ function InterventionForm() {
     /********** TEST DATA **********/
 
     const interventions = [
-        "Home Visitation",
-        "Counselling",
-        "Financial Assistance",
-        "Correspondence",
+        {
+            name: "Home Visitation",
+            route: "home-visitation-form",
+        },
+        {
+            name: "Counseling",
+            route: "counseling-form",
+        },
+        {
+            name: "Financial Assistance",
+            route: "financial-assessment-form",
+        },
+        {
+            name: "Correspondence",
+            route: "correspondence-form",
+        },
     ];
 
     /********** TEST DATA **********/
 
     /********** USE STATES **********/
 
-    const [searchParams] = useSearchParams();
-    const defaultSelection = searchParams.get("selected") || "";
-    const [intervention_selected, setInterventionSelected] = useState(defaultSelection);
+    const { caseID } = useParams();
+    const defaultSelection = "";
+    const [intervention_selected, setInterventionSelected] =
+        useState(defaultSelection);
+
+    console.log("Case ID: ", caseID);
+
+    const navigate = useNavigate();
+
+    const handleSelectIntervention = (interventionName) => {
+        const selected = interventions.find(
+            (intervention) => intervention.name === interventionName
+        );
+
+        if (!selected) return;
+    };
 
     /********** USE STATES **********/
 
     return (
-        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg p-32">
+        <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg p-16">
             <section className="flex w-full justify-between">
                 <h3 className="header-md self-start">
                     Intervention/Helping Plan
@@ -37,31 +62,38 @@ function InterventionForm() {
                     name="services"
                     id="services"
                     value={intervention_selected}
-                    onChange={(e) => setInterventionSelected(e.target.value)}
+                    onChange={(e) => {
+                        setInterventionSelected(e.target.value);
+                        {/*handleSelectIntervention(e.target.value);*/}
+                    }}
                     className="label-base text-input max-w-96"
                 >
                     <option value="" className="body-base">
                         Select Intervention
                     </option>
-                    {interventions.map((service, index) => (
+                    {interventions.map((intervention, index) => (
                         <option
                             key={index}
-                            value={service}
+                            value={intervention.name}
                             className="body-base"
                         >
-                            {service}
+                            {intervention.name}
                         </option>
                     ))}
                 </select>
             </section>
 
             <section className="flex w-full justify-center">
-                {intervention_selected === "Home Visitation" && <HomeVisitationForm />}
-                {intervention_selected === "Counselling" && <CounsellingForm />}
-                {intervention_selected === "Financial Assistance" &&
-                    <FinancialAssessmentForm />}
-                {intervention_selected === "Correspondence" &&
-                    <CorrespondenceForm />}
+                {intervention_selected === "Home Visitation" && (
+                    <HomeVisitationForm />
+                )}
+                {intervention_selected === "Counseling" && <CounselingForm />}
+                {intervention_selected === "Financial Assistance" && (
+                    <FinancialAssessmentForm />
+                )}
+                {intervention_selected === "Correspondence" && (
+                    <CorrespondenceForm />
+                )}
             </section>
         </main>
     );

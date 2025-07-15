@@ -1,16 +1,28 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, DateInput, TextArea } from "../Components/TextField";
+import Signature from "../Components/Signature";
 
 // API Import
 import  {   fetchProgressReport, 
+            fetchCaseData,
             addProgressReport,
-            editProgressReport
+            editProgressReport,
+            deleteProgressReport,
         } 
 from '../fetch-connections/progress-report-connection'; 
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function ProgressReport() {
     /********** TEST DATA **********/
+
+    const query = useQuery();
+    const action = query.get('action') || ""; 
+    const caseID = query.get('caseID') || ""; 
+    const formID = query.get('formID') || ""; 
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -18,7 +30,7 @@ function ProgressReport() {
     
 
     const [data, setData] = useState({
-        form_num: "3",
+        form_num: "",
         first_name: "",
         middle_name: "",
         last_name: "",
@@ -42,11 +54,10 @@ function ProgressReport() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID
-            const returnData = await fetchProgressReport('686e92a43c1f53d3ee659636');
+            const returnData = await fetchCaseData(caseID);
             const caseData = returnData
 
-            console.log(caseData)
+            console.log("CaseData: ", caseData)
 
             setRawCaseData(caseData);
 
@@ -55,9 +66,9 @@ function ProgressReport() {
                 first_name: caseData.first_name || "",
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
-                ch_number: caseData.sm_number || "",
+                ch_number: caseData.ch_number || "",
                 dob: caseData.dob || "",
-                subproject: caseData.spu || "",
+                subproject: caseData.subproject || "",
             }));
 
             setLoading(false);
@@ -71,6 +82,7 @@ function ProgressReport() {
         setLastName(data.last_name || "");
         setCHNumber(data.ch_number || "");
         setDOB(data.dob || "");
+        setAge("");
         setSubproject(data.subproject || "");
     }, [data]);
 
@@ -78,24 +90,25 @@ function ProgressReport() {
 
     // < START :: View Form > //
 
-    // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 setLoading(true);
     
-                // [TO UPDATE] :: Case ID
-                const returnData = await fetchProgressReport('687172244bf09e0e26d6899a');
-                const formData = returnData
+                const returnData = await fetchProgressReport(formID);
+                const formData = returnData.progressReport
+                const report_number = returnData.reportNumber
     
                 console.log(formData)
+                console.log(returnData);
     
                 setRawFormData(formData);
     
                 setData((prev) => ({
                     ...prev,
+                    form_num: report_number || "",
                     sponsor_name: formData.sponsor_name || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     date_accomplished: formData.date_accomplished || "",
@@ -113,6 +126,7 @@ function ProgressReport() {
         }, []);
 
         useEffect(() => {
+            setFormNum(data.form_num || "");
             setSponsorName(data.sponsor_name || "");
             setSponsorshipDate(data.sponsorship_date || "");
             setDateAccomplished(data.date_accomplished || "");
@@ -131,6 +145,7 @@ function ProgressReport() {
             const date = new Date(data.dob);
             if (!isNaN(date)) {
                 setDOB(formatter.format(date));
+                setAge(calculateAge(date));
             }
         }
     }, [data]);
@@ -188,8 +203,7 @@ function ProgressReport() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await addProgressReport(payload, "6849646feaa08161083d1aec"); 
+        const response = await addProgressReport(payload, caseID); 
     };
 
     // < END :: Create Form > //
@@ -211,11 +225,18 @@ function ProgressReport() {
 
         console.log("Payload: ", updatedPayload);
 
-        // [TO UPDATE] :: Form ID
-        const response = await editProgressReport("687172244bf09e0e26d6899a", updatedPayload); 
+        const response = await editProgressReport(formID, updatedPayload); 
     };
 
     // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    const handleDelete = async () => {
+        const response = await deleteProgressReport(formID); 
+    };
+
+    // < END :: Delete Form > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -304,9 +325,17 @@ function ProgressReport() {
     // ===== END :: Functions ===== //
 
     return (
-        <main className="flex justify-center p-32">
+        <main className="flex justify-center w-full p-16">
             <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-                <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                </div>
                 <h3 className="header-md">Individual Progress Report</h3>
 
                 {/* Sponsored Member and General Info */}
@@ -484,28 +513,44 @@ function ProgressReport() {
                     )}
                 </section>
 
+                {/* Signature */}
+                <div className="flex w-full justify-between px-16 pt-24">
+                    <Signature label="Prepared by:" signer="SDW/SEDO/SPC"></Signature>
+                    <Signature label="Reviewed and Noted by:" signer="SPC/SDDH"></Signature>
+                </div>
+
                 {/* Buttons */}
                 <div className="flex w-full justify-center gap-20">
-                    <button
-                        className="btn-outline font-bold-label"
-                        onClick={() => navigate(-1)}
-                    >
-                        Cancel
-                    </button>
                     {viewForm ? (
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={handleUpdate}
-                        >
-                            Save Changes
-                        </button>
+                        <>
+                            <button
+                                className="label-base btn-outline font-bold-label"
+                                onClick={handleDelete}
+                            >
+                                Delete Report
+                            </button>
+                            <button
+                                className="btn-primary font-bold-label w-min"
+                                onClick={handleUpdate}
+                            >
+                                Save Changes
+                            </button>
+                        </>
                     ) : (
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={handleCreate}
-                        >
-                            Create Progress Report
-                        </button>
+                        <>
+                            <button
+                                className="btn-outline font-bold-label"
+                                onClick={() => navigate(-1)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="btn-primary font-bold-label w-min"
+                                onClick={handleCreate}
+                            >
+                                Create Progress Report
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

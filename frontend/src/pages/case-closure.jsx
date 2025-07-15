@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
+import Signature from "../Components/Signature";
 
 // API Import
 import  {   fetchCaseData,
@@ -9,9 +10,21 @@ import  {   fetchCaseData,
         }
 from '../fetch-connections/caseClosure-connection'; 
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function CaseClosure() {
 
+    // --- Temporary data --- //
+    const sdw_view = true;
+
     // ===== START :: Setting Data ===== // 
+
+    const query = useQuery();
+    const action = query.get('action') || ""; 
+    const caseID = query.get('caseID') || ""; 
+    const formID = query.get('formID') || ""; 
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -41,8 +54,7 @@ function CaseClosure() {
         const loadData = async () => {
             setLoading(true);
 
-            // [TO UPDATE] :: Case ID
-            const returnData = await fetchCaseData('6849646feaa08161083d1aec');
+            const returnData = await fetchCaseData(caseID);
             const caseData = returnData
 
             setRawCaseData(caseData);
@@ -79,16 +91,14 @@ function CaseClosure() {
 
     // < START :: View Form > //
     
-    // [TO UPDATE] :: Temporary state
-    const viewForm = true;
+    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 setLoading(true);
     
-                // [TO UPDATE] :: Case ID
-                const returnData = await fetchCaseClosureData('6849646feaa08161083d1aec', '68717bc34c9f29dbdfc5f51b');
+                const returnData = await fetchCaseClosureData(caseID, formID);
                 const formData = returnData.form
     
                 console.log("Form Data", formData)
@@ -189,9 +199,31 @@ function CaseClosure() {
 
         console.log("Payload: ", payload);
 
-        // [TO UPDATE] :: Case ID
-        const response = await createCaseClosureForm(payload, "6849646feaa08161083d1aec"); 
+        const response = await createCaseClosureForm(payload, caseID); 
     };
+
+    // < END :: Create Form > //
+    
+    // < START :: Edit Form > //
+
+    /*
+    const handleUpdate = async () => {
+        const payload = {
+            closure_date,
+            sponsorship_date,
+            reason_for_retirement,
+            sm_awareness,
+            sm_notification,
+            services_provided,
+            evaluation,
+            recommendation
+        };
+
+        console.log("Payload: ", payload);
+
+        const response = await createCaseClosureForm(payload, caseID); 
+    };
+    */
 
     // < END :: Create Form > //
 
@@ -334,9 +366,17 @@ function CaseClosure() {
     // ===== END :: Functions ===== //
 
      return (
-        <main className="flex w-full justify-center p-32">
+        <main className="flex w-full justify-center p-16">
             <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-                <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                </div>
                 <h3 className="header-md">Case Closure Report</h3>
 
                 {/* Sponsored Member and General Info */}
@@ -550,32 +590,71 @@ function CaseClosure() {
                     ></TextArea>
                 </section>
 
+                {/* Signature */}
+                <div className="flex w-full flex-col gap-16 px-16 pt-24">
+                    <div className="flex w-full justify-between">
+                        <Signature label="Prepared by:" signer="Social Development Worker" date={true}></Signature>
+                        <Signature label="Conforme by:" signer="SM/Guardian" date={true}></Signature>
+                    </div>
+                    
+                    <div className="flex w-full justify-between">
+                        <Signature label="Noted by:" signer="SPC Coordinator"date={true}></Signature>
+                    </div>
+                </div>
+
                 {/* Buttons */}
-                {viewForm ? (
-                    <div className="mt-10 flex w-[22.5rem] justify-between">
-                        <button
-                            className="btn-outline-rounded"
-                            onClick={() => navigate(-1)}
-                        >
-                            Go Back
-                        </button>
+                {sdw_view ? (
+                    <div className="flex w-full justify-center gap-20">
+                        {viewForm ? (
+                            <>
+                                <button
+                                    className="label-base btn-outline-rounded"
+                                    onClick={() => navigate(-1)}
+                                >
+                                    Delete Request
+                                </button>
+                                <button
+                                    className="label-base btn-primary"
+                                    onClick={() => setShowConfirm(true)}
+                                >
+                                    Save Changes
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    className="label-base btn-outline-rounded"
+                                    onClick={() => navigate(-1)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="label-base btn-primary"
+                                    onClick={() => setShowConfirm(true)}
+                                >
+                                    Create Request
+                                </button>
+                            </>
+                        )}
                     </div>
                 ) : (
-                    <div className="mt-10 flex w-[22.5rem] justify-between">
+                    <div className="flex w-full justify-center gap-20">
                         <button
-                            className="btn-outline-rounded"
+                            className="label-base btn-outline-rounded"
                             onClick={() => navigate(-1)}
                         >
-                            Cancel
+                            Reject Termination
                         </button>
                         <button
-                            className="btn-primary"
+                            className="label-base btn-primary"
                             onClick={() => setShowConfirm(true)}
                         >
-                            Close Case
+                            Approve Termination
                         </button>
                     </div>
+
                 )}
+            
 
                 {/* Confirm Close Case */}
                 {showConfirm && (
