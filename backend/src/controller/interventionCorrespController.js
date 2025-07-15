@@ -142,7 +142,7 @@ const getCorrespondenceForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate(interventions.intervention).lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('interventions.intervention').lean();
         const formData = await Intervention_Correspondence.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
@@ -166,7 +166,7 @@ const getCorrespondenceForm = async(req,res)=>{
                 present_address: sponsoredData.present_address,
                 spu:sponsoredData.spu,
             },
-            form:{...formData.
+            form:{...formData,
                 intervention_number
             }
         };
@@ -196,6 +196,8 @@ const getAllCorrespondenceInterventions = async (req, res) => {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
 
+        console.log("SM: ", sponsoredMember);
+
  
         const correspondenceInterventions = (sponsoredMember.interventions || [])
             .filter(i => i.interventionType === 'Intervention Correspondence')
@@ -204,6 +206,8 @@ const getAllCorrespondenceInterventions = async (req, res) => {
                 intervention_number: i.intervention_number,
                 createdAt: i.intervention ? i.intervention.createdAt : null
             }));
+
+        console.log("Corresp Data: ", correspondenceInterventions);
 
         return res.status(200).json(correspondenceInterventions);
     } catch (error) {
@@ -323,7 +327,9 @@ const getAutoFillData = async(req,res)=>{
             return res.status(404).json({message:'Not Found'});
         }
         const returningData = {
-            name: `${caseData.first_name}, ${caseData.middle_name} ${caseData.last_name}`,
+            last_name : caseData.last_name,
+            first_name: caseData.first_name,
+            middle_name: caseData.middle_name,
             sm_number:caseData.sm_number,
             spu:caseData.spu,
             dob : caseData.dob,

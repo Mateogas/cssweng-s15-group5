@@ -548,7 +548,7 @@ if (drafts.sm_number) {
     const [intervention_selected, setInterventionSelected] = useState("");
 
     const [home_visitations, setHomeVisitations] = useState([
-        {
+        /*{
             intervention: "Home Visitation",
             date: "May 05, 2025",
         },
@@ -559,7 +559,7 @@ if (drafts.sm_number) {
         {
             intervention: "Home Visitation",
             date: "June 02, 2025",
-        },
+        },*/
     ]);
 
     const [counsellings, setCounsellings] = useState([]);
