@@ -56,6 +56,7 @@ const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 
 const createAccountController = require('./controller/createAccountController');
+const profileRoute = require('../src/route/employeeRoute.js');
 const fetchingRoute = require('./route/fetchingRoute.js');
 /**
  *  ============ Routes ==============
