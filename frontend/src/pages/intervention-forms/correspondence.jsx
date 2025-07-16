@@ -8,6 +8,7 @@ import  {   fetchCorrespFormData,
             createCorrespForm,
             addCorrespInterventionPlan,
             editCorrespForm,
+            fetchAutoFillCorrespData
         }
 from '../../fetch-connections/correspFormConnection'; 
 
@@ -54,8 +55,8 @@ function CorrespondenceForm() {
         const loadData = async () => {
             setLoading(true);
 
-            const returnData = await fetchCorrespFormData(caseID, formID);
-            const caseData = returnData.sponsored_member
+            const returnData = await fetchAutoFillCorrespData(caseID);
+            const caseData = returnData.returningData;
 
             console.log("Case Data: ", caseData)
 
@@ -104,6 +105,7 @@ function CorrespondenceForm() {
                 const formData = returnFormData.form;
     
                 console.log("form Data", formData);
+                console.log("FORM ID: ", formID);
     
                 setRawFormData(formData);
     
@@ -438,9 +440,38 @@ function CorrespondenceForm() {
             </div>
 
             {/* Buttons */}
-            <div className="flex w-[22.5rem] justify-between">
-                <button className="btn-outline-rounded">Cancel</button>
-                <button className="btn-primary">Create Intervention</button>
+            <div className="flex w-full justify-center gap-20">
+                {viewForm ? (
+                    <>
+                        <button
+                            className="btn-outline font-bold-label"
+                            onClick={() => navigate(-1)} 
+                        >
+                            Delete Form
+                        </button>
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleUpdate}
+                        >
+                            Save Changes
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <button
+                            className="btn-outline font-bold-label"
+                            onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleCreate}
+                        >
+                            Create Intervention
+                        </button>
+                    </>
+                )}
             </div>
         </main>
     );

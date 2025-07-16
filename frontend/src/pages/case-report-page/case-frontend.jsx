@@ -554,7 +554,7 @@ function CaseFrontend({ creating = false }) {
     const [intervention_selected, setInterventionSelected] = useState("");
 
     const [home_visitations, setHomeVisitations] = useState([
-        {
+        /*{
             intervention: "Home Visitation",
             date: "May 05, 2025",
         },
@@ -565,7 +565,7 @@ function CaseFrontend({ creating = false }) {
         {
             intervention: "Home Visitation",
             date: "June 02, 2025",
-        },
+        },*/
     ]);
 
     const [counsellings, setCounsellings] = useState([]);

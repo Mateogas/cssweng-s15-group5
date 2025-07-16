@@ -7,6 +7,7 @@ import Signature from "../../Components/Signature";
 import  {   fetchFinInterventionData,
             createFinancialForm,
             editFinancialForm,
+            fetchAutoFillFinancialData
         }
 from '../../fetch-connections/financialForm-connection'; 
 
@@ -62,8 +63,8 @@ function FinancialAssessmentForm() {
         const loadData = async () => {
             setLoading(true);
 
-            const returnData = await fetchFinInterventionData(caseID, formID);
-            const caseData = returnData.sponsored_member;
+            const returnData = await fetchAutoFillFinancialData(caseID);
+            const caseData = returnData.returningData;
 
             console.log(caseData)
 
@@ -384,26 +385,36 @@ function FinancialAssessmentForm() {
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
-                <button
-                    className="label-base btn-outline font-bold-label"
-                    onClick={() => navigate(-1)}
-                >
-                    Cancel
-                </button>
                 {viewForm ? (
-                    <button
-                        className="label-base btn-primary font-bold-label w-min"
-                        onClick={handleUpdate}
-                    >
-                        Save Changes
-                    </button>
+                    <>
+                        <button
+                            className="btn-outline font-bold-label"
+                            onClick={() => navigate(-1)} 
+                        >
+                            Delete Form
+                        </button>
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleUpdate}
+                        >
+                            Save Changes
+                        </button>
+                    </>
                 ) : (
-                    <button
-                        className="label-base btn-primary font-bold-label w-min"
-                        onClick={handleCreate}
-                    >
-                        Create Intervention
-                    </button>
+                    <>
+                        <button
+                            className="btn-outline font-bold-label"
+                            onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="btn-primary font-bold-label w-min"
+                            onClick={handleCreate}
+                        >
+                            Create Intervention
+                        </button>
+                    </>
                 )}
             </div>
         </main>
