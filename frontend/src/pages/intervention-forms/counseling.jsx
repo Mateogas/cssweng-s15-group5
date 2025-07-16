@@ -168,7 +168,7 @@ function CounselingForm() {
 
     const handleDelete = async () => {
 
-        const response = await deleteCounselingIntervention(updatedPayload, formID); 
+        const response = await deleteCounselingIntervention(formID); 
     };
 
     // < END :: Delete Form > //
@@ -204,6 +204,7 @@ function CounselingForm() {
         data?.recommendation || "",
     );
     const [sm_comments, setSMComments] = useState(data?.sm_comments || "");
+    const [showConfirm, setShowConfirm] = useState(false);
 
     // ===== END :: Use States ===== //
 
@@ -245,7 +246,7 @@ function CounselingForm() {
                     </button>
                     <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 </div>
-            <h3 className="header-md">Counseling Form</h3>
+            <h3 className="header-md">Counselling Form</h3>
 
             {/* Sponsored Member and General Info */}
             <section className="flex w-full flex-col gap-16">
@@ -294,7 +295,8 @@ function CounselingForm() {
                                 <textarea
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="text-area"
+                                    disabled={true}
+                                    className={"body-base text-input w-96 cursor-not-allowed bg-gray-200"}
                                 ></textarea>
                             </div>
                         </div>
@@ -376,13 +378,18 @@ function CounselingForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={handleDelete}
+                            onClick={() => 
+                                setShowConfirm(true)
+                            }
                         >
                             Delete Form
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={handleUpdate}
+                            onClick={async () => {
+                                await handleUpdate();
+                                navigate(-1);
+                            }}
                         >
                             Save Changes
                         </button>
@@ -405,6 +412,40 @@ function CounselingForm() {
                             Create Intervention
                         </button>
                     </>
+                )}
+
+                {/* Confirm Delete Form */}
+                {showConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-md font-semibold mb-4">Delete Form</h2>
+                            <p className="label-base mb-6">Are you sure you want to delete this form?</p>
+                            <div className="flex justify-end gap-4">
+                                
+                                {/* Cancel */}
+                                <button
+                                    onClick={() => 
+                                        setShowConfirm(false)
+                                    }
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Cancel
+                                </button>
+
+                                {/* Delete Form */}
+                                <button
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        setShowConfirm(false);
+                                        navigate(-1);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </main>
