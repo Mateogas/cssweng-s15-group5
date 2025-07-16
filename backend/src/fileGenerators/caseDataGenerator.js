@@ -78,6 +78,54 @@ const generateCaseData = async (req, res) => {
 
 		
         // Fetch intervention data
+        let formattedInterventions = [];
+        const interventions = await Promise.all(
+            sponsoredMember.interventions.map(async (intervention) => {
+                let interventionData;
+                let formattedIntervention = {
+                    intervention_number: intervention.intervention_number,
+                    interventionType: ''
+                };
+
+                // TODO: FORMAT EACH INTERVENTION TYPE
+                try {
+                    switch (intervention.interventionType) {
+                        case 'Intervention Correspondence':
+                            formattedIntervention.interventionType = 'Correspondence';
+                            interventionData = await Intervention_Correspondence.findById(intervention.intervention);
+                            formattedIntervention.correspondence = interventionData;
+                            break;
+                        case 'Intervention Counseling':
+                            formattedIntervention.interventionType = 'Counseling';
+                            interventionData = await Intervention_Counseling.findById(intervention.intervention);
+                            formattedIntervention.counseling = interventionData;
+                            break;
+                        case 'Intervention Financial Assessment':
+                            formattedIntervention.interventionType = 'Financial Assessment';
+                            interventionData = await Intervention_Financial_Assessment.findById(intervention.intervention);
+                            formattedIntervention.financial = interventionData;
+                            break;
+                        case 'Intervention Home Visit':
+                            formattedIntervention.interventionType = 'Home Visit';
+                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention);
+                            formattedIntervention.homevisit = interventionData;
+                            break;
+                        default:
+                            console.warn(`Unknown intervention type: ${intervention.interventionType}`);
+                            return null;
+                    }
+                    return formattedIntervention;
+                } catch (error) {
+                    console.error(`Error fetching intervention ${intervention.intervention}:`, error);
+                    return null;
+                }
+            })
+        );
+
+        // Filter out any null results from failed queries
+        formattedInterventions = interventions.filter(intervention => intervention !== null);
+        console.log('FORMATTED INTERVENTIONS', formattedInterventions);
+
         // Fetch progress reports
 
 		// Format data for the document
