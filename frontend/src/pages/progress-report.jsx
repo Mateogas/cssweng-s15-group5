@@ -271,6 +271,8 @@ function ProgressReport() {
         data?.participation || "",
     );
     const [relation_to_sponsor, setRelationToSponsor] = useState({});
+    const [showConfirm, setShowConfirm] = useState(false);
+
 
     // ===== END :: Use States ===== //
 
@@ -524,14 +526,19 @@ function ProgressReport() {
                     {viewForm ? (
                         <>
                             <button
-                                className="label-base btn-outline font-bold-label"
-                                onClick={handleDelete}
+                                className="btn-outline font-bold-label"
+                                onClick={() => 
+                                    setShowConfirm(true)
+                                }
                             >
-                                Delete Report
+                                Delete Form
                             </button>
                             <button
                                 className="btn-primary font-bold-label w-min"
-                                onClick={handleUpdate}
+                                onClick={async () => {
+                                    await handleUpdate();
+                                    navigate(-1);
+                                }}
                             >
                                 Save Changes
                             </button>
@@ -547,13 +554,47 @@ function ProgressReport() {
                             <button
                                 className="btn-primary font-bold-label w-min"
                                 onClick={async () => {
-                                await handleCreate();
-                                navigate(-1);
-                            }}
+                                    await handleCreate();
+                                    navigate(-1);
+                                }}
                             >
-                                Create Progress Report
+                                Create Report
                             </button>
                         </>
+                    )}
+
+                    {/* Confirm Delete Form */}
+                    {showConfirm && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                            <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                                <h2 className="header-md font-semibold mb-4">Delete Report</h2>
+                                <p className="label-base mb-6">Are you sure you want to delete this report?</p>
+                                <div className="flex justify-end gap-4">
+                                    
+                                    {/* Cancel */}
+                                    <button
+                                        onClick={() => 
+                                            setShowConfirm(false)
+                                        }
+                                        className="btn-outline font-bold-label"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    {/* Delete Form */}
+                                    <button
+                                        onClick={async () => {
+                                            await handleDelete();
+                                            setShowConfirm(false);
+                                            navigate(-1);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
