@@ -111,7 +111,7 @@ const getAllSDWs = async (req, res) => {
      try {
           console.log('Fetching all employees...');
           const employees = await Employee.find();
-          console.log('Employees found:', employees);
+          //console.log('Employees found:', employees);
           res.json(employees);
      } catch (error) {
           console.error('Failed to fetch employees:', error);

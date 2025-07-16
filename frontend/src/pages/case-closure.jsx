@@ -358,11 +358,6 @@ function CaseClosure() {
         return age;
     }
 
-    const closeCase = () => {
-        console.log("Deleted!");
-        setShowConfirm(false);
-    };
-
     // ===== END :: Functions ===== //
 
      return (
@@ -690,39 +685,6 @@ function CaseClosure() {
                     </div>
                 )}
             </div>
-
-            {/* Confirm Close Case */}
-            {showConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-2xl mx-4 gap-8">
-                        <h2 className="header-md font-semibold mb-4">Close Case</h2>
-                        <p className="label-base mb-6">Are you sure you want to close this case?</p>
-                        <div className="flex justify-end gap-4">
-                            
-                            {/* Cancel */}
-                            <button
-                                onClick={() => 
-                                    setShowConfirm(false)
-                                }
-                                className="px-4 py-2 text-gray-600 hover:text-black"
-                            >
-                                Cancel
-                            </button>
-
-                            {/* Close Case */}
-                            <button
-                                onClick={() => {
-                                    closeCase;
-                                    navigate(-1);
-                                }}
-                                className="px-4 py-2 btn-primary"
-                            >
-                                Confirm
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </main>
     );
 }

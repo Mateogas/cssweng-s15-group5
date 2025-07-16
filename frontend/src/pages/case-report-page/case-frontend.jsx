@@ -85,7 +85,7 @@ function CaseFrontend({ creating = false }) {
             if (!clientId) return;
 
             const fetchedData = await fetchCaseData(clientId);
-            console.log("FETCHED DATA", fetchedData);
+            //console.log("FETCHED DATA", fetchedData);
 
             setData({
                 ...fetchedData,
@@ -322,7 +322,7 @@ function CaseFrontend({ creating = false }) {
         loadSession();
     }, [creating]);
 
-    console.log(drafts);
+    //console.log(drafts);
 
     function calculateAge(dateValue) {
         const birthday = new Date(dateValue);
@@ -573,7 +573,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
-            console.log("Fetched Counselling: ", fetchedCounsellingData);
+            //console.log("Fetched Counselling: ", fetchedCounsellingData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -592,7 +592,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Counselling Data: ", counsellingInterventions);
+            //console.log("Counselling Data: ", counsellingInterventions);
 
             setCounsellings(counsellingInterventions);
         };
@@ -606,7 +606,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedFinancialData = await fetchAllFinInterventions(clientId);
-            console.log("Fetched Financial: ", fetchedFinancialData);
+            //console.log("Fetched Financial: ", fetchedFinancialData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -626,7 +626,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Financial Data: ", financialInterventions);
+            //console.log("Financial Data: ", financialInterventions);
 
             setFinancialAssistances(financialInterventions);
         };
@@ -640,7 +640,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedCorrespondenceData = await fetchAllCorrespInterventions(clientId);
-            console.log("Fetched Correspondence: ", fetchedCorrespondenceData);
+            //console.log("Fetched Correspondence: ", fetchedCorrespondenceData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -660,7 +660,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Correspondence Data: ", correspondenceInterventions);
+            //console.log("Correspondence Data: ", correspondenceInterventions);
 
             setCorrespondences(correspondenceInterventions);
         };
@@ -680,7 +680,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedProgressData = await fetchProgressReportsForCase(clientId);
-            console.log("Fetched Progress Reports: ", fetchedProgressData);
+            //console.log("Fetched Progress Reports: ", fetchedProgressData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -699,7 +699,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Progress Report Data: ", progressReportsData);
+            //console.log("Progress Report Data: ", progressReportsData);
 
             setProgressReports(progressReportsData);
         };

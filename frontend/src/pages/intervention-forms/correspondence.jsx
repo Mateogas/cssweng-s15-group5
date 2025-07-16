@@ -8,7 +8,8 @@ import  {   fetchCorrespFormData,
             createCorrespForm,
             addCorrespInterventionPlan,
             editCorrespForm,
-            fetchAutoFillCorrespData
+            fetchAutoFillCorrespData,
+            deleteCorrespInterventionForm
         }
 from '../../fetch-connections/correspFormConnection'; 
 
@@ -209,12 +210,12 @@ function CorrespondenceForm() {
 
     // < START :: Delete Form > //
 
-    /*
+    
     const handleDelete = async () => {
         
-        const response = await editCorrespForm(formID, updatedPayload); 
+        const response = await deleteCorrespInterventionForm(formID); 
     };
-    */
+    
 
     // < END :: Delete Form > //
 
@@ -242,6 +243,8 @@ function CorrespondenceForm() {
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
     );
+    const [showConfirm, setShowConfirm] = useState(false);
+    
 
     // ===== END :: Use States ===== // 
 
@@ -417,6 +420,103 @@ function CorrespondenceForm() {
                 ></TextArea>
             </section>
 
+            {/* Intervention Plan */}
+            <section className="flex w-full flex-col gap-16">
+                <h3 className="header-md">Intervention Plan</h3>
+                <div className="flex flex-col gap-2">
+                    <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
+                        <div className="flex justify-between px-4 gap-6 pr-30">
+                            <p className="label-base w-lg">Actions</p>
+                            <p className="label-base w-sm">Time Frame</p>
+                            <p className="label-base w-lg">Results</p>
+                            <p className="label-base w-lg">
+                                Person Responsible
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col flex-wrap gap-4">
+                        {intervention_plans.map((item, index) => (
+                            <div
+                                key={index}
+                                className="flex w-full justify-between items-center px-4 gap-6"
+                            >
+                                <div className="flex w-lg">
+                                    <TextArea
+                                        value={item.action}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "action",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-sm">
+                                    <TextArea
+                                        value={item.time_frame}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "time_frame",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-lg">
+                                    <TextArea
+                                        value={item.results}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "results",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <div className="flex w-lg">
+                                    <TextArea
+                                        value={item.person_responsible}
+                                        handleChange={(e) => {
+                                            updateIntervention(
+                                                index,
+                                                "person_responsible",
+                                                e.target.value,
+                                            );
+                                            handleChange("Intervention Plan")(e);
+                                        }}
+                                        showTime={false}
+                                    ></TextArea>
+                                </div>
+                                <button
+                                    onClick={() => deleteIntervention(index)}
+                                    className="icon-button-setup trash-button px-10"
+                                ></button>
+                            </div>
+                        ))}
+                    </div>
+                    {savedTime && sectionEdited === "Intervention Plan" && (
+                        <p className="text-sm self-end mt-2">{savedTime}</p>
+                    )}
+                </div>
+                <button
+                    name="add_intervention"
+                    id="add_intervention"
+                    onClick={handleAddIntervention}
+                    className="btn-primary font-bold-label self-center"
+                >
+                    Add Intervention
+                </button>
+            </section>
+
             {/* Recommendation */}
             <section className="flex w-full items-end">
                 <TextArea
@@ -445,13 +545,18 @@ function CorrespondenceForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={() => navigate(-1)} 
+                            onClick={() => 
+                                setShowConfirm(true)
+                            }
                         >
                             Delete Form
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={handleUpdate}
+                            onClick={async () => {
+                                await handleUpdate();
+                                navigate(-1);
+                            }}
                         >
                             Save Changes
                         </button>
@@ -474,6 +579,40 @@ function CorrespondenceForm() {
                             Create Intervention
                         </button>
                     </>
+                )}
+
+                {/* Confirm Delete Form */}
+                {showConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-md font-semibold mb-4">Delete Form</h2>
+                            <p className="label-base mb-6">Are you sure you want to delete this form?</p>
+                            <div className="flex justify-end gap-4">
+                                
+                                {/* Cancel */}
+                                <button
+                                    onClick={() => 
+                                        setShowConfirm(false)
+                                    }
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Cancel
+                                </button>
+
+                                {/* Close Case */}
+                                <button
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        setShowConfirm(false);
+                                        navigate(-1);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </main>
