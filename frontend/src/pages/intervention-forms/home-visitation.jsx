@@ -10,6 +10,7 @@ import {
     fetchFormData,
     createHomeVis,
     editHomeVis,
+    deleteHomeVis,
 } from "../../fetch-connections/homeVisitation-connection";
 
 
@@ -59,7 +60,7 @@ function HomeVisitationForm() {
         mother_income: "",
         sm_progress: "",
         family_progress: "",
-        recommendation: "",
+        recommendations: "",
         agreement: "",
     });
 
@@ -152,7 +153,7 @@ function HomeVisitationForm() {
                     ...prev,
                     grade_year_course: formData.grade_year_course || "",
                     years_in_program: formData.years_in_program || "",
-                    date: formData.createdAt || "",
+                    date: formData.date || "",
                     community: formData.community || "",
                     sponsor_name: formData.sponsor_name || "",
                     family_type: formData.family_type || "",
@@ -160,7 +161,7 @@ function HomeVisitationForm() {
                     family_progress: formData.family_progress || "",
                     observation_findings: formData.observation_findings || [],
                     interventions: formData.interventions || [],
-                    recommendation: formData.recommendations || "",
+                    recommendations: formData.recommendations || "",
                     agreement: formData.agreement || "",
                 }));
 
@@ -180,7 +181,7 @@ function HomeVisitationForm() {
             setFamilyProgress(data.family_progress || "");
             setObservationFindings(data.observation_findings || []);
             setInterventions(data.interventions || []);
-            setRecommendation(data.recommendation || "");
+            setRecommendation(data.recommendations || "");
             setAgreement(data.agreement || "");
         }, [data]);
     }
@@ -241,7 +242,7 @@ function HomeVisitationForm() {
 
             sm_progress,
             family_progress,
-            recommendation,
+            recommendations,
             agreement,
 
             familyMembers,
@@ -291,7 +292,7 @@ function HomeVisitationForm() {
 
             sm_progress,
             family_progress,
-            recommendation,
+            recommendations,
             agreement,
 
             familyMembers,
@@ -305,6 +306,15 @@ function HomeVisitationForm() {
     };
 
     // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+    
+    const handleDelete = async () => {
+
+        const response = await deleteHomeVis(formID); 
+    };
+
+    // < END :: Delete Form > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -449,13 +459,14 @@ function HomeVisitationForm() {
     const [family_progress, setFamilyProgress] = useState(
         data?.family_progress || "",
     );
-    const [recommendation, setRecommendation] = useState(
-        data?.recommendation || "",
+    const [recommendations, setRecommendation] = useState(
+        data?.recommendations || "",
     );
     const [agreement, setAgreement] = useState(data?.agreement || "");
 
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [editingFamilyValue, setEditingFamilyValue] = useState({});
+    const [showConfirm, setShowConfirm] = useState(false);
 
     // ===== END :: Use States ===== //
 
@@ -791,12 +802,12 @@ function HomeVisitationForm() {
                 )}
             </section>
 
-            {/* Recommendation and Agreement */}
+            {/* Recommendations and Agreement */}
             <section className="flex w-full flex-col gap-8">
                 <div className="flex w-full gap-16">
                     <TextArea
                         label="Recommendations"
-                        value={recommendation}
+                        value={recommendations}
                         setValue={setRecommendation}
                     ></TextArea>
                     <TextArea
@@ -819,13 +830,18 @@ function HomeVisitationForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={() => navigate(-1)} 
+                            onClick={() => 
+                                setShowConfirm(true)
+                            }
                         >
                             Delete Form
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={handleUpdate}
+                            onClick={async () => {
+                                await handleUpdate();
+                                navigate(-1);
+                            }}
                         >
                             Save Changes
                         </button>
@@ -848,6 +864,40 @@ function HomeVisitationForm() {
                             Create Intervention
                         </button>
                     </>
+                )}
+
+                {/* Confirm Delete Form */}
+                {showConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-md font-semibold mb-4">Delete Form</h2>
+                            <p className="label-base mb-6">Are you sure you want to delete this form?</p>
+                            <div className="flex justify-end gap-4">
+                                
+                                {/* Cancel */}
+                                <button
+                                    onClick={() => 
+                                        setShowConfirm(false)
+                                    }
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Cancel
+                                </button>
+
+                                {/* Delete Form */}
+                                <button
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        setShowConfirm(false);
+                                        navigate(-1);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </main>

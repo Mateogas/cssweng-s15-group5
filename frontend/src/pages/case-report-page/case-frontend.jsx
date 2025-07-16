@@ -42,6 +42,7 @@ import {
 import {
     fetchProgressReportsForCase
 } from "../../fetch-connections/progress-report-connection";
+import { fetchAllHomeVisitForms } from "../../fetch-connections/homeVisitation-connection";
 
 function CaseFrontend({ creating = false }) {
     // console.log(creating);
@@ -553,20 +554,37 @@ function CaseFrontend({ creating = false }) {
 
     const [intervention_selected, setInterventionSelected] = useState("");
 
-    const [home_visitations, setHomeVisitations] = useState([
-        /*{
-            intervention: "Home Visitation",
-            date: "May 05, 2025",
-        },
-        {
-            intervention: "Home Visitation",
-            date: "May 23, 2025",
-        },
-        {
-            intervention: "Home Visitation",
-            date: "June 02, 2025",
-        },*/
-    ]);
+    const [home_visitations, setHomeVisitations] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedHomeVisitData = await fetchAllHomeVisitForms(clientId);
+            console.log("Fetched Home Visit: ", fetchedHomeVisitData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const homeVisitInterventions = fetchedHomeVisitData.interventions.map(item => {
+                const date = new Date(item.intervention.createdAt);
+
+                return {
+                    formID: item.intervention._id,
+                    route: "home-visitation-form",
+                    intervention: item.interventionType,
+                    date: isNaN(date) ? '' : formatter.format(date),
+                };
+            });
+
+            console.log("Home Visitation Forms: ", homeVisitInterventions);
+
+            setHomeVisitations(homeVisitInterventions);
+        };
+
+        loadData();
+    }, []);
 
     const [counsellings, setCounsellings] = useState([]);
 

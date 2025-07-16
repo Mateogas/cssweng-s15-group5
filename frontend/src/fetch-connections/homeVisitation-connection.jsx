@@ -35,6 +35,22 @@ export const fetchFormData = async (caseID, formID) => {
     }
 };
 
+export const fetchAllHomeVisitForms = async (caseID) => {
+    try {
+        const response = await fetch(`/api/intervention/home-visit-form/all/${caseID}`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch home visit interventions");
+        }
+
+        const interventions = await response.json();
+        return interventions;
+    } catch (error) {
+        console.error("Error fetching home visit interventions:", error);
+        throw error;
+    }
+}
+
 export const createHomeVis = async (createdData, caseID) => {
     try {
         const response = await fetch(
@@ -80,3 +96,24 @@ export const editHomeVis = async (updatedData, caseID, formID) => {
         return null;
     }
 };
+
+export const deleteHomeVis = async (formID) => {
+    try {
+        const response = await fetch(`/api/intervention/delete/home-visit-form/${formID}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to delete home visit intervention");
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("Error deleting home visit intervention:", error);
+        throw error;
+    }
+}
