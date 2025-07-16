@@ -5,6 +5,8 @@ const router = express.Router();
 
 const { createAccount } = require('../controller/createAccountController');
 
-router.post('/create-account', createAccount);
+const isAuthenticated = require('../middlewares/isAuthenticated');
+
+router.post('/create-account', isAuthenticated, createAccount);
 
 module.exports = router;
