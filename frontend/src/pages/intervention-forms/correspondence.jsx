@@ -599,7 +599,7 @@ function CorrespondenceForm() {
                                     Cancel
                                 </button>
 
-                                {/* Close Case */}
+                                {/* Delete Form */}
                                 <button
                                     onClick={async () => {
                                         await handleDelete();
