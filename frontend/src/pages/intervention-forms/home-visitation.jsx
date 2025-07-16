@@ -840,7 +840,10 @@ function HomeVisitationForm() {
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={handleCreate}
+                            onClick={async () => {
+                                await handleCreate();
+                                navigate(-1);
+                            }}
                         >
                             Create Intervention
                         </button>

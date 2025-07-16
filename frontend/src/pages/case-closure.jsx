@@ -676,9 +676,10 @@ function CaseClosure() {
 
                                 {/* Close Case */}
                                 <button
-                                    onClick={() => {
-                                        handleCreate();
+                                    onClick={async () => {
+                                        await handleCreate();
                                         setShowConfirm(false);
+                                        navigate(-1);
                                     }}
                                     className="px-4 py-2 btn-primary"
                                 >
