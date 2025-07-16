@@ -43,6 +43,7 @@ function CaseClosure() {
         closure_date: "",
         sponsorship_date: "",
         reason_for_retirement: "",
+        sm_awareness: "",
         sm_notification: "",
         evaluation: "",
         recommendation: "",
@@ -273,6 +274,9 @@ function CaseClosure() {
     );
     const [reason_for_retirement, setReasonForRetirement] = useState(
         data?.reason_for_retirement || "",
+    );
+    const [sm_awareness, setSMAwareness] = useState(
+        data?.sm_notification || "",
     );
     const [sm_notification, setSMNotification] = useState(
         data?.sm_notification || "",
@@ -603,14 +607,18 @@ function CaseClosure() {
                         {viewForm ? (
                             <>
                                 <button
-                                    className="label-base btn-outline-rounded"
-                                    onClick={() => navigate(-1)}
+                                    className="btn-outline font-bold-label"
+                                    onClick={() => 
+                                        navigate(-1) /* Replace with Delete */
+                                    }
                                 >
                                     Delete Request
                                 </button>
                                 <button
-                                    className="label-base btn-primary"
-                                    onClick={() => setShowConfirm(true)}
+                                    className="btn-primary font-bold-label w-min"
+                                    onClick={() => {
+                                        navigate(-1); /* Replace with Update */
+                                    }}
                                 >
                                     Save Changes
                                 </button>
@@ -618,14 +626,17 @@ function CaseClosure() {
                         ) : (
                             <>
                                 <button
-                                    className="label-base btn-outline-rounded"
+                                    className="btn-outline font-bold-label"
                                     onClick={() => navigate(-1)}
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    className="label-base btn-primary"
-                                    onClick={() => setShowConfirm(true)}
+                                    className="btn-primary font-bold-label w-min"
+                                    onClick={async () => {
+                                        await handleCreate();
+                                        navigate(-1);
+                                    }}
                                 >
                                     Create Request
                                 </button>
@@ -636,7 +647,7 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         <button
                             className="label-base btn-outline-rounded"
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate(-1)} /* Replace with Delete */
                         >
                             Reject Termination
                         </button>
@@ -647,14 +658,13 @@ function CaseClosure() {
                             Approve Termination
                         </button>
                     </div>
-
                 )}
             
 
                 {/* Confirm Close Case */}
                 {showConfirm && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-2xl mx-4 gap-8">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
                             <h2 className="header-md font-semibold mb-4">Close Case</h2>
                             <p className="label-base mb-6">Are you sure you want to close this case?</p>
                             <div className="flex justify-end gap-4">
@@ -664,7 +674,7 @@ function CaseClosure() {
                                     onClick={() => 
                                         setShowConfirm(false)
                                     }
-                                    className="px-4 py-2 text-gray-600 hover:text-black"
+                                    className="btn-outline font-bold-label"
                                 >
                                     Cancel
                                 </button>
@@ -676,7 +686,7 @@ function CaseClosure() {
                                         setShowConfirm(false);
                                         navigate(-1);
                                     }}
-                                    className="px-4 py-2 btn-primary"
+                                    className="btn-primary font-bold-label"
                                 >
                                     Confirm
                                 </button>

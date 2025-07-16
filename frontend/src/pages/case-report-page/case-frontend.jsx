@@ -725,6 +725,15 @@ function CaseFrontend({ creating = false }) {
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
+    const handleCaseTermination = (caseID) => {
+
+        const path = `/case-closure/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
     const handleInterventionNavigation = (intervention, caseID, formID) => {
 
         const path = `/${intervention}/?action=view&caseID=${caseID}&formID=${formID}`;
@@ -1991,7 +2000,13 @@ function CaseFrontend({ creating = false }) {
                     Create Case
                 </button>}
 
-                {!creating && <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                {!creating && 
+                    <button 
+                        onClick={() =>
+                            handleCaseTermination(
+                                clientId
+                            )} 
+                        className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
                     data-cy='terminate-case'>
                     Terminate Case
                 </button>}
