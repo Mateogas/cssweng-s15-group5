@@ -42,7 +42,7 @@ const deleteAccount = async (req, res) => {
      
      // Supervisor must not have SDWs under them and active cases
      if (account_selected.role === "super" || account_selected.role === "Super" ||  account_selected.role === "Supervisor") {
-          SVexists = await Employee.exists({ manager: account_id });
+          SVexists = await Employee.exists({ manager: account_selected._id });
           SDWexists = await Sponsored_Member.exists({
                assigned_sdw: account_selected._id,
                is_active: true
@@ -56,7 +56,7 @@ const deleteAccount = async (req, res) => {
 
      // Head must not have supervisors/SDWs under them and active cases
      if (account_selected.role === "head" || account_selected.role === "Head") {
-          SVexists = await Employee.exists({ manager: account_id });
+          SVexists = await Employee.exists({ manager: account_selected._id });
           SDWexists = await Sponsored_Member.exists({
                assigned_sdw: account_selected._id,
                is_active: true
