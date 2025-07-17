@@ -5,11 +5,9 @@ export const fetchCaseData = async (caseID) => {
         );
 
         if (!response.ok) throw new Error("API error");
-
         const rawData = await response.json();
 
-        const otherFamily = rawData.otherFamily;
-
+        // Transform family datat to fit family card
         const transformedFamily = rawData.otherFamily.map((family) => ({
             first: family.first_name,
             last: family.last_name,
@@ -22,8 +20,8 @@ export const fetchCaseData = async (caseID) => {
             status: family.status,
             age: family.age,
         }));
+        rawData.transformedFamily = transformedFamily;
 
-        rawData.otherFamily = transformedFamily;
         return rawData;
     } catch (err) {
         console.error("Error fetching case data:", err);

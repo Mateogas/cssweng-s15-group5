@@ -78,8 +78,6 @@ function HomeVisitationForm() {
             const motherData = returnData.mother
             const otherFamilyData = returnData.otherFamily
 
-            console.log("Case Data: ", caseData);
-
             setRawCaseData(caseData);
             setRawFatherData(fatherData);
             setRawMotherData(motherData);
@@ -104,7 +102,7 @@ function HomeVisitationForm() {
                 mother_income: motherData?.income || "",
             }));
 
-            setFamilyMembers(otherFamilyData);
+            setFamilyMembers(returnData.transformedFamily);
             setLoading(false);
         };
         loadData();
