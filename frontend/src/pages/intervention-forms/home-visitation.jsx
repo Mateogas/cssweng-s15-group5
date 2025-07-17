@@ -102,7 +102,10 @@ function HomeVisitationForm() {
                 mother_income: motherData?.income || "",
             }));
 
-            setFamilyMembers(returnData.transformedFamily);
+            if (returnData.transformedFamily)
+                setFamilyMembers(returnData.transformedFamily);
+            else 
+                setFamilyMembers(otherFamilyData);
             setLoading(false);
         };
         loadData();

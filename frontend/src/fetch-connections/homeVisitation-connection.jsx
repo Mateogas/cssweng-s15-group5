@@ -36,9 +36,8 @@ export const fetchFormData = async (caseID, formID) => {
         );
 
         if (!response.ok) throw new Error("API error");
-
         const rawData = await response.json();
-
+        
         return rawData;
     } catch (err) {
         console.error("Error fetching form data:", err);
