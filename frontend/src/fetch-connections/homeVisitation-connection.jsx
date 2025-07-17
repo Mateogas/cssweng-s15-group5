@@ -7,8 +7,23 @@ export const fetchCaseData = async (caseID) => {
         if (!response.ok) throw new Error("API error");
 
         const rawData = await response.json();
-        // localID = rawData.case._id
 
+        const otherFamily = rawData.otherFamily;
+
+        const transformedFamily = rawData.otherFamily.map((family) => ({
+            first: family.first_name,
+            last: family.last_name,
+            middle: family.middle_name,
+            income: family.income,
+            occupation: family.occupation,
+            education: family.edu_attainment,
+            relationship: family.relationship_to_sm,
+            civilStatus: family.civil_status,
+            status: family.status,
+            age: family.age,
+        }));
+
+        rawData.otherFamily = transformedFamily;
         return rawData;
     } catch (err) {
         console.error("Error fetching case data:", err);
@@ -25,8 +40,6 @@ export const fetchFormData = async (caseID, formID) => {
         if (!response.ok) throw new Error("API error");
 
         const rawData = await response.json();
-        // rawData.dob = new Date(rawData.dob).toISOString().split("T")[0];
-        // localID = rawData.case._id
 
         return rawData;
     } catch (err) {
@@ -37,7 +50,9 @@ export const fetchFormData = async (caseID, formID) => {
 
 export const fetchAllHomeVisitForms = async (caseID) => {
     try {
-        const response = await fetch(`/api/intervention/home-visit-form/all/${caseID}`);
+        const response = await fetch(
+            `/api/intervention/home-visit-form/all/${caseID}`,
+        );
 
         if (!response.ok) {
             throw new Error("Failed to fetch home visit interventions");
@@ -49,7 +64,7 @@ export const fetchAllHomeVisitForms = async (caseID) => {
         console.error("Error fetching home visit interventions:", error);
         throw error;
     }
-}
+};
 
 export const createHomeVis = async (createdData, caseID) => {
     try {
@@ -99,12 +114,15 @@ export const editHomeVis = async (updatedData, caseID, formID) => {
 
 export const deleteHomeVis = async (formID) => {
     try {
-        const response = await fetch(`/api/intervention/delete/home-visit-form/${formID}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
+        const response = await fetch(
+            `/api/intervention/delete/home-visit-form/${formID}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
             },
-        });
+        );
 
         if (!response.ok) {
             throw new Error("Failed to delete home visit intervention");
@@ -116,4 +134,4 @@ export const deleteHomeVis = async (formID) => {
         console.error("Error deleting home visit intervention:", error);
         throw error;
     }
-}
+};
