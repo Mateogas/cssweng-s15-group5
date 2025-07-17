@@ -30,15 +30,19 @@ const Employee = require("../model/employee");
 const createAccount = async (req, res) => {
     try {
         const { sdw_id, username, password, email, contact_no, spu_id, role, manager } = req.body;
-        // const { _id } = req.session.user;
     
         // console.log("REQ.BODY", req.body);
 
+        // Check if user is logged in
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({ message: "Authentication required." });
+        }
+
         // Check if the logged-in user is a head
-        // if (req.session.user.role !== "Head") {
-        //     return res.status(403).json({ message: "Only heads can create accounts." });
-        // }
-    
+        if (req.session.user.role !== "head") {
+            return res.status(403).json({ message: "Only heads can create accounts." });
+        }
+
         // Validate required fields
         if (!sdw_id || !username || !password || !email || !contact_no || !spu_id || !role) {
             return res.status(400).json({ message: "All fields are required." });
