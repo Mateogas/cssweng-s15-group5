@@ -16,6 +16,11 @@ function calculateAge(dateValue) {
     return age;
 }
 
+function formatDate(date) {
+	if (!date) return '';
+	return newDate(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+}
+
 /* Return format:
 {
 	name_of_sponsor: String,
@@ -27,14 +32,22 @@ function calculateAge(dateValue) {
 }
 */
 function formatCorrespondenceData(correspondence) {
-
+	if (!correspondence) return {};
+    // console.log('formatCorrespondenceData', correspondence);
+    return {
+		name_of_sponsor: correspondence.name_of_sponsor || '',
+		date_of_sponsorship: formatDate(correspondence.date_of_sponsorship) || '',
+		identified_problem: correspondence.identified_problem || '',
+		assesment: correspondence.assesment || '',
+		objective: correspondence.objective || '',
+		recommendation: correspondence.recommendation || '',
+	}
 }
 
 /* Return format:
 {
 	grade_year_level: String,
 	school: String,
-	address: String,
 	counseling_date: Date,
 	area_self_help: String,
 	reason_for_counseling: String,
@@ -44,7 +57,18 @@ function formatCorrespondenceData(correspondence) {
 }
 */
 function formatCounselingData(counseling) {
-
+	if (!counseling) return {};
+    // console.log('formatCounselingData', counseling);
+    return {
+		grade_year_level: counseling.grade_year_level || '',
+		school: counseling.school || '',
+		counseling_date: formatDate(counseling.counseling_date) || '',
+		area_self_help: counseling.area_self_help || '',
+		reason_for_counseling: counseling.reason_for_counseling || '',
+		corrective_action: counseling.corrective_action || '',
+		recommendation: counseling.recommendation || '',
+		sm_comments: counseling.sm_comments || '',
+	}
 }
 
 /* Return format:
@@ -66,7 +90,38 @@ function formatCounselingData(counseling) {
 }
 */
 function formatFinancialData(financial) {
-
+    if (!financial) return {};
+	// console.log('formatFinancialData', financial);
+	const type_of_assistance = financial.type_of_assistance;
+	let formatted_type_of_assistance = {
+			a1: '',
+			a2: '',
+			a3: '',
+			a4: '',
+			a5: '',
+			a6: '',
+			a7: '',
+			a8: '',
+			other: '',
+		};
+	if (type_of_assistance) {
+		formatted_type_of_assistance = {
+			a1: type_of_assistance.includes('Funeral Assistance to the Family Member') ? '✓' : '',
+			a2: type_of_assistance.includes('Funeral Assistance to the Sponsored Member') ? '✓' : '',
+			a3: type_of_assistance.includes('Medical Assistance to the Family Member') ? '✓' : '',
+			a4: type_of_assistance.includes('Medical Assistance to the Sponsored Member') ? '✓' : '',
+			a5: type_of_assistance.includes('Food Assistance') ? '✓' : '',
+			a6: type_of_assistance.includes('Home Improvement/Needs') ? '✓' : '',
+			a7: type_of_assistance.includes('IGP Capital') ? '✓' : '',
+			a8: type_of_assistance.includes('Other: Please Indicate Below') ? '✓' : '',
+			other: financial.other_assistance_detail || '',
+		}
+	}
+    return {
+		type_of_assistance: formatted_type_of_assistance,
+		problem_presented: financial.problem_presented || '',
+		recommendation: financial.recommendation || '',
+	}
 }
 
 /* Return format:
@@ -102,7 +157,9 @@ function formatFinancialData(financial) {
 }
 */
 function formatHomeVisitData(homevisit) {
-
+    if (!homevisit) return {};
+	// console.log('formatHomeVisitData', homevisit);
+    return homevisit
 }
 
 /*
@@ -125,7 +182,8 @@ function formatHomeVisitData(homevisit) {
 }
 */
 function formatProgressReport(report) {
-
+    console.log('formatProgressReport', report);
+    return report
 }
 
 module.exports = {
