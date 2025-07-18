@@ -95,8 +95,8 @@ function formatFinancialData(financial) {
 	},
 	sm_progress: String,
 	family_progress: String,
-	observation_findings: [String],
-	interventions: [String],
+	observation_findings: String,
+	interventions: String,
 	recommendations: String,
 	agreement: String,
 }

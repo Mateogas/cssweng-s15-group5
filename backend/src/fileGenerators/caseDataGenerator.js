@@ -48,79 +48,11 @@ const {
 		{
 			intervention_number: Number,
 			interventionType: String,
-			correspondence: Object,
-				// If interventionType is 'Intervention Correspondence'
-				{
-					name_of_sponsor: String,
-					date_of_sponsorship: Date,
-					identified_problem: String,
-					assesment: String,
-					objective: String,
-					recommendation: String,
-				}
-			counseling: Object,
-				// If interventionType is 'Intervention Counseling'
-				{
-					grade_year_level: String,
-					school: String,
-					address: String,
-					counseling_date: Date,
-					area_self_help: String,
-					reason_for_counseling: String,
-					corrective_action: String,
-					recommendation: String,
-					sm_comments: String,
-				}
-			financial: Object,
-				// If interventionType is 'Intervention Financial Assessment'
-				{
-					type_of_assistance: {
-						// a1 to a8 is either '✓' or ''
-						a1: String,
-						a2: String,
-						a3: String,
-						a4: String,
-						a5: String,
-						a6: String,
-						a7: String,
-						a8: String,
-						other: String,
-					},
-					problem_presented: String,
-					recommendation: String,
-				}
-			homevisit: Object,
-				// If interventionType is 'Intervention Home Visit'
-				{
-					grade_year_course: String,
-					years_in_program: String,
-					family_type: String,
-					father: {
-						name: String,
-						occupation: String,
-						income: String,
-					},
-					mother: {
-						name: String,
-						occupation: String,
-						income: String,
-					},
-					otherFamily: {
-						name: String,
-						age: String,
-						civil_status: String,
-						relationship_to_sm: String,
-						occupation: String,
-						edu_attainment: String,
-						income: String,
-					},
-					sm_progress: String,
-					family_progress: String,
-					observation_findings: [String],
-					interventions: [String],
-					recommendations: String,
-					agreement: String,
-				}
+			correspondence: Object, // If interventionType is 'Intervention Correspondence'
+			counseling: Object, // If interventionType is 'Intervention Counseling'
+			financial: Object, // If interventionType is 'Intervention Financial Assessment'
+			homevisit: Object, // If interventionType is 'Intervention Home Visit'
+			// Refer to helpers.js for the structure of these objects
 		}
 	progress_reports: [Object],
 		{
