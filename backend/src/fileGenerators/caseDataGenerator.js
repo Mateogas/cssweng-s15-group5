@@ -26,18 +26,223 @@ function calculateAge(dateValue) {
     return age;
 }
 
+/* Return format:
+{
+	name_of_sponsor: String,
+	date_of_sponsorship: Date,
+	identified_problem: String,
+	assesment: String,
+	objective: String,
+	recommendation: String,
+}
+*/
 function formatCorrespondeceData(correspondence) {
 
 }
+
+/* Return format:
+{
+	grade_year_level: String,
+	school: String,
+	address: String,
+	counseling_date: Date,
+	area_self_help: String,
+	reason_for_counseling: String,
+	corrective_action: String,
+	recommendation: String,
+	sm_comments: String,
+}
+*/
 function formatCounselingData(counseling) {
 
 }
+
+/* Return format:
+{
+	type_of_assistance: {
+		// a1 to a8 is either '✓' or ''
+		a1: String,
+		a2: String,
+		a3: String,
+		a4: String,
+		a5: String,
+		a6: String,
+		a7: String,
+		a8: String,
+		other: String,
+	},
+	problem_presented: String,
+	recommendation: String,
+}
+*/
 function formatFinancialData(financial) {
 
 }
+
+/* Return format:
+{
+	grade_year_course: String,
+	years_in_program: String,
+	family_type: String,
+	father: {
+		name: String,
+		occupation: String,
+		income: String,
+	},
+	mother: {
+		name: String,
+		occupation: String,
+		income: String,
+	},
+	otherFamily: {
+		name: String,
+		age: String,
+		civil_status: String,
+		relationship_to_sm: String,
+		occupation: String,
+		edu_attainment: String,
+		income: String,
+	},
+	sm_progress: String,
+	family_progress: String,
+	observation_findings: [String],
+	interventions: [String],
+	recommendations: String,
+	agreement: String,
+}
+*/
 function formatHomeVisitData(homevisit) {
 
 }
+
+/**
+ * @params
+ * 	- id: The ID of the sponsored member
+ * 
+ * @returns {Object} - The case data for the sponsored member
+ * @throws {Error} - If the sponsored member ID is invalid or not found
+ */
+/* The structure of the returned object is as follows:
+{
+	last_name: String,
+	first_name: String,
+	middle_name: String,
+	sex: String,
+	present_address: String,
+	dob: Date,
+	pob: String,
+	age: Number,
+	civil_status: String,
+	edu_attainment: String,
+	religion: String,
+	occupation: String,	
+	contact_no: String,
+	classification: String,
+	family_members: Array,
+	problem_presented: String,
+	history_problem: String,
+	observation_findings: String,
+	assessment: String,
+	interventions: [Object],
+		{
+			intervention_number: Number,
+			interventionType: String,
+			correspondence: Object,
+				// If interventionType is 'Intervention Correspondence'
+				{
+					name_of_sponsor: String,
+					date_of_sponsorship: Date,
+					identified_problem: String,
+					assesment: String,
+					objective: String,
+					recommendation: String,
+				}
+			counseling: Object,
+				// If interventionType is 'Intervention Counseling'
+				{
+					grade_year_level: String,
+					school: String,
+					address: String,
+					counseling_date: Date,
+					area_self_help: String,
+					reason_for_counseling: String,
+					corrective_action: String,
+					recommendation: String,
+					sm_comments: String,
+				}
+			financial: Object,
+				// If interventionType is 'Intervention Financial Assessment'
+				{
+					type_of_assistance: {
+						// a1 to a8 is either '✓' or ''
+						a1: String,
+						a2: String,
+						a3: String,
+						a4: String,
+						a5: String,
+						a6: String,
+						a7: String,
+						a8: String,
+						other: String,
+					},
+					problem_presented: String,
+					recommendation: String,
+				}
+			homevisit: Object,
+				// If interventionType is 'Intervention Home Visit'
+				{
+					grade_year_course: String,
+					years_in_program: String,
+					family_type: String,
+					father: {
+						name: String,
+						occupation: String,
+						income: String,
+					},
+					mother: {
+						name: String,
+						occupation: String,
+						income: String,
+					},
+					otherFamily: {
+						name: String,
+						age: String,
+						civil_status: String,
+						relationship_to_sm: String,
+						occupation: String,
+						edu_attainment: String,
+						income: String,
+					},
+					sm_progress: String,
+					family_progress: String,
+					observation_findings: [String],
+					interventions: [String],
+					recommendations: String,
+					agreement: String,
+				}
+		}
+	progress_reports: [Object],
+		{
+			report_num: Number,
+			sponsor_name: String,
+			sponsorship_date: Date,
+			date_accomplished: Date,
+			period_covered: String,
+			sm_update: String,
+			family_update: String,
+			services_to_family: String,
+			participation: String,
+			relation_to_sponsor: {
+				// Can only be 'Yes', 'Sometimes', or 'No'
+				know_sponsor_name: String,
+				cooperative: String,
+				personalized_letter: String,
+			}
+		}
+	evaluation: String,
+	recommendation: String,
+}
+*/
 const generateCaseData = async (req, res) => {
     try {
 		const sponsoredMemberId = req.params.id;
