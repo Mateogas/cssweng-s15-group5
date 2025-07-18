@@ -3,9 +3,13 @@
  *   @param {*} caseID Case selected
  *   @returns Sponsored member object
  */
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 export const fetchCaseData = async(caseID) => {
      try {
-          const response = await fetch(`/api/case-closure/${caseID}`);
+          const response = await fetch(`${apiUrl}/case-closure/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
           
           if (!response.ok) 
                throw new Error('API error');
@@ -29,7 +33,10 @@ export const fetchCaseData = async(caseID) => {
 
 export const fetchCaseClosureData = async (caseId, formId) => {
     try {
-        const response = await fetch(`/api/case-closure/${caseId}/${formId}`);
+        const response = await fetch(`${apiUrl}/case-closure/${caseId}/${formId}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
         if (!response.ok) throw new Error('API error');
         return await response.json();
     } catch (error) {
@@ -40,7 +47,7 @@ export const fetchCaseClosureData = async (caseId, formId) => {
 
 export const createCaseClosureForm = async(createdData, caseID) => {
      try {
-          const response = await fetch(`/api/create/case-closure/${caseID}`, {
+          const response = await fetch(`${apiUrl}/create/case-closure/${caseID}`, {
                method: 'PUT',
                headers: {
                'Content-Type': 'application/json',

@@ -63,9 +63,11 @@ const logoutUser = async (req, res) => {
      return res.status(200).json(true);
 };
 
+
+
 module.exports = {
      loginUser,
-     logoutUser
+     logoutUser,
 };
 
 /**
@@ -78,9 +80,4 @@ module.exports = {
  */
 const signUpUser = async (req, res) => {
      // code here
-}
-
-module.exports = {
-     loginUser,
-     logoutUser
 }

@@ -1,11 +1,14 @@
+
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 // ========== COUNSELING INTERVENTION CONNECTION ==========
 export const fetchCaseData = async (caseID) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/add/${caseID}`, {
+        const response = await fetch(`${apiUrl}/intervention/counseling/add/${caseID}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials:'include',
         });
 
         if (!response.ok) {
@@ -32,7 +35,10 @@ export const fetchCaseData = async (caseID) => {
 
 export const fetchCounselingIntervention = async (counselingId) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/intervention/${counselingId}`);
+        const response = await fetch(`${apiUrl}/intervention/counseling/intervention/${counselingId}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
 
         if (!response.ok) {
             throw new Error("Failed to fetch counseling intervention");
@@ -48,7 +54,10 @@ export const fetchCounselingIntervention = async (counselingId) => {
 
 export const fetchAllCounselingInterventionsByMemberId = async (memberID) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/member/${memberID}`);
+        const response = await fetch(`${apiUrl}/intervention/counseling/member/${memberID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
 
         if (!response.ok) {
             throw new Error("Failed to fetch counseling interventions");
@@ -64,11 +73,12 @@ export const fetchAllCounselingInterventionsByMemberId = async (memberID) => {
 
 export const addCounselingIntervention = async (data, caseID) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/add/${caseID}`, {
+        const response = await fetch(`${apiUrl}/intervention/counseling/add/${caseID}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials:'include',
             body: JSON.stringify(data),
         });
 
@@ -86,11 +96,12 @@ export const addCounselingIntervention = async (data, caseID) => {
 
 export const editCounselingIntervention = async (data, counselingId) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/edit/${counselingId}`, {
+        const response = await fetch(`${apiUrl}/intervention/counseling/edit/${counselingId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials:"include",
             body: JSON.stringify(data),
         });
 
@@ -108,11 +119,12 @@ export const editCounselingIntervention = async (data, counselingId) => {
 
 export const deleteCounselingIntervention = async (interventionID) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/delete/${interventionID}`, {
+        const response = await fetch(`${apiUrl}/intervention/counseling/delete/${interventionID}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials:"include",
         });
 
         if (!response.ok) {

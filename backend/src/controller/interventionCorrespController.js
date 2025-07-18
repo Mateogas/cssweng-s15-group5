@@ -327,7 +327,7 @@ const getAutoFillData = async(req,res)=>{
             sm_number:caseData.sm_number,
             spu:caseData.spu,
             dob : caseData.dob,
-            address:caseData.present_address,
+            present_address:caseData.present_address,
         };
 
         return res.status(200).json({message: 'Fetched Succesfully', returningData});
