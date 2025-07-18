@@ -26,6 +26,18 @@ function calculateAge(dateValue) {
     return age;
 }
 
+function formatCorrespondeceData(correspondence) {
+
+}
+function formatCounselingData(counseling) {
+
+}
+function formatFinancialData(financial) {
+
+}
+function formatHomeVisitData(homevisit) {
+
+}
 const generateCaseData = async (req, res) => {
     try {
 		const sponsoredMemberId = req.params.id;
@@ -84,31 +96,26 @@ const generateCaseData = async (req, res) => {
                 let interventionData;
                 let formattedIntervention = {
                     intervention_number: intervention.intervention_number,
-                    interventionType: ''
+                    interventionType: intervention.interventionType,
                 };
 
-                // TODO: FORMAT EACH INTERVENTION TYPE
                 try {
                     switch (intervention.interventionType) {
                         case 'Intervention Correspondence':
-                            formattedIntervention.interventionType = 'Correspondence';
                             interventionData = await Intervention_Correspondence.findById(intervention.intervention);
-                            formattedIntervention.correspondence = interventionData;
+                            formattedIntervention.correspondence = formatCorrespondeceData(interventionData);
                             break;
                         case 'Intervention Counseling':
-                            formattedIntervention.interventionType = 'Counseling';
                             interventionData = await Intervention_Counseling.findById(intervention.intervention);
-                            formattedIntervention.counseling = interventionData;
+                            formattedIntervention.counseling = formatCounselingData(interventionData);
                             break;
                         case 'Intervention Financial Assessment':
-                            formattedIntervention.interventionType = 'Financial Assessment';
                             interventionData = await Intervention_Financial_Assessment.findById(intervention.intervention);
-                            formattedIntervention.financial = interventionData;
+                            formattedIntervention.financial = formatFinancialData(interventionData);
                             break;
                         case 'Intervention Home Visit':
-                            formattedIntervention.interventionType = 'Home Visit';
                             interventionData = await Intervention_Home_Visit.findById(intervention.intervention);
-                            formattedIntervention.homevisit = interventionData;
+                            formattedIntervention.homevisit = formatHomeVisitData(interventionData);
                             break;
                         default:
                             console.warn(`Unknown intervention type: ${intervention.interventionType}`);
@@ -127,6 +134,8 @@ const generateCaseData = async (req, res) => {
         console.log('FORMATTED INTERVENTIONS', formattedInterventions);
 
         // Fetch progress reports
+		let formattedProgressReports = [];
+
 
 		// Format data for the document
 		const caseData = {
@@ -143,18 +152,14 @@ const generateCaseData = async (req, res) => {
 			religion: sponsoredMember.religion,
 			occupation: sponsoredMember.occupation,
 			contact_no: sponsoredMember.contact_no,
-			relationship_to_client: sponsoredMember.relationship_to_client,
+			classification: sponsoredMember.classification,
 			family_members: formattedFamilyMembers,
 			problem_presented: sponsoredMember.problem_presented,
 			history_problem: sponsoredMember.history_problem,
 			observation_findings: sponsoredMember.observation_findings,
 			assessment: sponsoredMember.assessment,
-			// interventions: {
-
-			// },
-			// progress reports: {
-
-			// },
+			interventions: formattedInterventions,
+			progress_reports: formattedProgressReports,
 			evaluation: sponsoredMember.evaluation,
 			recommendation: sponsoredMember.recommendation,
 		};
