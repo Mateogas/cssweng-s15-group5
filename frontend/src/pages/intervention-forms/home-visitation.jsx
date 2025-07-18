@@ -476,7 +476,7 @@ function HomeVisitationForm() {
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
                 <button 
-                    onClick={() => navigate(-1)} 
+                    onClick={() => navigate(`/case/${caseID}`)} 
                     className="flex items-center gap-5 label-base arrow-group">
                     <div className="arrow-left-button"></div>
                     Go Back
@@ -840,7 +840,7 @@ function HomeVisitationForm() {
                             className="btn-primary font-bold-label w-min"
                             onClick={async () => {
                                 await handleUpdate();
-                                navigate(-1);
+                                navigate(`/case/${caseID}`);
                             }}
                         >
                             Save Changes
@@ -850,7 +850,7 @@ function HomeVisitationForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate(`/case/${caseID}`)}
                         >
                             Cancel
                         </button>
@@ -858,7 +858,7 @@ function HomeVisitationForm() {
                             className="btn-primary font-bold-label w-min"
                             onClick={async () => {
                                 await handleCreate();
-                                navigate(-1);
+                                navigate(`/case/${caseID}`);
                             }}
                         >
                             Create Intervention
@@ -889,7 +889,7 @@ function HomeVisitationForm() {
                                     onClick={async () => {
                                         await handleDelete();
                                         setShowConfirm(false);
-                                        navigate(-1);
+                                        navigate(`/case/${caseID}`);
                                     }}
                                     className="btn-primary font-bold-label"
                                 >

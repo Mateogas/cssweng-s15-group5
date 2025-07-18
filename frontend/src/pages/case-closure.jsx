@@ -369,7 +369,7 @@ function CaseClosure() {
             <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
                 <div className="flex w-full justify-between">
                     <button 
-                        onClick={() => navigate(-1)} 
+                        onClick={() => navigate(`/case/${caseID}`)} 
                         className="flex items-center gap-5 label-base arrow-group">
                         <div className="arrow-left-button"></div>
                         Go Back
@@ -609,7 +609,7 @@ function CaseClosure() {
                                 <button
                                     className="btn-outline font-bold-label"
                                     onClick={() => 
-                                        navigate(-1) /* Replace with Delete */
+                                        navigate(`/case/${caseID}`) /* Replace with Delete */
                                     }
                                 >
                                     Delete Request
@@ -617,7 +617,7 @@ function CaseClosure() {
                                 <button
                                     className="btn-primary font-bold-label w-min"
                                     onClick={() => {
-                                        navigate(-1); /* Replace with Update */
+                                        navigate(`/case/${caseID}`); /* Replace with Update */
                                     }}
                                 >
                                     Save Changes
@@ -627,7 +627,7 @@ function CaseClosure() {
                             <>
                                 <button
                                     className="btn-outline font-bold-label"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => navigate(`/case/${caseID}`)}
                                 >
                                     Cancel
                                 </button>
@@ -635,7 +635,7 @@ function CaseClosure() {
                                     className="btn-primary font-bold-label w-min"
                                     onClick={async () => {
                                         await handleCreate();
-                                        navigate(-1);
+                                        navigate(`/case/${caseID}`);
                                     }}
                                 >
                                     Create Request
@@ -647,7 +647,7 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         <button
                             className="label-base btn-outline-rounded"
-                            onClick={() => navigate(-1)} /* Replace with Delete */
+                            onClick={() => navigate(`/case/${caseID}`)} /* Replace with Delete */
                         >
                             Reject Termination
                         </button>
@@ -684,7 +684,7 @@ function CaseClosure() {
                                     onClick={async () => {
                                         await handleCreate();
                                         setShowConfirm(false);
-                                        navigate(-1);
+                                        navigate(`/case/${caseID}`);
                                     }}
                                     className="btn-primary font-bold-label"
                                 >
