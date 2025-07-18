@@ -109,8 +109,8 @@ const generateCaseData = async (req, res) => {
 			edu_attainment: member.edu_attainment || "",
 			relationship_to_sm: member.relationship_to_sm || "",
 		}));
+		// console.log('Formatted Family Members:', formattedFamilyMembers);
 
-		
         // Fetch intervention data
         let formattedInterventions = [];
         const interventions = await Promise.all(
@@ -136,13 +136,17 @@ const generateCaseData = async (req, res) => {
                             formattedIntervention.financial = formatFinancialData(interventionData);
                             break;
                         case 'Intervention Home Visit':
-                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention);
+                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention)
+								.populate('father.father_details')
+								.populate('mother.mother_details')
+								.populate('familyMembers.family_member_details');
                             formattedIntervention.homevisit = formatHomeVisitData(interventionData);
                             break;
                         default:
                             console.warn(`Unknown intervention type: ${intervention.interventionType}`);
                             return null;
                     }
+					// console.log('Formatted Intervention:', formattedIntervention);
                     return formattedIntervention;
                 } catch (error) {
                     console.error(`Error fetching intervention ${intervention.intervention}:`, error);
@@ -153,7 +157,7 @@ const generateCaseData = async (req, res) => {
 
         // Filter out any null results from failed queries
         formattedInterventions = interventions.filter(intervention => intervention !== null);
-        console.log('FORMATTED INTERVENTIONS', formattedInterventions);
+        // console.log('FORMATTED INTERVENTIONS', formattedInterventions);
 
         // Fetch progress reports
 		let formattedProgressReports = [];

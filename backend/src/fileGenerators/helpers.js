@@ -18,7 +18,7 @@ function calculateAge(dateValue) {
 
 function formatDate(date) {
 	if (!date) return '';
-	return newDate(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+	return new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
 }
 
 /* Return format:
@@ -140,7 +140,9 @@ function formatFinancialData(financial) {
 		income: String,
 	},
 	otherFamily: {
-		name: String,
+		last_name: String,
+		first_name: String,
+		middle_name: String,
 		age: String,
 		civil_status: String,
 		relationship_to_sm: String,
@@ -159,7 +161,60 @@ function formatFinancialData(financial) {
 function formatHomeVisitData(homevisit) {
     if (!homevisit) return {};
 	// console.log('formatHomeVisitData', homevisit);
-    return homevisit
+
+	const formattedFather = homevisit.father ? {
+		name: homevisit.father.father_details.last_name + ', ' + homevisit.father.father_details.first_name || '',
+		occupation: homevisit.father.father_details.occupation || '',
+		income: homevisit.father.father_details.income || '',
+	} : {
+		name: '',
+		occupation: '',
+		income: '',
+	};
+
+	const formattedMother = homevisit.mother ? {
+		name: homevisit.mother.mother_details.last_name + ', ' + homevisit.mother.mother_details.first_name || '',
+		occupation: homevisit.mother.mother_details.occupation || '',
+		income: homevisit.mother.mother_details.income || '',
+	} : {
+		name: '',
+		occupation: '',
+		income: '',
+	};
+
+	const formattedOtherFamilyMembers = homevisit.familyMembers.map(member => {
+		const familyMemberDetails = member.family_member_details;
+		return {
+			last_name: familyMemberDetails.last_name || '',
+			first_name: familyMemberDetails.first_name || '',
+			middle_name: familyMemberDetails.middle_name || '',
+			age: familyMemberDetails.age || '',
+			civil_status: familyMemberDetails.civil_status || '',
+			relationship_to_sm: member.relationship_to_sm || '',
+			occupation: familyMemberDetails.occupation || '',
+			edu_attainment: familyMemberDetails.edu_attainment || '',
+			income: familyMemberDetails.income || '',
+		};
+	});
+
+	// console.log('Formatted Father:', formattedFather);
+	// console.log('Formatted Mother:', formattedMother);
+	// console.log('OTHER FAMILY:', formattedOtherFamilyMembers);
+
+    return {
+		grade_year_course: homevisit.grade_year_course || '',
+		years_in_program: homevisit.years_in_program || '',
+		family_type: homevisit.family_type || '',
+		father: formattedFather,
+		mother: formattedMother,
+		otherFamily: formattedOtherFamilyMembers,
+		sm_progress: homevisit.sm_progress || '',
+		family_progress: homevisit.family_progress || '',
+		observation_findings: homevisit.observation_findings || '',
+		interventions: homevisit.interventions || '',
+		recommendations: homevisit.recommendations || '',
+		agreement: homevisit.agreement || '',
+	}
 }
 
 /*
