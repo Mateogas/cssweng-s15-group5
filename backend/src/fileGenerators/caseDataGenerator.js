@@ -14,6 +14,7 @@ const {
 	formatCounselingData,
 	formatFinancialData,
 	formatHomeVisitData,
+	formatProgressReport,
 } = require('./helpers')
 
 /**
@@ -54,24 +55,7 @@ const {
 			homevisit: Object, // If interventionType is 'Intervention Home Visit'
 			// Refer to helpers.js for the structure of these objects
 		}
-	progress_reports: [Object],
-		{
-			report_num: Number,
-			sponsor_name: String,
-			sponsorship_date: Date,
-			date_accomplished: Date,
-			period_covered: String,
-			sm_update: String,
-			family_update: String,
-			services_to_family: String,
-			participation: String,
-			relation_to_sponsor: {
-				// Can only be 'Yes', 'Sometimes', or 'No'
-				know_sponsor_name: String,
-				cooperative: String,
-				personalized_letter: String,
-			}
-		}
+	progress_reports: [Object], // Refer to helpers.js for the structure
 	evaluation: String,
 	recommendation: String,
 }

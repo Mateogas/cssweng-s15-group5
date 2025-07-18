@@ -105,10 +105,34 @@ function formatHomeVisitData(homevisit) {
 
 }
 
+/*
+{
+    report_num: Number,
+    sponsor_name: String,
+    sponsorship_date: Date,
+    date_accomplished: Date,
+    period_covered: String,
+    sm_update: String,
+    family_update: String,
+    services_to_family: String,
+    participation: String,
+    relation_to_sponsor: {
+        // Can only be 'Yes', 'Sometimes', or 'No'
+        know_sponsor_name: String,
+        cooperative: String,
+        personalized_letter: String,
+    }
+}
+*/
+function formatProgressReport(report) {
+
+}
+
 module.exports = {
     calculateAge,
     formatCorrespondenceData,
     formatCounselingData,
     formatFinancialData,
     formatHomeVisitData,
+    formatProgressReport,
 };
