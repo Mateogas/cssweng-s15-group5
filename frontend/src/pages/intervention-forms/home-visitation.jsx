@@ -215,7 +215,73 @@ function HomeVisitationForm() {
 
     // < START :: Create Form > //
 
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        const requiredFields = {
+            grade_year_course,
+            years_in_program,
+
+            date,
+            community,
+            sponsor_name,
+
+            family_type,
+
+            sm_progress,
+            family_progress,
+            
+            observation_findings,
+            interventions,
+
+            recommendations,
+            agreement,
+        };
+
+        Object.entries(requiredFields).forEach(([field, value]) => {
+
+            if (
+                value === undefined ||               
+                value === null ||                    
+                value === "" ||                    
+                (typeof value === "string" && !value.trim())
+            ) {
+            newErrors[field] = "Missing input";
+            }
+        });
+
+        if (isNaN(Number(years_in_program))) {
+            newErrors['years_in_program'] = "Input should be a number";
+        }
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0; 
+    };
+
+    const handleSubmit = async (e) => {
+        e?.preventDefault();
+        const isValid = validateForm();
+
+        if (!isValid) {
+            // window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+        };
+
+        try {
+            console.log("Form Submitted");
+            await handleCreate();
+            navigate(`/case/${caseID}`);
+        } catch (err) {
+            console.error("Submission failed:", err);
+        }
+
+    };
+
     const handleCreate = async () => {
+
         const payload = {
             form_num,
             first_name,
@@ -340,6 +406,20 @@ function HomeVisitationForm() {
     const [savedTime, setSavedTime] = useState(null);
     const timeoutRef = useRef(null);
     const [sectionEdited, setSectionEdited] = useState("");
+
+    const [showErrorOverlay, setShowErrorOverlay] = useState(false);
+
+    useEffect(() => {
+        if (errors && Object.keys(errors).length > 0) {
+        setShowErrorOverlay(true);
+
+        const timer = setTimeout(() => {
+            setShowErrorOverlay(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+        }
+    }, [errors]);
 
     const handleChange = (section) => (e) => {
         setSectionEdited(section);
@@ -520,6 +600,7 @@ function HomeVisitationForm() {
                                 handleChange={handleChange(
                                     "Sponsored Member",
                                 )}
+                                error={errors["grade_year_course"]}
                             ></TextInput>
                             <TextInput
                                 label="Year/s in the Program"
@@ -528,41 +609,50 @@ function HomeVisitationForm() {
                                 handleChange={handleChange(
                                     "Sponsored Member",
                                 )}
+                                error={errors["years_in_program"]}
                             ></TextInput>
-                            <div className="flex items-center gap-16">
-                                <p className="label-base w-64">Family Type</p>
-                                <select
-                                    name="family_type"
-                                    id="family_type"
-                                    value={family_type}
-                                    onChange={(e) => {
-                                        handleChange("Sponsored Member")(e);
-                                        setFamilyType(e.target.value);
-                                    }}
-                                    className="label-base text-input"
-                                >
-                                    <option value="" className="body-base">
-                                        Select
-                                    </option>
-                                    <option
-                                        value="Nuclear"
-                                        className="body-base"
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-16">
+                                    <p className="label-base w-64">Family Type</p>
+                                    <select
+                                        name="family_type"
+                                        id="family_type"
+                                        value={family_type}
+                                        onChange={(e) => {
+                                            handleChange("Sponsored Member")(e);
+                                            setFamilyType(e.target.value);
+                                        }}
+                                        className={`label-base text-input ${ errors["family_type"] ? "text-input-error" : "" }`}
+                                        error={errors["family_type"]}
                                     >
-                                        Nuclear
-                                    </option>
-                                    <option
-                                        value="Extended"
-                                        className="body-base"
-                                    >
-                                        Extended
-                                    </option>
-                                    <option
-                                        value="Blended"
-                                        className="body-base"
-                                    >
-                                        Blended
-                                    </option>
-                                </select>
+                                        <option value="" className="body-base">
+                                            Select
+                                        </option>
+                                        <option
+                                            value="Nuclear"
+                                            className="body-base"
+                                        >
+                                            Nuclear
+                                        </option>
+                                        <option
+                                            value="Extended"
+                                            className="body-base"
+                                        >
+                                            Extended
+                                        </option>
+                                        <option
+                                            value="Blended"
+                                            className="body-base"
+                                        >
+                                            Blended
+                                        </option>
+                                    </select>
+                                </div>
+                                {errors["family_type"] && (
+                                    <div className="text-red-500 text-sm self-end">
+                                        Missing input
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -587,6 +677,7 @@ function HomeVisitationForm() {
                                 handleChange={handleChange(
                                     "General Information",
                                 )}
+                                error={errors["date"]}
                             ></DateInput>
                             <TextInput
                                 label="Community"
@@ -595,6 +686,7 @@ function HomeVisitationForm() {
                                 handleChange={handleChange(
                                     "General Information",
                                 )}
+                                error={errors["community"]}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -605,6 +697,7 @@ function HomeVisitationForm() {
                                 handleChange={handleChange(
                                     "General Information",
                                 )}
+                                error={errors["sponsor_name"]}
                             ></TextInput>
                         </div>
                     </div>
@@ -734,11 +827,13 @@ function HomeVisitationForm() {
                         label="SM"
                         value={sm_progress}
                         setValue={setSMProgress}
+                        error={errors["sm_progress"]}
                     ></TextArea>
                     <TextArea
                         label="Family"
                         value={family_progress}
                         setValue={setFamilyProgress}
+                        error={errors["family_progress"]}
                     ></TextArea>
                 </div>
             </section>
@@ -775,6 +870,7 @@ function HomeVisitationForm() {
                     label="Worker's Observation/Findings"
                     value={observation_findings}
                     setValue={setObservationFindings}
+                    error={errors["observation_findings"]}
                  ></TextArea>
                 {savedTime && sectionEdited === "Observations" && (
                     <p className="mt-2 self-end text-sm">{savedTime}</p>
@@ -812,6 +908,7 @@ function HomeVisitationForm() {
                     label="Interventions Made"
                     value={interventions}
                     setValue={setInterventions}
+                    error={errors["interventions"]}
                  ></TextArea>
                 {savedTime && sectionEdited === "Interventions" && (
                     <p className="mt-2 self-end text-sm">{savedTime}</p>
@@ -825,11 +922,13 @@ function HomeVisitationForm() {
                         label="Recommendations"
                         value={recommendations}
                         setValue={setRecommendation}
+                        error={errors["recommendations"]}
                     ></TextArea>
                     <TextArea
                         label="Agreement (if any)"
                         value={agreement}
                         setValue={setAgreement}
+                        error={errors["agreement"]}
                     ></TextArea>
                 </div>
             </section>
@@ -871,10 +970,10 @@ function HomeVisitationForm() {
                             Cancel
                         </button>
                         <button
+                            type="submmit"
                             className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleCreate();
-                                navigate(`/case/${caseID}`);
+                            onClick={async (e) => {
+                                await handleSubmit(e);
                             }}
                         >
                             Create Intervention
@@ -914,6 +1013,40 @@ function HomeVisitationForm() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Missing / Invalid Input */}
+                {showErrorOverlay && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
+                                    animate-fadeIn scale-100 transform transition duration-300">
+                    <div className="flex items-center gap-4 border-b-1 ]">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-[2.4rem] w-[2.4rem] text-red-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                            />
+                        </svg>
+                        <h2 className="header-sm font-bold text-red-600 text-center">
+                            Missing / Invalid Input Detected
+                        </h2>
+                    </div>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        Please fill out all required fields before submitting the form.
+                    </p>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        Write N/A if necessary.
+                    </p>
+                    </div>
+                </div>
                 )}
             </div>
         </main>
