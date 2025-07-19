@@ -43,6 +43,11 @@ import {
     fetchProgressReportsForCase
 } from "../../fetch-connections/progress-report-connection";
 
+// Case Download Import
+import {
+    generateCaseReport
+} from "../../generate-documents/generate-case-report";
+
 function CaseFrontend({ creating = false }) {
     // console.log(creating);
 
@@ -906,7 +911,9 @@ function CaseFrontend({ creating = false }) {
                             </div>
                         )}
                         <button className="btn-blue font-bold-label drop-shadow-base"
-                            data-cy='download-case'>
+                            data-cy='download-case'
+                            onClick={() => generateCaseReport(data.id)}
+                        >
                             Download
                         </button>
                     </div>}
