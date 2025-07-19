@@ -100,6 +100,8 @@ function HomeVisitationForm() {
                 mother_last_name: motherData?.last_name || "",
                 mother_work: motherData?.occupation || "",
                 mother_income: motherData?.income || "",
+
+                form_num: returnData?.form_number + 1 || 1
             }));
 
             if (returnData.transformedFamily)
@@ -127,6 +129,8 @@ function HomeVisitationForm() {
         setMotherLastName(data.mother_last_name || "");
         setMotherWork(data.mother_work || "");
         setMotherIncome(data.mother_income || "");
+
+        setFormNum(data.form_num)
     }, [data]);
 
     // < END :: Auto-Filled Data > //
@@ -146,9 +150,8 @@ function HomeVisitationForm() {
                 );
                 const formData = returnFormData.form;
 
-                console.log("Form Data", formData);
-
                 setRawFormData(formData);
+                console.log(returnFormData.form_num)
 
                 setData((prev) => ({
                     ...prev,
@@ -164,6 +167,8 @@ function HomeVisitationForm() {
                     interventions: formData.interventions || [],
                     recommendations: formData.recommendations || "",
                     agreement: formData.agreement || "",
+
+                    form_num: returnFormData.form_number
                 }));
 
                 setLoading(false);
@@ -180,8 +185,8 @@ function HomeVisitationForm() {
             setFamilyType(data.family_type || "");
             setSMProgress(data.sm_progress || "");
             setFamilyProgress(data.family_progress || "");
-            setObservationFindings(data.observation_findings || []);
-            setInterventions(data.interventions || []);
+            setObservationFindings(data.observation_findings || "");
+            setInterventions(data.interventions || "");
             setRecommendation(data.recommendations || "");
             setAgreement(data.agreement || "");
         }, [data]);
@@ -251,8 +256,7 @@ function HomeVisitationForm() {
             interventions,
         };
 
-        console.log("Payload: ", payload);
-
+        // console.log("Payload: ", payload);
         const response = await createHomeVis(payload, caseID); 
     };
 
@@ -301,8 +305,7 @@ function HomeVisitationForm() {
             interventions,
         };
 
-        console.log("Payload: ", updatedPayload);
-
+        // console.log("Payload: ", updatedPayload);
         const response = await editHomeVis(updatedPayload, caseID, formID); 
     };
 
@@ -311,7 +314,6 @@ function HomeVisitationForm() {
     // < START :: Delete Form > //
     
     const handleDelete = async () => {
-
         const response = await deleteHomeVis(formID); 
     };
 
@@ -413,8 +415,8 @@ function HomeVisitationForm() {
 
     // ===== START :: Use States ===== //
 
-    const [observation_findings, setObservationFindings] = useState([]);
-    const [interventions, setInterventions] = useState([]);
+    const [observation_findings, setObservationFindings] = useState(data?.observation_findings || "");
+    const [interventions, setInterventions] = useState(data?.interventions || "");
     
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -691,32 +693,35 @@ function HomeVisitationForm() {
                     Members and/or Other Members of the Family
                 </h3>
 
-                <div className="flex w-full justify-between gap-16">
+                {familyMembers.length === 0 ? (
+                    <div className="text-muted-foreground text-sm italic">
+                    No other family members registered.
+                    </div>
+                ) : (
+                    <div className="flex w-full justify-between gap-16">
                     <div className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6">
-                        <div
-                            className="flex gap-8"
-                            style={{ minWidth: "max-content" }}
-                        >
-                            {familyMembers.map((member, index) => (
-                                <FamilyCard
-                                    key={index}
-                                    index={index}
-                                    member={member}
-                                    selectedFamily={selectedFamily}
-                                    editingFamilyValue={editingFamilyValue}
-                                    familyMembers={familyMembers}
-                                    setShowModal={setShowModal}
-                                    setModalTitle={setModalTitle}
-                                    setModalBody={setModalBody}
-                                    setModalImageCenter={setModalImageCenter}
-                                    setModalConfirm={setModalConfirm}
-                                    setModalOnConfirm={setModalOnConfirm}
-                                    editable={false}
-                                />
-                            ))}
+                        <div className="flex gap-8" style={{ minWidth: "max-content" }}>
+                        {familyMembers.map((member, index) => (
+                            <FamilyCard
+                            key={index}
+                            index={index}
+                            member={member}
+                            selectedFamily={selectedFamily}
+                            editingFamilyValue={editingFamilyValue}
+                            familyMembers={familyMembers}
+                            setShowModal={setShowModal}
+                            setModalTitle={setModalTitle}
+                            setModalBody={setModalBody}
+                            setModalImageCenter={setModalImageCenter}
+                            setModalConfirm={setModalConfirm}
+                            setModalOnConfirm={setModalOnConfirm}
+                            editable={false}
+                            />
+                        ))}
                         </div>
                     </div>
-                </div>
+                    </div>
+                )}
             </section>
 
             {/* Progress in Goals */}
@@ -740,7 +745,7 @@ function HomeVisitationForm() {
 
             {/* Observation/Findings */}
             <section className="flex w-full flex-col gap-8">
-                <h4 className="header-sm">Worker's Observation/Findings</h4>
+                {/*<h4 className="header-sm">Worker's Observation/Findings</h4>
                 {Array.isArray(observation_findings) &&
                     observation_findings.map((item, index) => (
                         <div key={index} className="flex items-center">
@@ -765,7 +770,12 @@ function HomeVisitationForm() {
                     onClick={handleAddObservation}
                 >
                     Add Observation/Findings
-                </button>
+                </button>*/}
+                <TextArea
+                    label="Worker's Observation/Findings"
+                    value={observation_findings}
+                    setValue={setObservationFindings}
+                 ></TextArea>
                 {savedTime && sectionEdited === "Observations" && (
                     <p className="mt-2 self-end text-sm">{savedTime}</p>
                 )}
@@ -773,7 +783,7 @@ function HomeVisitationForm() {
 
             {/* Interventions Made */}
             <section className="flex w-full flex-col gap-8">
-                <h4 className="header-sm">Interventions Made</h4>
+                {/*<h4 className="header-sm">Interventions Made</h4>
                 {interventions.map((item, index) => (
                     <div key={index} className="flex items-center">
                         <p className="body-base pr-4">{index + 1}.</p>
@@ -797,7 +807,12 @@ function HomeVisitationForm() {
                     onClick={handleAddIntervention}
                 >
                     Add Intervention
-                </button>
+                </button>*/}
+                <TextArea
+                    label="Interventions Made"
+                    value={interventions}
+                    setValue={setInterventions}
+                 ></TextArea>
                 {savedTime && sectionEdited === "Interventions" && (
                     <p className="mt-2 self-end text-sm">{savedTime}</p>
                 )}

@@ -25,7 +25,7 @@ export const fetchCaseData = async (caseID) => {
         return rawData;
     } catch (err) {
         console.error("Error fetching case data:", err);
-        return defaultCaseData;
+        return null;
     }
 };
 
@@ -66,7 +66,7 @@ export const fetchAllHomeVisitForms = async (caseID) => {
 export const createHomeVis = async (createdData, caseID) => {
     try {
         const response = await fetch(
-            `/api/intervention/create/home-visit-form/${caseID}`,
+            `/api/intervention/home-visit-form/create/${caseID}`,
             {
                 method: "PUT",
                 headers: {
@@ -89,7 +89,7 @@ export const createHomeVis = async (createdData, caseID) => {
 export const editHomeVis = async (updatedData, caseID, formID) => {
     try {
         const response = await fetch(
-            `/api/intervention/edit/home-visit-form/${caseID}/${formID}`,
+            `/api/intervention/home-visit-form/edit/${caseID}/${formID}`,
             {
                 method: "PUT",
                 headers: {

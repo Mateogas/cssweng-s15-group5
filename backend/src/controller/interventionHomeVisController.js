@@ -20,7 +20,6 @@ const homeVisitFormValidate = require("./validators/homeVisitValidator");
 const loadHomeVisitationForm = async (req, res) => {
     try {
         const caseSelected = await Sponsored_Member.findById(req.params.caseID);
-
         if (!caseSelected) throw error;
 
         // Match family IDs and relationship to client
@@ -70,11 +69,20 @@ const loadHomeVisitationForm = async (req, res) => {
             return true;
         });
 
+        const homeVisitNumbers = (caseSelected.interventions || [])
+            .filter((entry) => entry.interventionType === 'Intervention Home Visit')
+            .map((entry) => entry.intervention_number || 0); // fallback in case it's undefined
+        const maxHomeVisitNumber = homeVisitNumbers.length > 0
+            ? Math.max(...homeVisitNumbers)
+            : 0;
+        const form_number = maxHomeVisitNumber;
+
         return res.status(200).json({
             case: caseSelected,
             father: fatherData,
             mother: motherData,
             otherFamily: otherFamilyMembers,
+            form_number
         });
     } catch (error) {
         console.error("Error creating loading home intervention:", error);
@@ -139,7 +147,7 @@ const loadHomeVisitationFormEdit = async (req, res) => {
         );
 
         console.log(caseSelected);
-        console.log(formSelected);
+        // console.log(formSelected);
 
         if (!caseSelected || !formSelected) throw error;
 
@@ -193,7 +201,15 @@ const loadHomeVisitationFormEdit = async (req, res) => {
             family_member_details: member._id,
             family_member_relationship: member.relationship_id,
         }));
-        console.log(familyMembersArray);
+        // console.log(familyMembersArray);
+
+        const formId = formSelected._id.toString(); // ensure string comparison
+        const matchingIntervention = (caseSelected.interventions || []).find(
+        (entry) =>
+            entry.interventionType === 'Intervention Home Visit' &&
+            entry.intervention.toString() === formId
+        );
+        const form_number = matchingIntervention?.intervention_number || null;
 
         return res.status(200).json({
             form: formSelected,
@@ -201,6 +217,7 @@ const loadHomeVisitationFormEdit = async (req, res) => {
             father: fatherData,
             mother: motherData,
             otherFamily: otherFamilyMembers,
+            form_number
         });
     } catch (error) {
         console.error("Error loading home intervention:", error);
@@ -227,6 +244,7 @@ const createHomVis = async (req, res) => {
         }
 
         // Validation
+        console.log(formData)
         const requiredFields = [
             "grade_year_course",
             "years_in_program",
@@ -241,7 +259,7 @@ const createHomVis = async (req, res) => {
             (field) => !formData[field]
         );
         if (missingFields.length > 0) {
-            console.log("Missing field/s found.");
+            console.log("Missing field/s found.", missingFields);
             return res.status(400).json({
                 message: `Missing required fields: ${missingFields.join(", ")}`,
             });
@@ -253,7 +271,7 @@ const createHomVis = async (req, res) => {
             family_member_details: member._id,
             family_member_relationship: member.relationship_id,
         }));
-        console.log(familyMembersArray);
+        // console.log(familyMembersArray);
 
         // Creating new intervention
         const newForm = new InterventionHomeVisit({
@@ -295,6 +313,7 @@ const createHomVis = async (req, res) => {
                     interventions: {
                         intervention: newForm._id,
                         interventionType: "Intervention Home Visit",
+                        intervention_number: formData.form_num,
                     },
                 },
             },
@@ -321,8 +340,6 @@ const createHomVis = async (req, res) => {
 };
 
 /**
- *   NOT YET TESTED WITH FRONT END
- *
  *   Edits the home visitation form selected
  *   @returns The edited home visitation object
  */
@@ -334,10 +351,10 @@ const editHomeVis = async (req, res) => {
         );
         const formData = req.body;
 
-        console.log("Controller Enter");
-        console.log("Controller CaseSelected: ", caseSelected);
-        console.log("Controller interventionSelected: ", interventionSelected);
-        console.log("Controller formData: ", formData);
+        // console.log("Controller Enter");
+        // console.log("Controller CaseSelected: ", caseSelected);
+        // console.log("Controller interventionSelected: ", interventionSelected);
+        // console.log("Controller formData: ", formData);
 
         if (!caseSelected) {
             return res.status(404).json({ message: "Case not found" });
@@ -396,7 +413,7 @@ const editHomeVis = async (req, res) => {
             family_member_details: member._id,
             family_member_relationship: member.relationship_id,
         }));
-        console.log(familyMembersArray);
+        // console.log(familyMembersArray);
 
         const updatedData = {
             grade_year_course:
@@ -440,8 +457,7 @@ const editHomeVis = async (req, res) => {
             updatedData,
             { new: true, runValidators: true }
         );
-
-        console.log("Updated Data: ", updatedData);
+        // console.log("Updated Data: ", updatedData);
 
         return res.status(200).json({
             form: updatedForm,
