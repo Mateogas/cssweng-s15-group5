@@ -108,3 +108,37 @@ export const generateCounselingForm = async (counselingId) => {
         saveAs(out, 'counseling-form.docx');
     });
 }
+
+export const generateFinancialAssessmentForm = async (financialId) => {
+    const data = await fetch(`/api/file-generator/financial-assessment-form/${financialId}`);
+    if (!data.ok) {
+        throw new Error('Failed to fetch financial data');
+    }
+
+    const financialData = await data.json();
+    // console.log('Financial Data:', financialData);
+
+    const templatePath = '/templates/TEMPLATE_Financial-Assessment-Form.docx';
+
+    loadFile(templatePath, function (error, content) {
+        if (error) {
+            throw error;
+        }
+
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        doc.render(financialData);
+
+        const out = doc.getZip().generate({
+            type: 'blob',
+            mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+
+        saveAs(out, 'financial-assessment-form.docx');
+    });
+}

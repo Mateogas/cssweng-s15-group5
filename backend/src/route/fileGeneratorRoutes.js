@@ -4,6 +4,7 @@ const router = express.Router();
 const { generateCaseData } = require('../fileGenerators/caseDataGenerator');
 const { generateCorrespondenceForm } = require('../fileGenerators/correspondenceFormGenerator');
 const { generateCounselingForm } = require('../fileGenerators/counselingFormGenerator');
+const { generateFinancialAssessmentForm } = require('../fileGenerators/financialAssessmentFormGenerator');
 
 /*
     File Generator Routes
@@ -12,5 +13,6 @@ const { generateCounselingForm } = require('../fileGenerators/counselingFormGene
 router.get('/case-data/:id', generateCaseData);
 router.get('/correspondence-form/:correspondenceId', generateCorrespondenceForm);
 router.get('/counseling-form/:counselingId', generateCounselingForm);
+router.get('/financial-assessment-form/:financialId', generateFinancialAssessmentForm);
 
 module.exports = router;
