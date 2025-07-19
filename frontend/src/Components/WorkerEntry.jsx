@@ -50,7 +50,7 @@ export default function WorkerEntry({
     >
       <div className="flex items-center gap-6">
         <div
-          className="rounded-full h-[4.5rem] w-[4.5rem] flex justify-center items-center header-sub"
+          className="rounded-full h-[4.5rem] min-w-[4.5rem] flex justify-center items-center header-sub"
           style={{ backgroundColor: bgColor, color: textColor }}
         >
           {initials}

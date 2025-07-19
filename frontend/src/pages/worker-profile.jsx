@@ -10,7 +10,7 @@ import { fetchSession } from "../fetch-connections/account-connection";
 import { logoutUser } from "../fetch-connections/account-connection";
 import ChangePassword from "../Components/ChangePassword";
 import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
-import { fetchEmployeeBySDWId } from "../fetch-connections/account-connection";
+import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connections/account-connection";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
@@ -24,6 +24,7 @@ export default function WorkerProfile() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+    const [modalOnClose, setModalOnClose] = useState(() => null);
 
     const [handledClients, setHandledClients] = useState([]);
     const [handledWorkers, setHandledWorkers] = useState([]);
@@ -197,9 +198,11 @@ export default function WorkerProfile() {
             missing.push("First Name must not contain numbers");
         }
 
-        if (!drafts.middle_name || drafts.middle_name.trim() === "") {
-            missing.push("Middle Name");
-        } else if (/\d/.test(drafts.middle_name)) {
+        // if (!drafts.middle_name || drafts.middle_name.trim() === "") {
+        //     missing.push("Middle Name");
+        // } else 
+            
+        if (/\d/.test(drafts.middle_name)) {
             missing.push("Middle Name must not contain numbers");
         }
 
@@ -211,6 +214,20 @@ export default function WorkerProfile() {
 
         if (!drafts.username || drafts.username.trim() === "") {
             missing.push("Username");
+        } else {
+            const check = await fetchEmployeeByUsername(drafts.username);
+            console.log("Fetched employee by Username:", check);
+
+            if (check.ok && check.data) {
+                console.log(
+                    "Comparing found username:", check.data.username,
+                    "vs current employee username:", data.username
+                );
+
+                if (check.data.username.trim() !== data.username.trim()) {
+                    missing.push(`Username already exists and belongs to another employee`);
+                }
+            }
         }
 
         if (!drafts.email || drafts.email.trim() === "") {
@@ -246,13 +263,8 @@ export default function WorkerProfile() {
                 );
 
                 if (String(check.data.sdw_id).trim() !== String(data.sdw_id).trim()) {
-                    // Found same SDW ID owned by another employee → block
                     missing.push(`SDW ID already exists and belongs to another employee`);
-                } else {
-                    console.log("SDW ID belongs to same employee — valid");
                 }
-            } else {
-                console.log("SDW ID is unique — valid");
             }
         }
 
@@ -495,9 +507,9 @@ export default function WorkerProfile() {
                                         }
                                     >
                                         <option value="">Select Role</option>
-                                        <option value="sdw">Social Development Worker</option>
+                                        {user?.role == "head" && <option value="head">Head</option>}
                                         <option value="super">Supervisor</option>
-                                        <option value="head">Head</option>
+                                        <option value="sdw">Social Development Worker</option>                                        
                                     </select>
                                 </div>
 
@@ -547,6 +559,7 @@ export default function WorkerProfile() {
                                             setData(result.employee);
                                             setEditingField(null);
                                         });
+
                                     } else {
                                         setModalTitle("Error");
                                         setModalBody(result.message || "Failed to update worker.");
@@ -676,9 +689,9 @@ export default function WorkerProfile() {
                         Change Password
                     </button>
 
-                    <button className="btn-primary font-bold-label drop-shadow-base my-3">
+                    {user?.role == "head" && <button className="btn-primary font-bold-label drop-shadow-base my-3">
                         Terminate Worker
-                    </button>
+                    </button>}
                 </div>
             </main>
         </>

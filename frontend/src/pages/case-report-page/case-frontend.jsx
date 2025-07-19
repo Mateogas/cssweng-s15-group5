@@ -367,7 +367,7 @@ function CaseFrontend({ creating = false }) {
         // if (!drafts.middle_name || drafts.middle_name.trim() === "") {
         //     missing.push("Middle Name");
         // } else 
-            
+
         if (/\d/.test(drafts.middle_name)) {
             missing.push("Middle Name must not contain numbers");
         }
@@ -734,29 +734,36 @@ function CaseFrontend({ creating = false }) {
             return;
         }
 
-        const payload = {
-            ...drafts,
-            is_active: true,
-        };
+        setModalTitle("Confirm Creation");
+        setModalBody("Are you sure you want to create this client? Important fields will no longer become editable once created.");
+        setModalImageCenter(<div className="info-icon mx-auto" />);
+        setModalConfirm(true);
+        setModalOnConfirm(() => async () => {
+            const payload = {
+                ...drafts,
+                is_active: true,
+            };
 
-        // console.log("Payload for new case:", payload);
+            const { ok, data } = await createNewCase(payload);
 
-        const { ok, data } = await createNewCase(payload);
-        // console.log("Create new case response:", data);
+            if (ok && data?.case?._id) {
+                setModalTitle("Success!");
+                setModalBody("New case created successfully.");
+                setModalImageCenter(<div className="success-icon mx-auto" />);
+                setModalConfirm(false);
+                setModalOnConfirm(() => () => navigate(`/`));
+            } else {
+                console.error("Invalid _id:", data.case);
+                setModalTitle("Error");
+                setModalBody(data.message || "An unexpected error occurred.");
+                setModalImageCenter(<div className="warning-icon mx-auto" />);
+                setModalConfirm(false);
+                setModalOnConfirm(() => () => { });
+            }
 
-
-        if (ok && data?.case?._id) {
-            showSuccess("New case created successfully!");
-            navigate(`/`);
-        } else {
-            console.error("Invalid _id:", data.case);
-            setModalTitle("Error");
-            setModalBody(data.message || "An unexpected error occurred.");
-            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-            setModalConfirm(false);
             setShowModal(true);
-        }
-
+        });
+        setShowModal(true);
     };
 
     return (

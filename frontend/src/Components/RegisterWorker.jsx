@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fetchSDWs } from '../fetch-connections/case-connection';
 import SimpleModal from './SimpleModal';
 import { createAccount } from '../fetch-connections/account-connection';
+import { fetchEmployeeByUsername } from '../fetch-connections/account-connection';
 
 export default function RegisterWorker({
   isOpen,
@@ -116,7 +117,28 @@ export default function RegisterWorker({
     if (!formData.first_name || /\d/.test(formData.first_name)) missing.push("First Name");
     // if (!formData.middle_name || /\d/.test(formData.middle_name)) missing.push("Middle Name");
     if (!formData.last_name || /\d/.test(formData.last_name)) missing.push("Last Name");
-    if (!formData.username) missing.push("Username");
+    if (!formData.username) {
+      missing.push("Username")
+    } else {
+      if (!formData.username || formData.username.trim() === "") {
+        missing.push("Username");
+      } else {
+        const check = await fetchEmployeeByUsername(formData.username);
+        console.log("Fetched employee by Username:", check);
+
+        if (check.ok && check.data) {
+          console.log(
+            "Comparing found username:", check.data.username,
+            "vs current employee username:", formData.username
+          );
+
+          if (check.data.username.trim() === formData.username.trim()) {
+            missing.push(`Username already exists and belongs to another employee`);
+          }
+        }
+      }
+    }
+
     if (!formData.sdw_id || formData.sdw_id.trim() === "") {
       missing.push("SDW ID");
     } else if (isNaN(Number(formData.sdw_id))) {
@@ -351,7 +373,7 @@ export default function RegisterWorker({
                       <option value="">Select Supervisor</option>
                       {supervisors.map((supervisor) => (
                         <option key={supervisor.id} value={supervisor.id}>
-                          {supervisor.username} ({supervisor.id})
+                          {supervisor.username}
                         </option>
                       ))}
                     </select>
