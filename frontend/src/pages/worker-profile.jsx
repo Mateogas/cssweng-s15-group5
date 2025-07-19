@@ -201,7 +201,7 @@ export default function WorkerProfile() {
         // if (!drafts.middle_name || drafts.middle_name.trim() === "") {
         //     missing.push("Middle Name");
         // } else 
-            
+
         if (/\d/.test(drafts.middle_name)) {
             missing.push("Middle Name must not contain numbers");
         }
@@ -347,12 +347,14 @@ export default function WorkerProfile() {
             <SimpleModal
                 isOpen={showModal}
                 onClose={() => {
+                    if (modalOnClose) modalOnClose();
                     setShowModal(false);
                     setModalTitle("");
                     setModalBody("");
                     setModalImageCenter(null);
                     setModalConfirm(false);
                     setModalOnConfirm(() => { });
+                    setModalOnClose(() => null);
                 }}
                 title={modalTitle}
                 bodyText={modalBody}
@@ -390,7 +392,7 @@ export default function WorkerProfile() {
                         <>
                             <div className="flex gap-5 w-full">
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">First Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
                                         type="text"
                                         value={drafts.first_name}
@@ -414,7 +416,7 @@ export default function WorkerProfile() {
                                 </div>
 
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Last Name</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
                                         type="text"
                                         value={drafts.last_name}
@@ -429,7 +431,7 @@ export default function WorkerProfile() {
                             {/* === Row 2 === */}
                             <div className="flex gap-5 w-full mt-5">
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Username</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
                                     <input
                                         type="text"
                                         value={drafts.username}
@@ -441,7 +443,7 @@ export default function WorkerProfile() {
                                 </div>
 
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Email</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
                                     <input
                                         type="text"
                                         value={drafts.email}
@@ -453,7 +455,7 @@ export default function WorkerProfile() {
                                 </div>
 
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Contact Number</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
                                     <input
                                         type="text"
                                         value={drafts.contact_no}
@@ -468,7 +470,7 @@ export default function WorkerProfile() {
                             {/* === Row 3 === */}
                             <div className="flex gap-5 w-full mt-5">
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">SDW ID</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> SDW ID</label>
                                     <input
                                         type="text"
                                         value={drafts.sdw_id}
@@ -480,7 +482,7 @@ export default function WorkerProfile() {
                                 </div>
 
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">SPU Project</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
                                     <select
                                         className="text-input font-label"
                                         value={drafts.spu_id}
@@ -498,7 +500,7 @@ export default function WorkerProfile() {
                                 </div>
 
                                 <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Role</label>
+                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
                                     <select
                                         className="text-input font-label"
                                         value={drafts.role}
@@ -509,7 +511,7 @@ export default function WorkerProfile() {
                                         <option value="">Select Role</option>
                                         {user?.role == "head" && <option value="head">Head</option>}
                                         <option value="super">Supervisor</option>
-                                        <option value="sdw">Social Development Worker</option>                                        
+                                        <option value="sdw">Social Development Worker</option>
                                     </select>
                                 </div>
 
@@ -548,19 +550,22 @@ export default function WorkerProfile() {
                                         manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
                                     };
                                     const { ok, data: result } = await updateEmployeeById(workerId, payload);
-
                                     if (ok) {
                                         setModalTitle("Success");
                                         setModalBody("Worker profile updated successfully!");
                                         setModalImageCenter(<div className="success-icon mx-auto"></div>);
                                         setModalConfirm(false);
                                         setShowModal(true);
-                                        setModalOnConfirm(() => () => {
+
+                                        const onUpdate = () => {
                                             setData(result.employee);
                                             setEditingField(null);
-                                        });
+                                        };
 
-                                    } else {
+                                        setModalOnConfirm(() => onUpdate);
+                                        setModalOnClose(() => onUpdate);
+                                    }
+                                    else {
                                         setModalTitle("Error");
                                         setModalBody(result.message || "Failed to update worker.");
                                         setModalImageCenter(<div className="warning-icon mx-auto"></div>);
