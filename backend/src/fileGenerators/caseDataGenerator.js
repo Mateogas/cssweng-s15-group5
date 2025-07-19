@@ -10,6 +10,7 @@ const Progress_Report = require('../model/progress_report')
 
 const {
 	calculateAge,
+	formatDate,
 	formatCorrespondenceData,
 	formatCounselingData,
 	formatFinancialData,
@@ -161,34 +162,57 @@ const generateCaseData = async (req, res) => {
 
         // Fetch progress reports
 		let formattedProgressReports = [];
+		const progressReports = await Promise.all(
+			sponsoredMember.progress_reports.map(async (report) => {
+				let formattedReport;
+				try {
+					const progressReport = await Progress_Report.findById(report.progress_report);
+					if (progressReport) {
+						formattedReport = {
+							report_num: report.report_number,
+							...formatProgressReport(progressReport),
+						}
+						console.log('formatted Report', formattedReport);
+						return formattedReport;
+					}
+					return null;
+				} catch (error) {
+					console.error(`Error fetching progress report ${report}:`, error);
+					return null;
+				}
+			})
+		)
 
+		formattedProgressReports = progressReports.filter(report => report !== null);
+		// console.log('FORMATTED PROGRESS REPORTS', formattedProgressReports);
 
 		// Format data for the document
 		const caseData = {
-			last_name: sponsoredMember.last_name,
-			first_name: sponsoredMember.first_name,
-			middle_name: sponsoredMember.middle_name,
-			sex: sponsoredMember.sex,
-			present_address: sponsoredMember.present_address,
-			dob: sponsoredMember.dob,
-			pob: sponsoredMember.pob,
-			age: calculateAge(sponsoredMember.dob),
-			civil_status: sponsoredMember.civil_status,
-			edu_attainment: sponsoredMember.edu_attainment,
-			religion: sponsoredMember.religion,
-			occupation: sponsoredMember.occupation,
-			contact_no: sponsoredMember.contact_no,
-			classification: sponsoredMember.classification,
+			last_name: sponsoredMember.last_name || '',
+			first_name: sponsoredMember.first_name || '',
+			middle_name: sponsoredMember.middle_name || '',
+			sex: sponsoredMember.sex || '',
+			present_address: sponsoredMember.present_address || '',
+			dob: formatDate(sponsoredMember.dob) || '',
+			pob: sponsoredMember.pob || '',
+			age: calculateAge(sponsoredMember.dob) || '',
+			civil_status: sponsoredMember.civil_status || '',
+			edu_attainment: sponsoredMember.edu_attainment || '',
+			religion: sponsoredMember.religion || '',
+			occupation: sponsoredMember.occupation || '',
+			contact_no: sponsoredMember.contact_no || '',
+			classification: sponsoredMember.classification || '',
 			family_members: formattedFamilyMembers,
-			problem_presented: sponsoredMember.problem_presented,
-			history_problem: sponsoredMember.history_problem,
-			observation_findings: sponsoredMember.observation_findings,
-			assessment: sponsoredMember.assessment,
+			problem_presented: sponsoredMember.problem_presented || '',
+			history_problem: sponsoredMember.history_problem || '',
+			observation_findings: sponsoredMember.observation_findings || '',
+			assessment: sponsoredMember.assessment || '',
 			interventions: formattedInterventions,
 			progress_reports: formattedProgressReports,
-			evaluation: sponsoredMember.evaluation,
-			recommendation: sponsoredMember.recommendation,
+			evaluation: sponsoredMember.evaluation || '',
+			recommendation: sponsoredMember.recommendation || '',
 		};
+		console.log('CASE DATA', caseData);
 
 		return caseData;
 	} catch (error) {

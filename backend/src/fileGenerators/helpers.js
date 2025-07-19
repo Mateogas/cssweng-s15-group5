@@ -237,12 +237,31 @@ function formatHomeVisitData(homevisit) {
 }
 */
 function formatProgressReport(report) {
-    console.log('formatProgressReport', report);
-    return report
+    if (!report) return {};
+	// console.log('formatProgressReport', report);
+
+	const formattedRelation = {
+		know_sponsor_name: report.relation_to_sponsor.know_sponsor_name || '',
+		cooperative: report.relation_to_sponsor.cooperative || '',
+		personalized_letter: report.relation_to_sponsor.personalized_letter || '',
+	}
+
+    return {
+		sponsor_name: report.sponsor_name || '',
+		sponsorship_date: formatDate(report.sponsorship_date) || '',
+		date_accomplished: formatDate(report.date_accomplished) || '',
+		period_covered: report.period_covered || '',
+		sm_update: report.sm_update || '',
+		family_update: report.family_update || '',
+		services_to_family: report.services_to_family || '',
+		participation: report.participation || '',
+		relation_to_sponsor: formattedRelation,
+	}
 }
 
 module.exports = {
     calculateAge,
+	formatDate,
     formatCorrespondenceData,
     formatCounselingData,
     formatFinancialData,
