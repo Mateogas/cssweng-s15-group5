@@ -172,7 +172,7 @@ const generateCaseData = async (req, res) => {
 							report_num: report.report_number,
 							...formatProgressReport(progressReport),
 						}
-						console.log('formatted Report', formattedReport);
+						// console.log('formatted Report', formattedReport);
 						return formattedReport;
 					}
 					return null;
@@ -212,9 +212,9 @@ const generateCaseData = async (req, res) => {
 			evaluation: sponsoredMember.evaluation || '',
 			recommendation: sponsoredMember.recommendation || '',
 		};
-		console.log('CASE DATA', caseData);
+		// console.log('CASE DATA', caseData);
 
-		return caseData;
+		return res.status(200).json(caseData);
 	} catch (error) {
         console.error('Error generating case data:', error)
         throw error

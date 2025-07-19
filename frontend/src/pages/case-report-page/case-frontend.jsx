@@ -912,7 +912,7 @@ function CaseFrontend({ creating = false }) {
                         )}
                         <button className="btn-blue font-bold-label drop-shadow-base"
                             data-cy='download-case'
-                            onClick={() => generateCaseReport(data.id)}
+                            onClick={() => generateCaseReport(clientId)}
                         >
                             Download
                         </button>
