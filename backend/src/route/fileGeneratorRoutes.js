@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const fileGenerator = require('../fileGenerators/caseDataGenerator');
+const { generateCaseData } = require('../fileGenerators/caseDataGenerator');
+const { generateCorrespondenceForm } = require('../fileGenerators/correspondenceFormGenerator');
 
 /*
     File Generator Routes
     /api/file-generator
 */
-router.get('/case-data/:id', fileGenerator.generateCaseData);
+router.get('/case-data/:id', generateCaseData);
+router.get('/correspondence-form/:correspondenceId', generateCorrespondenceForm);
 
 module.exports = router;
