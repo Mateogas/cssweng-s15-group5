@@ -30,7 +30,7 @@ const Employee = require("../model/employee");
 const createAccount = async (req, res) => {
     try {
         // const { sdw_id, username, password, email, contact_no, spu_id, role, manager } = req.body;
-        const { username, password, email, contact_no, spu_id, role, manager } = req.body;
+        const { username, password, email, contact_no, spu_id, role, manager, area } = req.body;
     
 
         // console.log("REQ.BODY", req.body);
@@ -107,6 +107,7 @@ const createAccount = async (req, res) => {
         // Create the new employee account
         const newEmployee = new Employee({
             // sdw_id,
+            area,
             username,
             password: hashedPassword,
             email,

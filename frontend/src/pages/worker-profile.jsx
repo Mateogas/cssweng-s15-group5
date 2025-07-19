@@ -50,6 +50,7 @@ export default function WorkerProfile() {
         email: "",
         contact_no: "",
         // sdw_id: "",
+        area: "",
         spu_id: "",
         role: "",
         manager: "",
@@ -63,6 +64,7 @@ export default function WorkerProfile() {
         email: "",
         contact_no: "",
         // sdw_id: "",
+        area: "",
         spu_id: "",
         role: "",
         manager: "",
@@ -106,6 +108,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
+                    area:  empData.area || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -119,6 +122,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
+                    area: empData.area || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -182,6 +186,7 @@ export default function WorkerProfile() {
             email: data.email || "",
             contact_no: data.contact_no || "",
             // sdw_id: data.sdw_id || "",
+            area: data.area || "",
             spu_id: data.spu_id || "",
             role: data.role || "",
             manager: data.manager || "",
@@ -394,6 +399,7 @@ export default function WorkerProfile() {
                                 <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
+                                        placeholder="First Name"
                                         type="text"
                                         value={drafts.first_name}
                                         onChange={(e) =>
@@ -407,6 +413,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label">Middle Name</label>
                                     <input
                                         type="text"
+                                        placeholder="Middle Name"
                                         value={drafts.middle_name}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, middle_name: e.target.value }))
@@ -419,6 +426,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
                                         type="text"
+                                        placeholder="Last Name"
                                         value={drafts.last_name}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, last_name: e.target.value }))
@@ -434,6 +442,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
                                     <input
                                         type="text"
+                                        placeholder="Username"
                                         value={drafts.username}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, username: e.target.value }))
@@ -446,6 +455,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
                                     <input
                                         type="text"
+                                        placeholder="Email"
                                         value={drafts.email}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, email: e.target.value }))
@@ -458,6 +468,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
                                     <input
                                         type="text"
+                                        placeholder="Contact Number"
                                         value={drafts.contact_no}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, contact_no: e.target.value }))
@@ -497,6 +508,19 @@ export default function WorkerProfile() {
                                             </option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div className="flex flex-col w-full">
+                                    <label className="font-bold-label">Area of Assignment</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.area}
+                                        placeholder="Area of Assignment"
+                                        onChange={(e) =>
+                                            setDrafts((prev) => ({ ...prev, area: e.target.value }))
+                                        }
+                                        className="text-input font-label w-full"
+                                    />
                                 </div>
 
                                 <div className="flex flex-col w-full">
@@ -579,12 +603,13 @@ export default function WorkerProfile() {
                         </>
                     ) : (
                         <>
+                            <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
                             <div className="flex justify-between items-center">
                                 <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                <button
+                                {(user?.role == "head" || data.manager == user?._id) && <button
                                     className="icon-button-setup dots-button"
                                     onClick={() => setEditingField("core-fields")}
-                                ></button>
+                                ></button>}
                             </div>
 
                             <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
@@ -594,7 +619,7 @@ export default function WorkerProfile() {
 
                                 {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
                                 <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
-                                <p><span className="font-bold-label">Role:</span> {data.role || "-"}</p>
+                                <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
 
                                 {(data.role === "" || data.role === "sdw") && (
                                     <p className="font-label">
@@ -686,12 +711,12 @@ export default function WorkerProfile() {
                     )}
 
 
-                    <button
+                    {(user?.role == "head" || data.manager == user?._id) && <button
                         className="btn-outline font-bold-label drop-shadow-base my-3"
                         onClick={() => setIsChangePasswordOpen(true)}
                     >
                         Change Password
-                    </button>
+                    </button>}
 
                     {user?.role == "head" && <button className="btn-primary font-bold-label drop-shadow-base my-3">
                         Terminate Worker

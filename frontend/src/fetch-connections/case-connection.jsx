@@ -100,7 +100,7 @@ export const fetchCaseBySMNumber = async (smNumber) => {
     return result; 
   } catch (error) {
     console.error('[fetchCaseBySMNumber] Error:', error);
-    return { found: false, message: error.message || 'Error fetching case by SM Number' };
+    return { found: false, message: error.message || 'Error fetching case by CH Number' };
   }
 };
 

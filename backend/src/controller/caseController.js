@@ -80,7 +80,7 @@ const getCaseById = async (req, res) => {
 const getCaseBySMNumber = async (req, res) => {
      const smNumber = req.params.sm_number;
 
-     console.log('[getCaseBySMNumber] Called with SM Number:', smNumber);
+     console.log('[getCaseBySMNumber] Called with CH Number:', smNumber);
 
      try {
           const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
@@ -92,7 +92,7 @@ const getCaseBySMNumber = async (req, res) => {
           if (!caseItem) {
                return res.status(200).json({
                     found: false,
-                    message: 'Case not found for given SM Number',
+                    message: 'Case not found for given CH Number',
                });
           }
 

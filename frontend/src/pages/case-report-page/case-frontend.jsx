@@ -380,11 +380,11 @@ function CaseFrontend({ creating = false }) {
         }
 
         if (!drafts.sm_number) {
-            missing.push("SM Number");
+            missing.push("CH Number");
         } else if (isNaN(Number(drafts.sm_number))) {
-            missing.push("SM Number must only be numeric");
+            missing.push("CH Number must only be numeric");
         } else if (Number(drafts.sm_number) < 0) {
-            missing.push("SM Number cannot be negative");
+            missing.push("CH Number cannot be negative");
         }
 
         if (drafts.sm_number) {
@@ -398,14 +398,14 @@ function CaseFrontend({ creating = false }) {
                 );
 
                 if (String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
-                    // Same SM Number used by a different case → block
-                    missing.push(`SM Number already exists and belongs to another case`);
+                    // Same CH Number used by a different case → block
+                    missing.push(`CH Number already exists and belongs to another case`);
                 } else {
-                    // Same SM Number as current case → allow
-                    console.log("SM Number belongs to same case — valid");
+                    // Same CH Number as current case → allow
+                    console.log("CH Number belongs to same case - valid");
                 }
             } else {
-                console.log("SM Number is unique — valid");
+                console.log("CH Number is unique — valid");
             }
         }
 
@@ -957,11 +957,11 @@ function CaseFrontend({ creating = false }) {
                             </div>
 
                             <div className="flex flex-col gap-5 w-full">
-                                <label className="font-bold-label"><span className='text-red-500'>*</span> SM Number</label>
+                                <label className="font-bold-label"><span className='text-red-500'>*</span> CH Number</label>
                                 <input
                                     type="text"
                                     value={drafts.sm_number}
-                                    placeholder='SM Number'
+                                    placeholder='CH Number'
                                     onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
                                     className="text-input font-label w-full max-w-[30rem]"
                                     data-cy='sm-number'

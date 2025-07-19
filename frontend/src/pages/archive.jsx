@@ -137,7 +137,7 @@ function Archive() {
                                 >
                                     <option value="">Sort By</option>
                                     <option value="name">Name</option>
-                                    <option value="sm_number">SM Number</option>
+                                    <option value="sm_number">CH Number</option>
                                 </select>
 
                                 <button
