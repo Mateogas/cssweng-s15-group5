@@ -85,6 +85,52 @@ const loadHomeVisitationForm = async (req, res) => {
     }
 };
 
+/**
+ * Retrieves all home visit interventions for a sponsored member by their ID.
+ * Filters interventions to include only those of type 'Intervention Home Visit'.
+ * 
+ * @route GET /api/intervention/home-visit-form/all/:caseID
+ * 
+ * @param {string} req.params.memberID - ID of the sponsored member
+ * 
+ * @returns {Object} 200 - JSON object with home visit interventions and sponsored member details
+ * @returns {Object} 404 - If sponsored member is not found
+ * @returns {Object} 500 - If a server error occurs
+ */
+const loadAllHomeVisitationForms = async (req, res) => {
+    try {
+        const memberID = req.params.caseID;
+
+        // Find the sponsored member by ID
+        const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention');
+        if (!sponsored_member) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
+        }
+
+        // Filter interventions of type 'Intervention Counseling'
+        const homeVisitInterventions = sponsored_member.interventions.filter(intervention => 
+            intervention.interventionType === 'Intervention Home Visit'
+        );
+
+        return res.status(200).json({
+            message: 'Home visit interventions retrieved successfully',
+            interventions: homeVisitInterventions,
+            sponsored_member: {
+                id: sponsored_member._id,
+                first_name: sponsored_member.first_name,
+                middle_name: sponsored_member.middle_name,
+                last_name: sponsored_member.last_name,
+                ch_number: sponsored_member.sm_number,
+                subproject: sponsored_member.spu,
+                address: sponsored_member.present_address,
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching home visit interventions:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 const loadHomeVisitationFormEdit = async (req, res) => {
     try {
         const caseSelected = await Sponsored_Member.findById(req.params.caseID);
@@ -230,7 +276,7 @@ const createHomVis = async (req, res) => {
 
             sm_progress: formData.sm_progress,
             family_progress: formData.family_progress,
-            recommendation: formData.recommendation,
+            recommendations: formData.recommendations,
             agreement: formData.agreement,
 
             observation_findings: formData.observation_findings,
@@ -287,6 +333,11 @@ const editHomeVis = async (req, res) => {
             req.params.formID
         );
         const formData = req.body;
+
+        console.log("Controller Enter");
+        console.log("Controller CaseSelected: ", caseSelected);
+        console.log("Controller interventionSelected: ", interventionSelected);
+        console.log("Controller formData: ", formData);
 
         if (!caseSelected) {
             return res.status(404).json({ message: "Case not found" });
@@ -376,7 +427,7 @@ const editHomeVis = async (req, res) => {
             family_progress:
                 formData.family_progress ||
                 interventionSelected.family_progress,
-            recommendation: formData.recommendation,
+            recommendations: formData.recommendations,
             agreement: formData.agreement,
 
             observation_findings: formData.observation_findings,
@@ -389,6 +440,8 @@ const editHomeVis = async (req, res) => {
             updatedData,
             { new: true, runValidators: true }
         );
+
+        console.log("Updated Data: ", updatedData);
 
         return res.status(200).json({
             form: updatedForm,
@@ -406,9 +459,60 @@ const editHomeVis = async (req, res) => {
     }
 };
 
+/**
+ * Deletes a home visit intervention by its ID and removes it from the sponsored member's interventions.
+ * 
+ * @route DELETE /api/intervention/delete/home-visit-form/:formId
+ * 
+ * @param {string} req.params.formId - ID of the home intervention to delete
+ * 
+ * @returns {Object} 200 - JSON object with success message and intervention ID
+ * @returns {Object} 404 - If intervention or sponsored member is not found
+ * @returns {Object} 500 - If a server error occurs
+ */
+const deleteHomeVis = async (req, res) => {
+    try {
+        const formId = req.params.formID;
+        
+        const intervention = await InterventionHomeVisit.findById(formId);
+        
+        if (!intervention) {
+            return res.status(404).json({ error: 'Home Visit intervention not found' });
+        }
+
+        // Remove the intervention from the sponsored member's interventions array
+        const sponsored_member = await Sponsored_Member.findOneAndUpdate(
+            { 'interventions.intervention': formId },
+            { $pull: { interventions: { intervention: formId } } },
+            { new: true }
+        );
+
+        if (!sponsored_member) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
+        }
+
+        // Delete the intervention
+        await InterventionHomeVisit.findByIdAndDelete(formId);
+
+        // Return success response
+        return res.status(200).json({
+            message: 'Home Visit intervention deleted successfully',
+            interventionId: formId,
+            sponsored_member: {
+                id: sponsored_member._id,
+            },
+        });
+    } catch (error) {
+        console.error('Error deleting home visit intervention:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 module.exports = {
     loadHomeVisitationForm,
+    loadAllHomeVisitationForms,
     loadHomeVisitationFormEdit,
     createHomVis,
     editHomeVis,
+    deleteHomeVis
 };

@@ -42,6 +42,7 @@ import {
 import {
     fetchProgressReportsForCase
 } from "../../fetch-connections/progress-report-connection";
+import { fetchAllHomeVisitForms } from "../../fetch-connections/homeVisitation-connection";
 
 function CaseFrontend({ creating = false }) {
     // console.log(creating);
@@ -85,7 +86,7 @@ function CaseFrontend({ creating = false }) {
             if (!clientId) return;
 
             const fetchedData = await fetchCaseData(clientId);
-            console.log("FETCHED DATA", fetchedData);
+            //console.log("FETCHED DATA", fetchedData);
 
             setData({
                 ...fetchedData,
@@ -290,7 +291,7 @@ function CaseFrontend({ creating = false }) {
         loadSession();
     }, [creating]);
 
-    console.log(drafts);
+    //console.log(drafts);
 
     function calculateAge(dateValue) {
         const birthday = new Date(dateValue);
@@ -523,27 +524,44 @@ function CaseFrontend({ creating = false }) {
 
     const [intervention_selected, setInterventionSelected] = useState("");
 
-    const [home_visitations, setHomeVisitations] = useState([
-        /*{
-            intervention: "Home Visitation",
-            date: "May 05, 2025",
-        },
-        {
-            intervention: "Home Visitation",
-            date: "May 23, 2025",
-        },
-        {
-            intervention: "Home Visitation",
-            date: "June 02, 2025",
-        },*/
-    ]);
+    const [home_visitations, setHomeVisitations] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedHomeVisitData = await fetchAllHomeVisitForms(clientId);
+            console.log("Fetched Home Visit: ", fetchedHomeVisitData);
+
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+            });
+
+            const homeVisitInterventions = fetchedHomeVisitData.interventions.map(item => {
+                const date = new Date(item.intervention.createdAt);
+
+                return {
+                    formID: item.intervention._id,
+                    route: "home-visitation-form",
+                    intervention: item.interventionType,
+                    date: isNaN(date) ? '' : formatter.format(date),
+                };
+            });
+
+            console.log("Home Visitation Forms: ", homeVisitInterventions);
+
+            setHomeVisitations(homeVisitInterventions);
+        };
+
+        loadData();
+    }, []);
 
     const [counsellings, setCounsellings] = useState([]);
 
     useEffect(() => {
         const loadData = async () => {
             const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
-            console.log("Fetched Counselling: ", fetchedCounsellingData);
+            //console.log("Fetched Counselling: ", fetchedCounsellingData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -562,7 +580,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Counselling Data: ", counsellingInterventions);
+            //console.log("Counselling Data: ", counsellingInterventions);
 
             setCounsellings(counsellingInterventions);
         };
@@ -576,7 +594,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedFinancialData = await fetchAllFinInterventions(clientId);
-            console.log("Fetched Financial: ", fetchedFinancialData);
+            //console.log("Fetched Financial: ", fetchedFinancialData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -596,7 +614,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Financial Data: ", financialInterventions);
+            //console.log("Financial Data: ", financialInterventions);
 
             setFinancialAssistances(financialInterventions);
         };
@@ -610,7 +628,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedCorrespondenceData = await fetchAllCorrespInterventions(clientId);
-            console.log("Fetched Correspondence: ", fetchedCorrespondenceData);
+            //console.log("Fetched Correspondence: ", fetchedCorrespondenceData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -630,7 +648,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Correspondence Data: ", correspondenceInterventions);
+            //console.log("Correspondence Data: ", correspondenceInterventions);
 
             setCorrespondences(correspondenceInterventions);
         };
@@ -650,7 +668,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedProgressData = await fetchProgressReportsForCase(clientId);
-            console.log("Fetched Progress Reports: ", fetchedProgressData);
+            //console.log("Fetched Progress Reports: ", fetchedProgressData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -669,7 +687,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Progress Report Data: ", progressReportsData);
+            //console.log("Progress Report Data: ", progressReportsData);
 
             setProgressReports(progressReportsData);
         };
@@ -689,6 +707,15 @@ function CaseFrontend({ creating = false }) {
     const handleNewProgressReport = (caseID) => {
 
         const path = `/progress-report/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleCaseTermination = (caseID) => {
+
+        const path = `/case-closure/?action=create&caseID=${caseID}`;
 
         navigate(path);
 
@@ -1949,7 +1976,13 @@ function CaseFrontend({ creating = false }) {
                     Create Case
                 </button>}
 
-                {!creating && <button onClick={() => navigate("/case-closure")} className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                {!creating && 
+                    <button 
+                        onClick={() =>
+                            handleCaseTermination(
+                                clientId
+                            )} 
+                        className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
                     data-cy='terminate-case'>
                     Terminate Case
                 </button>}

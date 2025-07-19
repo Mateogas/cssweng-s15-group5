@@ -17,7 +17,6 @@ const interCorespValidator = Joi.object({
     progress_reports: Joi.array().items(
         Joi.string().length(24).hex()
     ).optional(),
-    school: Joi.string().min(1).required(),
 });
 
 module.exports = interCorespValidator;

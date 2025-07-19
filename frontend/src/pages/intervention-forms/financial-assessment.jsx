@@ -7,7 +7,8 @@ import Signature from "../../Components/Signature";
 import  {   fetchFinInterventionData,
             createFinancialForm,
             editFinancialForm,
-            fetchAutoFillFinancialData
+            fetchAutoFillFinancialData,
+            deleteCorrespInterventionForm
         }
 from '../../fetch-connections/financialForm-connection'; 
 
@@ -117,7 +118,7 @@ function FinancialAssessmentForm() {
                     date: formData.createdAt || "",
                     problem_presented: formData.problem_presented || "",
                     recommendation: formData.recommendation || "",
-                    other_assistance_detail: formData.other_assistance_detail_detail || "",
+                    other_assistance_detail: formData.other_assistance_detail || "",
                 }));
         
                 setTypeOfAssistance(formData.type_of_assistance);
@@ -179,7 +180,7 @@ function FinancialAssessmentForm() {
 
     const handleDelete = async () => {
 
-        const response = await editFinancialForm(formID, updatedPayload); 
+        const response = await deleteCorrespInterventionForm(formID); 
     };
 
     // < END :: Edit Form > //
@@ -196,13 +197,14 @@ function FinancialAssessmentForm() {
     const [area_and_subproject, setAreaAndSubproject] = useState(
         data?.area_and_subproject || "",
     );
-    const [other_assistance_detail, setOtherAssistance] = useState("");
+    const [other_assistance_detail, setOtherAssistance] = useState(data?.other_assistance_detail || "");
     const [problem_presented, setProblemPresented] = useState(
         data?.problem_presented || "",
     );
     const [recommendation, setRecommendation] = useState(
         data?.recommendation || "",
     );
+    const [showConfirm, setShowConfirm] = useState(false);
     
     // ===== END :: USE STATES ===== //
 
@@ -245,7 +247,7 @@ function FinancialAssessmentForm() {
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
                     <button 
-                        onClick={() => navigate(-1)} 
+                        onClick={() => navigate(`/case/${caseID}`)} 
                         className="flex items-center gap-5 label-base arrow-group">
                         <div className="arrow-left-button"></div>
                         Go Back
@@ -389,13 +391,18 @@ function FinancialAssessmentForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={() => navigate(-1)} 
+                            onClick={() => 
+                                setShowConfirm(true)
+                            }
                         >
                             Delete Form
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={handleUpdate}
+                            onClick={async () => {
+                                await handleUpdate();
+                                navigate(`/case/${caseID}`);
+                            }}
                         >
                             Save Changes
                         </button>
@@ -404,17 +411,54 @@ function FinancialAssessmentForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate(`/case/${caseID}`)}
                         >
                             Cancel
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={handleCreate}
+                            onClick={async () => {
+                                await handleCreate();
+                                navigate(`/case/${caseID}`);
+                            }}
                         >
                             Create Intervention
                         </button>
                     </>
+                )}
+
+                {/* Confirm Delete Form */}
+                {showConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-md font-semibold mb-4">Delete Form</h2>
+                            <p className="label-base mb-6">Are you sure you want to delete this form?</p>
+                            <div className="flex justify-end gap-4">
+                                
+                                {/* Cancel */}
+                                <button
+                                    onClick={() => 
+                                        setShowConfirm(false)
+                                    }
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Cancel
+                                </button>
+
+                                {/* Delete Form */}
+                                <button
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        setShowConfirm(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </main>

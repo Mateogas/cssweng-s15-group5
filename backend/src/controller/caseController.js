@@ -573,6 +573,23 @@ const addFamilyMember = async (req, res) => {
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = 0
 
+          // Occupation and Education fix
+          const occupation = (updateDetails.occupation || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.occupation = occupation
+
+          const edu_attainment = (updateDetails.education || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.education = edu_attainment
+
           const newMember = new Family_Member({
                first_name: updateDetails.first,
                middle_name: updateDetails.middle || "",
@@ -586,6 +603,24 @@ const addFamilyMember = async (req, res) => {
           })
           // console.log(newMember);
           await newMember.validate();
+
+          // Relationship fix
+          mother_codes = ["mom", "mother", "mama", "nanay"]
+          father_codes = ["dad", "father", "papa", "tatay"]
+
+          let relationship = updateDetails.relationship.trim().toLowerCase();
+
+          if (mother_codes.includes(relationship)) {
+               relationship = "Mother";
+          } else if (father_codes.includes(relationship)) {
+               relationship = "Father";
+          } else {
+               relationship = relationship
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          }
+          updateDetails.relationship = relationship
 
           const newRelationship = new Family_Relationship({
                family_id: newMember._id,
@@ -613,9 +648,9 @@ const addFamilyMember = async (req, res) => {
                occupation: newMember.occupation,
                education: newMember.edu_attainment,
                relationship: updateDetails.relationship,
-               status: newMember.status,
 
-               deceased: newMember.status === "Deceased"
+               status: newMember.status,
+               // deceased: newMember.status === "Deceased"
           }
           // console.log(returnData);
 
@@ -677,10 +712,6 @@ const editFamilyMember = async (req, res) => {
           if (!familySelected || !caseSelected || !relationshipSelected)
                throw error;
 
-          // var status = "Living"
-          // if (updateDetails.deceased)
-          //      status = "Deceased"
-
           if (updateDetails.income < 0)
                updateDetails.income = familySelected.income
 
@@ -691,9 +722,46 @@ const editFamilyMember = async (req, res) => {
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = familySelected.age
 
+          // Relationship fix
+          mother_codes = ["mom", "mother", "mama", "nanay"]
+          father_codes = ["dad", "father", "papa", "tatay"]
+
+          if (updateDetails.relationship || updateDetails.relationship !== "") {
+               let relationship = updateDetails.relationship.trim().toLowerCase();
+
+               if (mother_codes.includes(relationship)) {
+                    relationship = "Mother";
+               } else if (father_codes.includes(relationship)) {
+                    relationship = "Father";
+               } else {
+                    relationship = relationship
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+               }
+
+               updateDetails.relationship = relationship
+          }
+
+          // Occupation and Education fix
+          const occupation = (updateDetails.occupation || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.occupation = occupation
+
+          const edu_attainment = (updateDetails.education || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.education = edu_attainment
+
           /**
            *   Updating part
-           * 
            *   In case that the updateDetails is an empty string, the default value is retrieved
            */
           const updatedData = {
@@ -736,8 +804,7 @@ const editFamilyMember = async (req, res) => {
                relationship: updatedRel.relationship_to_sm,
 
                status: updatedFam.status,
-
-               deceased: updatedFam.status === "Deceased"
+               // deceased: updatedFam.status === "Deceased"
           }
 
           // Response

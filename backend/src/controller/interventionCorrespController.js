@@ -195,9 +195,6 @@ const getAllCorrespondenceInterventions = async (req, res) => {
         if (!sponsoredMember) {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
-
-        // console.log("SM: ", sponsoredMember);
-
  
         const correspondenceInterventions = (sponsoredMember.interventions || [])
             .filter(i => i.interventionType === 'Intervention Correspondence')
@@ -206,8 +203,6 @@ const getAllCorrespondenceInterventions = async (req, res) => {
                 intervention_number: i.intervention_number,
                 createdAt: i.intervention ? i.intervention.createdAt : null
             }));
-
-        console.log("Corresp Data: ", correspondenceInterventions);
 
         return res.status(200).json(correspondenceInterventions);
     } catch (error) {
@@ -296,7 +291,6 @@ const deleteCorrespondenceForm = async(req, res) => {
         if (!sponsoredMember) {
             return res.status(404).json({ message: 'Sponsored member not found' });
         }
-
 
         await Intervention_Correspondence.findByIdAndDelete(formId);
 
