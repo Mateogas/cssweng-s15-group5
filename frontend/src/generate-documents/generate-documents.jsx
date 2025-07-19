@@ -74,3 +74,37 @@ export const generateCorrespondenceForm = async (correspondenceId) => {
         saveAs(out, 'correspondence-form.docx');
     });
 }
+
+export const generateCounselingForm = async (counselingId) => {
+    const data = await fetch(`/api/file-generator/counseling-form/${counselingId}`);
+    if (!data.ok) {
+        throw new Error('Failed to fetch counseling data');
+    }
+
+    const counselingData = await data.json();
+    // console.log('Counseling Data:', counselingData);
+
+    const templatePath = '/templates/TEMPLATE_Counseling-Form.docx';
+
+    loadFile(templatePath, function (error, content) {
+        if (error) {
+            throw error;
+        }
+
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        doc.render(counselingData);
+
+        const out = doc.getZip().generate({
+            type: 'blob',
+            mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+
+        saveAs(out, 'counseling-form.docx');
+    });
+}
