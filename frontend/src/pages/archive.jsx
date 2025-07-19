@@ -49,7 +49,7 @@ function Archive() {
         filtered = filtered.filter((client) => !client.is_active);
 
         if (user) {
-            if (user?.role === "super") {
+            if (user?.role === "supervisor") {
                 filtered = filtered.filter((client) => client.spu === user?.spu_id);
             } else if (user?.role === "sdw") {
                 filtered = filtered.filter((client) => {
