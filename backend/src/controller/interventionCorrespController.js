@@ -196,7 +196,7 @@ const getAllCorrespondenceInterventions = async (req, res) => {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
 
-        console.log("SM: ", sponsoredMember);
+        // console.log("SM: ", sponsoredMember);
 
  
         const correspondenceInterventions = (sponsoredMember.interventions || [])

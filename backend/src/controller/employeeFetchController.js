@@ -14,7 +14,7 @@ const getEmployeeById = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const employeeId = req.params.id;
 
-  console.log("Employee fetch controller", req.params);
+  // console.log("Employee fetch controller", req.params);
 
   // Validate session & ObjectId
   if (!user || !mongoose.Types.ObjectId.isValid(employeeId)) {
@@ -40,7 +40,7 @@ const getEmployeeBySDWId = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const sdwId = req.params.sdw_id;
 
-  console.log("Employee fetch by SDW ID:", sdwId);
+  // console.log("Employee fetch by SDW ID:", sdwId);
 
   if (!user) {
     return res.status(400).json({ message: "Invalid session." });

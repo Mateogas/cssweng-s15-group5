@@ -272,38 +272,6 @@ function CaseFrontend({ creating = false }) {
 
     const sliderRef = useRef(null);
 
-    const handleMouseDown = (e) => {
-        const slider = sliderRef.current;
-        slider.isDown = true;
-        slider.startX = e.pageX - slider.offsetLeft;
-        slider.scrollLeft = slider.scrollLeft;
-        slider.classList.add("cursor-grabbing");
-        slider.style.userSelect = "none";
-    };
-
-    const handleMouseLeave = () => {
-        const slider = sliderRef.current;
-        slider.isDown = false;
-        slider.classList.remove("cursor-grabbing");
-        slider.style.userSelect = "";
-    };
-
-    const handleMouseUp = () => {
-        const slider = sliderRef.current;
-        slider.isDown = false;
-        slider.classList.remove("cursor-grabbing");
-        slider.style.userSelect = "";
-    };
-
-    const handleMouseMove = (e) => {
-        const slider = sliderRef.current;
-        if (!slider.isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - slider.startX) * 0.05; // adjust speed
-        slider.scrollLeft -= walk;
-    };
-
     useEffect(() => {
         const loadSession = async () => {
             const sessionData = await fetchSession();
@@ -396,9 +364,11 @@ function CaseFrontend({ creating = false }) {
             missing.push("First Name must not contain numbers");
         }
 
-        if (!drafts.middle_name || drafts.middle_name.trim() === "") {
-            missing.push("Middle Name");
-        } else if (/\d/.test(drafts.middle_name)) {
+        // if (!drafts.middle_name || drafts.middle_name.trim() === "") {
+        //     missing.push("Middle Name");
+        // } else 
+            
+        if (/\d/.test(drafts.middle_name)) {
             missing.push("Middle Name must not contain numbers");
         }
 
@@ -743,26 +713,7 @@ function CaseFrontend({ creating = false }) {
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
-    // <p className="font-label">
-    //     <span className="font-bold-label">
-    //         Social Development Worker:
-    //     </span>{" "}
-    //     {socialDevelopmentWorkers.find(
-    //         (w) => w.id === data.assigned_sdw,
-    //     )?.username || "-"}
-    // </p>
-
-    // useEffect(() => {
-    //     console.log("SOC DEV WORK", socialDevelopmentWorkers);
-    //     console.log("DATA:", data);
-
-    //     let found = socialDevelopmentWorkers.find(
-    //         (w) => w.id === data.assigned_sdw
-    //     );
-    //     console.log("FOUND:", found);
-
-
-    // }, [drafts])
+    const [confirmCreateModal, setConfirmCreateModal] = useState(false);
 
     const submitNewCase = async () => {
         const coreValid = await checkCore();
@@ -947,7 +898,7 @@ function CaseFrontend({ creating = false }) {
                                 </div>
 
                                 <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Middle Name</label>
+                                    <label className="font-bold-label">Middle Name</label>
                                     <input
                                         type="text"
                                         value={drafts.middle_name}

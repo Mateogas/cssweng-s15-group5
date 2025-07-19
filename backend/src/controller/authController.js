@@ -24,8 +24,8 @@ const loginUser = async (req, res) => {
      try {
           const { username, password, rememberMe } = req.body;
 
-          console.log("Incoming username:", username);
-          console.log("Incoming password:", password);
+          // console.log("Incoming username:", username);
+          // console.log("Incoming password:", password);
 
 
           const active_user = await Employee.findOne({ username });
@@ -33,7 +33,7 @@ const loginUser = async (req, res) => {
                return res.status(401).json({ errorMsg: "Invalid username or password" });
           }
 
-          console.log("CURRENT USER", active_user);
+          // console.log("CURRENT USER", active_user);
 
           const isPasswordValid = await bcrypt.compare(password, active_user.password);
           if (!isPasswordValid) {

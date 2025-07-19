@@ -114,7 +114,7 @@ export default function RegisterWorker({
     const missing = [];
 
     if (!formData.first_name || /\d/.test(formData.first_name)) missing.push("First Name");
-    if (!formData.middle_name || /\d/.test(formData.middle_name)) missing.push("Middle Name");
+    // if (!formData.middle_name || /\d/.test(formData.middle_name)) missing.push("Middle Name");
     if (!formData.last_name || /\d/.test(formData.last_name)) missing.push("Last Name");
     if (!formData.username) missing.push("Username");
     if (!formData.sdw_id || formData.sdw_id.trim() === "") {
