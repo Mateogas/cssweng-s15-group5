@@ -66,7 +66,7 @@ function CaseFrontend({ creating = false }) {
         religion: "",
         contact_no: "",
         present_address: "",
-        relationship_to_client: "",
+        // relationship_to_client: "",
         problem_presented: "",
         observation_findings: "",
         recommendation: "",
@@ -111,7 +111,7 @@ function CaseFrontend({ creating = false }) {
                 occupation: fetchedData.occupation || "",
                 present_address: fetchedData.present_address || "",
                 contact_no: fetchedData.contact_no || "",
-                relationship_to_client: fetchedData.relationship_to_client || "",
+                // relationship_to_client: fetchedData.relationship_to_client || "",
 
                 problem_presented: fetchedData.problem_presented || "",
                 history_problem: fetchedData.history_problem || "",
@@ -206,7 +206,7 @@ function CaseFrontend({ creating = false }) {
         occupation: data.occupation || "",
         present_address: data.present_address || "",
         contact_no: data.contact_no || "",
-        relationship_to_client: data.relationship_to_client || "",
+        // relationship_to_client: data.relationship_to_client || "",
 
         problem_presented: data.problem_presented || "",
         history_problem: data.history_problem || "",
@@ -237,7 +237,7 @@ function CaseFrontend({ creating = false }) {
             occupation: data.occupation || "",
             present_address: data.present_address || "",
             contact_no: data.contact_no || "",
-            relationship_to_client: data.relationship_to_client || "",
+            // relationship_to_client: data.relationship_to_client || "",
 
             problem_presented: data.problem_presented || "",
             history_problem: data.history_problem || "",
@@ -380,11 +380,11 @@ function CaseFrontend({ creating = false }) {
         }
 
         if (!drafts.sm_number) {
-            missing.push("SM Number");
+            missing.push("CH Number");
         } else if (isNaN(Number(drafts.sm_number))) {
-            missing.push("SM Number must only be numeric");
+            missing.push("CH Number must only be numeric");
         } else if (Number(drafts.sm_number) < 0) {
-            missing.push("SM Number cannot be negative");
+            missing.push("CH Number cannot be negative");
         }
 
         if (drafts.sm_number) {
@@ -398,14 +398,14 @@ function CaseFrontend({ creating = false }) {
                 );
 
                 if (String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
-                    // Same SM Number used by a different case → block
-                    missing.push(`SM Number already exists and belongs to another case`);
+                    // Same CH Number used by a different case → block
+                    missing.push(`CH Number already exists and belongs to another case`);
                 } else {
-                    // Same SM Number as current case → allow
-                    console.log("SM Number belongs to same case — valid");
+                    // Same CH Number as current case → allow
+                    console.log("CH Number belongs to same case - valid");
                 }
             } else {
-                console.log("SM Number is unique — valid");
+                console.log("CH Number is unique — valid");
             }
         }
 
@@ -420,6 +420,76 @@ function CaseFrontend({ creating = false }) {
             missing.push("valid Social Development Worker for selected SPU");
         }
 
+
+        if (missing.length > 0) {
+            setModalTitle("Invalid Fields");
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        return true;
+    };
+
+
+      const checkProblems = async () => {
+        const missing = [];
+
+        if (!drafts.problem_presented || drafts.problem_presented.trim() === "") {
+            missing.push("Problem Presented");
+        }
+
+        if (!drafts.history_problem || drafts.history_problem.trim() === "") {
+            missing.push("History of the Problem");
+        }
+
+        if (!drafts.observation_findings || drafts.observation_findings.trim() === "") {
+            missing.push("Findings");
+        }
+
+        if (missing.length > 0) {
+            setModalTitle("Invalid Fields");
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        return true;
+    };
+
+    const checkAssessment = async () => {
+        const missing = [];
+
+        if (!drafts.assessment || drafts.assessment.trim() === "") {
+            missing.push("Assessment");
+        }
+
+        if (missing.length > 0) {
+            setModalTitle("Invalid Fields");
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        return true;
+    };
+
+    const checkEvaluations = async () => {
+        const missing = [];
+
+        if (!drafts.evaluation || drafts.evaluation.trim() === "") {
+            missing.push("Evaluation");
+        }
+
+        if (!drafts.recommendation || drafts.recommendation.trim() === "") {
+            missing.push("Recommendation");
+        }
 
         if (missing.length > 0) {
             setModalTitle("Invalid Fields");
@@ -761,8 +831,35 @@ function CaseFrontend({ creating = false }) {
             return;
         }
 
+        const problemsValid = await checkProblems();
+
+        if (!problemsValid) {
+            setModalOnConfirm(() => () => {
+                document.getElementById("problems-findings")?.scrollIntoView({ behavior: "smooth" });
+            });
+            return;
+        }
+
+        const assesssmentValid = await checkAssessment();
+
+        if (!assesssmentValid) {
+            setModalOnConfirm(() => () => {
+                document.getElementById("assessments")?.scrollIntoView({ behavior: "smooth" });
+            });
+            return;
+        }
+
+            const evaluationsValid = await checkEvaluations();
+
+        if (!evaluationsValid) {
+            setModalOnConfirm(() => () => {
+                document.getElementById("evaluation-recommendatioon")?.scrollIntoView({ behavior: "smooth" });
+            });
+            return;
+        }
+
         setModalTitle("Confirm Creation");
-        setModalBody("Are you sure you want to create this client? Important fields will no longer become editable once created.");
+        setModalBody("Are you sure you want to create this client? Important fields will no longer become editable once created. Once made, cases can no longer be deleted.");
         setModalImageCenter(<div className="info-icon mx-auto" />);
         setModalConfirm(true);
         setModalOnConfirm(() => async () => {
@@ -922,6 +1019,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
+                                        disabled
                                         type="text"
                                         value={drafts.first_name}
                                         placeholder='First Name'
@@ -934,6 +1032,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label">Middle Name</label>
                                     <input
+                                    disabled
                                         type="text"
                                         value={drafts.middle_name}
                                         placeholder='Middle Name'
@@ -946,6 +1045,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
+                                    disabled
                                         type="text"
                                         value={drafts.last_name}
                                         placeholder='Last Name'
@@ -957,11 +1057,12 @@ function CaseFrontend({ creating = false }) {
                             </div>
 
                             <div className="flex flex-col gap-5 w-full">
-                                <label className="font-bold-label"><span className='text-red-500'>*</span> SM Number</label>
+                                <label className="font-bold-label"><span className='text-red-500'>*</span> CH Number</label>
                                 <input
+                                disabled
                                     type="text"
                                     value={drafts.sm_number}
-                                    placeholder='SM Number'
+                                    placeholder='CH Number'
                                     onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
                                     className="text-input font-label w-full max-w-[30rem]"
                                     data-cy='sm-number'
@@ -1250,6 +1351,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Date of Birth</label>
                                     <input
+                                        disabled
                                         type="date"
                                         value={drafts.dob || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
@@ -1261,6 +1363,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className='flex flex-col gap-5 w-full'>
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
                                     <select
+                                        disabled
                                         className='text-input font-label'
                                         value={drafts.sex || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
@@ -1341,7 +1444,7 @@ function CaseFrontend({ creating = false }) {
                             </div>
 
                             <div className="flex justify-between gap-20">
-                                <div className="flex w-full flex-col gap-5">
+                                {/* <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label">Relationship to Client</label>
                                     <input
                                         type="text"
@@ -1351,7 +1454,7 @@ function CaseFrontend({ creating = false }) {
                                         onChange={(e) => setDrafts(prev => ({ ...prev, relationship_to_client: e.target.value }))}
                                         data-cy='relationship'
                                     />
-                                </div>
+                                </div> */}
 
                                 <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Present Address</label>
@@ -1398,7 +1501,7 @@ function CaseFrontend({ creating = false }) {
                                                 occupation: updated.occupation || drafts.occupation,
                                                 present_address: updated.present_address || drafts.present_address,
                                                 contact_no: updated.contact_no || drafts.contact_no,
-                                                relationship_to_client: updated.relationship_to_client || drafts.relationship_to_client,
+                                                // relationship_to_client: updated.relationship_to_client || drafts.relationship_to_client,
                                             }));
 
                                             setEditingField(null);
@@ -1427,7 +1530,7 @@ function CaseFrontend({ creating = false }) {
                             <p><span className="font-bold-label">Occupation:</span> {data.occupation || "-"}</p>
                             <p><span className="font-bold-label">Civil Status:</span> {data.civil_status || "-"}</p>
                             <p><span className="font-bold-label">Religion:</span> {data.religion || "-"}</p>
-                            <p><span className="font-bold-label">Relationship to Client:</span> {data.relationship_to_client || "-"}</p>
+                            {/* <p><span className="font-bold-label">Relationship to Client:</span> {data.relationship_to_client || "-"}</p> */}
                             <p><span className="font-bold-label">Present Address:</span> {data.present_address || "-"}</p>
                             <p><span className="font-bold-label">Place of Birth:</span> {data.pob || "-"}</p>
                         </div>
@@ -1502,7 +1605,7 @@ function CaseFrontend({ creating = false }) {
                 >
                     <div className="flex items-center justify-between gap-4">
                         <h1 className="header-main">Problems and Findings</h1>
-                        {user?.role == "sdw" && !creating && <button
+                        {/* {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "history-fields"
                                     ? "icon-button-setup x-button"
@@ -1516,12 +1619,12 @@ function CaseFrontend({ creating = false }) {
                                 }
                             }}
                             data-cy="edit-problems-findings-section"
-                        ></button>}
+                        ></button>} */}
                     </div>
 
                     <div className="grid grid-cols-2 gap-10">
                         <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">Problem Presented</h3>
+                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Problem Presented</h3>
 
                             {(editingField === "all" || editingField === "history-fields") ? (
                                 <textarea
@@ -1544,7 +1647,7 @@ function CaseFrontend({ creating = false }) {
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">History of the Problem</h3>
+                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}History of the Problem</h3>
 
                             {(editingField === "all" || editingField === "history-fields") ? (
                                 <textarea
@@ -1567,7 +1670,7 @@ function CaseFrontend({ creating = false }) {
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">Findings</h3>
+                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Findings</h3>
 
                             {(editingField === "all" || editingField === "history-fields") ? (
                                 <textarea
@@ -1788,8 +1891,8 @@ function CaseFrontend({ creating = false }) {
                     ref={ref5}
                 >
                     <div className="flex items-center justify-between gap-4">
-                        <h1 className="header-main">Assessment</h1>
-                        {user?.role == "sdw" && !creating && <button
+                        <h1 className="header-main">{creating && <span className='text-red-500'>* </span>}Assessment</h1>
+                        {/* {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "assessment-field"
                                     ? "icon-button-setup x-button"
@@ -1803,7 +1906,7 @@ function CaseFrontend({ creating = false }) {
                                 }
                             }}
                             data-cy="assessment-section"
-                        ></button>}
+                        ></button>} */}
                     </div>
 
                     <div className="grid grid-cols-1 gap-10">
@@ -1870,7 +1973,7 @@ function CaseFrontend({ creating = false }) {
                         <h1 className="header-main">
                             Evaluation and Recommendation
                         </h1>
-                        {!creating && user?.role == "sdw" && <button
+                        {/* {!creating && user?.role == "sdw" && <button
                             className={
                                 editingField === "evaluation-fields"
                                     ? "icon-button-setup x-button"
@@ -1884,12 +1987,12 @@ function CaseFrontend({ creating = false }) {
                                 }
                             }}
                             data-cy="edit-evaluation-recommendation-section"
-                        ></button>}
+                        ></button>} */}
                     </div>
 
                     <div className="grid grid-cols-2 gap-10">
                         <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">Evaluation</h3>
+                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Evaluation</h3>
 
                             {(editingField === "all" || editingField === "evaluation-fields") ? (
                                 <textarea
@@ -1912,7 +2015,7 @@ function CaseFrontend({ creating = false }) {
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">Recommendation</h3>
+                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Recommendation</h3>
 
                             {(editingField === "all" || editingField === "evaluation-fields") ? (
                                 <textarea

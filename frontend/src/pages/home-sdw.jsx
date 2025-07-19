@@ -53,7 +53,7 @@ function HomeSDW() {
         const res = await fetchSDWViewById(user._id);
         console.log("SDW view:", res);
         data = res || [];
-      } else if (user.role === "super") {
+      } else if (user.role === "supervisor") {
         const res = await fetchSupervisorView();
         console.log("Supervisor view:", res);
         data = res.cases || [];
@@ -81,7 +81,7 @@ function HomeSDW() {
         setUser(sessionData.user);
   
         let employees = [];
-        if (sessionData.user?.role === "super") {
+        if (sessionData.user?.role === "supervisor") {
           const data = await fetchHeadViewBySupervisor(sessionData.user._id);
           employees = data || [];
         }
@@ -119,7 +119,7 @@ function HomeSDW() {
       filtered.reverse();
     }
 
-  if (user?.role === "super") {
+  if (user?.role === "supervisor") {
     const allowedIds = employees.map(e => e.id);
     filtered = filtered.filter(c => allowedIds.includes(c.assigned_sdw));
   }
@@ -180,7 +180,7 @@ function HomeSDW() {
                 >
                   <option value="">Sort By</option>
                   <option value="name">Name</option>
-                  <option value="sm_number">SM Number</option>
+                  <option value="sm_number">CH Number</option>
                 </select>
 
                 <button

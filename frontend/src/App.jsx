@@ -38,7 +38,7 @@ function App() {
     return <Login />;
   }
 
-  if (user.role === 'head' || user.role === 'super' ) {
+  if (user.role === 'head' || user.role === 'supervisor' ) {
     return <HomeLeader />;
   } else if (user.role === 'sdw') {
     return <HomeSDW />;

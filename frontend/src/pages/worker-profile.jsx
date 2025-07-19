@@ -49,7 +49,8 @@ export default function WorkerProfile() {
         username: "",
         email: "",
         contact_no: "",
-        sdw_id: "",
+        // sdw_id: "",
+        area: "",
         spu_id: "",
         role: "",
         manager: "",
@@ -62,7 +63,8 @@ export default function WorkerProfile() {
         username: "",
         email: "",
         contact_no: "",
-        sdw_id: "",
+        // sdw_id: "",
+        area: "",
         spu_id: "",
         role: "",
         manager: "",
@@ -105,7 +107,8 @@ export default function WorkerProfile() {
                     username: empData.username || "",
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
-                    sdw_id: empData.sdw_id || "",
+                    // sdw_id: empData.sdw_id || "",
+                    area:  empData.area || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -118,7 +121,8 @@ export default function WorkerProfile() {
                     username: empData.username || "",
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
-                    sdw_id: empData.sdw_id || "",
+                    // sdw_id: empData.sdw_id || "",
+                    area: empData.area || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -133,13 +137,13 @@ export default function WorkerProfile() {
 
     useEffect(() => {
         const filtered = socialDevelopmentWorkers.filter(
-            (w) => w.spu_id === drafts.spu_id && w.role === 'super'
+            (w) => w.spu_id === drafts.spu_id && w.role === 'supervisor'
         );
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
 
     useEffect(() => {
-        if (drafts.role === "super" || drafts.role === "head") {
+        if (drafts.role === "supervisor" || drafts.role === "head") {
             setDrafts((prev) => ({ ...prev, manager: "" }));
         }
     }, [drafts.role]);
@@ -151,7 +155,7 @@ export default function WorkerProfile() {
             if (data.role === "sdw") {
                 const res = await fetchSDWViewById(workerId);
                 setHandledClients(res || []);
-            } else if (data.role === "super") {
+            } else if (data.role === "supervisor") {
                 const res = await fetchHeadViewBySupervisor(workerId);
                 setHandledWorkers(res || []);
             } else if (data.role === "head") {
@@ -181,7 +185,8 @@ export default function WorkerProfile() {
             username: data.username || "",
             email: data.email || "",
             contact_no: data.contact_no || "",
-            sdw_id: data.sdw_id || "",
+            // sdw_id: data.sdw_id || "",
+            area: data.area || "",
             spu_id: data.spu_id || "",
             role: data.role || "",
             manager: data.manager || "",
@@ -245,28 +250,28 @@ export default function WorkerProfile() {
             missing.push("Contact Number must be 11 digits");
         }
 
-        if (!drafts.sdw_id) {
-            missing.push("SDW ID");
-        } else if (isNaN(Number(drafts.sdw_id))) {
-            missing.push("SDW ID must be numeric");
-        } else if (Number(drafts.sdw_id) <= 0) {
-            missing.push("SDW ID must be greater than zero");
-        } else {
-            // Check uniqueness
-            const check = await fetchEmployeeBySDWId(Number(drafts.sdw_id));
-            console.log("Fetched employee by SDW ID:", check);
+        // if (!drafts.sdw_id) {
+        //     missing.push("SDW ID");
+        // } else if (isNaN(Number(drafts.sdw_id))) {
+        //     missing.push("SDW ID must be numeric");
+        // } else if (Number(drafts.sdw_id) <= 0) {
+        //     missing.push("SDW ID must be greater than zero");
+        // } else {
+        //     // Check uniqueness
+        //     const check = await fetchEmployeeBySDWId(Number(drafts.sdw_id));
+        //     console.log("Fetched employee by SDW ID:", check);
 
-            if (check.ok && check.data) {
-                console.log(
-                    "Comparing found SDW ID:", String(check.data.sdw_id),
-                    "vs current employee SDW ID:", String(data.sdw_id)
-                );
+        //     if (check.ok && check.data) {
+        //         console.log(
+        //             "Comparing found SDW ID:", String(check.data.sdw_id),
+        //             "vs current employee SDW ID:", String(data.sdw_id)
+        //         );
 
-                if (String(check.data.sdw_id).trim() !== String(data.sdw_id).trim()) {
-                    missing.push(`SDW ID already exists and belongs to another employee`);
-                }
-            }
-        }
+        //         if (String(check.data.sdw_id).trim() !== String(data.sdw_id).trim()) {
+        //             missing.push(`SDW ID already exists and belongs to another employee`);
+        //         }
+        //     }
+        // }
 
 
         if (!drafts.spu_id) {
@@ -283,7 +288,7 @@ export default function WorkerProfile() {
                 // missing.push("Supervisor must be selected for SDW role");
             } else {
                 const validSupervisorIds = socialDevelopmentWorkers
-                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "super")
+                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "supervisor")
                     .map((w) => w._id || w.id);
 
                 if (!validSupervisorIds.includes(drafts.manager)) {
@@ -394,6 +399,7 @@ export default function WorkerProfile() {
                                 <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
+                                        placeholder="First Name"
                                         type="text"
                                         value={drafts.first_name}
                                         onChange={(e) =>
@@ -407,6 +413,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label">Middle Name</label>
                                     <input
                                         type="text"
+                                        placeholder="Middle Name"
                                         value={drafts.middle_name}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, middle_name: e.target.value }))
@@ -419,6 +426,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
                                         type="text"
+                                        placeholder="Last Name"
                                         value={drafts.last_name}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, last_name: e.target.value }))
@@ -434,6 +442,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
                                     <input
                                         type="text"
+                                        placeholder="Username"
                                         value={drafts.username}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, username: e.target.value }))
@@ -446,6 +455,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
                                     <input
                                         type="text"
+                                        placeholder="Email"
                                         value={drafts.email}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, email: e.target.value }))
@@ -458,6 +468,7 @@ export default function WorkerProfile() {
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
                                     <input
                                         type="text"
+                                        placeholder="Contact Number"
                                         value={drafts.contact_no}
                                         onChange={(e) =>
                                             setDrafts((prev) => ({ ...prev, contact_no: e.target.value }))
@@ -469,7 +480,7 @@ export default function WorkerProfile() {
 
                             {/* === Row 3 === */}
                             <div className="flex gap-5 w-full mt-5">
-                                <div className="flex flex-col w-full">
+                                {/* <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> SDW ID</label>
                                     <input
                                         type="text"
@@ -479,7 +490,7 @@ export default function WorkerProfile() {
                                         }
                                         className="text-input font-label w-full"
                                     />
-                                </div>
+                                </div> */}
 
                                 <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
@@ -500,8 +511,22 @@ export default function WorkerProfile() {
                                 </div>
 
                                 <div className="flex flex-col w-full">
+                                    <label className="font-bold-label">Area of Assignment</label>
+                                    <input
+                                        type="text"
+                                        value={drafts.area}
+                                        placeholder="Area of Assignment"
+                                        onChange={(e) =>
+                                            setDrafts((prev) => ({ ...prev, area: e.target.value }))
+                                        }
+                                        className="text-input font-label w-full"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
                                     <select
+                                        disabled={user?.role !== "head"}
                                         className="text-input font-label"
                                         value={drafts.role}
                                         onChange={(e) =>
@@ -510,7 +535,7 @@ export default function WorkerProfile() {
                                     >
                                         <option value="">Select Role</option>
                                         {user?.role == "head" && <option value="head">Head</option>}
-                                        <option value="super">Supervisor</option>
+                                        <option value="supervisor">Supervisor</option>
                                         <option value="sdw">Social Development Worker</option>
                                     </select>
                                 </div>
@@ -579,12 +604,13 @@ export default function WorkerProfile() {
                         </>
                     ) : (
                         <>
+                            <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
                             <div className="flex justify-between items-center">
                                 <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                <button
+                                {(user?.role == "head" || data.manager == user?._id) && <button
                                     className="icon-button-setup dots-button"
                                     onClick={() => setEditingField("core-fields")}
-                                ></button>
+                                ></button>}
                             </div>
 
                             <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
@@ -592,9 +618,9 @@ export default function WorkerProfile() {
                                 <p><span className="font-bold-label">Email:</span> {data.email || "-"}</p>
                                 <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
 
-                                <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p>
+                                {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
                                 <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
-                                <p><span className="font-bold-label">Role:</span> {data.role || "-"}</p>
+                                <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
 
                                 {(data.role === "" || data.role === "sdw") && (
                                     <p className="font-label">
@@ -642,7 +668,7 @@ export default function WorkerProfile() {
                         </>
                     )}
 
-                    {(data.role === "super" || data.role === "head") && (
+                    {(data.role === "supervisor" || data.role === "head") && (
                         <>
                             <h2 className="header-sub">
                                 {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
@@ -661,7 +687,7 @@ export default function WorkerProfile() {
                                     <WorkerEntry
                                         key={worker._id}
                                         id={worker.id}
-                                        sdw_id={worker.sdw_id}
+                                        // sdw_id={worker.sdw_id}
                                         name={
                                             worker.name ||
                                             `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`
@@ -686,12 +712,12 @@ export default function WorkerProfile() {
                     )}
 
 
-                    <button
+                    {(user?.role == "head" || data.manager == user?._id) && <button
                         className="btn-outline font-bold-label drop-shadow-base my-3"
                         onClick={() => setIsChangePasswordOpen(true)}
                     >
                         Change Password
-                    </button>
+                    </button>}
 
                     {user?.role == "head" && <button className="btn-primary font-bold-label drop-shadow-base my-3">
                         Terminate Worker

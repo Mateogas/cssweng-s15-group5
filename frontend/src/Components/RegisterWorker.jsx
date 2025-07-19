@@ -19,7 +19,8 @@ export default function RegisterWorker({
   const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
 
   const [formData, setFormData] = useState({
-    sdw_id: '',
+    // sdw_id: '',
+    area: "",
     username: '',
     password: '',
     confirmPassword: '',
@@ -39,7 +40,8 @@ export default function RegisterWorker({
   useEffect(() => {
     if (!isOpen) {
       setFormData({
-        sdw_id: '',
+        // sdw_id: '',
+        area: "",
         username: '',
         password: '',
         confirmPassword: '',
@@ -106,7 +108,7 @@ export default function RegisterWorker({
 
   useEffect(() => {
     const filtered = socialDevelopmentWorkers.filter(
-      (w) => w.spu_id === formData.spu_id && w.role === 'super'
+      (w) => w.spu_id === formData.spu_id && w.role === 'supervisor'
     );
     setSupervisors(filtered);
   }, [formData.spu_id, socialDevelopmentWorkers]);
@@ -139,13 +141,13 @@ export default function RegisterWorker({
       }
     }
 
-    if (!formData.sdw_id || formData.sdw_id.trim() === "") {
-      missing.push("SDW ID");
-    } else if (isNaN(Number(formData.sdw_id))) {
-      missing.push("SDW ID must be numeric");
-    } else if (Number(formData.sdw_id) <= 0) {
-      missing.push("SDW ID must be greater than zero");
-    }
+    // if (!formData.sdw_id || formData.sdw_id.trim() === "") {
+    //   missing.push("SDW ID");
+    // } else if (isNaN(Number(formData.sdw_id))) {
+    //   missing.push("SDW ID must be numeric");
+    // } else if (Number(formData.sdw_id) <= 0) {
+    //   missing.push("SDW ID must be greater than zero");
+    // }
     if (!formData.role) missing.push("Role");
     if (!formData.spu_id) missing.push("SPU");
     if (!formData.password || formData.password.length < 8) missing.push("Password (min 8 chars)");
@@ -159,6 +161,9 @@ export default function RegisterWorker({
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) missing.push("Valid Email");
     if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 digits)");
+
+    console.log(formData.role, formData.manager)
+    if (formData.role == "sdw" && formData.manager == "") missing.push("Social Development Workers must have a Supervisor");
 
     if (missing.length > 0) {
       setModalTitle("Invalid Fields");
@@ -266,7 +271,7 @@ export default function RegisterWorker({
                     />
                   </div>
 
-                  <div className="flex flex-col gap-2 w-full">
+                  {/* <div className="flex flex-col gap-2 w-full">
                     <p className="font-bold-label">SDW ID</p>
                     <input
                       type="text"
@@ -276,7 +281,7 @@ export default function RegisterWorker({
                       onChange={handleChange}
                       className="text-input font-label"
                     />
-                  </div>
+                  </div> */}
 
                   <div className="flex flex-col gap-2 w-full">
                     <p className="font-bold-label">Role</p>
@@ -288,13 +293,14 @@ export default function RegisterWorker({
                     >
                       <option value="">Select Role</option>
                       <option value="sdw">Social Development Worker</option>
-                      <option value="super">Supervisor</option>
+                      <option value="supervisor">Supervisor</option>
                       <option value="head">Head</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className='flex gap-3'>
+                <div className="flex flex-col gap-2 w-full">
                   <p className="font-bold-label">Password</p>
                   <input
                     type="password"
@@ -306,7 +312,7 @@ export default function RegisterWorker({
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-full">
                   <p className="font-bold-label">Confirm Password</p>
                   <input
                     type="password"
@@ -317,6 +323,20 @@ export default function RegisterWorker({
                     className="text-input font-label"
                   />
                 </div>
+
+                </div>
+
+                <div className="flex flex-col gap-2 w-full">
+                    <p className="font-bold-label">Area of Assignment</p>
+                    <input
+                      type="text"
+                      name="area"
+                      placeholder="Area of Assignment"
+                      value={formData.area}
+                      onChange={handleChange}
+                      className="text-input font-label"
+                    />
+                  </div>
 
                 <div className='flex gap-3'>
                   <div className="flex flex-col gap-2 w-full">
