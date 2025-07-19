@@ -38,6 +38,20 @@ export const fetchFormData = async (caseID, formID) => {
         if (!response.ok) throw new Error("API error");
         const rawData = await response.json();
         
+        // Transform family datat to fit family card
+        const transformedFamily = rawData.form.familyMembers.map((family) => ({
+            first: family.first_name,
+            last: family.last_name,
+            middle: family.middle_name,
+            income: family.income,
+            occupation: family.occupation,
+            education: family.edu_attainment,
+            relationship: family.relationship_to_sm,
+            civilStatus: family.civil_status,
+            status: family.status,
+            age: family.age,
+        }));
+        rawData.transformedFamily = transformedFamily;
         return rawData;
     } catch (err) {
         console.error("Error fetching form data:", err);
