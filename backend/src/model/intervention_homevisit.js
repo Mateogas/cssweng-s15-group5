@@ -41,46 +41,37 @@ const InterventionHomeVisitSchema = new Schema ({
           required: true
      },
      father: {
-          father_details: {
-               type: mongoose.Schema.Types.ObjectId, 
-               ref: 'Family Member',
-
-               required: false
-          },
-          father_relationship: {
-               type: mongoose.Schema.Types.ObjectId, 
-               ref: 'Family Relationship',
-
-               required: false
-          }
+          last_name: String,
+          first_name: String,
+          middle_name: String,
+          age: Number,
+          occupation: String,
+          income: Number,
+          status: String,
+          relationship_to_sm: String,
      },
      mother: {
-          mother_details: {
-               type: mongoose.Schema.Types.ObjectId, 
-               ref: 'Family Member',
-
-               required: false
-          },
-          mother_relationship: {
-               type: mongoose.Schema.Types.ObjectId, 
-               ref: 'Family Relationship',
-
-               required: false
-          }
+          last_name: String,
+          first_name: String,
+          middle_name: String,
+          age: Number,
+          occupation: String,
+          income: Number,
+          status: String,
+          relationship_to_sm: String,
      },
      familyMembers: [{
-          family_member_details: {
-               type: mongoose.Schema.Types.ObjectId, 
-               ref: 'Family Member',
+          last_name: String,
+          first_name: String,
+          middle_name: String,
+          age: Number, 
+          civil_status: String,
+          edu_attainment: String,
+          occupation: String,
+          income: Number,
+          status: String,
+          relationship_to_sm: String,
 
-               required: false
-          },
-          family_member_relationship: {
-               type: mongoose.Schema.Types.ObjectId, 
-               ref: 'Family Relationship',
-
-               required: false
-          },
           _id: false
      }],
      sm_progress: {
