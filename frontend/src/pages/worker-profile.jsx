@@ -49,7 +49,7 @@ export default function WorkerProfile() {
         username: "",
         email: "",
         contact_no: "",
-        sdw_id: "",
+        // sdw_id: "",
         spu_id: "",
         role: "",
         manager: "",
@@ -62,7 +62,7 @@ export default function WorkerProfile() {
         username: "",
         email: "",
         contact_no: "",
-        sdw_id: "",
+        // sdw_id: "",
         spu_id: "",
         role: "",
         manager: "",
@@ -105,7 +105,7 @@ export default function WorkerProfile() {
                     username: empData.username || "",
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
-                    sdw_id: empData.sdw_id || "",
+                    // sdw_id: empData.sdw_id || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -118,7 +118,7 @@ export default function WorkerProfile() {
                     username: empData.username || "",
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
-                    sdw_id: empData.sdw_id || "",
+                    // sdw_id: empData.sdw_id || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -181,7 +181,7 @@ export default function WorkerProfile() {
             username: data.username || "",
             email: data.email || "",
             contact_no: data.contact_no || "",
-            sdw_id: data.sdw_id || "",
+            // sdw_id: data.sdw_id || "",
             spu_id: data.spu_id || "",
             role: data.role || "",
             manager: data.manager || "",
@@ -245,28 +245,28 @@ export default function WorkerProfile() {
             missing.push("Contact Number must be 11 digits");
         }
 
-        if (!drafts.sdw_id) {
-            missing.push("SDW ID");
-        } else if (isNaN(Number(drafts.sdw_id))) {
-            missing.push("SDW ID must be numeric");
-        } else if (Number(drafts.sdw_id) <= 0) {
-            missing.push("SDW ID must be greater than zero");
-        } else {
-            // Check uniqueness
-            const check = await fetchEmployeeBySDWId(Number(drafts.sdw_id));
-            console.log("Fetched employee by SDW ID:", check);
+        // if (!drafts.sdw_id) {
+        //     missing.push("SDW ID");
+        // } else if (isNaN(Number(drafts.sdw_id))) {
+        //     missing.push("SDW ID must be numeric");
+        // } else if (Number(drafts.sdw_id) <= 0) {
+        //     missing.push("SDW ID must be greater than zero");
+        // } else {
+        //     // Check uniqueness
+        //     const check = await fetchEmployeeBySDWId(Number(drafts.sdw_id));
+        //     console.log("Fetched employee by SDW ID:", check);
 
-            if (check.ok && check.data) {
-                console.log(
-                    "Comparing found SDW ID:", String(check.data.sdw_id),
-                    "vs current employee SDW ID:", String(data.sdw_id)
-                );
+        //     if (check.ok && check.data) {
+        //         console.log(
+        //             "Comparing found SDW ID:", String(check.data.sdw_id),
+        //             "vs current employee SDW ID:", String(data.sdw_id)
+        //         );
 
-                if (String(check.data.sdw_id).trim() !== String(data.sdw_id).trim()) {
-                    missing.push(`SDW ID already exists and belongs to another employee`);
-                }
-            }
-        }
+        //         if (String(check.data.sdw_id).trim() !== String(data.sdw_id).trim()) {
+        //             missing.push(`SDW ID already exists and belongs to another employee`);
+        //         }
+        //     }
+        // }
 
 
         if (!drafts.spu_id) {
@@ -469,7 +469,7 @@ export default function WorkerProfile() {
 
                             {/* === Row 3 === */}
                             <div className="flex gap-5 w-full mt-5">
-                                <div className="flex flex-col w-full">
+                                {/* <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> SDW ID</label>
                                     <input
                                         type="text"
@@ -479,7 +479,7 @@ export default function WorkerProfile() {
                                         }
                                         className="text-input font-label w-full"
                                     />
-                                </div>
+                                </div> */}
 
                                 <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
@@ -592,7 +592,7 @@ export default function WorkerProfile() {
                                 <p><span className="font-bold-label">Email:</span> {data.email || "-"}</p>
                                 <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
 
-                                <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p>
+                                {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
                                 <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
                                 <p><span className="font-bold-label">Role:</span> {data.role || "-"}</p>
 
@@ -661,7 +661,7 @@ export default function WorkerProfile() {
                                     <WorkerEntry
                                         key={worker._id}
                                         id={worker.id}
-                                        sdw_id={worker.sdw_id}
+                                        // sdw_id={worker.sdw_id}
                                         name={
                                             worker.name ||
                                             `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`

@@ -32,7 +32,7 @@ function getTextColorForBackground(hsl) {
 
 export default function WorkerEntry({
   id,
-  sdw_id,
+  // sdw_id,
   name,
   role,
   spu_id
@@ -57,7 +57,7 @@ export default function WorkerEntry({
         </div>
         <div className="flex flex-col gap-2">
           <p>{name}</p>
-          <p>{sdw_id}</p>
+          {/* <p>{sdw_id}</p> */}
         </div>
       </div>
       <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Head"}</p>

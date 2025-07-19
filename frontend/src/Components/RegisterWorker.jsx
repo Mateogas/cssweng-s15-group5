@@ -19,7 +19,8 @@ export default function RegisterWorker({
   const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
 
   const [formData, setFormData] = useState({
-    sdw_id: '',
+    // sdw_id: '',
+    area: "",
     username: '',
     password: '',
     confirmPassword: '',
@@ -39,7 +40,8 @@ export default function RegisterWorker({
   useEffect(() => {
     if (!isOpen) {
       setFormData({
-        sdw_id: '',
+        // sdw_id: '',
+        area: "",
         username: '',
         password: '',
         confirmPassword: '',
@@ -139,13 +141,13 @@ export default function RegisterWorker({
       }
     }
 
-    if (!formData.sdw_id || formData.sdw_id.trim() === "") {
-      missing.push("SDW ID");
-    } else if (isNaN(Number(formData.sdw_id))) {
-      missing.push("SDW ID must be numeric");
-    } else if (Number(formData.sdw_id) <= 0) {
-      missing.push("SDW ID must be greater than zero");
-    }
+    // if (!formData.sdw_id || formData.sdw_id.trim() === "") {
+    //   missing.push("SDW ID");
+    // } else if (isNaN(Number(formData.sdw_id))) {
+    //   missing.push("SDW ID must be numeric");
+    // } else if (Number(formData.sdw_id) <= 0) {
+    //   missing.push("SDW ID must be greater than zero");
+    // }
     if (!formData.role) missing.push("Role");
     if (!formData.spu_id) missing.push("SPU");
     if (!formData.password || formData.password.length < 8) missing.push("Password (min 8 chars)");
@@ -266,7 +268,7 @@ export default function RegisterWorker({
                     />
                   </div>
 
-                  <div className="flex flex-col gap-2 w-full">
+                  {/* <div className="flex flex-col gap-2 w-full">
                     <p className="font-bold-label">SDW ID</p>
                     <input
                       type="text"
@@ -276,7 +278,7 @@ export default function RegisterWorker({
                       onChange={handleChange}
                       className="text-input font-label"
                     />
-                  </div>
+                  </div> */}
 
                   <div className="flex flex-col gap-2 w-full">
                     <p className="font-bold-label">Role</p>
@@ -294,7 +296,8 @@ export default function RegisterWorker({
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className='flex gap-3'>
+                <div className="flex flex-col gap-2 w-full">
                   <p className="font-bold-label">Password</p>
                   <input
                     type="password"
@@ -306,7 +309,7 @@ export default function RegisterWorker({
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-full">
                   <p className="font-bold-label">Confirm Password</p>
                   <input
                     type="password"
@@ -317,6 +320,20 @@ export default function RegisterWorker({
                     className="text-input font-label"
                   />
                 </div>
+
+                </div>
+
+                <div className="flex flex-col gap-2 w-full">
+                    <p className="font-bold-label">Area of Assignment</p>
+                    <input
+                      type="text"
+                      name="area"
+                      placeholder="Area of Assignment"
+                      value={formData.area}
+                      onChange={handleChange}
+                      className="text-input font-label"
+                    />
+                  </div>
 
                 <div className='flex gap-3'>
                   <div className="flex flex-col gap-2 w-full">

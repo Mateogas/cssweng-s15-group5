@@ -762,7 +762,7 @@ function CaseFrontend({ creating = false }) {
         }
 
         setModalTitle("Confirm Creation");
-        setModalBody("Are you sure you want to create this client? Important fields will no longer become editable once created.");
+        setModalBody("Are you sure you want to create this client? Important fields will no longer become editable once created and once made, cases cannot be deleted.");
         setModalImageCenter(<div className="info-icon mx-auto" />);
         setModalConfirm(true);
         setModalOnConfirm(() => async () => {

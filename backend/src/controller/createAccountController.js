@@ -29,8 +29,10 @@ const Employee = require("../model/employee");
  */
 const createAccount = async (req, res) => {
     try {
-        const { sdw_id, username, password, email, contact_no, spu_id, role, manager } = req.body;
+        // const { sdw_id, username, password, email, contact_no, spu_id, role, manager } = req.body;
+        const { username, password, email, contact_no, spu_id, role, manager } = req.body;
     
+
         // console.log("REQ.BODY", req.body);
 
         // Check if user is logged in
@@ -44,7 +46,7 @@ const createAccount = async (req, res) => {
         }
 
         // Validate required fields
-        if (!sdw_id || !username || !password || !email || !contact_no || !spu_id || !role) {
+        if (!username || !password || !email || !contact_no || !spu_id || !role) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -60,10 +62,10 @@ const createAccount = async (req, res) => {
         }
 
         // Check if the sdw_id already exists
-        const existingSDW = await Employee.findOne({ sdw_id });
-        if (existingSDW) {
-            return res.status(400).json({ message: "SDW ID already exists." });
-        }
+        // const existingSDW = await Employee.findOne({ sdw_id });
+        // if (existingSDW) {
+        //     return res.status(400).json({ message: "SDW ID already exists." });
+        // }
 
         // Validate the SPU ID
         const validSPUs = ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'];
@@ -72,7 +74,7 @@ const createAccount = async (req, res) => {
         }
 
         // Validate the role
-        const validRoles = ['head', 'supervisor', 'sdw'];
+        const validRoles = ['head', 'super', 'sdw'];
         if (!validRoles.includes(role)) {
             return res.status(400).json({ message: "Invalid role." });
         }
@@ -104,7 +106,7 @@ const createAccount = async (req, res) => {
         
         // Create the new employee account
         const newEmployee = new Employee({
-            sdw_id,
+            // sdw_id,
             username,
             password: hashedPassword,
             email,
