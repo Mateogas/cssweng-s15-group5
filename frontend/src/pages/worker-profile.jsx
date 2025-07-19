@@ -531,7 +531,6 @@ export default function WorkerProfile() {
                                                     {person.username
                                                         ? person.username
                                                         : `${person.first_name} ${person.middle_name || ""} ${person.last_name}`}
-                                                    ({person._id || person.id})
                                                 </option>
                                             )
                                         )}
