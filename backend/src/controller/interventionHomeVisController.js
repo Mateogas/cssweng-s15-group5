@@ -224,9 +224,9 @@ const createHomVis = async (req, res) => {
         // Family members
         const { mother, father, otherFam } = 
             transform_family_to_backend(
-                formData.rawMotherData,
-                formData.rawFatherData,
-                formData.rawOtherFamilyData
+                formData.rawMotherData || null,
+                formData.rawFatherData || null,
+                formData.rawOtherFamilyData || null
             );
         console.log(formData.rawMotherData,
                 formData.rawFatherData,
@@ -256,7 +256,7 @@ const createHomVis = async (req, res) => {
         });
         console.log("NEW FORM: ", newForm);
 
-        await newForm.validate();
+        /*await newForm.validate();
         await newForm.save();
 
         // add to the case
@@ -283,7 +283,7 @@ const createHomVis = async (req, res) => {
             father: father,
             mother: mother,
             otherFamily: otherFam,
-        });
+        });*/
     } catch (error) {
         console.error("Error creating new home intervention:", error);
         res.status(500).json({
@@ -478,78 +478,97 @@ const deleteHomeVis = async (req, res) => {
     }
 }
 
+
+// Transform the data to cater frontend variables
 function transform_family_to_frontend(mother_data, father_data, other_fam_data) {
-    const mother = {
-        first_name: mother_data.first_name,
-        last_name: mother_data.last_name,
-        middle_name: mother_data.middle_name,
-        occupation: mother_data.occupation,
-        income: mother_data.income,
-        age: mother_data.age
+    let mother, father, otherFam
+
+    if (mother_data){
+        mother = {
+            first_name: mother_data.first_name,
+            last_name: mother_data.last_name,
+            middle_name: mother_data.middle_name,
+            occupation: mother_data.occupation,
+            income: mother_data.income,
+            age: mother_data.age
+        }
     }
 
-    const father = {
-        first_name: father_data.first_name,
-        last_name: father_data.last_name,
-        middle_name: father_data.middle_name,
-        occupation: father_data.occupation,
-        income: father_data.income,
-        age: father_data.age
+    if (father_data) {
+        father = {
+            first_name: father_data.first_name,
+            last_name: father_data.last_name,
+            middle_name: father_data.middle_name,
+            occupation: father_data.occupation,
+            income: father_data.income,
+            age: father_data.age
+        }
     }
 
-    const otherFam = other_fam_data.map((member) => ({
-        first_name: member.first_name,
-        last_name: member.last_name,
-        middle_name: member.middle_name,
-        income: member.income,
-        occupation: member.occupation,
-        edu_attainment: member.edu_attainment,
-        relationship_to_sm: member.relationship_to_sm,
-        civil_status: member.civil_status,
-        status: member.status,
-        age: member.age,
-    }));
+    if (other_fam_data.length > 0) {
+        otherFam = other_fam_data.map((member) => ({
+            first_name: member.first_name,
+            last_name: member.last_name,
+            middle_name: member.middle_name,
+            income: member.income,
+            occupation: member.occupation,
+            edu_attainment: member.edu_attainment,
+            relationship_to_sm: member.relationship_to_sm,
+            civil_status: member.civil_status,
+            status: member.status,
+            age: member.age,
+        }));
+    }
 
     return {mother, father, otherFam}
 }
 
+// Transform the data to cater database variables
 function transform_family_to_backend(mother_data, father_data, other_fam_data) {
-    const mother = {
-        first_name: mother_data.first_name,
-        last_name: mother_data.last_name,
-        middle_name: mother_data.middle_name,
-        occupation: mother_data.occupation,
-        income: mother_data.income,
-        age: mother_data.age,
-        relationship_to_sm: mother_data.relationship_to_sm,
-        status: mother_data.status
+    let mother, father, otherFam
+
+    if (mother_data) {
+        mother = {
+            first_name: mother_data.first_name,
+            last_name: mother_data.last_name,
+            middle_name: mother_data.middle_name,
+            occupation: mother_data.occupation,
+            income: mother_data.income,
+            age: mother_data.age,
+            relationship_to_sm: mother_data.relationship_to_sm,
+            status: mother_data.status
+        }
     }
 
-    const father = {
-        first_name: father_data.first_name,
-        last_name: father_data.last_name,
-        middle_name: father_data.middle_name,
-        occupation: father_data.occupation,
-        income: father_data.income,
-        age: father_data.age,
-        relationship_to_sm: father_data.relationship_to_sm,
-        status: father_data.status
+    if (father_data) {
+        father = {
+            first_name: father_data.first_name,
+            last_name: father_data.last_name,
+            middle_name: father_data.middle_name,
+            occupation: father_data.occupation,
+            income: father_data.income,
+            age: father_data.age,
+            relationship_to_sm: father_data.relationship_to_sm,
+            status: father_data.status
+        }
     }
 
-    const otherFam = other_fam_data.map((member) => ({
-        first_name: member.first_name,
-        last_name: member.last_name,
-        middle_name: member.middle_name,
-        income: member.income,
-        occupation: member.occupation,
-        edu_attainment: member.edu_attainment,
-        relationship_to_sm: member.relationship_to_sm,
-        civil_status: member.civil_status,
-        status: member.status,
-        age: member.age,
-    }));
+    if (other_fam_data.length > 0) {
+        otherFam = other_fam_data.map((member) => ({
+            first_name: member.first_name,
+            last_name: member.last_name,
+            middle_name: member.middle_name,
+            income: member.income,
+            occupation: member.occupation,
+            edu_attainment: member.edu_attainment,
+            relationship_to_sm: member.relationship_to_sm,
+            civil_status: member.civil_status,
+            status: member.status,
+            age: member.age,
+        }));
+    }
 
-    console.log("RETURN: ", mother, father, otherFam)
+    //console.log("RETURN: ", mother, father, otherFam)
     return {mother, father, otherFam}
 }
 
