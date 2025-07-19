@@ -142,3 +142,37 @@ export const generateFinancialAssessmentForm = async (financialId) => {
         saveAs(out, 'financial-assessment-form.docx');
     });
 }
+
+export const generateHomeVisitForm = async (homeVisitId) => {
+    const data = await fetch(`/api/file-generator/home-visit-form/${homeVisitId}`);
+    if (!data.ok) {
+        throw new Error('Failed to fetch counseling data');
+    }
+
+    const homeVisitData = await data.json();
+    //console.log('Home Visit Data:', homeVisitData);
+
+    const templatePath = '/templates/TEMPLATE_Home-Visit-Form.docx';
+
+    loadFile(templatePath, function (error, content) {
+        if (error) {
+            throw error;
+        }
+
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+            paragraphLoop: true,
+            linebreaks: true,
+        });
+
+        doc.render(homeVisitData);
+
+        const out = doc.getZip().generate({
+            type: 'blob',
+            mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+
+        saveAs(out, 'home-visit-form.docx');
+    });
+}

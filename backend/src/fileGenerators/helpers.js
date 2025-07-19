@@ -129,16 +129,8 @@ function formatFinancialData(financial) {
 	grade_year_course: String,
 	years_in_program: String,
 	family_type: String,
-	father: {
-		name: String,
-		occupation: String,
-		income: String,
-	},
-	mother: {
-		name: String,
-		occupation: String,
-		income: String,
-	},
+	f_name, f_income, f_occupation
+	m_name, m_income, m_occupation
 	otherFamily: {
 		last_name: String,
 		first_name: String,
@@ -159,35 +151,34 @@ function formatFinancialData(financial) {
 }
 */
 function formatHomeVisitData(homevisit) {
-    if (!homevisit) return {};
+    if (!homevisit) 
+		return {};
 	// console.log('formatHomeVisitData', homevisit);
 
 	// Safe formatting for father data with multiple null checks
-    const formattedFather = (homevisit.father && homevisit.father.father_details) ? {
-        name: `${homevisit.father.father_details.last_name || ''}, ${homevisit.father.father_details.first_name || ''}`.replace(/^, |, $/, ''),
-        occupation: homevisit.father.father_details.occupation || '',
-        income: homevisit.father.father_details.income || '',
-    } : {
-        name: '',
-        occupation: '',
-        income: '',
-    };
+	let f_name, f_income, f_occupation;
+	if (homevisit.father) {
+		const father = homevisit.father.toObject?.();
+		f_name = `${father.last_name || ''}, ${father.first_name || ''}`.replace(/^, |, $/, '')
+		f_income = father.income != null ? `₱${father.income.toLocaleString()}` : 'No income.';
+		f_occupation = father.occupation || ''
+	};
+	//console.log('Formatted Father:', formattedFather);
 
     // Safe formatting for mother data with multiple null checks
-    const formattedMother = (homevisit.mother && homevisit.mother.mother_details) ? {
-        name: `${homevisit.mother.mother_details.last_name || ''}, ${homevisit.mother.mother_details.first_name || ''}`.replace(/^, |, $/, ''),
-        occupation: homevisit.mother.mother_details.occupation || '',
-        income: homevisit.mother.mother_details.income || '',
-    } : {
-        name: '',
-        occupation: '',
-        income: '',
-    };
+	let m_name, m_income, m_occupation;
+	if (homevisit.mother) {
+		const mother = homevisit.mother.toObject?.();
+		m_name = `${mother.last_name || ''}, ${mother.first_name || ''}`.replace(/^, |, $/, '')
+		f_income = mother.income != null ? `₱${mother.income.toLocaleString()}` : 'No income.';
+		m_occupation = mother.occupation || ''
+	};
+	//console.log('Formatted Mother:', formattedMother);
 
 	const formattedOtherFamilyMembers = (homevisit.familyMembers && Array.isArray(homevisit.familyMembers)) 
         ? homevisit.familyMembers.map(member => {
             // Check if member and family_member_details exist
-            if (!member || !member.family_member_details) {
+            if (!member) {
                 return {
                     last_name: '',
                     first_name: '',
@@ -200,32 +191,29 @@ function formatHomeVisitData(homevisit) {
                     income: '',
                 };
             }
+			member = member.toObject?.();
 
-            const familyMemberDetails = member.family_member_details;
             return {
-                last_name: familyMemberDetails.last_name || '',
-                first_name: familyMemberDetails.first_name || '',
-                middle_name: familyMemberDetails.middle_name || '',
-                age: familyMemberDetails.age || '',
-                civil_status: familyMemberDetails.civil_status || '',
+                last_name: member.last_name || '',
+                first_name: member.first_name || '',
+                middle_name: member.middle_name || '',
+                age: member.age || '',
+                civil_status: member.civil_status || '',
                 relationship_to_sm: member.relationship_to_sm || '',
-                occupation: familyMemberDetails.occupation || '',
-                edu_attainment: familyMemberDetails.edu_attainment || '',
-                income: familyMemberDetails.income || '',
+                occupation: member.occupation || '',
+                edu_attainment: member.edu_attainment || '',
+                income: member.income || '',
             };
         })
         : [];
-
-	// console.log('Formatted Father:', formattedFather);
-	// console.log('Formatted Mother:', formattedMother);
-	// console.log('OTHER FAMILY:', formattedOtherFamilyMembers);
-
+	//console.log('OTHER FAMILY:', formattedOtherFamilyMembers);
+	
     return {
 		grade_year_course: homevisit.grade_year_course || '',
 		years_in_program: homevisit.years_in_program || '',
 		family_type: homevisit.family_type || '',
-		father: formattedFather,
-		mother: formattedMother,
+		f_name, f_income, f_occupation,
+		m_name, m_income, m_occupation,
 		otherFamily: formattedOtherFamilyMembers,
 		sm_progress: homevisit.sm_progress || '',
 		family_progress: homevisit.family_progress || '',
@@ -233,6 +221,9 @@ function formatHomeVisitData(homevisit) {
 		interventions: homevisit.interventions || '',
 		recommendations: homevisit.recommendations || '',
 		agreement: homevisit.agreement || '',
+		sponsor_name: homevisit.sponsor_name || '',
+		date: formatDate(homevisit.date) || '',
+		community: homevisit.community || '',
 	}
 }
 
