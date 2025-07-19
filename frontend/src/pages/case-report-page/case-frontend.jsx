@@ -1026,7 +1026,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
                                     <input
-                                        disabled
+                                        disabled={!creating}
                                         type="text"
                                         value={drafts.first_name}
                                         placeholder='First Name'
@@ -1039,7 +1039,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label">Middle Name</label>
                                     <input
-                                    disabled
+                                    disabled={!creating}
                                         type="text"
                                         value={drafts.middle_name}
                                         placeholder='Middle Name'
@@ -1052,7 +1052,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
-                                    disabled
+                                    disabled={!creating}
                                         type="text"
                                         value={drafts.last_name}
                                         placeholder='Last Name'
@@ -1066,7 +1066,7 @@ function CaseFrontend({ creating = false }) {
                             <div className="flex flex-col gap-5 w-full">
                                 <label className="font-bold-label"><span className='text-red-500'>*</span> CH Number</label>
                                 <input
-                                disabled
+                                disabled={!creating}
                                     type="text"
                                     value={drafts.sm_number}
                                     placeholder='CH Number'
@@ -1358,7 +1358,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Date of Birth</label>
                                     <input
-                                        disabled
+                                        disabled={!creating}
                                         type="date"
                                         value={drafts.dob || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
@@ -1370,7 +1370,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className='flex flex-col gap-5 w-full'>
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
                                     <select
-                                        disabled
+                                        disabled={!creating}
                                         className='text-input font-label'
                                         value={drafts.sex || ""}
                                         onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
@@ -1475,8 +1475,9 @@ function CaseFrontend({ creating = false }) {
                                 </div>
 
                                 <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Place of Birth</label>
+                                    <label className="font-bold-label">{<span className='text-red-500'>* </span>}Place of Birth</label>
                                     <input
+                                        disabled={!creating}
                                         type="text"
                                         value={drafts.pob || ""}
                                         placeholder='Place of Birth'
