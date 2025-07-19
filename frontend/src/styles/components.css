@@ -117,6 +117,11 @@
   @apply w-full px-4 py-4 rounded-xl;
 }
 
+.text-input-error {
+  border: 0.1rem solid;
+  @apply w-full px-4 py-4 rounded-xl border-red-500;
+}
+
 .text-input:disabled {
   @apply bg-gray-200;
 }
@@ -125,6 +130,11 @@
 .text-area {
   border: 0.1rem solid var(--accent-dark);
   @apply w-full px-4 py-4 rounded-xl;
+}
+
+.text-area-error {
+  border: 0.1rem solid;
+  @apply w-full px-4 py-4 rounded-xl border-red-500;
 }
 
 /* Entry Items */
