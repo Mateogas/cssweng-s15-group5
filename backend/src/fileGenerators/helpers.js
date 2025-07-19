@@ -162,40 +162,59 @@ function formatHomeVisitData(homevisit) {
     if (!homevisit) return {};
 	// console.log('formatHomeVisitData', homevisit);
 
-	const formattedFather = homevisit.father ? {
-		name: homevisit.father.father_details.last_name + ', ' + homevisit.father.father_details.first_name || '',
-		occupation: homevisit.father.father_details.occupation || '',
-		income: homevisit.father.father_details.income || '',
-	} : {
-		name: '',
-		occupation: '',
-		income: '',
-	};
+	// Safe formatting for father data with multiple null checks
+    const formattedFather = (homevisit.father && homevisit.father.father_details) ? {
+        name: `${homevisit.father.father_details.last_name || ''}, ${homevisit.father.father_details.first_name || ''}`.replace(/^, |, $/, ''),
+        occupation: homevisit.father.father_details.occupation || '',
+        income: homevisit.father.father_details.income || '',
+    } : {
+        name: '',
+        occupation: '',
+        income: '',
+    };
 
-	const formattedMother = homevisit.mother ? {
-		name: homevisit.mother.mother_details.last_name + ', ' + homevisit.mother.mother_details.first_name || '',
-		occupation: homevisit.mother.mother_details.occupation || '',
-		income: homevisit.mother.mother_details.income || '',
-	} : {
-		name: '',
-		occupation: '',
-		income: '',
-	};
+    // Safe formatting for mother data with multiple null checks
+    const formattedMother = (homevisit.mother && homevisit.mother.mother_details) ? {
+        name: `${homevisit.mother.mother_details.last_name || ''}, ${homevisit.mother.mother_details.first_name || ''}`.replace(/^, |, $/, ''),
+        occupation: homevisit.mother.mother_details.occupation || '',
+        income: homevisit.mother.mother_details.income || '',
+    } : {
+        name: '',
+        occupation: '',
+        income: '',
+    };
 
-	const formattedOtherFamilyMembers = homevisit.familyMembers.map(member => {
-		const familyMemberDetails = member.family_member_details;
-		return {
-			last_name: familyMemberDetails.last_name || '',
-			first_name: familyMemberDetails.first_name || '',
-			middle_name: familyMemberDetails.middle_name || '',
-			age: familyMemberDetails.age || '',
-			civil_status: familyMemberDetails.civil_status || '',
-			relationship_to_sm: member.relationship_to_sm || '',
-			occupation: familyMemberDetails.occupation || '',
-			edu_attainment: familyMemberDetails.edu_attainment || '',
-			income: familyMemberDetails.income || '',
-		};
-	});
+	const formattedOtherFamilyMembers = (homevisit.familyMembers && Array.isArray(homevisit.familyMembers)) 
+        ? homevisit.familyMembers.map(member => {
+            // Check if member and family_member_details exist
+            if (!member || !member.family_member_details) {
+                return {
+                    last_name: '',
+                    first_name: '',
+                    middle_name: '',
+                    age: '',
+                    civil_status: '',
+                    relationship_to_sm: '',
+                    occupation: '',
+                    edu_attainment: '',
+                    income: '',
+                };
+            }
+
+            const familyMemberDetails = member.family_member_details;
+            return {
+                last_name: familyMemberDetails.last_name || '',
+                first_name: familyMemberDetails.first_name || '',
+                middle_name: familyMemberDetails.middle_name || '',
+                age: familyMemberDetails.age || '',
+                civil_status: familyMemberDetails.civil_status || '',
+                relationship_to_sm: member.relationship_to_sm || '',
+                occupation: familyMemberDetails.occupation || '',
+                edu_attainment: familyMemberDetails.edu_attainment || '',
+                income: familyMemberDetails.income || '',
+            };
+        })
+        : [];
 
 	// console.log('Formatted Father:', formattedFather);
 	// console.log('Formatted Mother:', formattedMother);
