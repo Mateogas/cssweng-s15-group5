@@ -92,11 +92,11 @@ const InterventionHomeVisitSchema = new Schema ({
           required: true
      },
      observation_findings: {
-          type: [String],
+          type: String,
           required: false
      },
      interventions: {
-          type: [String],
+          type: String,
           required: false
      },
      recommendations: {

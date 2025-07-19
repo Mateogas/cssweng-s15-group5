@@ -44,7 +44,7 @@ function HomeLeader() {
           const data = await fetchHeadViewBySpu(spuToUse);
           employees = data.employees || [];
         }
-      } else if (sessionData.user?.role === "super") {
+      } else if (sessionData.user?.role === "supervisor") {
         const data = await fetchHeadViewBySupervisor(sessionData.user._id);
         employees = data || [];
       }

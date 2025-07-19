@@ -97,7 +97,6 @@ const SponsoredMemberSchema = new mongoose.Schema({
             type: Number,
             required: false
         },
-
     }],
     progress_reports: [{
         progress_report: {

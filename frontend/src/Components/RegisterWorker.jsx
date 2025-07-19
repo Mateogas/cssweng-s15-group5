@@ -108,7 +108,7 @@ export default function RegisterWorker({
 
   useEffect(() => {
     const filtered = socialDevelopmentWorkers.filter(
-      (w) => w.spu_id === formData.spu_id && w.role === 'super'
+      (w) => w.spu_id === formData.spu_id && w.role === 'supervisor'
     );
     setSupervisors(filtered);
   }, [formData.spu_id, socialDevelopmentWorkers]);
@@ -293,7 +293,7 @@ export default function RegisterWorker({
                     >
                       <option value="">Select Role</option>
                       <option value="sdw">Social Development Worker</option>
-                      <option value="super">Supervisor</option>
+                      <option value="supervisor">Supervisor</option>
                       <option value="head">Head</option>
                     </select>
                   </div>

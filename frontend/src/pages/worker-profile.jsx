@@ -137,13 +137,13 @@ export default function WorkerProfile() {
 
     useEffect(() => {
         const filtered = socialDevelopmentWorkers.filter(
-            (w) => w.spu_id === drafts.spu_id && w.role === 'super'
+            (w) => w.spu_id === drafts.spu_id && w.role === 'supervisor'
         );
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
 
     useEffect(() => {
-        if (drafts.role === "super" || drafts.role === "head") {
+        if (drafts.role === "supervisor" || drafts.role === "head") {
             setDrafts((prev) => ({ ...prev, manager: "" }));
         }
     }, [drafts.role]);
@@ -155,7 +155,7 @@ export default function WorkerProfile() {
             if (data.role === "sdw") {
                 const res = await fetchSDWViewById(workerId);
                 setHandledClients(res || []);
-            } else if (data.role === "super") {
+            } else if (data.role === "supervisor") {
                 const res = await fetchHeadViewBySupervisor(workerId);
                 setHandledWorkers(res || []);
             } else if (data.role === "head") {
@@ -288,7 +288,7 @@ export default function WorkerProfile() {
                 // missing.push("Supervisor must be selected for SDW role");
             } else {
                 const validSupervisorIds = socialDevelopmentWorkers
-                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "super")
+                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "supervisor")
                     .map((w) => w._id || w.id);
 
                 if (!validSupervisorIds.includes(drafts.manager)) {
@@ -534,7 +534,7 @@ export default function WorkerProfile() {
                                     >
                                         <option value="">Select Role</option>
                                         {user?.role == "head" && <option value="head">Head</option>}
-                                        <option value="super">Supervisor</option>
+                                        <option value="supervisor">Supervisor</option>
                                         <option value="sdw">Social Development Worker</option>
                                     </select>
                                 </div>
@@ -667,7 +667,7 @@ export default function WorkerProfile() {
                         </>
                     )}
 
-                    {(data.role === "super" || data.role === "head") && (
+                    {(data.role === "supervisor" || data.role === "head") && (
                         <>
                             <h2 className="header-sub">
                                 {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
