@@ -649,6 +649,7 @@ function HomeVisitationForm() {
                                             handleChange("Sponsored Member")(e);
                                             setFamilyType(e.target.value);
                                         }}
+                                        disabled={viewForm}
                                         className={`label-base text-input ${ errors["family_type"] ? "text-input-error" : "" }`}
                                         error={errors["family_type"]}
                                     >

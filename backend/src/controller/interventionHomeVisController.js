@@ -201,6 +201,7 @@ const createHomVis = async (req, res) => {
 
         // Validation
         // console.log(formData)
+        // console.log(formData)
         const requiredFields = [
             "grade_year_course",
             "years_in_program",
@@ -256,7 +257,7 @@ const createHomVis = async (req, res) => {
         });
         console.log("NEW FORM: ", newForm);
 
-        /*await newForm.validate();
+        await newForm.validate();
         await newForm.save();
 
         // add to the case
@@ -274,16 +275,13 @@ const createHomVis = async (req, res) => {
             { new: true }
         );
 
-        const fatherData = formData.rawFatherData || null;
-        const motherData = formData.rawMotherData || null;
-
         return res.status(200).json({
             form: newForm,
             case: updatedCase,
             father: father,
             mother: mother,
             otherFamily: otherFam,
-        });*/
+        });
     } catch (error) {
         console.error("Error creating new home intervention:", error);
         res.status(500).json({
@@ -578,5 +576,5 @@ module.exports = {
     loadHomeVisitationFormEdit,
     createHomVis,
     editHomeVis,
-    deleteHomeVis
+    deleteHomeVis,
 };

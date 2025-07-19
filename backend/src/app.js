@@ -58,6 +58,7 @@ const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 const createAccountController = require('./controller/createAccountController');
 const profileRoute = require('../src/route/employeeRoute.js');
 const fetchingRoute = require('./route/fetchingRoute.js');
+const fileGenerator = require('./route/fileGeneratorRoutes.js');
 /**
  *  ============ Routes ==============
  */
@@ -105,6 +106,9 @@ app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClos
 // Log in and log out route
 app.put('/api/login', authController.loginUser)
 app.put('/api/logout', authController.logoutUser)
+
+// File Generator routes
+app.use('/api/file-generator', fileGenerator);
 
 app.get('/api/session', (req, res) => {
   if (req.session && req.session.user) {
