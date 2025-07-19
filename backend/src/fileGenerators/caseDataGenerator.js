@@ -22,6 +22,8 @@ const {
  * @params
  * 	- id: The ID of the sponsored member
  * 
+ * @route GET /api/file-generator/case-data/:id
+ * 
  * @returns {Object} - The case data for the sponsored member
  * @throws {Error} - If the sponsored member ID is invalid or not found
  */
