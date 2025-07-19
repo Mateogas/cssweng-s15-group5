@@ -162,6 +162,9 @@ export default function RegisterWorker({
     if (!formData.email || !emailRegex.test(formData.email)) missing.push("Valid Email");
     if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 digits)");
 
+    console.log(formData.role, formData.manager)
+    if (formData.role == "sdw" && formData.manager == "") missing.push("Social Development Workers must have a Supervisor");
+
     if (missing.length > 0) {
       setModalTitle("Invalid Fields");
       setModalBody(`The following fields are missing or invalid: ${missing.join(", ")}`);
