@@ -1,3 +1,5 @@
+ 
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 /**
  * Creates a new Intervention Correspondence form for a sponsored member.
  * @param {string} caseId - The ObjectId of the Sponsored Member.
@@ -20,9 +22,10 @@
  */
 export const createCorrespForm = async (caseId, formData) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/create-form/${caseId}`, {
+        const response = await fetch(`${apiUrl}/interventions/correspondence/create-form/${caseId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials:'include',
             body: JSON.stringify(formData),
         });
         if (!response.ok) throw new Error('API error');
@@ -43,7 +46,10 @@ export const createCorrespForm = async (caseId, formData) => {
  */
 export const fetchCorrespFormData = async (caseId, formId) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/viewform/${caseId}/${formId}`);
+        const response = await fetch(`${apiUrl}/interventions/correspondence/viewform/${caseId}/${formId}`,{
+            method:'GET',
+            credentials:'include',
+        });
         if (!response.ok) throw new Error('API error');
         return await response.json();
     } catch (error) {
@@ -62,7 +68,10 @@ export const fetchCorrespFormData = async (caseId, formId) => {
  */
 export const fetchAllCorrespInterventions = async (caseId) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/getAllForms/${caseId}`);
+        const response = await fetch(`${apiUrl}/interventions/correspondence/getAllForms/${caseId}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
         if (!response.ok) throw new Error('API error');
         return await response.json();
     } catch (error) {
@@ -79,9 +88,10 @@ export const fetchAllCorrespInterventions = async (caseId) => {
  */
 export const editCorrespForm = async (formId, newData) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/edit-form/${formId}`, {
+        const response = await fetch(`${apiUrl}/interventions/correspondence/edit-form/${formId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            credentials:'include',
             body: JSON.stringify(newData),
         });
         if (!response.ok) throw new Error('API error');
@@ -101,9 +111,10 @@ export const editCorrespForm = async (formId, newData) => {
  */
 export const addCorrespInterventionPlan = async (formId, planData) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/add-plans/${formId}`, {
-            method: 'PUT',
+        const response = await fetch(`${apiUrl}/interventions/correspondence/add-plans/${formId}`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials:'include',
             body: JSON.stringify(planData),
         });
         if (!response.ok) throw new Error('API error');
@@ -123,8 +134,9 @@ export const addCorrespInterventionPlan = async (formId, planData) => {
  */
 export const deleteCorrespInterventionPlan = async (formId, planId) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/delete-plan/${formId}/${planId}`, {
+        const response = await fetch(`${apiUrl}/interventions/correspondence/delete-plan/${formId}/${planId}`, {
             method: 'DELETE',
+            credentials:'include',
         });
         if (!response.ok) throw new Error('API error');
         const result = await response.json();
@@ -141,8 +153,9 @@ export const deleteCorrespInterventionPlan = async (formId, planId) => {
  */
 export const deleteCorrespInterventionForm = async(formId) => {
     try {
-        const response = await fetch(`/api/interventions/correspondence/delete/${formId}`, {
+        const response = await fetch(`${apiUrl}/interventions/correspondence/delete/${formId}`, {
             method: 'DELETE',
+            credentials:'include',
         });
         if (!response.ok) throw new Error('API error');
         const result = await response.json();
@@ -155,7 +168,10 @@ export const deleteCorrespInterventionForm = async(formId) => {
 
 export const fetchAutoFillCorrespData = async(caseId) =>{
     try{
-        const response = await fetch(`/api/interventions/correspondence/getAutoFillForm/${caseId}`)
+        const response = await fetch(`${apiUrl}/interventions/correspondence/getAutoFillForm/${caseId}`,{
+            method:'GET',
+            credentials:'include',
+        })
         if(!response.ok) throw new Error('API Error');
         const result = await response.json();
         return result

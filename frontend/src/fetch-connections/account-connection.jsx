@@ -1,6 +1,6 @@
 // export const createAccount = async (req, res) => {
 //     try {
-//         const response = await fetch('/api/create-account', {
+//         const response = await fetch('${apiUrl}/create-account', {
 //             method: 'POST',
 //             headers: {
 //                 'Content-Type': 'application/json',
@@ -21,10 +21,10 @@
 // }
 
 // fetch-connections/create-account-connection.js
-
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 export const fetchEmployeeById = async (employeeId) => {
   try {
-    const response = await fetch(`/api/employee/${employeeId}`, {
+    const response = await fetch(`${apiUrl}/employee/${employeeId}`, {
       credentials: 'include',
     });
     const data = await response.json();
@@ -44,7 +44,7 @@ export const fetchEmployeeById = async (employeeId) => {
  */
 export const updateEmployeeById = async (employeeId, updatedData) => {
   try {
-    const response = await fetch(`/api/employees/edit/${employeeId}`, {
+    const response = await fetch(`${apiUrl}/employees/edit/${employeeId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export const fetchEmployeeByUsername = async (sdwId) => {
 
 export const fetchEmployeeBySDWId = async (sdwId) => {
   try {
-    const response = await fetch(`/api/employees/by-sdw/${sdwId}`, {
+    const response = await fetch(`${apiUrl}/employees/by-sdw/${sdwId}`, {
       credentials: 'include',
     });
 
@@ -97,7 +97,7 @@ export const fetchEmployeeBySDWId = async (sdwId) => {
 
 export const updateEmployeePasswordById = async (employeeId, updatedPasswordData) => {
   try {
-    const response = await fetch(`/api/employees/edit-password/${employeeId}`, {
+    const response = await fetch(`${apiUrl}/employees/edit-password/${employeeId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export const updateEmployeePasswordById = async (employeeId, updatedPasswordData
 
 export const createAccount = async (payload) => {
   try {
-    const response = await fetch('/api/create-account', {
+    const response = await fetch(`${apiUrl}/create-account`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -134,7 +134,7 @@ export const createAccount = async (payload) => {
 
 // create-account-connection.js
 export const loginUser = async (payload) => {
-  const response = await fetch('/api/login', {
+  const response = await fetch(`${apiUrl}/login`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -145,7 +145,7 @@ export const loginUser = async (payload) => {
 };
 
 export const logoutUser = async () => {
-  const res = await fetch("/api/logout", {
+  const res = await fetch(`${apiUrl}/logout`, {
     method: "PUT",
     credentials: "include",
   });
@@ -153,7 +153,7 @@ export const logoutUser = async () => {
 };
 
 export const fetchSession = async () => {
-  const response = await fetch('/api/session', {
+  const response = await fetch(`${apiUrl}/session`, {
     credentials: 'include'
   });
   return response.json();
@@ -161,7 +161,10 @@ export const fetchSession = async () => {
 
 export const fetchAllSDWs = async () => {
   try {
-    const response = await fetch('/api/cases/getsdw');
+    const response = await fetch(`${apiUrl}/cases/getsdw`,{
+            method: 'GET',
+            credentials: 'include',
+        });
     if (!response.ok) throw new Error('Failed to fetch employees');
     return await response.json();
   } catch (err) {
@@ -172,7 +175,7 @@ export const fetchAllSDWs = async () => {
 
 
 export const fetchHeadView = async () => {
-  const response = await fetch('/api/head', {
+  const response = await fetch(`${apiUrl}/head`, {
     credentials: 'include'
   });
   return response.json();
@@ -180,42 +183,42 @@ export const fetchHeadView = async () => {
 
 export const fetchHeadViewBySpu = async (spu) => {
   // GET can’t have body, so use query param:
-  const response = await fetch(`/api/head/spu?spu=${encodeURIComponent(spu)}`, {
+  const response = await fetch(`${apiUrl}/head/spu?spu=${encodeURIComponent(spu)}`, {
     credentials: 'include'
   });
   return response.json();
 };
 
 export const fetchSupervisorView = async () => {
-  const response = await fetch('/api/supervisor', {
+  const response = await fetch(`${apiUrl}/supervisor`, {
     credentials: 'include'
   });
   return response.json();
 };
 
 export const fetchSDWView = async () => {
-  const response = await fetch('/api/socialdevelopmentworker', {
+  const response = await fetch(`${apiUrl}/socialdevelopmentworker`, {
     credentials: 'include'
   });
   return response.json();
 };
 
 export const fetchHeadViewBySupervisor = async (supervisorId) => {
-  const response = await fetch(`/api/head/${supervisorId}`, {
+  const response = await fetch(`${apiUrl}/head/${supervisorId}`, {
     credentials: 'include'
   });
   return response.json();
 };
 
 export const fetchSDWViewByParam = async (supervisorId, sdwId) => {
-  const response = await fetch(`/api/head/${supervisorId}/${sdwId}`, {
+  const response = await fetch(`${apiUrl}/head/${supervisorId}/${sdwId}`, {
     credentials: 'include'
   });
   return response.json();
 };
 
 export const fetchSDWViewById = async (sdwId) => {
-  const response = await fetch(`/api/supervisors/${sdwId}`, {
+  const response = await fetch(`${apiUrl}/supervisors/${sdwId}`, {
     credentials: 'include'
   });
   return response.json();

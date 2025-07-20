@@ -1,3 +1,4 @@
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 /**
  * Creates a new Intervention Financial Assessment form for a sponsored member.
  * @param {string} caseId - The ObjectId of the Sponsored Member.
@@ -18,9 +19,10 @@
  */
 export const createFinancialForm = async (caseId, formData) => {
     try {
-        const response = await fetch(`/api/interventions/financial/create-form/${caseId}`, {
+        const response = await fetch(`${apiUrl}/interventions/financial/create-form/${caseId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(formData),
         });
         if (!response.ok) throw new Error('API error');
@@ -41,7 +43,10 @@ export const createFinancialForm = async (caseId, formData) => {
  */
 export const fetchFinInterventionData = async (caseId, formId) => {
     try {
-        const response = await fetch(`/api/interventions/financial/viewform/${caseId}/${formId}`);
+        const response = await fetch(`${apiUrl}/interventions/financial/viewform/${caseId}/${formId}`,{
+            method: 'GET',
+            credentials: 'includee',
+        });
         if (!response.ok) throw new Error('API error');
         return await response.json();
     } catch (error) {
@@ -60,7 +65,10 @@ export const fetchFinInterventionData = async (caseId, formId) => {
  */
 export const fetchAllFinInterventions = async (caseId) => {
     try {
-        const response = await fetch(`/api/interventions/financial/getAllForms/${caseId}`);
+        const response = await fetch(`${apiUrl}/interventions/financial/getAllForms/${caseId}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
         if (!response.ok) throw new Error('API error');
         return await response.json();
     } catch (error) {
@@ -77,9 +85,10 @@ export const fetchAllFinInterventions = async (caseId) => {
  */
 export const editFinancialForm = async (formId, newData) => {
     try {
-        const response = await fetch(`/api/interventions/financial/edit-form/${formId}`, {
+        const response = await fetch(`${apiUrl}/interventions/financial/edit-form/${formId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(newData),
         });
         if (!response.ok) throw new Error('API error');
@@ -98,8 +107,9 @@ export const editFinancialForm = async (formId, newData) => {
  */
 export const deleteCorrespInterventionForm = async(formId) => {
     try {
-        const response = await fetch(`/api/interventions/financial/deleteform/${formId}`, {
+        const response = await fetch(`${apiUrl}/interventions/financial/deleteform/${formId}`, {
             method: 'DELETE',
+            credentials: 'include'
         });
         if (!response.ok) throw new Error('API error');
         const result = await response.json();
@@ -112,7 +122,10 @@ export const deleteCorrespInterventionForm = async(formId) => {
 
 export const fetchAutoFillFinancialData = async(caseId) =>{
     try{
-        const response = await fetch(`/api/interventions/financial/getAutoFillForm/${caseId}`)
+        const response = await fetch(`${apiUrl}/interventions/financial/getAutoFillForm/${caseId}`,{
+            method: 'GET',
+            credentials: 'include',
+        })
         if(!response.ok) throw new Error('API Error');
         const result = await response.json();
         return result

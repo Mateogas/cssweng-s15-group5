@@ -3,7 +3,7 @@
  */
 const express = require('express');
 const dotenv = require('dotenv');
-
+const cors = require('cors');
 //const path = require('path');
 // const path = require('path');
 
@@ -24,9 +24,22 @@ const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
 
 app.use(cookieParser());
+//Cors is used for cross origin communication between servers 
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? [
+            'https://unboundgroup.vercel.app',
+            'https://unboundgroup-git-vercel-frontend-kmdcs-projects.vercel.app'
+          ]
+        : 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.set('trust proxy', 1);
 app.use(
     session({
-        secret: "secret-key", 
+        secret: process.env.SECRET_KEY||"secret-key", 
         resave: false,        
         saveUninitialized: false,
         store: MongoStore.create({
@@ -54,7 +67,7 @@ const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
-
+const isAuthenticated = require('./middlewares/isAuthenticated.js')
 const createAccountController = require('./controller/createAccountController');
 const profileRoute = require('../src/route/employeeRoute.js');
 const fetchingRoute = require('./route/fetchingRoute.js');
@@ -81,33 +94,30 @@ app.get("/test-session", (req, res) => {
     }
 });
 
+// Log in and log out route
+app.put('/api/login', authController.loginUser)
+app.put('/api/logout', authController.logoutUser)
+
+// ALL ROUTES AFTER THIS ARE NOW GETTING AUTHENTICATED
+app.use(isAuthenticated);
 // All case routes
 app.use('/api/cases', caseRoutes);
-
 // All account routes
 app.use('/api', accountRoutes);
 app.use('/api', fetchingRoute);
-
 // Intervention routes
 app.use('/api/intervention', interventionRoutes);
-
-// Progress Report routes
-app.use('/api/progress-report', progressReportRoutes);
-
 app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.use('/api/intervention', homeVisRoutes);
-
+// Progress Report routes
+app.use('/api/progress-report', progressReportRoutes);
 // Case Closure routes
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
 app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
 app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm);
 
 // Log in and log out route
-app.put('/api/login', authController.loginUser)
-app.put('/api/logout', authController.logoutUser)
-
-// File Generator routes
 app.use('/api/file-generator', fileGenerator);
 
 app.get('/api/session', (req, res) => {
@@ -123,43 +133,6 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found', path: req.originalUrl });
 });
 
-// Fetching for viewing
-
-// app.use('/api/dashboard',fetchingRoute);
-
-
-
-/**
- *  ============ Extras ==============
- */
-
-/*
-Code below was added by gpt as a bug fix to when you reload it turns into json, this happens because of routing issues with
-vite+react to be able to use this tho you first need to build the front end
-
-// Serve static files (JS, CSS, images, etc.)
-app.use(express.static(path.join(__dirname, '../frontend-dev-test/dist')))
-
-// Serve index.html for any other route (React handles client-side routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend-dev-test/dist/index.html'))
-})
-for testing
-//const session = require('express-session');
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'yourSecretHere', // use env or fallback
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // set to true if using HTTPS
-    maxAge: 1000 * 60 * 60 * 24 // 1 day
-  }
-}));
-  //For testing
-app.get('/setTestSession', (req, res) => {
-  req.session.user = { role: 'head', name: 'Test Head User',spu_id : 'AMP', _id: '686e92a03c1f53d3ee65962b'};
-  res.send('Session set!');
-});*/
 
 
 module.exports = app;

@@ -25,7 +25,7 @@ const defaultCaseData = {
 };
 // Saved ID locally so no need to pass evertyime
 var localID
-
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 // ======== API calls ======== // 
 /**
  * Creates a new Sponsored Member case
@@ -34,7 +34,7 @@ var localID
  */
 export const createNewCase = async (newCaseData) => {
   try {
-    const response = await fetch('/api/cases/case-create', {
+    const response = await fetch(`${apiUrl}/cases/case-create`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -60,7 +60,10 @@ export const createNewCase = async (newCaseData) => {
  */
 export const fetchCaseData = async (caseID) => {
      try {
-          const response = await fetch(`/api/cases/${caseID}`);
+          const response = await fetch(`${apiUrl}/cases/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
           if (!response.ok) throw new Error('Failed to fetch case data');
 
           const rawData = await response.json();
@@ -88,7 +91,10 @@ export const fetchCaseBySMNumber = async (smNumber) => {
 //   console.log('[fetchCaseBySMNumber] Checking SM Number:', smNumber);
 
   try {
-    const response = await fetch(`/api/cases/case-by-sm-number/${smNumber}`);
+    const response = await fetch(`${apiUrl}/cases/case-by-sm-number/${smNumber}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
 
     if (!response.ok) {
       throw new Error(`Case-Connection Error: ${response.status}`);
@@ -176,11 +182,12 @@ export const updateCoreCaseData = async (updatedData, caseID) => {
 
           // console.log("Sending data:", preparedData);
 
-          const response = await fetch(`/api/cases/edit/core/${targetID}`, {
+          const response = await fetch(`${apiUrl}/cases/edit/core/${targetID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(preparedData),
           });
 
@@ -220,11 +227,12 @@ export const updateIdentifyingCaseData = async (updatedData, caseID) => {
 
           //console.log("Sending data:", preparedData);
 
-          const response = await fetch(`/api/cases/edit/identifyingdata/${targetID}`, {
+          const response = await fetch(`${apiUrl}/cases/edit/identifyingdata/${targetID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(preparedData),
           });
 
@@ -243,8 +251,12 @@ export const updateIdentifyingCaseData = async (updatedData, caseID) => {
 
 export const fetchSDWs = async () => {
      try {
-          const response = await fetch('/api/cases/getsdw');
-          if (!response.ok) throw new Error('Failed to fetch SDWs');
+          const response = await fetch(`${apiUrl}/cases/getsdw`
+          );
+          if (!response.ok) throw new Error('Failed to fetch SDWs',{
+            method: 'GET',
+            credentials: 'include',
+        });
           const data = await response.json();
           // Map to expected format
 
@@ -269,7 +281,10 @@ export const fetchSDWs = async () => {
  */
 export const fetchFamilyMembers = async (caseID) => {
      try {
-          const response = await fetch(`/api/cases/get-family-compositon/${caseID}`)
+          const response = await fetch(`${apiUrl}/cases/get-family-compositon/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        })
 
           if (!response.ok) {
                throw new Error(`API error: ${response.status}`)
@@ -292,11 +307,12 @@ export const fetchFamilyMembers = async (caseID) => {
  */
 export const updateFamilyMember = async (caseID, famID, updatedData) => {
      try {
-          const response = await fetch(`/api/cases/edit-family-composition/${caseID}/${famID}`, {
+          const response = await fetch(`${apiUrl}/cases/edit-family-composition/${caseID}/${famID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(updatedData),
           });
 
@@ -321,11 +337,12 @@ export const updateFamilyMember = async (caseID, famID, updatedData) => {
  */
 export const addFamilyMember = async (caseID, updatedData) => {
      try {
-          const response = await fetch(`/api/cases/add-family-member/${caseID}`, {
+          const response = await fetch(`${apiUrl}/cases/add-family-member/${caseID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(updatedData),
           });
 
@@ -351,11 +368,12 @@ export const addFamilyMember = async (caseID, updatedData) => {
  */
 export const deleteFamilyMember = async (caseID, famID) => {
      try {
-          const response = await fetch(`/api/cases/delete-family-member/${caseID}/${famID}`, {
+          const response = await fetch(`${apiUrl}/cases/delete-family-member/${caseID}/${famID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
           });
 
           if (!response.ok) {
@@ -381,7 +399,7 @@ export const deleteFamilyMember = async (caseID, famID) => {
 // GOT MODIFIED
 // export const editProblemsFindings = async (caseID, updatedData) => {
 //      try {
-//           const response = await fetch(`/api/cases/update-problems-findings/${caseID}`, {
+//           const response = await fetch(`${apiUrl}/cases/update-problems-findings/${caseID}`, {
 //                method: 'PUT',
 //                headers: {
 //                     'Content-Type': 'application/json',
@@ -418,11 +436,12 @@ export const editProblemsFindings = async (caseID, updatedData) => {
 
           // console.log("Sending preparedData:", preparedData);
 
-          const response = await fetch(`/api/cases/update-problems-findings/${targetID}`, {
+          const response = await fetch(`${apiUrl}/cases/update-problems-findings/${targetID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(preparedData),
           });
 
@@ -451,11 +470,12 @@ export const editProblemsFindings = async (caseID, updatedData) => {
  */
 export const editAssessment = async (caseID, updatedData) => {
      try {
-          const response = await fetch(`/api/cases/update-assessment/${caseID}`, {
+          const response = await fetch(`${apiUrl}/cases/update-assessment/${caseID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(updatedData),
           });
 
@@ -484,11 +504,12 @@ export const editAssessment = async (caseID, updatedData) => {
  */
 export const editEvalReco = async (caseID, updatedData) => {
      try {
-          const response = await fetch(`/api/cases/update-evaluation-recommendation/${caseID}`, {
+          const response = await fetch(`${apiUrl}/cases/update-evaluation-recommendation/${caseID}`, {
                method: 'PUT',
                headers: {
                     'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(updatedData),
           });
 
@@ -520,7 +541,10 @@ export const editEvalReco = async (caseID, updatedData) => {
  */
 export const fetchAllCases = async () => {
      try {
-          const response = await fetch('/api/cases');
+          const response = await fetch(`${apiUrl}/cases`,{
+            method: 'GET',
+            credentials: 'include',
+        });
           if (!response.ok) throw new Error('API error');
           return await response.json();
      } catch (err) {
@@ -545,7 +569,7 @@ export const fetchAllCases = async () => {
  */
 export const addNewCase = async(newCaseData) => {
      try{
-          const response = await fetch('/api/cases/case-create',{
+          const response = await fetch(`${apiUrl}/cases/case-create`,{
                method: 'POST',
                headers: {
                     'Content-Type': 'application/json',
@@ -561,7 +585,7 @@ export const addNewCase = async(newCaseData) => {
      }
 };
 /**
- * @route   GET /api/cases/case-by-sdw/:sdwID
+ * @route   GET ${apiUrl}/cases/case-by-sdw/:sdwID
  * @desc    Fetches all cases assigned to a specific Social Development Worker
  * 
  * @param {string} sdwID - MongoDB ObjectId of the Social Development Worker
@@ -579,7 +603,10 @@ export const addNewCase = async(newCaseData) => {
  */
 export const fetchCasebySDW = async(sdwID) => {
      try{
-          const response = await fetch(`/api/cases/case-by-sdw/${sdwID}`);
+          const response = await fetch(`${apiUrl}/cases/case-by-sdw/${sdwID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
           if(!response.ok) throw new Error('Failed to fetch sdw cases');
           return await response.json();
      }catch(error){

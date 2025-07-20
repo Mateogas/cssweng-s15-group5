@@ -1,3 +1,4 @@
+const apiUrl = import.meta.env.VITE_API_URL || '${apiUrl}';
 /**
  * Fetches data for Head view, including all active sponsored members and all employees.
  * Session automatically handles authentication through cookies.
@@ -8,7 +9,7 @@
  */
 export const fetchHeadViewData = async () => {
     try {
-        const response = await fetch('/api/dashboard/head', {
+        const response = await fetch(`${apiUrl}/dashboard/head`, {
             method: 'GET',
             credentials: 'include', 
             headers: {
@@ -38,7 +39,7 @@ export const fetchHeadViewData = async () => {
  */
 export const fetchHeadViewBySPU = async (spu) => {
     try {
-        const response = await fetch('/api/dashboard/head/spu', {
+        const response = await fetch(`${apiUrl}/dashboard/head/spu`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +68,7 @@ export const fetchHeadViewBySPU = async (spu) => {
  */
 export const fetchSupervisorViewData = async () => {
     try {
-        const response = await fetch('/api/dashboard/supervisor', {
+        const response = await fetch(`${apiUrl}/dashboard/supervisor`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -94,7 +95,7 @@ export const fetchSupervisorViewData = async () => {
  */
 export const fetchSDWViewData = async () => {
     try {
-        const response = await fetch('/api/dashboard/socialdevelopmentworker', {
+        const response = await fetch(`${apiUrl}/dashboard/socialdevelopmentworker`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -119,7 +120,7 @@ export const fetchSDWViewData = async () => {
  */
 export const fetchSDWsBySupervisor = async (supervisorId) => {
     try {
-        const response = await fetch(`/api/dashboard/head/${supervisorId}`, {
+        const response = await fetch(`${apiUrl}/dashboard/head/${supervisorId}`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -145,7 +146,7 @@ export const fetchSDWsBySupervisor = async (supervisorId) => {
  */
 export const fetchCasesBySDW = async (sdwId) => {
     try {
-        const response = await fetch(`/api/dashboard/supervisors/${sdwId}`, {
+        const response = await fetch(`${apiUrl}/dashboard/supervisors/${sdwId}`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -171,7 +172,7 @@ export const fetchCasesBySDW = async (sdwId) => {
  */
 export const fetchCasesBySDWForHead = async (supervisorId, sdwId) => {
     try {
-        const response = await fetch(`/api/dashboard/head/${supervisorId}/${sdwId}`, {
+        const response = await fetch(`${apiUrl}/dashboard/head/${supervisorId}/${sdwId}`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -196,7 +197,7 @@ export const fetchCasesBySDWForHead = async (supervisorId, sdwId) => {
 export const checkAuthentication = async () => {
     try {
         // You would need to create this endpoint in your backend
-        const response = await fetch('/api/auth/check-session', {
+        const response = await fetch(`${apiUrl}/auth/check-session`, {
             credentials: 'include'
         });
         if (!response.ok) {

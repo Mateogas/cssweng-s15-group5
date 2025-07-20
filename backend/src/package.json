@@ -24,7 +24,8 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.15.1",
     "pizzip": "^3.2.0",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.6.2",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "joi": "^17.13.3",

@@ -1,6 +1,10 @@
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 export const fetchProgressReport = async (reportID) => {
     try {
-        const response = await fetch(`/api/progress-report/${reportID}`);
+        const response = await fetch(`${apiUrl}/progress-report/${reportID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
 
         if (!response.ok) {
             throw new Error("Failed to fetch progress report");
@@ -16,7 +20,10 @@ export const fetchProgressReport = async (reportID) => {
 
 export const fetchCaseData = async (caseID) => {
     try {
-        const response = await fetch(`/api/progress-report/add/${caseID}`);
+        const response = await fetch(`${apiUrl}/progress-report/add/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
 
         if (!response.ok) {
             throw new Error("Failed to fetch case data");
@@ -32,7 +39,10 @@ export const fetchCaseData = async (caseID) => {
 
 export const fetchProgressReportsForCase = async (caseID) => {
     try {
-        const response = await fetch(`/api/progress-report/case/${caseID}`);
+        const response = await fetch(`${apiUrl}/progress-report/case/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        });
 
         if (!response.ok) {
             throw new Error("Failed to fetch progress reports for case");
@@ -48,11 +58,12 @@ export const fetchProgressReportsForCase = async (caseID) => {
 
 export const addProgressReport = async (data, caseID) => {
     try {
-        const response = await fetch(`/api/progress-report/add/${caseID}`, {
+        const response = await fetch(`${apiUrl}/progress-report/add/${caseID}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials:"include",
             body: JSON.stringify(data),
         });
 
@@ -70,8 +81,9 @@ export const addProgressReport = async (data, caseID) => {
 
 export const deleteProgressReport = async (reportID) => {
     try {
-        const response = await fetch(`/api/progress-report/delete/${reportID}`, {
+        const response = await fetch(`${apiUrl}/progress-report/delete/${reportID}`, {
             method: "DELETE",
+            credentials:"include",
         });
 
         if (!response.ok) {
@@ -88,11 +100,12 @@ export const deleteProgressReport = async (reportID) => {
 
 export const editProgressReport = async (reportID, data) => {
     try {
-        const response = await fetch(`/api/progress-report/edit/${reportID}`, {
+        const response = await fetch(`${apiUrl}/progress-report/edit/${reportID}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
+            credentials:"include",
             body: JSON.stringify(data),
         });
 

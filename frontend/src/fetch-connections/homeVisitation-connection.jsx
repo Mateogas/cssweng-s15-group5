@@ -1,7 +1,12 @@
+
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 export const fetchCaseData = async (caseID) => {
     try {
         const response = await fetch(
-            `/api/intervention/home-visit-form/${caseID}`,
+            `${apiUrl}/intervention/home-visit-form/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        }
         );
 
         if (!response.ok) throw new Error("API error");
@@ -32,7 +37,10 @@ export const fetchCaseData = async (caseID) => {
 export const fetchFormData = async (caseID, formID) => {
     try {
         const response = await fetch(
-            `/api/intervention/home-visit-form/${caseID}/${formID}`,
+            `${apiUrl}/intervention/home-visit-form/${caseID}/${formID}`,{
+            method: 'GET',
+            credentials: 'include',
+        }
         );
 
         if (!response.ok) throw new Error("API error");
@@ -62,7 +70,10 @@ export const fetchFormData = async (caseID, formID) => {
 export const fetchAllHomeVisitForms = async (caseID) => {
     try {
         const response = await fetch(
-            `/api/intervention/home-visit-form/all/${caseID}`,
+            `${apiUrl}/intervention/home-visit-form/all/${caseID}`,{
+            method: 'GET',
+            credentials: 'include',
+        }
         );
 
         if (!response.ok) {
@@ -80,12 +91,13 @@ export const fetchAllHomeVisitForms = async (caseID) => {
 export const createHomeVis = async (createdData, caseID) => {
     try {
         const response = await fetch(
-            `/api/intervention/home-visit-form/create/${caseID}`,
+            `${apiUrl}/intervention/home-visit-form/create/${caseID}`,
             {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials:'include',
                 body: JSON.stringify(createdData),
             },
         );
@@ -103,12 +115,13 @@ export const createHomeVis = async (createdData, caseID) => {
 export const editHomeVis = async (updatedData, caseID, formID) => {
     try {
         const response = await fetch(
-            `/api/intervention/home-visit-form/edit/${caseID}/${formID}`,
+            `${apiUrl}/intervention/home-visit-form/edit/${caseID}/${formID}`,
             {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials:'include',
                 body: JSON.stringify(updatedData),
             },
         );
@@ -126,12 +139,13 @@ export const editHomeVis = async (updatedData, caseID, formID) => {
 export const deleteHomeVis = async (formID) => {
     try {
         const response = await fetch(
-            `/api/intervention/delete/home-visit-form/${formID}`,
+            `${apiUrl}/intervention/delete/home-visit-form/${formID}`,
             {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials:'include',
             },
         );
 
