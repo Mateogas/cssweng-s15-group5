@@ -156,22 +156,48 @@ function formatHomeVisitData(homevisit) {
 	// console.log('formatHomeVisitData', homevisit);
 
 	// Safe formatting for father data with multiple null checks
-	let f_name, f_income, f_occupation;
+	let f_name = '', f_income = 'No income', f_occupation = '';
 	if (homevisit.father) {
 		const father = homevisit.father.toObject?.();
-		f_name = `${father.last_name || ''}, ${father.first_name || ''}`.replace(/^, |, $/, '')
-		f_income = father.income != null ? `₱${father.income.toLocaleString()}` : 'No income.';
-		f_occupation = father.occupation || ''
+
+		const last_name = father?.last_name?.trim();
+		const first_name = father?.first_name?.trim();
+		if (last_name || first_name) {
+			f_name = `${last_name || ''}, ${first_name || ''}`.replace(/^, |, $/, '')
+		}
+
+		const income = father?.income?.toLocaleString();
+		if (income) {
+			f_income = income;
+		}
+
+		const occupation = father?.occupation?.trim();
+		if (occupation) {
+			f_occupation = occupation;
+		}
 	};
 	//console.log('Formatted Father:', formattedFather);
 
     // Safe formatting for mother data with multiple null checks
-	let m_name, m_income, m_occupation;
+	let m_name = '', m_income = 'No income', m_occupation = '';
 	if (homevisit.mother) {
 		const mother = homevisit.mother.toObject?.();
-		m_name = `${mother.last_name || ''}, ${mother.first_name || ''}`.replace(/^, |, $/, '')
-		m_income = mother.income != null ? `₱${mother.income.toLocaleString()}` : 'No income.';
-		m_occupation = mother.occupation || ''
+
+		const last_name = mother?.last_name?.trim();
+		const first_name = mother?.first_name?.trim();
+		if (last_name || first_name) {
+			m_name = `${last_name || ''}, ${first_name || ''}`.replace(/^, |, $/, '')
+		}
+		
+		const income = mother?.income?.toLocaleString();
+		if (income) {
+			m_income = income;
+		}
+
+		const occupation = mother?.occupation?.trim();
+		if (occupation) {
+			m_occupation = occupation;
+		}
 	};
 	//console.log('Formatted Mother:', formattedMother);
 
