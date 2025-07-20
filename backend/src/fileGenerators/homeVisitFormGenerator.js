@@ -24,6 +24,7 @@ const generateHomeVisitForm = async (req, res) => {
         formattedData.last_name = sponsored_member.last_name || '';
         formattedData.first_name = sponsored_member.first_name || '';
         formattedData.middle_name = sponsored_member.middle_name || '';
+        formattedData.sm_number = sponsored_member.sm_number || '';
 
         //console.log('FORMATTED HOME VISIT FORM: ', formattedData);
         return res.status(200).json(formattedData)

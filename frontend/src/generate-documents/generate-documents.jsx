@@ -8,7 +8,7 @@ function loadFile(url, callback) {
 }
 
 // Generic document generator function
-const generateDocument = async (apiEndpoint, templatePath, outputFileName) => {
+const generateDocument = async (apiEndpoint, templatePath, outputFileName, useSmNumber = false) => {
     try {
         // Fetch data from API
         const response = await fetch(apiEndpoint);
@@ -17,6 +17,12 @@ const generateDocument = async (apiEndpoint, templatePath, outputFileName) => {
         }
 
         const data = await response.json();
+
+        // If using SM number, ensure it is included in the data
+        let finalOutputName = outputFileName;
+        if (useSmNumber && data.sm_number) {
+            finalOutputName = `CH${data.sm_number}-${outputFileName}`;
+        }
 
         // Load and process template
         loadFile(templatePath, function (error, content) {
@@ -37,7 +43,7 @@ const generateDocument = async (apiEndpoint, templatePath, outputFileName) => {
                 mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             });
 
-            saveAs(out, outputFileName);
+            saveAs(out, finalOutputName);
         });
     } catch (error) {
         console.error(`Error generating document: ${error.message}`);
@@ -50,7 +56,8 @@ const DOCUMENT_CONFIGS = {
     caseReport: {
         apiPath: '/api/file-generator/case-data',
         templatePath: '/templates/TEMPLATE_Social-Case-Study-Report.docx',
-        outputName: 'case-report.docx'
+        outputName: 'case-report.docx',
+        useSmNumber: true
     },
     correspondence: {
         apiPath: '/api/file-generator/correspondence-form',
@@ -89,7 +96,8 @@ const generateDocumentByType = async (documentType, id) => {
     return generateDocument(
         `${config.apiPath}/${id}`,
         config.templatePath,
-        config.outputName
+        config.outputName,
+        config.useSmNumber
     );
 };
 

@@ -187,6 +187,7 @@ const generateCaseData = async (req, res) => {
 
 		// Format data for the document
 		const caseData = {
+			sm_number: sponsoredMember.sm_number || '',
 			last_name: sponsoredMember.last_name || '',
 			first_name: sponsoredMember.first_name || '',
 			middle_name: sponsoredMember.middle_name || '',
