@@ -28,18 +28,33 @@ function formatDate(date) {
 	identified_problem: String,
 	assesment: String,
 	objective: String,
+	intervention_plans: [{
+		action: String,
+		time_frame: String,
+		results: String,
+		person_responsible: String,
+	}],
 	recommendation: String,
 }
 */
 function formatCorrespondenceData(correspondence) {
 	if (!correspondence) return {};
     // console.log('formatCorrespondenceData', correspondence);
+
+	const intervention_plans = (correspondence.intervention_plans || []).map(plan => ({
+		action: plan.action || '',
+		time_frame: plan.time_frame || '',
+		results: plan.results || '',
+		person_responsible: plan.person_responsible || '',
+	}));
+
     return {
 		name_of_sponsor: correspondence.name_of_sponsor || '',
 		date_of_sponsorship: formatDate(correspondence.date_of_sponsorship) || '',
 		identified_problem: correspondence.identified_problem || '',
 		assesment: correspondence.assesment || '',
 		objective: correspondence.objective || '',
+		intervention_plans: intervention_plans,
 		recommendation: correspondence.recommendation || '',
 	}
 }
