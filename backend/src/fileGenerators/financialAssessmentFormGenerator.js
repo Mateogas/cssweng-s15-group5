@@ -6,6 +6,10 @@ const {
     formatFinancialData,
 } = require('./helpers')
 
+const {
+	checkCaseAccess,
+} = require('../middlewares/caseAuthMiddleware')
+
 const generateFinancialAssessmentForm = async (req, res) => {
     try {
         const financialId = req.params.financialId;
@@ -24,6 +28,18 @@ const generateFinancialAssessmentForm = async (req, res) => {
         if (!sponsored_member) {
             return res.status(404).json({ message: "Sponsored member not found." });
         }
+
+        // Check is user is logged in
+		const user = req.session.user;
+		if (!user) {
+			return res.status(401).json({ message: "Authentication required." });
+		}
+
+		// Check if user has access to the case
+		const auth = checkCaseAccess(user, sponsored_member);
+		if (!auth.authorized) {
+			return res.status(auth.statusCode).json({ message: auth.error });
+		}
 
         // Format the financial assessment data
         const formattedData = formatFinancialData(financial);

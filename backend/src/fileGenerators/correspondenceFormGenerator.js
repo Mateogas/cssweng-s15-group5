@@ -7,6 +7,10 @@ const {
 	formatCorrespondenceData,
 } = require('./helpers')
 
+const {
+	checkCaseAccess,
+} = require('../middlewares/caseAuthMiddleware')
+
 /**
  * @params
  *  - correspondenceId: The ID of the correspondence intervention
@@ -34,6 +38,18 @@ const generateCorrespondenceForm = async (req, res) => {
             return res.status(404).json({ message: "Sponsored member not found." });
         }
         // console.log('SM', sponsored_member);
+
+        // Check is user is logged in
+		const user = req.session.user;
+		if (!user) {
+			return res.status(401).json({ message: "Authentication required." });
+		}
+
+		// Check if user has access to the case
+		const auth = checkCaseAccess(user, sponsored_member);
+		if (!auth.authorized) {
+			return res.status(auth.statusCode).json({ message: auth.error });
+		}
 
         // Format the correspondence data
         const formattedData = formatCorrespondenceData(correspondence);

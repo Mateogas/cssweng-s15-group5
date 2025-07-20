@@ -8,6 +8,10 @@ const {
     formatProgressReport,
 } = require('./helpers')
 
+const {
+	checkCaseAccess,
+} = require('../middlewares/caseAuthMiddleware')
+
 const generateProgressReport = async (req, res) => {
     try {
         const reportSelected = await Progress_Report.findById(req.params.reportId);
@@ -17,6 +21,18 @@ const generateProgressReport = async (req, res) => {
         const sponsored_member = await Sponsored_Member.findOne({ 'progress_reports.progress_report': reportSelected._id });
         if (!sponsored_member)
             return res.status(404).json({ message: "Sponsored member not found." });
+
+        // Check is user is logged in
+		const user = req.session.user;
+		if (!user) {
+			return res.status(401).json({ message: "Authentication required." });
+		}
+
+		// Check if user has access to the case
+		const auth = checkCaseAccess(user, sponsored_member);
+		if (!auth.authorized) {
+			return res.status(auth.statusCode).json({ message: auth.error });
+		}
 
         const formattedData = formatProgressReport(reportSelected);
 
