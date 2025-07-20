@@ -7,172 +7,90 @@ function loadFile(url, callback) {
     PizZipUtils.getBinaryContent(url, callback);
 }
 
-export const generateCaseReport = async (caseId) => {
-    const data = await fetch(`/api/file-generator/case-data/${caseId}`);
-    if (!data.ok) {
-        throw new Error('Failed to fetch case data');
-    }
-
-    const caseData = await data.json();
-    // console.log('Case Data:', caseData);
-
-    const templatePath = '/templates/TEMPLATE_Social-Case-Study-Report.docx';
-
-    loadFile(templatePath, function (error, content) {
-        if (error) {
-            throw error;
+// Generic document generator function
+const generateDocument = async (apiEndpoint, templatePath, outputFileName) => {
+    try {
+        // Fetch data from API
+        const response = await fetch(apiEndpoint);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data from ${apiEndpoint}`);
         }
 
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
+        const data = await response.json();
+
+        // Load and process template
+        loadFile(templatePath, function (error, content) {
+            if (error) {
+                throw error;
+            }
+
+            const zip = new PizZip(content);
+            const doc = new Docxtemplater(zip, {
+                paragraphLoop: true,
+                linebreaks: true,
+            });
+
+            doc.render(data);
+
+            const out = doc.getZip().generate({
+                type: 'blob',
+                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            });
+
+            saveAs(out, outputFileName);
         });
-
-        doc.render(caseData);
-
-        const out = doc.getZip().generate({
-            type: 'blob',
-            mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(out, 'case-report.docx');
-    });
+    } catch (error) {
+        console.error(`Error generating document: ${error.message}`);
+        throw error;
+    }
 };
 
-export const generateCorrespondenceForm = async (correspondenceId) => {
-    const data = await fetch(`/api/file-generator/correspondence-form/${correspondenceId}`);
-    if (!data.ok) {
-        throw new Error('Failed to fetch correspondence data');
+// Document configurations
+const DOCUMENT_CONFIGS = {
+    caseReport: {
+        apiPath: '/api/file-generator/case-data',
+        templatePath: '/templates/TEMPLATE_Social-Case-Study-Report.docx',
+        outputName: 'case-report.docx'
+    },
+    correspondence: {
+        apiPath: '/api/file-generator/correspondence-form',
+        templatePath: '/templates/TEMPLATE_Correspondence-Form.docx',
+        outputName: 'correspondence-form.docx'
+    },
+    counseling: {
+        apiPath: '/api/file-generator/counseling-form',
+        templatePath: '/templates/TEMPLATE_Counseling-Form.docx',
+        outputName: 'counseling-form.docx'
+    },
+    financial: {
+        apiPath: '/api/file-generator/financial-assessment-form',
+        templatePath: '/templates/TEMPLATE_Financial-Assessment-Form.docx',
+        outputName: 'financial-assessment-form.docx'
+    },
+    homeVisit: {
+        apiPath: '/api/file-generator/home-visit-form',
+        templatePath: '/templates/TEMPLATE_Home-Visit-Form.docx',
+        outputName: 'home-visit-form.docx'
+    }
+};
+
+// Generic document generator with configuration
+const generateDocumentByType = async (documentType, id) => {
+    const config = DOCUMENT_CONFIGS[documentType];
+    if (!config) {
+        throw new Error(`Unknown document type: ${documentType}`);
     }
 
-    const correspondenceData = await data.json();
-    // console.log('Correspondence Data:', correspondenceData);
+    return generateDocument(
+        `${config.apiPath}/${id}`,
+        config.templatePath,
+        config.outputName
+    );
+};
 
-    const templatePath = '/templates/TEMPLATE_Correspondence-Form.docx';
-
-    loadFile(templatePath, function (error, content) {
-        if (error) {
-            throw error;
-        }
-
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
-        });
-
-        doc.render(correspondenceData);
-
-        const out = doc.getZip().generate({
-            type: 'blob',
-            mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(out, 'correspondence-form.docx');
-    });
-}
-
-export const generateCounselingForm = async (counselingId) => {
-    const data = await fetch(`/api/file-generator/counseling-form/${counselingId}`);
-    if (!data.ok) {
-        throw new Error('Failed to fetch counseling data');
-    }
-
-    const counselingData = await data.json();
-    // console.log('Counseling Data:', counselingData);
-
-    const templatePath = '/templates/TEMPLATE_Counseling-Form.docx';
-
-    loadFile(templatePath, function (error, content) {
-        if (error) {
-            throw error;
-        }
-
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
-        });
-
-        doc.render(counselingData);
-
-        const out = doc.getZip().generate({
-            type: 'blob',
-            mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(out, 'counseling-form.docx');
-    });
-}
-
-export const generateFinancialAssessmentForm = async (financialId) => {
-    const data = await fetch(`/api/file-generator/financial-assessment-form/${financialId}`);
-    if (!data.ok) {
-        throw new Error('Failed to fetch financial data');
-    }
-
-    const financialData = await data.json();
-    // console.log('Financial Data:', financialData);
-
-    const templatePath = '/templates/TEMPLATE_Financial-Assessment-Form.docx';
-
-    loadFile(templatePath, function (error, content) {
-        if (error) {
-            throw error;
-        }
-
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
-        });
-
-        doc.render(financialData);
-
-        const out = doc.getZip().generate({
-            type: 'blob',
-            mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(out, 'financial-assessment-form.docx');
-    });
-}
-
-export const generateHomeVisitForm = async (homeVisitId) => {
-    const data = await fetch(`/api/file-generator/home-visit-form/${homeVisitId}`);
-    if (!data.ok) {
-        throw new Error('Failed to fetch counseling data');
-    }
-
-    const homeVisitData = await data.json();
-    //console.log('Home Visit Data:', homeVisitData);
-
-    const templatePath = '/templates/TEMPLATE_Home-Visit-Form.docx';
-
-    loadFile(templatePath, function (error, content) {
-        if (error) {
-            throw error;
-        }
-
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
-        });
-
-        doc.render(homeVisitData);
-
-        const out = doc.getZip().generate({
-            type: 'blob',
-            mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(out, 'home-visit-form.docx');
-    });
-}
+// Simplified exports
+export const generateCaseReport = (caseId) => generateDocumentByType('caseReport', caseId);
+export const generateCorrespondenceForm = (correspondenceId) => generateDocumentByType('correspondence', correspondenceId);
+export const generateCounselingForm = (counselingId) => generateDocumentByType('counseling', counselingId);
+export const generateFinancialAssessmentForm = (financialId) => generateDocumentByType('financial', financialId);
+export const generateHomeVisitForm = (homeVisitId) => generateDocumentByType('homeVisit', homeVisitId);
