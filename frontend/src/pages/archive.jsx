@@ -49,7 +49,7 @@ function Archive() {
         filtered = filtered.filter((client) => !client.is_active);
 
         if (user) {
-            if (user?.role === "super") {
+            if (user?.role === "supervisor") {
                 filtered = filtered.filter((client) => client.spu === user?.spu_id);
             } else if (user?.role === "sdw") {
                 filtered = filtered.filter((client) => {
@@ -137,7 +137,7 @@ function Archive() {
                                 >
                                     <option value="">Sort By</option>
                                     <option value="name">Name</option>
-                                    <option value="sm_number">SM Number</option>
+                                    <option value="sm_number">CH Number</option>
                                 </select>
 
                                 <button

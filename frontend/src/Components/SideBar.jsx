@@ -22,21 +22,21 @@ export default function SideBar({ user }) {
                     isActive={false}
                 />
 
-                {(user?.role == "super" || user?.role == "head") && <SideItem
+                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
                     href="/"
                     iconClass="progress-button"
                     label="Progress"
                     isActive={false}
                 />}
 
-                {(user?.role == "super" || user?.role == "head") && <SideItem
+                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
                     href="/case"
                     iconClass="case-button"
                     label="Cases"
                     isActive={false}
                 />}
 
-                {(user?.role == "super" || user?.role == "head") && <SideItem
+                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
                     href="/archive"
                     iconClass="archive-button"
                     label="Archive"

@@ -30,7 +30,7 @@ export const fetchCaseData = async (caseID) => {
         return rawData;
     } catch (err) {
         console.error("Error fetching case data:", err);
-        return defaultCaseData;
+        return null;
     }
 };
 
@@ -46,6 +46,20 @@ export const fetchFormData = async (caseID, formID) => {
         if (!response.ok) throw new Error("API error");
         const rawData = await response.json();
         
+        // Transform family datat to fit family card
+        const transformedFamily = rawData.form.familyMembers.map((family) => ({
+            first: family.first_name,
+            last: family.last_name,
+            middle: family.middle_name,
+            income: family.income,
+            occupation: family.occupation,
+            education: family.edu_attainment,
+            relationship: family.relationship_to_sm,
+            civilStatus: family.civil_status,
+            status: family.status,
+            age: family.age,
+        }));
+        rawData.transformedFamily = transformedFamily;
         return rawData;
     } catch (err) {
         console.error("Error fetching form data:", err);
@@ -77,7 +91,7 @@ export const fetchAllHomeVisitForms = async (caseID) => {
 export const createHomeVis = async (createdData, caseID) => {
     try {
         const response = await fetch(
-            `${apiUrl}/intervention/create/home-visit-form/${caseID}`,
+            `${apiUrl}/intervention/home-visit-form/create/${caseID}`,
             {
                 method: "PUT",
                 headers: {
@@ -101,7 +115,7 @@ export const createHomeVis = async (createdData, caseID) => {
 export const editHomeVis = async (updatedData, caseID, formID) => {
     try {
         const response = await fetch(
-            `${apiUrl}/intervention/edit/home-visit-form/${caseID}/${formID}`,
+            `${apiUrl}/intervention/home-visit-form/edit/${caseID}/${formID}`,
             {
                 method: "PUT",
                 headers: {

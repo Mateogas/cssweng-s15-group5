@@ -24,20 +24,20 @@ const loginUser = async (req, res) => {
      try {
           const { username, password, rememberMe } = req.body;
 
-          console.log("Incoming username:", username);
-          console.log("Incoming password:", password);
+          // console.log("Incoming username:", username);
+          // console.log("Incoming password:", password);
 
 
           const active_user = await Employee.findOne({ username });
           if (!active_user) {
-               return res.status(401).json({ errorMsg: "Invalid username or password" });
+               return res.status(401).json({ errorMsg: "Username does not exist." });
           }
 
-          console.log("CURRENT USER", active_user);
+          // console.log("CURRENT USER", active_user);
 
           const isPasswordValid = await bcrypt.compare(password, active_user.password);
           if (!isPasswordValid) {
-               return res.status(401).json({ errorMsg: "Invalid email or password" });
+               return res.status(401).json({ errorMsg: "Email and password do not match." });
           }
 
           req.session.user = active_user;

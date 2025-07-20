@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Employee = require('../model/employee');
-const editProfileController = require('../controller/editProfileController')
+const editProfileController = require('../controller/editProfileController.js')
 
 
 //hardcoded for testing,,, not sure if this was implemnted already

@@ -198,11 +198,17 @@ const addCounselingIntervention = async (req, res) => {
         }
         console.log('intervention ID is valid');
 
+        const interventions = sponsored_member.interventions || [];
+        // Filter through the same type of intervention in the sponsored member
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Counseling'
+        );
+
         // Relate the new intervention to the sponsored member
         sponsored_member.interventions.push({
             intervention: intervention._id,
             interventionType: 'Intervention Counseling',
-            intervention_number: sponsored_member.interventions.length + 1
+            intervention_number: sameTypeInterventions.length + 1
         });
         await sponsored_member.save();
         console.log('sponsored member updated with intervention');

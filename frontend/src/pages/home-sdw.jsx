@@ -5,14 +5,19 @@ import {
   fetchSession,
   fetchSDWViewById,
   fetchSupervisorView,
+  fetchHeadViewBySupervisor,
   fetchHeadViewBySpu,
   fetchHeadView,
 } from "../fetch-connections/account-connection";
+
 import { useNavigate } from "react-router-dom";
 
 function HomeSDW() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+
+  const [employees, setEmployees] = useState([]);
+
   const [clients, setClients] = useState([]);
   const [currentSPU, setCurrentSPU] = useState("");
   const [sortBy, setSortBy] = useState("");
@@ -48,7 +53,7 @@ function HomeSDW() {
         const res = await fetchSDWViewById(user._id);
         console.log("SDW view:", res);
         data = res || [];
-      } else if (user.role === "super") {
+      } else if (user.role === "supervisor") {
         const res = await fetchSupervisorView();
         console.log("Supervisor view:", res);
         data = res.cases || [];
@@ -68,6 +73,27 @@ function HomeSDW() {
 
     loadClients();
   }, [user, currentSPU]);
+
+    useEffect(() => {
+      const loadUserAndEmployees = async () => {
+        const sessionData = await fetchSession();
+        console.log("Session:", sessionData);
+        setUser(sessionData.user);
+  
+        let employees = [];
+        if (sessionData.user?.role === "supervisor") {
+          const data = await fetchHeadViewBySupervisor(sessionData.user._id);
+          employees = data || [];
+        }
+  
+        console.log("Fetched employees:", employees);
+        setEmployees(employees);
+      };
+  
+      loadUserAndEmployees();
+
+      console.log(employees);
+    }, []);
 
   const getFilteredClients = () => {
     let filtered = [...clients];
@@ -92,6 +118,11 @@ function HomeSDW() {
     if (sortOrder === "desc") {
       filtered.reverse();
     }
+
+  if (user?.role === "supervisor") {
+    const allowedIds = employees.map(e => e.id);
+    filtered = filtered.filter(c => allowedIds.includes(c.assigned_sdw));
+  }
 
     return filtered;
   };
@@ -149,7 +180,7 @@ function HomeSDW() {
                 >
                   <option value="">Sort By</option>
                   <option value="name">Name</option>
-                  <option value="sm_number">SM Number</option>
+                  <option value="sm_number">CH Number</option>
                 </select>
 
                 <button

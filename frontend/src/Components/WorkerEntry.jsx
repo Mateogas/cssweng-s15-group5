@@ -32,7 +32,7 @@ function getTextColorForBackground(hsl) {
 
 export default function WorkerEntry({
   id,
-  sdw_id,
+  // sdw_id,
   name,
   role,
   spu_id
@@ -50,17 +50,17 @@ export default function WorkerEntry({
     >
       <div className="flex items-center gap-6">
         <div
-          className="rounded-full h-[4.5rem] w-[4.5rem] flex justify-center items-center header-sub"
+          className="rounded-full h-[4.5rem] min-w-[4.5rem] flex justify-center items-center header-sub"
           style={{ backgroundColor: bgColor, color: textColor }}
         >
           {initials}
         </div>
         <div className="flex flex-col gap-2">
           <p>{name}</p>
-          <p>{sdw_id}</p>
+          {/* <p>{sdw_id}</p> */}
         </div>
       </div>
-      <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Head"}</p>
+      <p className="text-center">{role === "sdw" ? "SDW" : role === "supervisor" ? "Supervisor" : "Head"}</p>
       <p className="text-center">{spu_id}</p>
     </a>
   );

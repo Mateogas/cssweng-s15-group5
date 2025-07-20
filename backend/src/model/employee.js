@@ -56,6 +56,11 @@ const EmployeeSchema = new mongoose.Schema({
     contact_no: {
         type: String,
         required: false
+    },
+
+    area: {
+        type: String,
+        required: false
     }
 });
 

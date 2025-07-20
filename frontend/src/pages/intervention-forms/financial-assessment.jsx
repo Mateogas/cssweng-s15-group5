@@ -142,6 +142,61 @@ function FinancialAssessmentForm() {
     
     // < START :: Create Form > //
 
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        const requiredFields = {
+            type_of_assistance,
+            problem_presented,
+            recommendation
+        };
+
+        Object.entries(requiredFields).forEach(([field, value]) => {
+
+            if (
+                value === undefined ||               
+                value === null ||                    
+                value === "" ||                    
+                (typeof value === "string" && !value.trim())
+            ) {
+            newErrors[field] = "Missing input";
+            }
+        });
+
+        if (type_of_assistance.length === 0) {
+            newErrors["type_of_assistance"] = "Please select at least one type of assistance.";
+        }
+        
+        if (type_of_assistance.includes("Other: Please Indicate Below")) {
+            newErrors["other_assistance_detail"] = "Please indicate the type of assistance.";
+        }
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0; 
+    };
+
+    const handleSubmit = async (e) => {
+        e?.preventDefault();
+        const isValid = validateForm();
+
+        if (!isValid) {
+            // window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+        };
+
+        try {
+            console.log("Form Submitted");
+            await handleCreate();
+            navigate(`/case/${caseID}`);
+        } catch (err) {
+            console.error("Submission failed:", err);
+        }
+
+    };
+
     const handleCreate = async () => {
         const payload = {
             type_of_assistance,
@@ -216,6 +271,20 @@ function FinancialAssessmentForm() {
     const timeoutRef = useRef(null);
     const [sectionEdited, setSectionEdited] = useState("");
 
+    const [showErrorOverlay, setShowErrorOverlay] = useState(false);
+
+    useEffect(() => {
+        if (errors && Object.keys(errors).length > 0) {
+        setShowErrorOverlay(true);
+
+        const timer = setTimeout(() => {
+            setShowErrorOverlay(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+        }
+    }, [errors]);
+
     const handleChange = (section) => (e) => {
         setSectionEdited(section);
 
@@ -247,7 +316,7 @@ function FinancialAssessmentForm() {
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
                     <button 
-                        onClick={() => navigate(-1)} 
+                        onClick={() => navigate(`/case/${caseID}`)} 
                         className="flex items-center gap-5 label-base arrow-group">
                         <div className="arrow-left-button"></div>
                         Go Back
@@ -261,7 +330,7 @@ function FinancialAssessmentForm() {
             {/* Type of Assistance */}
             <section className="flex w-full flex-col gap-12">
                 <h4 className="header-sm">Type of Assistance</h4>
-                <div className="flex justify-center gap-20 px-8">
+                <div className={`flex justify-center gap-20 px-8 ${errors["type_of_assistance"] ? "py-12 border rounded-xl border-red-500" : ""}`}>
                     <div className="flex flex-col gap-4">
                         {all_assistance.slice(0, 4).map((item, index) => (
                             <label key={`assistance_${index}`} className="body-base flex gap-4">
@@ -305,10 +374,20 @@ function FinancialAssessmentForm() {
                                 handleChange("Type of Assistance")(e);
                             }}
                             placeholder="Form of Assistance"
-                            className="body-base text-input h-32 w-full"
+                            className={`body-base text-input h-32 w-full ${errors["other_assistance_detail"] ? "text-input-error" : ""}`}
                         ></textarea>
+                        {errors["other_assistance_detail"] && (
+                            <div className="text-red-500 text-sm self-end">
+                                {errors["other_assistance_detail"]}
+                            </div>
+                        )}
                     </div>
                 </div>
+                {errors["type_of_assistance"] && (
+                    <div className="text-red-500 text-sm self-end">
+                        {errors["type_of_assistance"]}
+                    </div>
+                )}
                 {savedTime && sectionEdited === "Type of Assistance" && (
                     <p className="text-sm self-end mt-2">{savedTime}</p>
                 )}
@@ -361,6 +440,7 @@ function FinancialAssessmentForm() {
                     label="Problem Presented"
                     value={problem_presented}
                     setValue={setProblemPresented}
+                    error={errors["problem_presented"]}
                 ></TextArea>
             </section>
 
@@ -370,6 +450,7 @@ function FinancialAssessmentForm() {
                     label="Recommendation"
                     value={recommendation}
                     setValue={setRecommendation}
+                    error={errors["recommendation"]}
                 ></TextArea>
             </section>
 
@@ -401,7 +482,7 @@ function FinancialAssessmentForm() {
                             className="btn-primary font-bold-label w-min"
                             onClick={async () => {
                                 await handleUpdate();
-                                navigate(-1);
+                                navigate(`/case/${caseID}`);
                             }}
                         >
                             Save Changes
@@ -411,15 +492,14 @@ function FinancialAssessmentForm() {
                     <>
                         <button
                             className="btn-outline font-bold-label"
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate(`/case/${caseID}`)}
                         >
                             Cancel
                         </button>
                         <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleCreate();
-                                navigate(-1);
+                            onClick={async (e) => {
+                                await handleSubmit(e);
                             }}
                         >
                             Create Intervention
@@ -450,7 +530,7 @@ function FinancialAssessmentForm() {
                                     onClick={async () => {
                                         await handleDelete();
                                         setShowConfirm(false);
-                                        navigate(-1);
+                                        navigate(`/case/${caseID}`);
                                     }}
                                     className="btn-primary font-bold-label"
                                 >
@@ -459,6 +539,40 @@ function FinancialAssessmentForm() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Missing / Invalid Input */}
+                {showErrorOverlay && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
+                                    animate-fadeIn scale-100 transform transition duration-300">
+                    <div className="flex items-center gap-4 border-b-1 ]">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-[2.4rem] w-[2.4rem] text-red-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                            />
+                        </svg>
+                        <h2 className="header-sm font-bold text-red-600 text-center">
+                            Missing / Invalid Input Detected
+                        </h2>
+                    </div>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        Please fill out all required fields before submitting the form.
+                    </p>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        Write N/A if necessary.
+                    </p>
+                    </div>
+                </div>
                 )}
             </div>
         </main>

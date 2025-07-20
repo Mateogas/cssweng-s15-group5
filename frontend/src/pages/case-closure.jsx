@@ -186,6 +186,66 @@ function CaseClosure() {
         
     // < START :: Create Form > //
 
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        const requiredFields = {
+            closure_date,
+            sponsorship_date,
+            reason_for_retirement,
+            sm_awareness,
+            sm_notification,
+            services_provided,
+            evaluation,
+            recommendation
+        };
+
+        Object.entries(requiredFields).forEach(([field, value]) => {
+
+            if (
+                value === undefined ||               
+                value === null ||                    
+                value === "" ||                    
+                (typeof value === "string" && !value.trim())
+            ) {
+            newErrors[field] = "Missing input";
+            }
+        });
+
+        services_provided.forEach((item, index) => {
+            if (!item.description || item.description.trim() === "") {
+                newErrors[item.service] = "Missing input";
+            }
+
+            console.log(item.service);
+        })
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0; 
+    };
+
+    const handleSubmit = async (e) => {
+        e?.preventDefault();
+        const isValid = validateForm();
+
+        if (!isValid) {
+            // window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+        };
+
+        try {
+            console.log("Form Submitted");
+            await handleCreate();
+            navigate(`/case/${caseID}`);
+        } catch (err) {
+            console.error("Submission failed:", err);
+        }
+
+    };
+
     const handleCreate = async () => {
         const payload = {
             closure_date,
@@ -308,6 +368,20 @@ function CaseClosure() {
     const timeoutRef = useRef(null);
     const [sectionEdited, setSectionEdited] = useState("");
 
+    const [showErrorOverlay, setShowErrorOverlay] = useState(false);
+
+    useEffect(() => {
+        if (errors && Object.keys(errors).length > 0) {
+        setShowErrorOverlay(true);
+
+        const timer = setTimeout(() => {
+            setShowErrorOverlay(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+        }
+    }, [errors]);
+
     const handleChange = (section) => (e) => {
         setSectionEdited(section);
 
@@ -369,7 +443,7 @@ function CaseClosure() {
             <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
                 <div className="flex w-full justify-between">
                     <button 
-                        onClick={() => navigate(-1)} 
+                        onClick={() => navigate(`/case/${caseID}`)} 
                         className="flex items-center gap-5 label-base arrow-group">
                         <div className="arrow-left-button"></div>
                         Go Back
@@ -452,12 +526,14 @@ function CaseClosure() {
                                     value={closure_date}
                                     setValue={setClosureDate}
                                     handleChange={handleChange("General Information")}
+                                    error={errors["closure_date"]}
                                 ></DateInput>
                                 <DateInput
                                     label="Date Sponsored"
                                     value={sponsorship_date}
                                     setValue={setSponsorshipDate}
                                     handleChange={handleChange("General Information")}
+                                    error={errors["sponsorship_date"]}
                                 ></DateInput>
                             </div>
                         </div>
@@ -474,43 +550,52 @@ function CaseClosure() {
                         sublabel="Indicate reason based on the result of the case conference"
                         value={reason_for_retirement}
                         setValue={setReasonForRetirement}
+                        error={errors["reason_for_retirement"]}
                     ></TextArea>
                     <div className="flex w-full items-center gap-12">
-                        <div className="flex min-w-lg flex-col gap-8">
-                            <p className="body-base">
-                                Is the client or SM aware of case closure?
-                            </p>
-                            <div className="flex gap-12">
-                                <label className="flex items-center body-base gap-4">
-                                    <input
-                                        type="checkbox"
-                                        name="sm_awareness"
-                                        value="yes"
-                                        checked={sm_awareness}
-                                        onChange={(e) =>
-                                            handleCheckboxChange(e.target.value)
-                                        }
-                                    />
-                                    Yes
-                                </label>
-                                <label className="flex items-center body-base gap-4">
-                                    <input
-                                        type="checkbox"
-                                        name="sm_awareness"
-                                        value="no"
-                                        checked={sm_awareness === "no"}
-                                        onChange={(e) =>
-                                            handleCheckboxChange(e.target.value)
-                                        }
-                                    />
-                                    No
-                                </label>
+                        <div className="flex flex-col">
+                            <div className={`flex min-w-lg flex-col gap-8 ${errors["sm_awareness"] ? "p-12 border rounded-xl border-red-500" : ""}`}>
+                                <p className="body-base">
+                                    Is the client or SM aware of case closure?
+                                </p>
+                                <div className="flex gap-12">
+                                    <label className="flex items-center body-base gap-4">
+                                        <input
+                                            type="checkbox"
+                                            name="sm_awareness"
+                                            value="yes"
+                                            checked={sm_awareness === "yes"}
+                                            onChange={(e) =>
+                                                handleCheckboxChange(e.target.value)
+                                            }
+                                        />
+                                        Yes
+                                    </label>
+                                    <label className="flex items-center body-base gap-4">
+                                        <input
+                                            type="checkbox"
+                                            name="sm_awareness"
+                                            value="no"
+                                            checked={sm_awareness === "no"}
+                                            onChange={(e) =>
+                                                handleCheckboxChange(e.target.value)
+                                            }
+                                        />
+                                        No
+                                    </label>
+                                </div>
                             </div>
+                            {errors["sm_awareness"] && (
+                                <div className="text-red-500 text-sm self-end">
+                                    {errors["sm_awareness"]}
+                                </div>
+                            )}
                         </div>
                         <TextArea
                             sublabel="If yes, how was the client notified"
                             value={sm_notification}
                             setValue={setSMNotification}
+                            error={errors["sm_notification"]}
                         ></TextArea>
                     </div>
                 </section>
@@ -556,6 +641,7 @@ function CaseClosure() {
                                         handleChange={(e) =>
                                             updateDescription(index, e.target.value)
                                         }
+                                        error={errors[item.service]}
                                     ></TextArea>
                                     {(index !== 0 && index !== 1) && (
                                         <button
@@ -576,6 +662,7 @@ function CaseClosure() {
                         sublabel="Based on the intervention plans including Case Management Results"
                         value={evaluation}
                         setValue={setEvaluation}
+                        error={errors["evaluation"]}
                     ></TextArea>
                 </section>
 
@@ -586,6 +673,7 @@ function CaseClosure() {
                         sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
                         value={recommendation}
                         setValue={setRecommendation}
+                        error={errors["recommendation"]}
                     ></TextArea>
                 </section>
 
@@ -609,7 +697,7 @@ function CaseClosure() {
                                 <button
                                     className="btn-outline font-bold-label"
                                     onClick={() => 
-                                        navigate(-1) /* Replace with Delete */
+                                        navigate(`/case/${caseID}`) /* Replace with Delete */
                                     }
                                 >
                                     Delete Request
@@ -617,7 +705,7 @@ function CaseClosure() {
                                 <button
                                     className="btn-primary font-bold-label w-min"
                                     onClick={() => {
-                                        navigate(-1); /* Replace with Update */
+                                        navigate(`/case/${caseID}`); /* Replace with Update */
                                     }}
                                 >
                                     Save Changes
@@ -627,15 +715,14 @@ function CaseClosure() {
                             <>
                                 <button
                                     className="btn-outline font-bold-label"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => navigate(`/case/${caseID}`)}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     className="btn-primary font-bold-label w-min"
-                                    onClick={async () => {
-                                        await handleCreate();
-                                        navigate(-1);
+                                    onClick={async (e) => {
+                                        await handleSubmit(e);
                                     }}
                                 >
                                     Create Request
@@ -647,7 +734,7 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         <button
                             className="label-base btn-outline-rounded"
-                            onClick={() => navigate(-1)} /* Replace with Delete */
+                            onClick={() => navigate(`/case/${caseID}`)} /* Replace with Delete */
                         >
                             Reject Termination
                         </button>
@@ -684,7 +771,7 @@ function CaseClosure() {
                                     onClick={async () => {
                                         await handleCreate();
                                         setShowConfirm(false);
-                                        navigate(-1);
+                                        navigate(`/case/${caseID}`);
                                     }}
                                     className="btn-primary font-bold-label"
                                 >
@@ -693,6 +780,40 @@ function CaseClosure() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Missing / Invalid Input */}
+                {showErrorOverlay && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
+                                    animate-fadeIn scale-100 transform transition duration-300">
+                    <div className="flex items-center gap-4 border-b-1 ]">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-[2.4rem] w-[2.4rem] text-red-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                            />
+                        </svg>
+                        <h2 className="header-sm font-bold text-red-600 text-center">
+                            Missing / Invalid Input Detected
+                        </h2>
+                    </div>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        Please fill out all required fields before submitting the form.
+                    </p>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        Write N/A if necessary.
+                    </p>
+                    </div>
+                </div>
                 )}
             </div>
         </main>

@@ -14,7 +14,7 @@ const getEmployeeById = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const employeeId = req.params.id;
 
-  console.log("Employee fetch controller", req.params);
+  // console.log("Employee fetch controller", req.params);
 
   // Validate session & ObjectId
   if (!user || !mongoose.Types.ObjectId.isValid(employeeId)) {
@@ -36,11 +36,38 @@ const getEmployeeById = async (req, res) => {
   }
 };
 
+const getEmployeeByUsername = async (req, res) => {
+  const user = req.session ? req.session.user : req.user;
+  const username = req.params.username;
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid session." });
+  }
+
+  if (!username) {
+    return res.status(400).json({ message: "Invalid Username provided." });
+  }
+
+  try {
+    const employee = await Employee.findOne({ username: username }).lean();
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    return res.status(200).json(employee);
+
+  } catch (error) {
+    console.error('Error fetching employee by username:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 const getEmployeeBySDWId = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const sdwId = req.params.sdw_id;
 
-  console.log("Employee fetch by SDW ID:", sdwId);
+  // console.log("Employee fetch by SDW ID:", sdwId);
 
   if (!user) {
     return res.status(400).json({ message: "Invalid session." });
@@ -456,6 +483,7 @@ module.exports = {
     getHeadViewbySupervisor,
     getSDWViewbyParam,
     getEmployeeById,
+    getEmployeeByUsername,
     getEmployeeBySDWId,
     editEmployeeCore,
     editEmployeePassword

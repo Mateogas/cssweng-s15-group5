@@ -44,7 +44,7 @@ function HomeLeader() {
           const data = await fetchHeadViewBySpu(spuToUse);
           employees = data.employees || [];
         }
-      } else if (sessionData.user?.role === "super") {
+      } else if (sessionData.user?.role === "supervisor") {
         const data = await fetchHeadViewBySupervisor(sessionData.user._id);
         employees = data || [];
       }
@@ -74,10 +74,9 @@ function HomeLeader() {
 
     if (sortBy === "name") {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === "sdw_id") {
-      filtered.sort((a, b) => a.sdw_id - b.sdw_id);
-    } else if (sortBy === "role") {
-      filtered.sort((a, b) => a.role.localeCompare(b.role));
+    } else if (["head", "super", "sdw"].includes(sortBy)) {
+      filtered = filtered.filter((w) => w.role === sortBy)
+      .sort((a, b) => a.name.localeCompare(b.name));;
     }
 
     if (sortOrder === "desc") {
@@ -120,7 +119,7 @@ function HomeLeader() {
         <SideBar user={user} />
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">Teams</h1>
+          <h1 className="header-main">{user?.role == "super" ? user.spu_id : "Teams"} Teams</h1>
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
@@ -140,14 +139,15 @@ function HomeLeader() {
                 )}
 
                 <select
-                  className="text-input font-label max-w-[20rem]"
+                  className="text-input font-label max-w-[23rem]"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
-                  <option value="">Sort By</option>
+                  <option value="">Find By</option>
                   <option value="name">Name</option>
-                  <option value="sdw_id">SDW ID</option>
-                  <option value="role">Role</option>
+                  <option value="head">Head</option>
+                  <option value="super">Supervisor</option>
+                  <option value="sdw">Social Development Worker</option>
                 </select>
 
                 <button
@@ -190,7 +190,7 @@ function HomeLeader() {
                 <WorkerEntry
                   key={worker._id}
                   id={worker.id}
-                  sdw_id={worker.sdw_id}
+                  // sdw_id={worker.sdw_id}
                   name={worker.name}
                   role={worker.role}
                   spu_id={

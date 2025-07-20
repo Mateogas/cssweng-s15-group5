@@ -71,6 +71,7 @@ const isAuthenticated = require('./middlewares/isAuthenticated.js')
 const createAccountController = require('./controller/createAccountController');
 const profileRoute = require('../src/route/employeeRoute.js');
 const fetchingRoute = require('./route/fetchingRoute.js');
+const fileGenerator = require('./route/fileGeneratorRoutes.js');
 /**
  *  ============ Routes ==============
  */
@@ -115,7 +116,10 @@ app.use('/api/progress-report', progressReportRoutes);
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
 app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
 app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm);
-//Test route
+
+// Log in and log out route
+app.use('/api/file-generator', fileGenerator);
+
 app.get('/api/session', (req, res) => {
   if (req.session && req.session.user) {
     res.status(200).json({ user: req.session.user });
