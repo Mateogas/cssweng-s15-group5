@@ -98,7 +98,7 @@ app.use('/api/progress-report', progressReportRoutes);
 app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.use('/api/intervention', homeVisRoutes);
-
+app.use('/api/spu',spuRoutes);
 // Case Closure routes
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
 app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
