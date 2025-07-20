@@ -171,7 +171,7 @@ function formatHomeVisitData(homevisit) {
 	// console.log('formatHomeVisitData', homevisit);
 
 	// Safe formatting for father data with multiple null checks
-	let f_name = '', f_income = 'No income', f_occupation = '';
+	let f_name = '', f_income = '', f_occupation = '';
 	if (homevisit.father) {
 		const father = homevisit.father.toObject?.();
 
@@ -194,7 +194,7 @@ function formatHomeVisitData(homevisit) {
 	//console.log('Formatted Father:', formattedFather);
 
     // Safe formatting for mother data with multiple null checks
-	let m_name = '', m_income = 'No income', m_occupation = '';
+	let m_name = '', m_income = '', m_occupation = '';
 	if (homevisit.mother) {
 		const mother = homevisit.mother.toObject?.();
 
@@ -238,7 +238,7 @@ function formatHomeVisitData(homevisit) {
                 last_name: member.last_name || '',
                 first_name: member.first_name || '',
                 middle_name: member.middle_name || '',
-                age: member.age || '',
+                age: member.age || '0',
                 civil_status: member.civil_status || '',
                 relationship_to_sm: member.relationship_to_sm || '',
                 occupation: member.occupation || '',
