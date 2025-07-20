@@ -139,10 +139,7 @@ const generateCaseData = async (req, res) => {
                             formattedIntervention.financial = formatFinancialData(interventionData);
                             break;
                         case 'Intervention Home Visit':
-                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention)
-								.populate('father.father_details')
-								.populate('mother.mother_details')
-								.populate('familyMembers.family_member_details');
+                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention);
                             formattedIntervention.homevisit = formatHomeVisitData(interventionData);
                             break;
                         default:

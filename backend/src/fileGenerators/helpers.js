@@ -170,7 +170,7 @@ function formatHomeVisitData(homevisit) {
 	if (homevisit.mother) {
 		const mother = homevisit.mother.toObject?.();
 		m_name = `${mother.last_name || ''}, ${mother.first_name || ''}`.replace(/^, |, $/, '')
-		f_income = mother.income != null ? `₱${mother.income.toLocaleString()}` : 'No income.';
+		m_income = mother.income != null ? `₱${mother.income.toLocaleString()}` : 'No income.';
 		m_occupation = mother.occupation || ''
 	};
 	//console.log('Formatted Mother:', formattedMother);
