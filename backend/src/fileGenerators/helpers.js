@@ -243,7 +243,7 @@ function formatHomeVisitData(homevisit) {
                 relationship_to_sm: member.relationship_to_sm || '',
                 occupation: member.occupation || '',
                 edu_attainment: member.edu_attainment || '',
-                income: member.income || '',
+                income: member.income != null ? member.income.toLocaleString() : '',
             };
         })
         : [];
