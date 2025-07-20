@@ -71,6 +71,11 @@ const DOCUMENT_CONFIGS = {
         apiPath: '/api/file-generator/home-visit-form',
         templatePath: '/templates/TEMPLATE_Home-Visit-Form.docx',
         outputName: 'home-visit-form.docx'
+    },
+    progressReport: {
+        apiPath: '/api/file-generator/progress-report',
+        templatePath: '/templates/TEMPLATE_Progress-Report.docx',
+        outputName: 'progress-report.docx'
     }
 };
 
@@ -94,3 +99,4 @@ export const generateCorrespondenceForm = (correspondenceId) => generateDocument
 export const generateCounselingForm = (counselingId) => generateDocumentByType('counseling', counselingId);
 export const generateFinancialAssessmentForm = (financialId) => generateDocumentByType('financial', financialId);
 export const generateHomeVisitForm = (homeVisitId) => generateDocumentByType('homeVisit', homeVisitId);
+export const generateProgressReport = (reportId) => generateDocumentByType('progressReport', reportId);
