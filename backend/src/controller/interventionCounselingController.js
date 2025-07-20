@@ -28,7 +28,7 @@ const getCounselingInterventionById = async (req, res) => {
         // Populate the sponsored member details
         const sponsored_member = await Sponsored_Member.findOne({
             'interventions.intervention': counselingId
-        }).populate('interventions.intervention');
+        }).populate('interventions.intervention').populate('spu');
 
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
@@ -55,7 +55,7 @@ const getCounselingInterventionById = async (req, res) => {
             middle_name: sponsored_member.middle_name,
             last_name: sponsored_member.last_name,
             ch_number: sponsored_member.sm_number,
-            subproject: sponsored_member.spu,
+            subproject: sponsored_member.spu.spu_name,
             address: sponsored_member.present_address,
         });
     } catch (error) {
@@ -81,7 +81,7 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
         const memberID = req.params.memberID;
 
         // Find the sponsored member by ID
-        const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention');
+        const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention').populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
@@ -100,7 +100,7 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                subproject: sponsored_member.spu,
+                subproject: sponsored_member.spu.spu_name,
                 address: sponsored_member.present_address,
             },
         });
@@ -127,7 +127,7 @@ const addCounselingIntervention = async (req, res) => {
     try {
         const memberID = req.params.memberID;
 
-        const sponsored_member = await Sponsored_Member.findById(memberID);
+        const sponsored_member = await Sponsored_Member.findById(memberID).populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         };
@@ -222,7 +222,7 @@ const addCounselingIntervention = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                subproject: sponsored_member.spu,
+                subproject: sponsored_member.spu.spu_name,
                 address: sponsored_member.present_address,
             },
         });

@@ -14,13 +14,11 @@ const caseSchemaValidate = Joi.object({
     'string.empty': 'First name cannot be empty'
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
-  spu: Joi.string()
-    .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
-    .required()
-    .messages({
-      'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
-      'any.required': 'SPU is required'
-    }),
+
+  spu: Joi.string().pattern(/^[a-f\d]{24}$/i).required().messages({
+    'string.pattern.base': 'SPU must be a valid ObjectId',
+    'any.required': 'SPU is required'
+  }),
   is_active: Joi.boolean().required(),
 
   present_address: Joi.string().min(1).required().messages({
@@ -97,13 +95,10 @@ const caseCoreValidate = Joi.object({
     'string.empty': 'First name cannot be empty'
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
-  spu: Joi.string()
-    .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
-    .required()
-    .messages({
-      'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
-      'any.required': 'SPU is required'
-    }),
+  spu: Joi.string().pattern(/^[a-f\d]{24}$/i).required().messages({
+    'string.pattern.base': 'SPU must be a valid ObjectId',
+    'any.required': 'SPU is required'
+  }),
   is_active: Joi.boolean().required(),
   classifications: Joi.array().items(Joi.string()).optional(),
     assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Employee = require('../model/employee');
 const Sponsored_Member = require('../model/sponsored_member');
 const bcrypt = require('bcrypt');``
-
+const Spu = require('../model/spu')
 /**
  * Fetches a single employee by its ObjectId.
  * - Requires a valid ObjectId in req.params.id
@@ -22,7 +22,7 @@ const getEmployeeById = async (req, res) => {
   }
 
   try {
-    const employee = await Employee.findById(employeeId).lean();
+    const employee = await Employee.findById(employeeId).populate('spu_id').lean();
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found." });
@@ -49,7 +49,7 @@ const getEmployeeByUsername = async (req, res) => {
   }
 
   try {
-    const employee = await Employee.findOne({ username: username }).lean();
+    const employee = await Employee.findOne({ username: username }).populate('spu_id').lean();
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found." });
@@ -78,7 +78,7 @@ const getEmployeeBySDWId = async (req, res) => {
   }
 
   try {
-    const employee = await Employee.findOne({ sdw_id: Number(sdwId) }).lean();
+    const employee = await Employee.findOne({ sdw_id: Number(sdwId) }).populate('spu_id').lean();
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found." });
@@ -96,7 +96,8 @@ const getEmployeeBySDWId = async (req, res) => {
 const editEmployeeCore = async (req, res) => {
   const user = req.session ? req.session.user : req.user;
   const employeeId = req.params.id;
-  const updatedEmployeeData = req.body;
+  const updatedEmployeeData = req.body;//spu id of employee here is actually the name
+
 
   // if (!user) {
   //   return res.status(401).json({ message: "Authentication Error" });
@@ -111,7 +112,14 @@ const editEmployeeCore = async (req, res) => {
     if (!existingEmployee) {
       return res.status(404).json({ message: 'Employee not found' });
     }
+    if (updatedEmployeeData.spu_id) {
+      const spuObject = await Spu.findOne({ spu_name: updatedEmployeeData.spu_id });
+      if (!spuObject) {
+        return res.status(400).json({ message: 'SPU not found' });
+      }
+      updatedEmployeeData.spu_id = spuObject._id; // Set reference
 
+    }
     const updatedEmployee = await Employee.findByIdAndUpdate(
       employeeId,
       updatedEmployeeData,
@@ -188,19 +196,21 @@ const getHeadView = async (req, res) => {
     if (user.role == 'head') {
       cases = await Sponsored_Member.find({ is_active: true })
         .populate('assigned_sdw')
+        .populate('spu')
         .lean();
 
-      employee = await Employee.find({}).lean();
+      employee = await Employee.find({}).populate('spu_id').lean();
     }else{
       return res.status(403).json({ message: "Permission Error: Head access required" });
     }
+
 
     // Simplify Sponsored Members
     const simplifiedCases = cases.map(c => ({
       id: c._id,
       name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
       sm_number: c.sm_number,
-      spu: c.spu,
+      spu: c.spu.spu_name,
       is_active: c.is_active,
       assigned_sdw: c.assigned_sdw?._id || null,
       assigned_sdw_name: c.assigned_sdw
@@ -213,7 +223,7 @@ const getHeadView = async (req, res) => {
       id: e._id,
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
       sdw_id: e.sdw_id,
-      spu: e.spu,
+      spu: e.spu_id.spu_name,
       role: e.role
     }));
 
@@ -248,13 +258,17 @@ const getHeadViewbySpu = async (req, res) => {
 
     let cases = [];
     let employee = [];
-
+    let spuObject = await Spu.findOne({ spu_name: spuFilter })
+    if (!spuObject) {
+      return res.status(400).json({ message: 'SPU not found' });
+    }
     if (user.role == 'head') {
-      cases = await Sponsored_Member.find({ is_active: true, spu:spuFilter})
+      cases = await Sponsored_Member.find({ is_active: true, spu:spuObject._id})
         .populate('assigned_sdw')
+        .populate('spu')
         .lean();
 
-      employee = await Employee.find({spu_id:spuFilter}).lean();
+      employee = await Employee.find({spu_id:spuObject._id}).populate('spu').lean();
     }else{
       return res.status(403).json({ message: "Permission Error: Head access required" });
     }
@@ -265,7 +279,7 @@ const getHeadViewbySpu = async (req, res) => {
       id: c._id,
       name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
       sm_number: c.sm_number,
-      spu: c.spu,
+      spu: c.spu.spu_name,
       is_active: c.is_active,
       assigned_sdw: c.assigned_sdw?._id || null,
       assigned_sdw_name: c.assigned_sdw
@@ -278,7 +292,7 @@ const getHeadViewbySpu = async (req, res) => {
       id: e._id,
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
       sdw_id: e.sdw_id,
-      spu_id: e.spu_id,
+      spu_id: e.spu_id.spu_name,
       role: e.role
     }));
 
@@ -313,13 +327,13 @@ const getSupervisorViewbySpu = async (req, res) => {
 
     let cases = [];
     let employee = [];
-
     if (user.role == 'super') {//changed depending on what actual value
       cases = await Sponsored_Member.find({ is_active: true, spu:user.spu_id})
         .populate('assigned_sdw')
+        .populate('spu')
         .lean();
 
-       employee = await Employee.find({role: {$nin: ['head','admin']}, spu_id: user.spu_id}).lean(); 
+       employee = await Employee.find({role: {$nin: ['head','admin']}, spu_id: user.spu_id}).populate('spu').lean(); 
     }else{
       return res.status(403).json({ message: "Permission Error: Supervisor access required" });
     }
@@ -330,7 +344,7 @@ const getSupervisorViewbySpu = async (req, res) => {
       id: c._id,
       name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
       sm_number: c.sm_number,
-      spu: c.spu,
+      spu: c.spu.spu_name,
       is_active: c.is_active,
       assigned_sdw: c.assigned_sdw?._id || null,
       assigned_sdw_name: c.assigned_sdw
@@ -343,7 +357,7 @@ const getSupervisorViewbySpu = async (req, res) => {
       id: e._id,
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
       sdw_id: e.sdw_id,
-      spu_id: e.spu_id,
+      spu_id: e.spu_id.spu_name,
       role: e.role
     }));
 
@@ -384,6 +398,7 @@ const getSDWView = async (req, res) => {
     if (user.role == 'sdw') {//changed depending on what actual value
       cases = await Sponsored_Member.find({assigned_sdw: userId, is_active: true, spu:user.spu_id})
         .populate('assigned_sdw')
+        .populate('spu')
         .lean();
     }else{
       return res.status(403).json({ message: "Permission Error: SDW access required" });
@@ -395,7 +410,7 @@ const getSDWView = async (req, res) => {
       id: c._id,
       name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
       sm_number: c.sm_number,
-      spu: c.spu,
+      spu: c.spu.spu_name,
       is_active: c.is_active,
       assigned_sdw: c.assigned_sdw?._id || null,
       assigned_sdw_name: c.assigned_sdw
@@ -425,13 +440,14 @@ const getHeadViewbySupervisor = async(req,res) =>{
         let sdws = []
 
         sdws = await Employee.find({manager:supervisorId})
+        .populate('spu')
         .lean()
 
         const simplifiedsdws = sdws.map(e => ({
         id: e._id,
         name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
         sdw_id: e.sdw_id,
-        spu_id: e.spu_id,
+        spu_id: e.spu_id.spu_name,
         role: e.role
         }));
 
@@ -454,13 +470,14 @@ const getSDWViewbyParam = async(req,res) =>{
 
         cases = await Sponsored_Member.find({assigned_sdw: sdwId, is_active: true})
         .populate('assigned_sdw')
+        .populate('spu')
         .lean()
 
         const simplifiedCases = cases.map(c => ({
         id: c._id,
         name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
         sm_number: c.sm_number,
-        spu: c.spu,
+        spu: c.spu.spu_name,
         is_active: c.is_active,
         assigned_sdw: c.assigned_sdw?._id || null,
         assigned_sdw_name: c.assigned_sdw

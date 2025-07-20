@@ -106,7 +106,7 @@ const getFinancialForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('spu').lean();
         const formData = await Intervention_Financial.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
@@ -126,7 +126,7 @@ const getFinancialForm = async(req,res)=>{
                 middle_name: sponsoredData.middle_name,
                 last_name: sponsoredData.last_name,
                 sm_number: sponsoredData.sm_number,
-                spu: sponsoredData.spu
+                spu: sponsoredData.spu.spu_name
             },
             form: {
             ...formData,
@@ -292,7 +292,7 @@ const getAutoFillData = async(req,res)=>{
         return res.status(400).json({message:'Invalid User Id'});
     }
     try{
-        const caseData = await Sponsored_Member.findById(smId).lean();
+        const caseData = await Sponsored_Member.findById(smId).populate('spu').lean();
         if(!caseData){
             return res.status(404).json({message:'Not Found'});
         }
@@ -301,7 +301,7 @@ const getAutoFillData = async(req,res)=>{
             first_name: caseData.first_name,
             middle_name: caseData.middle_name,
             sm_number:caseData.sm_number,
-            spu:caseData.spu
+            spu:caseData.spu.spu_name
         };
 
         return res.status(200).json({message: 'Fetched Succesfully', returningData});

@@ -2,8 +2,8 @@ const Spu = require('../model/spu');
 
 const createSpu = async (req, res) => {
     try {
-        const { name, description } = req.body;
-        const newSpu = new Spu({ name, description });
+        const { spu_name } = req.body;
+        const newSpu = new Spu({spu_name});
         await newSpu.save();
         res.status(201).json(newSpu);
     } catch (error) {

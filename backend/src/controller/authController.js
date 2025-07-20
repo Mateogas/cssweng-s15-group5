@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
           // console.log("Incoming password:", password);
 
 
-          const active_user = await Employee.findOne({ username });
+          const active_user = await Employee.findOne({ username }).populate('spu_id');
           if (!active_user) {
                return res.status(401).json({ errorMsg: "Username does not exist." });
           }
@@ -40,7 +40,13 @@ const loginUser = async (req, res) => {
                return res.status(401).json({ errorMsg: "Email and password do not match." });
           }
 
-          req.session.user = active_user;
+          const userForSession = {
+               ...active_user.toObject(),
+               spu_id: active_user.spu_id?._id || null,
+               spu_name: active_user.spu_id?.spu_name || null
+          };
+
+          req.session.user = userForSession;
 
           if (rememberMe) {
                req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;

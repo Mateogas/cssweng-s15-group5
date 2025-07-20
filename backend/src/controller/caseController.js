@@ -8,7 +8,7 @@ const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
 const Employee = require('../model/employee');
-
+const Spu = require('../model/spu')
 const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
 // ================================================== //
@@ -157,13 +157,14 @@ const getAllCasesbySDW = async (req, res) => {
                assigned_sdw: sdwId
           })
                .populate('assigned_sdw')
+               .populate('spu')
                .lean()
 
           const simplifiedCases = allCases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
                sm_number: c.sm_number,
-               spu: c.spu,
+               spu: c.spu.spu_name,
                is_active: c.is_active,
                assigned_sdw: c.assigned_sdw._id,
                assigned_sdw_name: c.assigned_sdw
@@ -188,14 +189,14 @@ const getAllCasesbySDW = async (req, res) => {
 const getAllCases = async (req, res) => {
      try {
           const cases = await Sponsored_Member.find({})
-               .populate('assigned_sdw', 'first_name middle_name last_name') // Only fetch name fields
+               .populate('assigned_sdw', 'spu','first_name middle_name last_name') // Only fetch name fields
                .lean();
 
           const simplifiedCases = cases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
                sm_number: c.sm_number,
-               spu: c.spu,
+               spu: c.spu.spu_name,
                is_active: c.is_active,
                assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
@@ -318,7 +319,7 @@ const addNewCase = async (req, res) => {
           const caseToSave = {
                ...newCaseData,
                assigned_sdw: sdwId,
-               spu_id: spu_id
+               spu: spu_id
           };
 
           const newCase = new Sponsored_Member(caseToSave);

@@ -40,7 +40,8 @@ const loadCaseClosureForm = async(req, res) => {
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
      try {
-            const caseSelected = await Sponsored_Member.findById(sponsor_id) 
+            const caseSelected = await Sponsored_Member.findById(sponsor_id)
+               .populate('spu') 
                 .lean();
             
             if (!caseSelected)
@@ -57,7 +58,7 @@ const loadCaseClosureForm = async(req, res) => {
                     dob: caseSelected.dob,
                     religion: caseSelected.religion,
                     address: caseSelected.address,
-                    spu: caseSelected.spu
+                    spu: caseSelected.spu.spu_name
                 },
                 form: formData
             };
