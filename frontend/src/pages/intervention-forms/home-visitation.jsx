@@ -96,13 +96,13 @@ function HomeVisitationForm() {
                     father_middle_name: fatherData?.middle_name || "",
                     father_last_name: fatherData?.last_name || "",
                     father_work: fatherData?.occupation || "",
-                    father_income: fatherData?.income || "",
+                    father_income: fatherData?.income ?? "",
 
                     mother_first_name: motherData?.first_name || "",
                     mother_middle_name: motherData?.middle_name || "",
                     mother_last_name: motherData?.last_name || "",
                     mother_work: motherData?.occupation || "",
-                    mother_income: motherData?.income || "",
+                    mother_income: motherData?.income ?? "",
 
                     form_num: returnData?.form_number + 1 || 1
                 }));
@@ -126,13 +126,13 @@ function HomeVisitationForm() {
         setFatherMiddleName(data.father_middle_name || "");
         setFatherLastName(data.father_last_name || "");
         setFatherWork(data.father_work || "");
-        setFatherIncome(data.father_income || "");
+        setFatherIncome(data.father_income ?? "");
 
         setMotherFirstName(data.mother_first_name || "");
         setMotherMiddleName(data.mother_middle_name || "");
         setMotherLastName(data.mother_last_name || "");
         setMotherWork(data.mother_work || "");
-        setMotherIncome(data.mother_income || "");
+        setMotherIncome(data.mother_income ?? "");
 
         setFormNum(data.form_num)
     }, [data]);
@@ -181,13 +181,13 @@ function HomeVisitationForm() {
                     father_middle_name: fatherData?.middle_name || "",
                     father_last_name: fatherData?.last_name || "",
                     father_work: fatherData?.occupation || "",
-                    father_income: fatherData?.income || "",
+                    father_income: fatherData?.income ?? "",
 
                     mother_first_name: motherData?.first_name || "",
                     mother_middle_name: motherData?.middle_name || "",
                     mother_last_name: motherData?.last_name || "",
                     mother_work: motherData?.occupation || "",
-                    mother_income: motherData?.income || "",
+                    mother_income: motherData?.income ?? "",
 
                     form_num: returnFormData.form_number
                 }));
@@ -548,7 +548,7 @@ function HomeVisitationForm() {
     );
     const [father_work, setFatherWork] = useState(data?.father_work || "");
     const [father_income, setFatherIncome] = useState(
-        data?.father_income || "",
+        data?.father_income ?? "",
     );
     const [mother_first_name, setMotherFirstName] = useState(
         data?.mother_first_name || "",
@@ -561,7 +561,7 @@ function HomeVisitationForm() {
     );
     const [mother_work, setMotherWork] = useState(data?.mother_work || "");
     const [mother_income, setMotherIncome] = useState(
-        data?.mother_income || "",
+        data?.mother_income ?? "",
     );
     const [sm_progress, setSMProgress] = useState(data?.sm_progress || "");
     const [family_progress, setFamilyProgress] = useState(
