@@ -54,6 +54,7 @@ const progressReportRoutes = require('./route/progressReportRoutes');
 const interventFinRoutes = require('./route/interventFinRoute.js');
 const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
+const spuRoutes = require('./route/spuRoutes');
 
 const createAccountController = require('./controller/createAccountController');
 const profileRoute = require('../src/route/employeeRoute.js');
