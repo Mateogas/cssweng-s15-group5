@@ -68,50 +68,54 @@ function HomeVisitationForm() {
 
     // < START :: Auto-Filled Data > //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    const viewForm = action !== 'create' ? true : false;
 
-            const returnData = await fetchCaseData(caseID);
-            const caseData = returnData.case
-            const fatherData = returnData.father
-            const motherData = returnData.mother
-            const otherFamilyData = returnData.otherFamily
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            setRawCaseData(caseData);
-            setRawFatherData(fatherData);
-            setRawMotherData(motherData);
-            setRawOtherFamilyData(otherFamilyData);
+                const returnData = await fetchCaseData(caseID);
+                const caseData = returnData.case
+                const fatherData = returnData.father
+                const motherData = returnData.mother
+                const otherFamilyData = returnData.otherFamily
 
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
+                setRawCaseData(caseData);
+                setRawFatherData(fatherData);
+                setRawMotherData(motherData);
+                setRawOtherFamilyData(otherFamilyData);
 
-                father_first_name: fatherData?.first_name || "",
-                father_middle_name: fatherData?.middle_name || "",
-                father_last_name: fatherData?.last_name || "",
-                father_work: fatherData?.occupation || "",
-                father_income: fatherData?.income || "",
+                setData((prev) => ({
+                    ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
 
-                mother_first_name: motherData?.first_name || "",
-                mother_middle_name: motherData?.middle_name || "",
-                mother_last_name: motherData?.last_name || "",
-                mother_work: motherData?.occupation || "",
-                mother_income: motherData?.income || "",
+                    father_first_name: fatherData?.first_name || "",
+                    father_middle_name: fatherData?.middle_name || "",
+                    father_last_name: fatherData?.last_name || "",
+                    father_work: fatherData?.occupation || "",
+                    father_income: fatherData?.income ?? "",
 
-                form_num: returnData?.form_number + 1 || 1
-            }));
+                    mother_first_name: motherData?.first_name || "",
+                    mother_middle_name: motherData?.middle_name || "",
+                    mother_last_name: motherData?.last_name || "",
+                    mother_work: motherData?.occupation || "",
+                    mother_income: motherData?.income ?? "",
 
-            if (returnData.transformedFamily)
-                setFamilyMembers(returnData.transformedFamily);
-            else 
-                setFamilyMembers(otherFamilyData);
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+                    form_num: returnData?.form_number + 1 || 1
+                }));
+
+                if (returnData.transformedFamily)
+                    setFamilyMembers(returnData.transformedFamily);
+                else 
+                    setFamilyMembers(otherFamilyData);
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+    }
 
     useEffect(() => {
         setFirstName(data.first_name || "");
@@ -122,13 +126,13 @@ function HomeVisitationForm() {
         setFatherMiddleName(data.father_middle_name || "");
         setFatherLastName(data.father_last_name || "");
         setFatherWork(data.father_work || "");
-        setFatherIncome(data.father_income || "");
+        setFatherIncome(data.father_income ?? "");
 
         setMotherFirstName(data.mother_first_name || "");
         setMotherMiddleName(data.mother_middle_name || "");
         setMotherLastName(data.mother_last_name || "");
         setMotherWork(data.mother_work || "");
-        setMotherIncome(data.mother_income || "");
+        setMotherIncome(data.mother_income ?? "");
 
         setFormNum(data.form_num)
     }, [data]);
@@ -136,8 +140,6 @@ function HomeVisitationForm() {
     // < END :: Auto-Filled Data > //
 
     // < START :: View Form > //
-
-    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
@@ -148,13 +150,20 @@ function HomeVisitationForm() {
                     caseID,
                     formID,
                 );
+                const caseData = returnFormData.case
                 const formData = returnFormData.form;
+                const otherFamilyData = formData.familyMembers
 
+                const fatherData = formData.father;
+                const motherData = formData.mother;
+                
                 setRawFormData(formData);
-                console.log(returnFormData.form_num)
-
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+
                     grade_year_course: formData.grade_year_course || "",
                     years_in_program: formData.years_in_program || "",
                     date: formData.date || "",
@@ -168,9 +177,25 @@ function HomeVisitationForm() {
                     recommendations: formData.recommendations || "",
                     agreement: formData.agreement || "",
 
+                    father_first_name: fatherData?.first_name || "",
+                    father_middle_name: fatherData?.middle_name || "",
+                    father_last_name: fatherData?.last_name || "",
+                    father_work: fatherData?.occupation || "",
+                    father_income: fatherData?.income ?? "",
+
+                    mother_first_name: motherData?.first_name || "",
+                    mother_middle_name: motherData?.middle_name || "",
+                    mother_last_name: motherData?.last_name || "",
+                    mother_work: motherData?.occupation || "",
+                    mother_income: motherData?.income ?? "",
+
                     form_num: returnFormData.form_number
                 }));
 
+                if (returnFormData.transformedFamily)
+                    setFamilyMembers(returnFormData.transformedFamily);
+                else 
+                    setFamilyMembers(otherFamilyData);
                 setLoading(false);
             };
             loadFormData();
@@ -523,7 +548,7 @@ function HomeVisitationForm() {
     );
     const [father_work, setFatherWork] = useState(data?.father_work || "");
     const [father_income, setFatherIncome] = useState(
-        data?.father_income || "",
+        data?.father_income ?? "",
     );
     const [mother_first_name, setMotherFirstName] = useState(
         data?.mother_first_name || "",
@@ -536,7 +561,7 @@ function HomeVisitationForm() {
     );
     const [mother_work, setMotherWork] = useState(data?.mother_work || "");
     const [mother_income, setMotherIncome] = useState(
-        data?.mother_income || "",
+        data?.mother_income ?? "",
     );
     const [sm_progress, setSMProgress] = useState(data?.sm_progress || "");
     const [family_progress, setFamilyProgress] = useState(
@@ -601,6 +626,7 @@ function HomeVisitationForm() {
                                     "Sponsored Member",
                                 )}
                                 error={errors["grade_year_course"]}
+                                disabled={viewForm}
                             ></TextInput>
                             <TextInput
                                 label="Year/s in the Program"
@@ -610,6 +636,7 @@ function HomeVisitationForm() {
                                     "Sponsored Member",
                                 )}
                                 error={errors["years_in_program"]}
+                                disabled={viewForm}
                             ></TextInput>
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-16">
@@ -622,6 +649,7 @@ function HomeVisitationForm() {
                                             handleChange("Sponsored Member")(e);
                                             setFamilyType(e.target.value);
                                         }}
+                                        disabled={viewForm}
                                         className={`label-base text-input ${ errors["family_type"] ? "text-input-error" : "" }`}
                                         error={errors["family_type"]}
                                     >
@@ -678,6 +706,7 @@ function HomeVisitationForm() {
                                     "General Information",
                                 )}
                                 error={errors["date"]}
+                                disabled={viewForm} 
                             ></DateInput>
                             <TextInput
                                 label="Community"
@@ -687,6 +716,7 @@ function HomeVisitationForm() {
                                     "General Information",
                                 )}
                                 error={errors["community"]}
+                                disabled={viewForm} 
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -698,6 +728,7 @@ function HomeVisitationForm() {
                                     "General Information",
                                 )}
                                 error={errors["sponsor_name"]}
+                                disabled={viewForm} 
                             ></TextInput>
                         </div>
                     </div>
@@ -828,49 +859,26 @@ function HomeVisitationForm() {
                         value={sm_progress}
                         setValue={setSMProgress}
                         error={errors["sm_progress"]}
+                        disabled={viewForm} 
                     ></TextArea>
                     <TextArea
                         label="Family"
                         value={family_progress}
                         setValue={setFamilyProgress}
                         error={errors["family_progress"]}
+                        disabled={viewForm} 
                     ></TextArea>
                 </div>
             </section>
 
             {/* Observation/Findings */}
             <section className="flex w-full flex-col gap-8">
-                {/*<h4 className="header-sm">Worker's Observation/Findings</h4>
-                {Array.isArray(observation_findings) &&
-                    observation_findings.map((item, index) => (
-                        <div key={index} className="flex items-center">
-                            <p className="body-base pr-4">{index + 1}.</p>
-                            <input
-                                type="text"
-                                value={item}
-                                onChange={(e) => {
-                                    updateObservations(index, e.target.value);
-                                    handleChange("Observations")(e);
-                                }}
-                                className="body-base text-area w-full"
-                            />
-                            <button
-                                onClick={() => deleteObservation(index)}
-                                className="icon-button-setup trash-button px-10"
-                            ></button>
-                        </div>
-                    ))}
-                <button
-                    className="btn-primary font-bold-label"
-                    onClick={handleAddObservation}
-                >
-                    Add Observation/Findings
-                </button>*/}
                 <TextArea
                     label="Worker's Observation/Findings"
                     value={observation_findings}
                     setValue={setObservationFindings}
                     error={errors["observation_findings"]}
+                    disabled={viewForm} 
                  ></TextArea>
                 {savedTime && sectionEdited === "Observations" && (
                     <p className="mt-2 self-end text-sm">{savedTime}</p>
@@ -879,36 +887,12 @@ function HomeVisitationForm() {
 
             {/* Interventions Made */}
             <section className="flex w-full flex-col gap-8">
-                {/*<h4 className="header-sm">Interventions Made</h4>
-                {interventions.map((item, index) => (
-                    <div key={index} className="flex items-center">
-                        <p className="body-base pr-4">{index + 1}.</p>
-                        <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => {
-                                updateInterventions(index, e.target.value);
-                                handleChange("Interventions")(e);
-                            }}
-                            className="body-base text-area w-full"
-                        />
-                        <button
-                            onClick={() => deleteIntervention(index)}
-                            className="icon-button-setup trash-button px-10"
-                        ></button>
-                    </div>
-                ))}
-                <button
-                    className="btn-primary font-bold-label"
-                    onClick={handleAddIntervention}
-                >
-                    Add Intervention
-                </button>*/}
                 <TextArea
                     label="Interventions Made"
                     value={interventions}
                     setValue={setInterventions}
                     error={errors["interventions"]}
+                    disabled={viewForm} 
                  ></TextArea>
                 {savedTime && sectionEdited === "Interventions" && (
                     <p className="mt-2 self-end text-sm">{savedTime}</p>
@@ -923,12 +907,14 @@ function HomeVisitationForm() {
                         value={recommendations}
                         setValue={setRecommendation}
                         error={errors["recommendations"]}
+                        disabled={viewForm} 
                     ></TextArea>
                     <TextArea
                         label="Agreement (if any)"
                         value={agreement}
                         setValue={setAgreement}
                         error={errors["agreement"]}
+                        disabled={viewForm} 
                     ></TextArea>
                 </div>
             </section>
@@ -949,16 +935,7 @@ function HomeVisitationForm() {
                                 setShowConfirm(true)
                             }
                         >
-                            Delete Form
-                        </button>
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleUpdate();
-                                navigate(`/case/${caseID}`);
-                            }}
-                        >
-                            Save Changes
+                           Download Form
                         </button>
                     </>
                 ) : (

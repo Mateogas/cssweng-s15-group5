@@ -22,6 +22,8 @@ const {
  * @params
  * 	- id: The ID of the sponsored member
  * 
+ * @route GET /api/file-generator/case-data/:id
+ * 
  * @returns {Object} - The case data for the sponsored member
  * @throws {Error} - If the sponsored member ID is invalid or not found
  */
@@ -103,7 +105,7 @@ const generateCaseData = async (req, res) => {
 			first_name: member.first_name || "",
 			middle_name: member.middle_name || "",
 			last_name: member.last_name || "",
-			age: member.age || "",
+			age: member.age || "0",
 			income: member.income || "",
 			civil_status: member.civil_status || "",
 			occupation: member.occupation || "",
@@ -137,10 +139,7 @@ const generateCaseData = async (req, res) => {
                             formattedIntervention.financial = formatFinancialData(interventionData);
                             break;
                         case 'Intervention Home Visit':
-                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention)
-								.populate('father.father_details')
-								.populate('mother.mother_details')
-								.populate('familyMembers.family_member_details');
+                            interventionData = await Intervention_Home_Visit.findById(intervention.intervention);
                             formattedIntervention.homevisit = formatHomeVisitData(interventionData);
                             break;
                         default:
@@ -188,6 +187,7 @@ const generateCaseData = async (req, res) => {
 
 		// Format data for the document
 		const caseData = {
+			sm_number: sponsoredMember.sm_number || '',
 			last_name: sponsoredMember.last_name || '',
 			first_name: sponsoredMember.first_name || '',
 			middle_name: sponsoredMember.middle_name || '',
@@ -195,7 +195,7 @@ const generateCaseData = async (req, res) => {
 			present_address: sponsoredMember.present_address || '',
 			dob: formatDate(sponsoredMember.dob) || '',
 			pob: sponsoredMember.pob || '',
-			age: calculateAge(sponsoredMember.dob) || '',
+			age: calculateAge(sponsoredMember.dob) || '0',
 			civil_status: sponsoredMember.civil_status || '',
 			edu_attainment: sponsoredMember.edu_attainment || '',
 			religion: sponsoredMember.religion || '',

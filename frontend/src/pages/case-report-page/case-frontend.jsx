@@ -47,7 +47,7 @@ import { fetchAllHomeVisitForms } from "../../fetch-connections/homeVisitation-c
 // Case Download Import
 import {
     generateCaseReport
-} from "../../generate-documents/generate-case-report";
+} from "../../generate-documents/generate-documents";
 
 function CaseFrontend({ creating = false }) {
     // console.log(creating);

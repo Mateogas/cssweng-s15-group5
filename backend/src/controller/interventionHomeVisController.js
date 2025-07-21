@@ -146,64 +146,20 @@ const loadHomeVisitationFormEdit = async (req, res) => {
             req.params.formID
         );
 
-        console.log(caseSelected);
+        // console.log(caseSelected);
         // console.log(formSelected);
 
         if (!caseSelected || !formSelected) throw error;
 
-        // run through the family data again if ever there are changes
-        const relationships = await Family_Relationship.find({
-            sponsor_id: caseSelected,
-        });
-        const familyData = relationships.map((rel) => ({
-            id: rel.family_id._id.toString(),
-            relationship_to_sm: rel.relationship_to_sm,
-            _id: rel._id,
-        }));
-        const familyMembers = await Family_Member.find({
-            _id: { $in: familyData.map((fam) => fam.id) },
-        });
-        const FamilyRelationshipMap = familyMembers.map((member) => {
-            const rel = familyData.find(
-                (fam) => fam.id === member._id.toString()
+        const { mother, father, otherFam } = 
+            transform_family_to_frontend(
+                formSelected.mother,
+                formSelected.father,
+                formSelected.familyMembers
             );
-            return {
-                ...member.toObject(),
-                relationship_to_sm: rel.relationship_to_sm,
-                relationship_id: rel._id.toString(),
-            };
-        });
-
-        const fatherData = FamilyRelationshipMap.find(
-            (member) =>
-                member.relationship_to_sm === "Father" ||
-                member.relationship_to_sm === "father"
-        );
-        const motherData = FamilyRelationshipMap.find(
-            (member) =>
-                member.relationship_to_sm === "Mother" ||
-                member.relationship_to_sm === "mother"
-        );
-        const otherFamilyMembers = FamilyRelationshipMap.filter((member) => {
-            if (
-                fatherData &&
-                member._id.toString() === fatherData._id.toString()
-            )
-                return false;
-            if (
-                motherData &&
-                member._id.toString() === motherData._id.toString()
-            )
-                return false;
-            return true;
-        });
-        const familyMembersArray = otherFamilyMembers.map((member) => ({
-            family_member_details: member._id,
-            family_member_relationship: member.relationship_id,
-        }));
-        // console.log(familyMembersArray);
-
-        const formId = formSelected._id.toString(); // ensure string comparison
+        // console.log(father, mother, otherFam)
+                       
+        const formId = formSelected._id.toString(); 
         const matchingIntervention = (caseSelected.interventions || []).find(
         (entry) =>
             entry.interventionType === 'Intervention Home Visit' &&
@@ -214,9 +170,9 @@ const loadHomeVisitationFormEdit = async (req, res) => {
         return res.status(200).json({
             form: formSelected,
             case: caseSelected,
-            father: fatherData,
-            mother: motherData,
-            otherFamily: otherFamilyMembers,
+            father: father,
+            mother: mother,
+            otherFamily: otherFam,
             form_number
         });
     } catch (error) {
@@ -244,7 +200,8 @@ const createHomVis = async (req, res) => {
         }
 
         // Validation
-        console.log(formData)
+        // console.log(formData)
+        // console.log(formData)
         const requiredFields = [
             "grade_year_course",
             "years_in_program",
@@ -265,13 +222,17 @@ const createHomVis = async (req, res) => {
             });
         }
 
-        // Family Members Map
-        const otherFamilyMembers = formData.rawOtherFamilyData;
-        const familyMembersArray = otherFamilyMembers.map((member) => ({
-            family_member_details: member._id,
-            family_member_relationship: member.relationship_id,
-        }));
-        // console.log(familyMembersArray);
+        // Family members
+        const { mother, father, otherFam } = 
+            transform_family_to_backend(
+                formData.rawMotherData || null,
+                formData.rawFatherData || null,
+                formData.rawOtherFamilyData || null
+            );
+        console.log(formData.rawMotherData,
+                formData.rawFatherData,
+                formData.rawOtherFamilyData)
+        console.log("OUT: ", mother, father, otherFam)
 
         // Creating new intervention
         const newForm = new InterventionHomeVisit({
@@ -282,15 +243,9 @@ const createHomVis = async (req, res) => {
             sponsor_name: formData.sponsor_name,
             family_type: formData.family_type,
 
-            father: {
-                father_details: formData.rawFatherData?._id || null,
-                father_relationship: formData.rawFatherData?.relationship_id || null,
-            },
-            mother: {
-                mother_details: formData.rawMotherData?._id || null,
-                mother_relationship: formData.rawMotherData?.relationship_id || null,
-            },
-            familyMembers: familyMembersArray || [],
+            father: father || null,
+            mother: mother || null,
+            familyMembers: otherFam || [],
 
             sm_progress: formData.sm_progress,
             family_progress: formData.family_progress,
@@ -320,15 +275,12 @@ const createHomVis = async (req, res) => {
             { new: true }
         );
 
-        const fatherData = formData.rawFatherData || null;
-        const motherData = formData.rawMotherData || null;
-
         return res.status(200).json({
             form: newForm,
             case: updatedCase,
-            father: fatherData,
-            mother: motherData,
-            otherFamily: otherFamilyMembers,
+            father: father,
+            mother: mother,
+            otherFamily: otherFam,
         });
     } catch (error) {
         console.error("Error creating new home intervention:", error);
@@ -524,11 +476,105 @@ const deleteHomeVis = async (req, res) => {
     }
 }
 
+
+// Transform the data to cater frontend variables
+function transform_family_to_frontend(mother_data, father_data, other_fam_data) {
+    let mother, father, otherFam
+
+    if (mother_data){
+        mother = {
+            first_name: mother_data.first_name,
+            last_name: mother_data.last_name,
+            middle_name: mother_data.middle_name,
+            occupation: mother_data.occupation,
+            income: mother_data.income,
+            age: mother_data.age
+        }
+    }
+
+    if (father_data) {
+        father = {
+            first_name: father_data.first_name,
+            last_name: father_data.last_name,
+            middle_name: father_data.middle_name,
+            occupation: father_data.occupation,
+            income: father_data.income,
+            age: father_data.age
+        }
+    }
+
+    if (other_fam_data.length > 0) {
+        otherFam = other_fam_data.map((member) => ({
+            first_name: member.first_name,
+            last_name: member.last_name,
+            middle_name: member.middle_name,
+            income: member.income,
+            occupation: member.occupation,
+            edu_attainment: member.edu_attainment,
+            relationship_to_sm: member.relationship_to_sm,
+            civil_status: member.civil_status,
+            status: member.status,
+            age: member.age,
+        }));
+    }
+
+    return {mother, father, otherFam}
+}
+
+// Transform the data to cater database variables
+function transform_family_to_backend(mother_data, father_data, other_fam_data) {
+    let mother, father, otherFam
+
+    if (mother_data) {
+        mother = {
+            first_name: mother_data.first_name,
+            last_name: mother_data.last_name,
+            middle_name: mother_data.middle_name,
+            occupation: mother_data.occupation,
+            income: mother_data.income,
+            age: mother_data.age,
+            relationship_to_sm: mother_data.relationship_to_sm,
+            status: mother_data.status
+        }
+    }
+
+    if (father_data) {
+        father = {
+            first_name: father_data.first_name,
+            last_name: father_data.last_name,
+            middle_name: father_data.middle_name,
+            occupation: father_data.occupation,
+            income: father_data.income,
+            age: father_data.age,
+            relationship_to_sm: father_data.relationship_to_sm,
+            status: father_data.status
+        }
+    }
+
+    if (other_fam_data.length > 0) {
+        otherFam = other_fam_data.map((member) => ({
+            first_name: member.first_name,
+            last_name: member.last_name,
+            middle_name: member.middle_name,
+            income: member.income,
+            occupation: member.occupation,
+            edu_attainment: member.edu_attainment,
+            relationship_to_sm: member.relationship_to_sm,
+            civil_status: member.civil_status,
+            status: member.status,
+            age: member.age,
+        }));
+    }
+
+    //console.log("RETURN: ", mother, father, otherFam)
+    return {mother, father, otherFam}
+}
+
 module.exports = {
     loadHomeVisitationForm,
     loadAllHomeVisitationForms,
     loadHomeVisitationFormEdit,
     createHomVis,
     editHomeVis,
-    deleteHomeVis
+    deleteHomeVis,
 };
