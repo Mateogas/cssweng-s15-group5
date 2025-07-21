@@ -113,6 +113,14 @@ export default function RegisterWorker({
     setSupervisors(filtered);
   }, [formData.spu_id, socialDevelopmentWorkers]);
 
+  function formatListWithAnd(arr) {
+      if (arr.length === 0) return "";
+      if (arr.length === 1) return arr[0];
+      if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+      const last = arr[arr.length - 1];
+      return `${arr.slice(0, -1).join(", ")}, and ${last}`;
+  }
+  
   const checkRegisterWorker = async () => {
     const missing = [];
 
@@ -167,7 +175,7 @@ export default function RegisterWorker({
 
     if (missing.length > 0) {
       setModalTitle("Invalid Fields");
-      setModalBody(`The following fields are missing or invalid: ${missing.join(", ")}`);
+      setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
       setModalImageCenter(<div className="warning-icon mx-auto"></div>);
       setModalConfirm(false);
       setShowModal(true);

@@ -74,7 +74,7 @@ function HomeLeader() {
 
     if (sortBy === "name") {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (["head", "super", "sdw"].includes(sortBy)) {
+    } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
       filtered = filtered.filter((w) => w.role === sortBy)
       .sort((a, b) => a.name.localeCompare(b.name));;
     }
@@ -119,7 +119,7 @@ function HomeLeader() {
         <SideBar user={user} />
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">{user?.role == "super" ? user.spu_id : "Teams"} Teams</h1>
+          <h1 className="header-main">{user?.role == "supervisor" ? user.spu_id : "Teams"} Teams</h1>
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
@@ -146,7 +146,7 @@ function HomeLeader() {
                   <option value="">Find By</option>
                   <option value="name">Name</option>
                   <option value="head">Head</option>
-                  <option value="super">Supervisor</option>
+                  <option value="supervisor">Supervisor</option>
                   <option value="sdw">Social Development Worker</option>
                 </select>
 

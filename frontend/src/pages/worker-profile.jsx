@@ -194,6 +194,14 @@ export default function WorkerProfile() {
         setEditingField(null);
     };
 
+    function formatListWithAnd(arr) {
+        if (arr.length === 0) return "";
+        if (arr.length === 1) return arr[0];
+        if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+        const last = arr[arr.length - 1];
+        return `${arr.slice(0, -1).join(", ")}, and ${last}`;
+    }
+
     const checkEmployeeCore = async () => {
         const missing = [];
 
@@ -285,7 +293,7 @@ export default function WorkerProfile() {
         if (drafts.role === "sdw") {
             if (!drafts.manager || drafts.manager.trim() === "") {
                 drafts.manager = "";
-                // missing.push("Supervisor must be selected for SDW role");
+                missing.push("Supervisor must be selected for SDW role");
             } else {
                 const validSupervisorIds = socialDevelopmentWorkers
                     .filter((w) => w.spu_id === drafts.spu_id && w.role === "supervisor")
@@ -304,7 +312,7 @@ export default function WorkerProfile() {
 
         if (missing.length > 0) {
             setModalTitle("Invalid Fields");
-            setModalBody(`The following fields are missing or invalid:\n\n${missing.join("\n")}`);
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
             setModalImageCenter(<div className="warning-icon mx-auto"></div>);
             setModalConfirm(false);
             setShowModal(true);
@@ -620,7 +628,7 @@ export default function WorkerProfile() {
 
                                 {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
                                 <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
-                                <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
+                                <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "supervisor" ? "Supervisor" : "Social Development Worker"}</p>
 
                                 {(data.role === "" || data.role === "sdw") && (
                                     <p className="font-label">
