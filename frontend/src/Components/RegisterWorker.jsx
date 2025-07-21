@@ -173,6 +173,8 @@ export default function RegisterWorker({
     console.log(formData.role, formData.manager)
     if (formData.role == "sdw" && formData.manager == "") missing.push("Social Development Workers must have a Supervisor");
 
+    if (formData.area.trim() == "") missing.push("Area of Assignment");
+
     if (missing.length > 0) {
       setModalTitle("Invalid Fields");
       setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
