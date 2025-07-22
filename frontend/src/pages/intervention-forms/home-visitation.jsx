@@ -11,6 +11,7 @@ import {
     createHomeVis,
     editHomeVis,
     deleteHomeVis,
+    downloadHomeVis
 } from "../../fetch-connections/homeVisitation-connection";
 
 
@@ -930,9 +931,10 @@ function HomeVisitationForm() {
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
+                            type="button"
+                            className="btn-primary font-bold-label w-min"
                             onClick={() => 
-                                setShowConfirm(true)
+                                downloadHomeVis(formID)
                             }
                         >
                            Download Form
