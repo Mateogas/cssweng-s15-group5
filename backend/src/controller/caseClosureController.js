@@ -329,6 +329,9 @@ const confirmCaseTermination = async (req, res) => {
           caseSelected.is_active = false
           await caseSelected.save()
 
+          formSelected.status = "Accepted"
+          await formSelected.save()
+
           // return case selected again, status should now be inactive
           return res.status(200).json({ message: "Case successfully terminated.", case: caseSelected });
      } catch(error) {
@@ -337,7 +340,6 @@ const confirmCaseTermination = async (req, res) => {
 }
 
 module.exports = {
-     loadCaseData,
      loadCaseClosureForm,
      createCaseClosureForm,
      loadExistingCaseClosureForm,
