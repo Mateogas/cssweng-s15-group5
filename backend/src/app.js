@@ -99,9 +99,14 @@ app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.use('/api/intervention', homeVisRoutes);
 
 // Case Closure routes
-app.get('/api/case-closure/:caseID', caseClosureController.loadCaseData);
-app.get('/api/case-closure/:caseID/:formID', caseClosureController.loadCaseClosureForm);
-app.put('/api/create/case-closure/:caseID', caseClosureController.createCaseClosureForm);
+app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
+app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm)
+app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm)
+app.put('/api/case-closure/edit/:caseID/:formID', caseClosureController.editCaseClosureForm)
+app.put('/api/case-closure/terminate/:caseID', caseClosureController.confirmCaseTermination)
+app.put('/api/case-closure/terminate/:caseID/:formID', caseClosureController.confirmCaseTermination)
+app.delete('/api/case-closure/delete/:caseID', caseClosureController.deleteCaseClosureForm)
+app.delete('/api/case-closure/delete/:caseID/:formID', caseClosureController.deleteCaseClosureForm)
 
 // Log in and log out route
 app.put('/api/login', authController.loginUser)
