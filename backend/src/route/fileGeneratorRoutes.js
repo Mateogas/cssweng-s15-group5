@@ -10,6 +10,7 @@ const { generateCounselingForm } = require('../fileGenerators/counselingFormGene
 const { generateFinancialAssessmentForm } = require('../fileGenerators/financialAssessmentFormGenerator');
 const { generateHomeVisitForm } = require('../fileGenerators/homeVisitFormGenerator');
 const { generateProgressReport } = require('../fileGenerators/progressReportGenerator');
+const { generateCaseClosure } = require('../fileGenerators/caseClosureGenerator');
 
 /*
     File Generator Routes
@@ -21,5 +22,6 @@ router.get('/counseling-form/:counselingId', isAuthenticated, generateCounseling
 router.get('/financial-assessment-form/:financialId', isAuthenticated, generateFinancialAssessmentForm);
 router.get('/home-visit-form/:homeVisitId', isAuthenticated, generateHomeVisitForm);
 router.get('/progress-report/:reportId', isAuthenticated, generateProgressReport);
+router.get('/case-closure/:caseClosureId', isAuthenticated, generateCaseClosure);
 
 module.exports = router;

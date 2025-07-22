@@ -83,6 +83,12 @@ const DOCUMENT_CONFIGS = {
         apiPath: '/api/file-generator/progress-report',
         templatePath: '/templates/TEMPLATE_Progress-Report.docx',
         outputName: 'progress-report.docx'
+    },
+    caseClosure: {
+        apiPath: '/api/file-generator/case-closure',
+        templatePath: '/templates/TEMPLATE-Case-Closure-Form.docx',
+        outputName: 'case-closure.docx',
+        useSmNumber: true
     }
 };
 
@@ -108,3 +114,4 @@ export const generateCounselingForm = (counselingId) => generateDocumentByType('
 export const generateFinancialAssessmentForm = (financialId) => generateDocumentByType('financial', financialId);
 export const generateHomeVisitForm = (homeVisitId) => generateDocumentByType('homeVisit', homeVisitId);
 export const generateProgressReport = (reportId) => generateDocumentByType('progressReport', reportId);
+export const generateCaseClosureForm = (caseClosureId) => generateDocumentByType('caseClosure', caseClosureId);
