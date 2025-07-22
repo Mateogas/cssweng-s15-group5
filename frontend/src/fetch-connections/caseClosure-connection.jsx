@@ -1,7 +1,7 @@
 /**
  *   Fetches the case data
  *   @param {*} caseID Case selected
- *   @returns Sponsored member object
+ *   @returns Sponsored member object (AND form if it exists)
  */
 export const fetchCaseData = async(caseID) => {
      try {
@@ -18,6 +18,12 @@ export const fetchCaseData = async(caseID) => {
      }
 };
 
+/**
+ *   Fetches case closure form data
+ *   @param {*} caseId  Case selected
+ *   @param {*} formId Case closure form for that case
+ *   @returns case closure form object
+ */
 export const fetchCaseClosureData = async (caseId, formId) => {
     try {
         const response = await fetch(`/api/case-closure/${caseId}/${formId}`);
@@ -29,6 +35,13 @@ export const fetchCaseClosureData = async (caseId, formId) => {
     }
 };
 
+/**
+ *   Creates the case closure
+ *   @param {*} createdData The details for that creation
+ *   @param {*} caseID Case selected
+ *   @returns  IF newly created: new case closure form
+ *             IF a form is found: case object AND form object
+ */
 export const createCaseClosureForm = async(createdData, caseID) => {
      try {
           const response = await fetch(`/api/case-closure/create/${caseID}`, {
@@ -79,7 +92,7 @@ export const editCaseClosureForm = async(updatedData, caseID) => {
 };
 
 /**
- *   Termiantes a case
+ *   Terminates a case
  *   @returns  returnData:
  *                  message -- status message
  *                  case -- case selected; sponsored member object
@@ -108,6 +121,7 @@ export const terminateCase = async(caseID, formID) => {
  *   Deletes a case closure form
  *   @returns  returnData:
  *                  message -- status message
+ *                  case -- case selected; sponsored member object
  */
 export const deleteCaseClosureForm = async(caseID, formID) => {
      try {
