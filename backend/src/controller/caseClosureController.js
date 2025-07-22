@@ -7,8 +7,6 @@ const mongoose = require('mongoose');
 const Sponsored_Member = require('../model/sponsored_member');
 const Case_Closure = require('../model/case_closure');
 
-const homeVisitFormValidate = require('./validators/homeVisitValidator');
-
 // ================================================== //
 
 /**
