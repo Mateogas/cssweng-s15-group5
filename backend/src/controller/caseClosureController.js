@@ -10,6 +10,11 @@ const Employee = require('../model/employee');
 
 // ================================================== //
 
+/**
+ *   Loads the case closure form
+ *   @returns  if form does not exist, case object
+ *             if form exists, case object AND form object
+ */
 const loadCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
@@ -63,6 +68,11 @@ const loadCaseClosureForm = async(req, res) => {
      }
 } 
 
+/**
+ *   Creates the new case closure form; only the assigned sdw can create this form
+ *   @returns  the new case closure form object made
+ *             if form exists, case object AND form object
+ */
 const createCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
@@ -133,6 +143,11 @@ const createCaseClosureForm = async(req, res) => {
      }
 } 
 
+/**
+ *   Loads the existing case closure form; only assigned sdw, supervisor of the assigned sdw
+ *   and heads can access
+ *   @returns case object AND form object
+ */
 const loadExistingCaseClosureForm = async (req, res) => {
      try {          
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
@@ -186,6 +201,10 @@ const loadExistingCaseClosureForm = async (req, res) => {
      }
 }
 
+/**
+ *   [NOT USED] Edits the case closure form
+ *   @returns the updated form object
+ */
 const editCaseClosureForm = async (req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
@@ -243,6 +262,10 @@ const editCaseClosureForm = async (req, res) => {
      }
 }
 
+/**
+ *   Deletes the case closure form, mainly for rejecting the request  
+ *   @returns a message AND case object
+ */
 const deleteCaseClosureForm = async (req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
@@ -276,6 +299,10 @@ const deleteCaseClosureForm = async (req, res) => {
      }
 }
 
+/**
+ *   Confirms the case termination; only supervisor and head can access
+ *   @returns a message, case object, and form object
+ */
 const confirmCaseTermination = async (req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
@@ -333,7 +360,7 @@ const confirmCaseTermination = async (req, res) => {
           await formSelected.save()
 
           // return case selected again, status should now be inactive
-          return res.status(200).json({ message: "Case successfully terminated.", case: caseSelected });
+          return res.status(200).json({ message: "Case successfully terminated.", case: caseSelected, form: formSelected });
      } catch(error) {
           return res.status(500).json({ message: "An error occured. Please try again." });
      }

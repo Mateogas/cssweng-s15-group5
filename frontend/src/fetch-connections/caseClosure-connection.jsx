@@ -96,6 +96,7 @@ export const editCaseClosureForm = async(updatedData, caseID) => {
  *   @returns  returnData:
  *                  message -- status message
  *                  case -- case selected; sponsored member object
+ *                  form -- form selected, case closure form object
  */
 export const terminateCase = async(caseID, formID) => {
      try {
