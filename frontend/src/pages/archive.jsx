@@ -88,7 +88,7 @@ function Archive() {
     return (
         <>
             <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
-                <a href="/home-sdw" className="main-logo main-logo-text-nav">
+                <a href="/" className="main-logo main-logo-text-nav">
                     <div className="main-logo-setup folder-logo"></div>
                     SCSR
                 </a>
