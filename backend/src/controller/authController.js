@@ -37,7 +37,7 @@ const loginUser = async (req, res) => {
 
           const isPasswordValid = await bcrypt.compare(password, active_user.password);
           if (!isPasswordValid) {
-               return res.status(401).json({ errorMsg: "Email and password do not match." });
+               return res.status(401).json({ errorMsg: "Username and password do not match." });
           }
 
           req.session.user = active_user;
