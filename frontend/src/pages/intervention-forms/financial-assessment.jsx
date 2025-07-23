@@ -73,6 +73,7 @@ function FinancialAssessmentForm() {
 
             setData((prev) => ({
                 ...prev,
+                form_num: caseData.intervention_number || "",
                 first_name: caseData.first_name || "",
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
@@ -86,6 +87,7 @@ function FinancialAssessmentForm() {
     }, []);
 
     useEffect(() => {
+        setFormNum(data.form_num || "");
         setFirstName(data.first_name || "");
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
@@ -115,6 +117,7 @@ function FinancialAssessmentForm() {
 
                 setData((prev) => ({
                     ...prev,
+                    form_num: formData.intervention_number || "",
                     date: formData.createdAt || "",
                     problem_presented: formData.problem_presented || "",
                     recommendation: formData.recommendation || "",
@@ -128,6 +131,7 @@ function FinancialAssessmentForm() {
         }, []);
 
         useEffect(() => {
+            setFormNum(data.form_num || "");
             setOtherAssistance(data.other_assistance_detail || "");
             setProblemPresented(data.problem_presented || "");
             setRecommendation(data.recommendation || "");

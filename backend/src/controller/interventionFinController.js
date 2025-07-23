@@ -304,6 +304,16 @@ const getAutoFillData = async(req,res)=>{
             spu:caseData.spu
         };
 
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Financial Assessment'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+
+        returningData.intervention_number = lastInterventionNumber + 1;
+
         return res.status(200).json({message: 'Fetched Succesfully', returningData});
     }catch(error){
         console.error(error);
