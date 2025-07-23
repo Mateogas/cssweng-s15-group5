@@ -14,16 +14,7 @@ export const fetchCaseData = async (caseID) => {
 
         const sm_data = await response.json();
 
-        const counselingData = {
-            first_name: sm_data.first_name || "",
-            middle_name: sm_data.middle_name || "",
-            last_name: sm_data.last_name || "",
-            ch_number: sm_data.sm_number || "",
-            address: sm_data.present_address || "",
-            subproject: sm_data.spu || "",
-        };
-
-        return counselingData;
+        return sm_data;
     } catch (error) {
         console.error("Error fetching counseling information:", error);
         throw error;

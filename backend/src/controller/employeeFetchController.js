@@ -314,7 +314,7 @@ const getSupervisorViewbySpu = async (req, res) => {
     let cases = [];
     let employee = [];
 
-    if (user.role == 'super') {//changed depending on what actual value
+    if (user.role == 'super' || user.role == 'supervisor') {//changed depending on what actual value
       cases = await Sponsored_Member.find({ is_active: true, spu:user.spu_id})
         .populate('assigned_sdw')
         .lean();

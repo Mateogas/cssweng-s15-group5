@@ -1,3 +1,5 @@
+import { generateHomeVisitForm } from "../generate-documents/generate-documents";
+
 export const fetchCaseData = async (caseID) => {
     try {
         const response = await fetch(
@@ -146,3 +148,12 @@ export const deleteHomeVis = async (formID) => {
         throw error;
     }
 };
+
+export const downloadHomeVis = async (formID) => {
+    try {
+        generateHomeVisitForm(formID)
+        return true
+    } catch (error) {
+        return false
+    }
+} 

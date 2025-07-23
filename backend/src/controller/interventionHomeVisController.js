@@ -139,6 +139,12 @@ const loadAllHomeVisitationForms = async (req, res) => {
     }
 }
 
+/**
+ *  Loads the hom visitation form ready for editing 
+ *  NOTE: since edit function was removed, this is just simply for loading the existing form data
+ *  @returns    form object, case object, father (family member object), mother (family member object),
+ *              other family (array of family member object), and form number
+ */
 const loadHomeVisitationFormEdit = async (req, res) => {
     try {
         const caseSelected = await Sponsored_Member.findById(req.params.caseID);
@@ -292,7 +298,7 @@ const createHomVis = async (req, res) => {
 };
 
 /**
- *   Edits the home visitation form selected
+ *   [NOT USED] Edits the home visitation form selected
  *   @returns The edited home visitation object
  */
 const editHomeVis = async (req, res) => {
@@ -475,6 +481,9 @@ const deleteHomeVis = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+
+
+// =========== ADDTL. FUNCTIONS ===========  //
 
 
 // Transform the data to cater frontend variables

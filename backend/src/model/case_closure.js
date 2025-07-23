@@ -46,8 +46,14 @@ const CaseClosureSchema = new Schema ({
      recommendation: {
           type: String,
           required: true
-     }
+     },
+     status: {
+          type: String,
+          enum: ['Pending', 'Accepted'],
+          default: 'Pending',
 
+          required: true
+     }
 }, { timestamps: true });
 
 const Case_Closure = mongoose.model('Case Closure', CaseClosureSchema);

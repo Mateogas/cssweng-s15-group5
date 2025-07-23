@@ -69,6 +69,7 @@ function ProgressReport() {
                 ch_number: caseData.ch_number || "",
                 dob: caseData.dob || "",
                 subproject: caseData.subproject || "",
+                form_num: caseData.reportNumber || "",
             }));
 
             setLoading(false);
@@ -84,6 +85,7 @@ function ProgressReport() {
         setDOB(data.dob || "");
         setAge("");
         setSubproject(data.subproject || "");
+        setFormNum(data.form_num || "");
     }, [data]);
 
     // < END :: Auto-Filled Data > //

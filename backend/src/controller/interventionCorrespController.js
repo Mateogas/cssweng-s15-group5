@@ -142,7 +142,7 @@ const getCorrespondenceForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('interventions.intervention').lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).lean();
         const formData = await Intervention_Correspondence.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
@@ -329,6 +329,15 @@ const getAutoFillData = async(req,res)=>{
             dob : caseData.dob,
             address:caseData.present_address,
         };
+
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Correspondence'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+        returningData.intervention_number = lastInterventionNumber + 1;
 
         return res.status(200).json({message: 'Fetched Succesfully', returningData});
     }catch(error){

@@ -78,6 +78,10 @@ const getCaseData = async (req, res) => {
             return res.status(404).json({ error: 'Case not found' });
         }
 
+        // Get the last progress report number
+        const lastReport = sm_data.progress_reports[sm_data.progress_reports.length - 1];
+        const lastReportNumber = lastReport ? lastReport.report_number : 0;
+
         const caseData = {
             last_name: sm_data.last_name || '',
             middle_name: sm_data.middle_name || '',
@@ -85,6 +89,7 @@ const getCaseData = async (req, res) => {
             ch_number: sm_data.sm_number || '',
             dob: new Date(sm_data.dob).toISOString().split('T')[0] || '',
             subproject: sm_data.spu || '',
+            reportNumber: lastReportNumber + 1,
         }
 
         return res.status(200).json(caseData);

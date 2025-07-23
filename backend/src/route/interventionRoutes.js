@@ -6,7 +6,7 @@ const interventionCounselingController = require('../controller/interventionCoun
 
 // Counseling Intervention Routes
 // /api/intervention
-router.get('/counseling/add/:id', caseController.getCaseById);
+router.get('/counseling/add/:id', interventionCounselingController.getCaseData);
 router.get('/counseling/intervention/:counselingId', interventionCounselingController.getCounselingInterventionById);
 router.get('/counseling/member/:memberID', interventionCounselingController.getAllCounselingInterventionsByMemberId);
 router.post('/counseling/add/:memberID', interventionCounselingController.addCounselingIntervention);

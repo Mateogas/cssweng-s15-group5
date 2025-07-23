@@ -58,6 +58,7 @@ function CounselingForm() {
             setData(fetchedData);
             // setLoading(false);
 
+            setFormNum(fetchedData.intervention_number || "");
             setLastName(fetchedData.last_name || "");
             setMiddleName(fetchedData.middle_name || "");
             setFirstName(fetchedData.first_name || "");
@@ -99,7 +100,7 @@ function CounselingForm() {
                 setMiddleName(fetchedData.middle_name || "");
                 setFirstName(fetchedData.first_name || "");
                 setCHNumber(fetchedData.ch_number || "");
-                // setFormNum(fetchedData.intervention_number || "");
+                setFormNum(fetchedData.intervention_number || "");
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");

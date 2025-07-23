@@ -3,6 +3,56 @@ const Sponsored_Member = require('../model/sponsored_member');
 const Intervention_Counseling = require('../model/intervention_counseling');
 
 /**
+ * Retrieves case data for a counseling intervention by case ID.
+ * 
+ * @route GET /api/intervention/counseling/add/:id
+ * 
+ * @param {string} req.params.id - ID of the case
+ * 
+ * @return {Object} 200 - JSON object with case data and last intervention number
+ * @return {Object} 404 - If case or sponsored member is not found
+ * @return {Object} 500 - If a server error occurs
+ */
+const getCaseData = async (req, res) => {
+    try {
+        const caseId = req.params.id;
+        // console.log('Fetching case data for ID:', caseId);
+
+        // Find the case by ID
+        const caseData = await Sponsored_Member.findById(caseId);
+        if (!caseData) {
+            return res.status(404).json({ error: 'Case not found' });
+        }
+        // console.log('Case data found');
+
+        // Get last intervention number
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Counseling'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+
+        // console.log('Last intervention number:', lastInterventionNumber);
+
+        return res.status(200).json({
+            message: 'Case retrieved successfully',
+            last_name: caseData.last_name,
+            first_name: caseData.first_name,
+            middle_name: caseData.middle_name,
+            ch_number: caseData.sm_number,
+            address: caseData.present_address,
+            subproject: caseData.spu,
+            intervention_number: lastInterventionNumber + 1,
+        });
+    } catch (error) {
+        console.error('Error fetching case data:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+/**
  * Retrieves a counseling intervention by its ID, including detailed intervention data
  * and associated sponsored member information.
  *
@@ -28,20 +78,19 @@ const getCounselingInterventionById = async (req, res) => {
         // Populate the sponsored member details
         const sponsored_member = await Sponsored_Member.findOne({
             'interventions.intervention': counselingId
-        }).populate('interventions.intervention');
+        });
 
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
 
         // Get the intervention number associated with the counseling intervention
-        /*const intervention_number = sponsored_member.interventions.find(
-            entry => entry.intervention.toString() === counselingId
-        )?.intervention_number;*/
+        const intervention_number = sponsored_member.interventions.find(i => i.intervention.toString() === counselingId)?.intervention_number;
+        // console.log('intervention_number: ', intervention_number);
 
         return res.status(200).json({
             message: 'Counseling intervention retrieved successfully',
-            //intervention_number,
+            intervention_number: intervention_number,
             grade_year_level: intervention.grade_year_level,
             school: intervention.school,
             area_self_help: intervention.area_self_help,
@@ -356,6 +405,7 @@ const editCounselingIntervention = async (req, res) => {
 }
 
 module.exports = {
+    getCaseData,
     getCounselingInterventionById,
     getAllCounselingInterventionsByMemberId,
     addCounselingIntervention,
