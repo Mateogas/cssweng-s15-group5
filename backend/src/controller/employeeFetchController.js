@@ -268,7 +268,7 @@ const getHeadViewbySpu = async (req, res) => {
         .populate('spu')
         .lean();
 
-      employee = await Employee.find({spu_id:spuObject._id}).populate('spu').lean();
+      employee = await Employee.find({spu_id:spuObject._id}).populate('spu_id').lean();
     }else{
       return res.status(403).json({ message: "Permission Error: Head access required" });
     }
