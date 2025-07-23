@@ -65,6 +65,7 @@ function CorrespondenceForm() {
 
             setData((prev) => ({
                 ...prev,
+                form_num: caseData.intervention_number || "",
                 first_name: caseData.first_name || "",
                 middle_name: caseData.middle_name || "",
                 last_name: caseData.last_name || "",
@@ -80,6 +81,7 @@ function CorrespondenceForm() {
     }, []);
 
     useEffect(() => {
+        setFormNum(data.form_num || "");
         setFirstName(data.first_name || "");
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
@@ -112,6 +114,7 @@ function CorrespondenceForm() {
     
                 setData((prev) => ({
                     ...prev,
+                    form_num: formData.intervention_number || "",
                     date: formData.createdAt || "",
                     name_of_sponsor: formData.name_of_sponsor || "",
                     date_of_sponsorship: formData.date_of_sponsorship || "",
@@ -129,6 +132,7 @@ function CorrespondenceForm() {
         }, []);
 
         useEffect(() => {
+            setFormNum(data.form_num || "");
             setSponsorName(data.name_of_sponsor || "");
             setSponsorshipDate(data.date_of_sponsorship || "");
             setIdentifiedProblem(data.identified_problem || "");
