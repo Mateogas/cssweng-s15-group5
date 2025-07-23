@@ -75,7 +75,7 @@ const createAccount = async (req, res) => {
 
 
         // Validate the role
-        const validRoles = ['head', 'super', 'sdw'];
+        const validRoles = ['head', 'supervisor', 'sdw'];
         if (!validRoles.includes(role)) {
             return res.status(400).json({ message: "Invalid role." });
         }

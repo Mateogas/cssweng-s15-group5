@@ -333,7 +333,7 @@ const getSupervisorViewbySpu = async (req, res) => {
         .populate('spu')
         .lean();
 
-       employee = await Employee.find({role: {$nin: ['head','admin']}, spu_id: user.spu_id}).populate('spu').lean(); 
+       employee = await Employee.find({role: {$nin: ['head','admin']}, spu_id: user.spu_id}).populate('spu_id').lean(); 
     }else{
       return res.status(403).json({ message: "Permission Error: Supervisor access required" });
     }
@@ -440,7 +440,7 @@ const getHeadViewbySupervisor = async(req,res) =>{
         let sdws = []
 
         sdws = await Employee.find({manager:supervisorId})
-        .populate('spu')
+        .populate('spu_id')
         .lean()
 
         const simplifiedsdws = sdws.map(e => ({

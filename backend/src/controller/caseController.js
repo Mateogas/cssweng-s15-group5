@@ -110,9 +110,16 @@ const getCaseBySMNumber = async (req, res) => {
 const getAllSDWs = async (req, res) => {
      try {
           // console.log('Fetching all employees...');
-          const employees = await Employee.find();
+          const employees = await Employee.find({
+            spu_id: { $type: 'objectId' }
+        }).populate('spu_id').lean();
+          
           // console.log('Employees found:', employees);
-          res.json(employees);
+          const simplifiedSDWs = employees.map(sdw => ({
+          ...sdw,
+          spu_id: sdw.spu_id?.spu_name || "", 
+          }));
+          res.json(simplifiedSDWs);
      } catch (error) {
           console.error('Failed to fetch employees:', error);
           res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
