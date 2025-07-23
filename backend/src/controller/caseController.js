@@ -297,8 +297,16 @@ const reassignSDW = async (req, res) => {
 
 const addNewCase = async (req, res) => {
      const newCaseData = req.body;
-     const sdwId = req.session?.user?._id;
-     const spu_id = req.session?.user?.spu_id;
+     const sessionUser = req.session?.user;
+     const sdwId = sessionUser?._id;
+     const spu_id = sessionUser?.spu_id;
+
+     // Add these logs:
+     console.log("=== [addNewCase] Debug ===");
+     console.log("Session user:", sessionUser);
+     console.log("sdwId:", sdwId);
+     console.log("spu_id:", spu_id);
+     console.log("newCaseData:", newCaseData);
 
      if (!newCaseData) {
           return res.status(400).json({ message: 'Invalid case' });
@@ -311,8 +319,10 @@ const addNewCase = async (req, res) => {
           // First validate the raw data with our assigned_sdw
           const dataToValidate = {
                ...newCaseData,// Convert ObjectId to string for validation
+               assigned_sdw: sdwId,
+               spu: spu_id
           };
-
+          console.log("beforeValidation");
           // Validate BEFORE creating the Mongoose model
           const { error } = caseSchemaValidate.validate(dataToValidate);
           if (error) {
@@ -321,17 +331,15 @@ const addNewCase = async (req, res) => {
                     details: error.details.map(detail => detail.message)
                });
           }
-
+          console.log("survived validation");
           // Only create the Mongoose model after validation passes
           const caseToSave = {
-               ...newCaseData,
-               assigned_sdw: sdwId,
-               spu: spu_id
+               ...dataToValidate,
           };
 
           const newCase = new Sponsored_Member(caseToSave);
           const savedCase = await newCase.save();
-
+          console.log(savedCase);
           res.status(201).json({
                message: 'New case created successfully',
                case: savedCase

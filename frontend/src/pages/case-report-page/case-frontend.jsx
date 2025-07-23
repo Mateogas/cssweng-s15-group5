@@ -288,7 +288,7 @@ function CaseFrontend({ creating = false }) {
             if (creating && currentUser) {
                 setDrafts(prev => ({
                     ...prev,
-                    spu: currentUser.spu_id || "",
+                    spu: currentUser.spu_name || "",
                     assigned_sdw: currentUser._id || "",
                 }));
             }
