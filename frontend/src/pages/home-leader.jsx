@@ -74,7 +74,7 @@ function HomeLeader() {
 
     if (sortBy === "name") {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (["head", "super", "sdw"].includes(sortBy)) {
+    } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
       filtered = filtered.filter((w) => w.role === sortBy)
       .sort((a, b) => a.name.localeCompare(b.name));;
     }
@@ -146,7 +146,7 @@ function HomeLeader() {
                   <option value="">Find By</option>
                   <option value="name">Name</option>
                   <option value="head">Head</option>
-                  <option value="super">Supervisor</option>
+                  <option value="supervisor">Supervisor</option>
                   <option value="sdw">Social Development Worker</option>
                 </select>
 
