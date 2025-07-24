@@ -8,7 +8,7 @@ const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
 const Employee = require('../model/employee');
-
+const Spu = require('../model/spu')
 const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
 // ================================================== //
@@ -110,9 +110,16 @@ const getCaseBySMNumber = async (req, res) => {
 const getAllSDWs = async (req, res) => {
      try {
           // console.log('Fetching all employees...');
-          const employees = await Employee.find();
+          const employees = await Employee.find({
+            spu_id: { $type: 'objectId' }
+        }).populate('spu_id').lean();
+          
           // console.log('Employees found:', employees);
-          res.json(employees);
+          const simplifiedSDWs = employees.map(sdw => ({
+          ...sdw,
+          spu_id: sdw.spu_id?.spu_name || "", 
+          }));
+          res.json(simplifiedSDWs);
      } catch (error) {
           console.error('Failed to fetch employees:', error);
           res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
@@ -157,13 +164,14 @@ const getAllCasesbySDW = async (req, res) => {
                assigned_sdw: sdwId
           })
                .populate('assigned_sdw')
+               .populate('spu')
                .lean()
 
           const simplifiedCases = allCases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
                sm_number: c.sm_number,
-               spu: c.spu,
+               spu: c.spu.spu_name,
                is_active: c.is_active,
                assigned_sdw: c.assigned_sdw._id,
                assigned_sdw_name: c.assigned_sdw
@@ -188,14 +196,14 @@ const getAllCasesbySDW = async (req, res) => {
 const getAllCases = async (req, res) => {
      try {
           const cases = await Sponsored_Member.find({})
-               .populate('assigned_sdw', 'first_name middle_name last_name') // Only fetch name fields
+               .populate('assigned_sdw', 'spu','first_name middle_name last_name') // Only fetch name fields
                .lean();
 
           const simplifiedCases = cases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
                sm_number: c.sm_number,
-               spu: c.spu,
+               spu: c.spu.spu_name,
                is_active: c.is_active,
                assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
@@ -289,8 +297,16 @@ const reassignSDW = async (req, res) => {
 
 const addNewCase = async (req, res) => {
      const newCaseData = req.body;
-     const sdwId = req.session?.user?._id;
-     const spu_id = req.session?.user?.spu_id;
+     const sessionUser = req.session?.user;
+     const sdwId = sessionUser?._id;
+     const spu_id = sessionUser?.spu_id;
+
+     // Add these logs:
+     console.log("=== [addNewCase] Debug ===");
+     console.log("Session user:", sessionUser);
+     console.log("sdwId:", sdwId);
+     console.log("spu_id:", spu_id);
+     console.log("newCaseData:", newCaseData);
 
      if (!newCaseData) {
           return res.status(400).json({ message: 'Invalid case' });
@@ -303,8 +319,10 @@ const addNewCase = async (req, res) => {
           // First validate the raw data with our assigned_sdw
           const dataToValidate = {
                ...newCaseData,// Convert ObjectId to string for validation
+               assigned_sdw: sdwId,
+               spu: spu_id
           };
-
+          console.log("beforeValidation");
           // Validate BEFORE creating the Mongoose model
           const { error } = caseSchemaValidate.validate(dataToValidate);
           if (error) {
@@ -313,17 +331,15 @@ const addNewCase = async (req, res) => {
                     details: error.details.map(detail => detail.message)
                });
           }
-
+          console.log("survived validation");
           // Only create the Mongoose model after validation passes
           const caseToSave = {
-               ...newCaseData,
-               assigned_sdw: sdwId,
-               spu_id: spu_id
+               ...dataToValidate,
           };
 
           const newCase = new Sponsored_Member(caseToSave);
           const savedCase = await newCase.save();
-
+          console.log(savedCase);
           res.status(201).json({
                message: 'New case created successfully',
                case: savedCase

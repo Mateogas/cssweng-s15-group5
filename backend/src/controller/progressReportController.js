@@ -73,7 +73,7 @@ const getCaseData = async (req, res) => {
         }
 
         // Fetch the case data (assuming a Case model exists)
-        const sm_data = await Sponsored_member.findById(caseId);
+        const sm_data = await Sponsored_member.findById(caseId).populate('spu');
         if (!sm_data) {
             return res.status(404).json({ error: 'Case not found' });
         }

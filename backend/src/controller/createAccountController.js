@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const Employee = require("../model/employee");
-
+const Spu = require('../model/spu')
 /**
  * Creates a new account for an employee.
  * 
@@ -68,10 +68,11 @@ const createAccount = async (req, res) => {
         // }
 
         // Validate the SPU ID
-        const validSPUs = ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'];
-        if (!validSPUs.includes(spu_id)) {
-            return res.status(400).json({ message: "Invalid SPU." });
+        const spu_object = await Spu.findOne({ spu_name: spu_id });
+        if (!spu_object) {
+            return res.status(400).json({ message: "Invalid SPU ID." });
         }
+
 
         // Validate the role
         const validRoles = ['head', 'supervisor', 'sdw'];
@@ -103,7 +104,6 @@ const createAccount = async (req, res) => {
         // Hash the password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        
         // Create the new employee account
         const newEmployee = new Employee({
             // sdw_id,
@@ -112,7 +112,7 @@ const createAccount = async (req, res) => {
             password: hashedPassword,
             email,
             contact_no,
-            spu_id,
+            spu_id : spu_object,
             role,
             manager,
             first_name: req.body.first_name || "",

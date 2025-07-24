@@ -43,13 +43,13 @@ const editAccount = async (req, res) => {
             middle_name 
         } = req.body;
         const loggedInUser = req.session?.user || req.user;
-    
+        
         if (loggedInUser.role !== "Head" && loggedInUser._id !== id) {
             return res.status(403).json({ message: "You don't have permission to edit this account." });
         }
     
 
-        const userToEdit = await Employee.findById(id);
+        const userToEdit = await Employee.findById(id).populate('spu');
         if (!userToEdit) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -86,11 +86,13 @@ const editAccount = async (req, res) => {
         }
 
 
-        if (spu_id && spu_id !== userToEdit.spu_id) {
-            const validSPUs = ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'];
-            if (!validSPUs.includes(spu_id)) {
-                return res.status(400).json({ message: "Invalid SPU." });
+        let spuUpdate = {};
+        if (spu_id) {
+            const spuObject = await Spu.findOne({ spu_name: spu_id });
+            if (!spuObject) {
+                return res.status(400).json({ message: "SPU not found." });
             }
+            spuUpdate = { spu: spuObject._id };
         }
 
 
@@ -115,7 +117,7 @@ const editAccount = async (req, res) => {
             first_name,
             last_name,
             ...(middle_name !== undefined && { middle_name }),
-            ...(spu_id && { spu_id }),
+            ...spuUpdate,
             ...passwordUpdate
         },
         {new: true});
