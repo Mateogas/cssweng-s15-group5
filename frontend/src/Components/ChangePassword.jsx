@@ -39,9 +39,7 @@ export default function ChangePassword({ isOpen, onClose, onChanged, userId }) {
       missing.push("Password must be at least 8 characters");
     }
 
-    if (!formData.confirmPassword) {
-      missing.push("Confirm Password is required");
-    } else if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       missing.push("Passwords do not match");
     }
 

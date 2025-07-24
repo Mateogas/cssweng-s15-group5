@@ -102,6 +102,7 @@ export default function WorkerProfile() {
                 console.log("Fetched worker:", empData);
 
                 setData({
+                    _id: empData._id,
                     first_name: empData.first_name || "",
                     middle_name: empData.middle_name || "",
                     last_name: empData.last_name || "",
@@ -345,6 +346,8 @@ export default function WorkerProfile() {
         }
     };
 
+    console.log("data", data);
+    console.log("user", user);
 
     return (
         <>
@@ -522,7 +525,7 @@ export default function WorkerProfile() {
                                         <option value="">Select SPU</option>
                                         {projectLocation.map((spu) => (
                                             <option key={spu._id} value={spu.spu_name}>
-                                            {spu.spu_name}
+                                                {spu.spu_name}
                                             </option>
                                         ))}
                                     </select>
@@ -739,7 +742,7 @@ export default function WorkerProfile() {
                             </div>
 
                             {handledWorkers.length === 0 ? (
-                                <p className="font-bold-label">No Workers Found</p>
+                                <p className="font-bold-label mx-auto">No Workers Found</p>
                             ) : (
                                 handledWorkers.map((worker) => (
                                     <WorkerEntry
@@ -762,7 +765,7 @@ export default function WorkerProfile() {
                 <div className="flex justify-between">
                     {(user?._id == workerId) && (
                         <button
-                            className="btn-outline font-bold-label drop-shadow-base my-3"
+                            className="btn-outline font-bold-label drop-shadow-base my-3 mr-20"
                             onClick={handleLogout}
                         >
                             Logout
@@ -770,12 +773,21 @@ export default function WorkerProfile() {
                     )}
 
 
-                    {(user?.role == "head" && data.role !== "head" || data.manager == user?._id) && <button
-                        className="btn-outline font-bold-label drop-shadow-base my-3"
-                        onClick={() => setIsChangePasswordOpen(true)}
-                    >
-                        Change Password
-                    </button>}
+                    {user?.role && data?.role && data?._id && (
+                        ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
+                            data.manager === user._id) && (
+                            <button
+                                className="btn-outline font-bold-label drop-shadow-base my-3"
+                                onClick={() => setIsChangePasswordOpen(true)}
+                            >
+                                Change Password
+                            </button>
+                        )
+                    )}
+
+
+
+
 
                     {user?.role == "head" && <button className="ml-auto btn-primary font-bold-label drop-shadow-base my-3">
                         Terminate Worker
