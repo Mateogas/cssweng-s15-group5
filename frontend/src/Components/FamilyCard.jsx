@@ -43,6 +43,7 @@ const FamilyCard = ({
     setModalConfirm,
     setModalOnConfirm,
     editable,
+    activeMember = true
 }) => {
     const isEditing = selectedFamily === index;
 
@@ -189,7 +190,7 @@ const FamilyCard = ({
                     </h3>
                 )}
 
-                {editable == "sdw" && (
+                {activeMember && editable == "sdw" && (
                     <button
                         className={
                             isEditing
@@ -350,7 +351,7 @@ const FamilyCard = ({
                                 {(() => {
                                     const value = member[key];
                                     if (key === "age" || key === "income") {
-                                        console.log("age/income", value);
+                                        {/* console.log("age/income", value); */}
                                         return `: ${!value ? "0" : value || "-"}`;
                                     } else {
                                         return `: ${value || "-"}`;

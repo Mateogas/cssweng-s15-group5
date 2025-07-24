@@ -8,6 +8,7 @@ import ProfileModal from "./ProfileModal";
 export default function SideBar({ user }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+    console.log("sidebar user", user);
     return (
         <>
             <ProfileModal

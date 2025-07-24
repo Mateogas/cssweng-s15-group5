@@ -53,6 +53,7 @@ export const updateEmployeeById = async (employeeId, updatedData) => {
       body: JSON.stringify(updatedData),
     });
 
+    
     const data = await response.json();
 
     return { ok: response.ok, data };

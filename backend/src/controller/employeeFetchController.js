@@ -118,6 +118,11 @@ const editEmployeeCore = async (req, res) => {
       { new: true }
     ).lean();
 
+
+    if (user && user._id.toString() === employeeId) {
+      req.session.user = {_id: employeeId, ...updatedEmployeeData};
+    }
+    
     return res.status(200).json({
       message: 'Employee updated successfully',
       employee: updatedEmployee

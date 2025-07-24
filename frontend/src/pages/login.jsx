@@ -45,9 +45,10 @@ export default function Login() {
 
                 <div className="main-logo main-logo-text-nav flex items-center">
                     <div className="main-logo-setup folder-logo !w-[8rem] !h-[12rem]"></div>
-                    <h1 className="text-[6.5rem]">
-                        SCSR
-                    </h1>
+                    <div className="flex flex-col">
+                        <p className="main-logo-text-nav-sub !text-[2rem] mb-[-1rem]">Unbound Manila Foundation Inc.</p>
+                        <p className="main-logo-text-nav !text-[3rem]">Case Management System</p>
+                    </div>
                 </div>
 
                 <form className="flex flex-col justify-between items-center gap-12 max-w-[40rem] w-full"

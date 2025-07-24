@@ -108,7 +108,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
-                    area:  empData.area || "",
+                    area: empData.area || "",
                     spu_id: empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
@@ -317,6 +317,12 @@ export default function WorkerProfile() {
             setModalConfirm(false);
             setShowModal(true);
             return false;
+        }
+
+        const isSelf = user?._id === workerId;
+        const demotion = data.role === "head" && drafts.role !== "head";
+        if (isSelf && demotion) {
+            return "demotion";
         }
 
         return true;
@@ -575,34 +581,74 @@ export default function WorkerProfile() {
                                 className="btn-transparent-rounded my-3 ml-auto"
                                 onClick={async () => {
                                     const isValid = await checkEmployeeCore();
-                                    if (!isValid) return;
+                                    if (isValid === false) return;
 
                                     const payload = {
                                         ...drafts,
                                         manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
                                     };
-                                    const { ok, data: result } = await updateEmployeeById(workerId, payload);
-                                    if (ok) {
-                                        setModalTitle("Success");
-                                        setModalBody("Worker profile updated successfully!");
-                                        setModalImageCenter(<div className="success-icon mx-auto"></div>);
-                                        setModalConfirm(false);
-                                        setShowModal(true);
 
-                                        const onUpdate = () => {
-                                            setData(result.employee);
-                                            setEditingField(null);
-                                        };
 
-                                        setModalOnConfirm(() => onUpdate);
-                                        setModalOnClose(() => onUpdate);
-                                    }
-                                    else {
-                                        setModalTitle("Error");
-                                        setModalBody(result.message || "Failed to update worker.");
+                                    if (isValid === "demotion") {
+                                        setModalTitle("Role Demotion");
+                                        setModalBody("You are about to change your own role from Head to another role. You will lose access to employee data changing and other head-exclusive privileges. Are you sure you want to proceed?");
                                         setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                        setModalConfirm(false);
+                                        setModalConfirm(true);
+
+                                        setModalOnConfirm(() => async () => {
+                                            const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                            if (ok) {
+                                                setModalTitle("Success");
+                                                setModalBody("Worker profile updated successfully!");
+                                                setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                                setModalConfirm(false);
+                                                setShowModal(true);
+
+                                                const onUpdate = () => {
+                                                    setData(result.employee);
+                                                    setEditingField(null);
+
+                                                    setTimeout(() => window.location.reload(), 500);
+                                                };
+
+                                                setModalOnConfirm(() => onUpdate);
+                                                setModalOnClose(() => onUpdate);
+                                            }
+                                            else {
+                                                setModalTitle("Error");
+                                                setModalBody(result.message || "Failed to update worker.");
+                                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                setModalConfirm(false);
+                                                setShowModal(true);
+                                            }
+                                        });
+                                        setModalOnClose(() => { });
                                         setShowModal(true);
+                                        return;
+                                    } else {
+                                        const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                        if (ok) {
+                                            setModalTitle("Success");
+                                            setModalBody("Worker profile updated successfully!");
+                                            setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+
+                                            const onUpdate = () => {
+                                                setData(result.employee);
+                                                setEditingField(null);
+                                            };
+
+                                            setModalOnConfirm(() => onUpdate);
+                                            setModalOnClose(() => onUpdate);
+                                        }
+                                        else {
+                                            setModalTitle("Error");
+                                            setModalBody(result.message || "Failed to update worker.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+                                        }
                                     }
                                 }}
                             >
@@ -720,14 +766,14 @@ export default function WorkerProfile() {
                     )}
 
 
-                    {(user?.role == "head" || data.manager == user?._id) && <button
+                    {(user?.role == "head" && data.role !== "head" || data.manager == user?._id) && <button
                         className="btn-outline font-bold-label drop-shadow-base my-3"
                         onClick={() => setIsChangePasswordOpen(true)}
                     >
                         Change Password
                     </button>}
 
-                    {user?.role == "head" && <button className="btn-primary font-bold-label drop-shadow-base my-3">
+                    {user?.role == "head" && <button className="ml-auto btn-primary font-bold-label drop-shadow-base my-3">
                         Terminate Worker
                     </button>}
                 </div>

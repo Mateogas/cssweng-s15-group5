@@ -47,8 +47,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                         <HomeLeader />
                 } /> */}
 
-                <Route path="/archive" element={<Archive />} />
-
                 <Route path="/profile/:workerId" element={<WorkerProfile />} />
 
 

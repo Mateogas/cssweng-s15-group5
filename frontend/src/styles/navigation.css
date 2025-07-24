@@ -1,9 +1,15 @@
 /* TOP NAVBAR */
 .main-logo-text-nav {
     font-family: 'ADLaM Display', cursive;
-    font-size: 3rem;
+    font-size: 2rem;
     color: var(--color-primary);
 }
+
+.main-logo-text-nav-sub {
+    @apply font-sans text-[1.6rem];
+    color: var(--color-primary);
+}
+
 
 .main-logo {
   @apply flex gap-4;

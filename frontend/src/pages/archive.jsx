@@ -88,9 +88,12 @@ function Archive() {
     return (
         <>
             <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
-                <a href="/" className="main-logo main-logo-text-nav">
+                <a href="/" className="main-logo">
                     <div className="main-logo-setup folder-logo"></div>
-                    SCSR
+                    <div className="flex flex-col">
+                        <p className="main-logo-text-nav-sub mb-[-1rem]">Unbound Manila Foundation Inc.</p>
+                        <p className="main-logo-text-nav">Case Management System</p>
+                    </div>
                 </a>
 
                 <div className="flex gap-5 items-center bg-purple-100 rounded-full px-8 py-4 w-full max-w-[40rem] font-label">

@@ -1000,7 +1000,7 @@ function CaseFrontend({ creating = false }) {
                         </button>
                     </div>}
 
-                    {(editingField === "all" || editingField === "core-fields") && (
+                    {((editingField === "all" || editingField === "core-fields")) && (
                         <div className="flex items-center justify-between">
                             <h1 className="header-main">Core Details</h1>
                             {!creating && <button
@@ -1080,7 +1080,7 @@ function CaseFrontend({ creating = false }) {
                         <>
                             <div className="flex items-center justify-between">
                                 <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
-                                {<button
+                                {data.is_active && <button
                                     className={
                                         editingField === "core-fields"
                                             ? "icon-button-setup x-button"
@@ -1322,7 +1322,7 @@ function CaseFrontend({ creating = false }) {
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <div className="flex justify-between items-center">
                         <h1 className="header-main">Identifying Data</h1>
-                        {user?.role == "sdw" && !creating && <button
+                        {user?.role == "sdw" && !creating && data.is_active &&  <button
                             className={
                                 editingField === "identifying-fields"
                                     ? "icon-button-setup x-button"
@@ -1555,7 +1555,7 @@ function CaseFrontend({ creating = false }) {
                     {creating && <p className="font-label">Family Composition can be filled out on created cases.</p>}
 
                     {!creating && <>
-                        {user?.role == "sdw" && <button
+                        {data.is_active && user?.role == "sdw" && <button
                             className="btn-primary font-bold-label drop-shadow-base"
                             onClick={handleAddFamilyMember}
                             data-cy='add-family-member'
@@ -1599,6 +1599,7 @@ function CaseFrontend({ creating = false }) {
                                         setModalOnConfirm={setModalOnConfirm}
 
                                         editable={user.role}
+                                        activeMember={data.is_active}
                                     />
                                 ))}
                             </div>
@@ -2087,7 +2088,7 @@ function CaseFrontend({ creating = false }) {
                     Create Case
                 </button>}
 
-                {!creating && 
+                {data.is_active && !creating && 
                     <button 
                         onClick={() =>
                             handleCaseTermination(
@@ -2097,6 +2098,8 @@ function CaseFrontend({ creating = false }) {
                     data-cy='terminate-case'>
                     Terminate Case
                 </button>}
+
+                {!data.is_active && <div className="mb-[5rem]"></div>}
             </main>
         </>
     );

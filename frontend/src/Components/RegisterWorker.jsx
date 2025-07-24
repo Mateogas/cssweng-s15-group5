@@ -114,19 +114,37 @@ export default function RegisterWorker({
   }, [formData.spu_id, socialDevelopmentWorkers]);
 
   function formatListWithAnd(arr) {
-      if (arr.length === 0) return "";
-      if (arr.length === 1) return arr[0];
-      if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
-      const last = arr[arr.length - 1];
-      return `${arr.slice(0, -1).join(", ")}, and ${last}`;
+    if (arr.length === 0) return "";
+    if (arr.length === 1) return arr[0];
+    if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+    const last = arr[arr.length - 1];
+    return `${arr.slice(0, -1).join(", ")}, and ${last}`;
   }
-  
+
   const checkRegisterWorker = async () => {
     const missing = [];
 
-    if (!formData.first_name || /\d/.test(formData.first_name)) missing.push("First Name");
-    // if (!formData.middle_name || /\d/.test(formData.middle_name)) missing.push("Middle Name");
-    if (!formData.last_name || /\d/.test(formData.last_name)) missing.push("Last Name");
+        if (!formData.first_name || formData.first_name.trim() === "") {
+            missing.push("First Name");
+        } else if (/\d/.test(formData.first_name)) {
+            missing.push("First Name must not contain numbers");
+        }
+
+        // if (!formData.middle_name || formData.middle_name.trim() === "") {
+        //     missing.push("Middle Name");
+        // } else 
+
+        if (/\d/.test(formData.middle_name)) {
+            missing.push("Middle Name must not contain numbers");
+        }
+
+        if (!formData.last_name || formData.last_name.trim() === "") {
+            missing.push("Last Name");
+        } else if (/\d/.test(formData.last_name)) {
+            missing.push("Last Name must not contain numbers");
+        }
+
+
     if (!formData.username) {
       missing.push("Username")
     } else {
@@ -310,43 +328,43 @@ export default function RegisterWorker({
                 </div>
 
                 <div className='flex gap-3'>
-                <div className="flex flex-col gap-2 w-full">
-                  <p className="font-bold-label">Password</p>
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="text-input font-label"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 w-full">
-                  <p className="font-bold-label">Confirm Password</p>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="text-input font-label"
-                  />
-                </div>
-
-                </div>
-
-                <div className="flex flex-col gap-2 w-full">
-                    <p className="font-bold-label">Area of Assignment</p>
+                  <div className="flex flex-col gap-2 w-full">
+                    <p className="font-bold-label">Password</p>
                     <input
-                      type="text"
-                      name="area"
-                      placeholder="Area of Assignment"
-                      value={formData.area}
+                      type="password"
+                      name="password"
+                      placeholder="Password"
+                      value={formData.password}
                       onChange={handleChange}
                       className="text-input font-label"
                     />
                   </div>
+
+                  <div className="flex flex-col gap-2 w-full">
+                    <p className="font-bold-label">Confirm Password</p>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      placeholder="Confirm Password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="text-input font-label"
+                    />
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="font-bold-label">Area of Assignment</p>
+                  <input
+                    type="text"
+                    name="area"
+                    placeholder="Area of Assignment"
+                    value={formData.area}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
 
                 <div className='flex gap-3'>
                   <div className="flex flex-col gap-2 w-full">
