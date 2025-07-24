@@ -11,6 +11,7 @@ import { logoutUser } from "../fetch-connections/account-connection";
 import ChangePassword from "../Components/ChangePassword";
 import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
 import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connections/account-connection";
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
@@ -74,16 +75,7 @@ export default function WorkerProfile() {
 
     const [editingField, setEditingField] = useState(null);
 
-    const projectLocation = [
-        { name: "AMP", projectCode: "AMP" },
-        { name: "FDQ", projectCode: "FDQ" },
-        { name: "MPH", projectCode: "MPH" },
-        { name: "MS", projectCode: "MS" },
-        { name: "AP", projectCode: "AP" },
-        { name: "AV", projectCode: "AV" },
-        { name: "MM", projectCode: "MM" },
-        { name: "MMP", projectCode: "MMP" },
-    ];
+    const [projectLocation, setProjectLocation] = useState([])
 
     useEffect(() => {
         const loadSDWs = async () => {
@@ -91,6 +83,13 @@ export default function WorkerProfile() {
             setSocialDevelopmentWorkers(sdws);
         };
         loadSDWs();
+
+        const loadSPUs = async () => {
+            const spus = await fetchAllSpus();
+            setProjectLocation(spus);
+        };
+
+        loadSPUs();
     }, []);
 
     useEffect(() => {
@@ -111,7 +110,7 @@ export default function WorkerProfile() {
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id || "",
+                    spu_id: empData.spu_id.spu_name || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
@@ -125,7 +124,7 @@ export default function WorkerProfile() {
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id || "",
+                    spu_id: empData.spu_id.spu_name || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
@@ -135,7 +134,10 @@ export default function WorkerProfile() {
         };
 
         loadWorker();
+
+        console.log("drafts", drafts);
     }, [workerId]);
+
 
     useEffect(() => {
         const filtered = socialDevelopmentWorkers.filter(
@@ -518,9 +520,9 @@ export default function WorkerProfile() {
                                         }
                                     >
                                         <option value="">Select SPU</option>
-                                        {projectLocation.map((project) => (
-                                            <option key={project.projectCode} value={project.projectCode}>
-                                                {project.name} ({project.projectCode})
+                                        {projectLocation.map((spu) => (
+                                            <option key={spu._id} value={spu.spu_name}>
+                                            {spu.spu_name}
                                             </option>
                                         ))}
                                     </select>
@@ -675,7 +677,7 @@ export default function WorkerProfile() {
                                 <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
 
                                 {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
-                                <p><span className="font-bold-label">SPU Project:</span> {data.spu_name || "-"}</p>
+                                <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
                                 <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
 
                                 {(data.role === "" || data.role === "sdw") && (
@@ -708,7 +710,7 @@ export default function WorkerProfile() {
                             </div>
 
                             {handledClients.length === 0 ? (
-                                <p className="font-bold-label">No Clients Found</p>
+                                <p className="font-bold-label mx-auto">No Clients Found</p>
                             ) : (
                                 handledClients.map((client) => (
                                     <ClientEntry

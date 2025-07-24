@@ -85,6 +85,9 @@ function HomeLeader() {
     setCurrentData(filtered);
   }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
 
+  console.log(projectLocation);
+  console.log(allData);
+
   return (
     <>
       <RegisterWorker
@@ -193,11 +196,7 @@ function HomeLeader() {
                   // sdw_id={worker.sdw_id}
                   name={worker.name}
                   role={worker.role}
-                  spu_id={
-                    projectLocation.find(
-                      (spu) => spu.projectCode === worker.spu_id
-                    )?.name || "Unassigned"
-                  }
+                  spu_id={worker.spu_id}
                 />
               ))
             )}

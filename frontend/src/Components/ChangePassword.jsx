@@ -11,7 +11,7 @@ export default function ChangePassword({ isOpen, onClose, onChanged, userId }) {
   const [modalConfirm, setModalConfirm] = useState(false);
   const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
 
-  console.log("USERID", userId);
+  // console.log("USERID", userId);
 
   const [formData, setFormData] = useState({
     password: '',

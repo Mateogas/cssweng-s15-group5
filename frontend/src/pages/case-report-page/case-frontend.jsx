@@ -9,6 +9,8 @@ import NavLabelButton from '../../components/NavLabelButton';
 import { fetchSession } from "../../fetch-connections/account-connection";
 import { createNewCase } from "../../fetch-connections/case-connection";
 
+import { fetchAllSpus } from "../../fetch-connections/spu-connection";
+
 // API Imports
 import {
     fetchCaseData,
@@ -81,7 +83,7 @@ function CaseFrontend({ creating = false }) {
         assessment: "",
         assigned_sdw: "",
         spu: "",
-        classifications: []
+        classifications: ""
     });
 
     const [familyMembers, setFamilyMembers] = useState([]);
@@ -105,7 +107,7 @@ function CaseFrontend({ creating = false }) {
                 sm_number: fetchedData.sm_number || "",
                 spu: fetchedData.spu || "",
                 assigned_sdw: fetchedData.assigned_sdw._id || "",
-                classifications: fetchedData.classifications || [],
+                classifications: fetchedData.classifications || "",
 
                 dob: fetchedData.dob || "",
                 civil_status: fetchedData.civil_status || "",
@@ -141,37 +143,7 @@ function CaseFrontend({ creating = false }) {
         loadFamilyData();
     }, [clientId]);
 
-    const [projectLocation, setProjectLocation] = useState([
-        {
-            name: "AMP",
-            projectCode: "AMP",
-        },
-        {
-            name: "FDQ",
-            projectCode: "FDQ",
-        },
-        {
-            name: "MPH",
-            projectCode: "MPH",
-        },
-        {
-            name: "MS",
-            projectCode: "MS",
-        },
-        {
-            name: "AP",
-            projectCode: "AV",
-        },
-        {
-            name: "MM",
-            projectCode: "MM",
-        },
-        {
-            name: "MMP",
-            projectCode: "MMP",
-        },
-    ]);
-
+    const [projectLocation, setProjectLocation] = useState([])
     const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
 
     useEffect(() => {
@@ -180,6 +152,13 @@ function CaseFrontend({ creating = false }) {
             setSocialDevelopmentWorkers(sdws);
 
             // console.log("LOADING SDW", sdws);
+
+            const loadSPUs = async () => {
+                const spus = await fetchAllSpus();
+                setProjectLocation(spus);
+            };
+
+            loadSPUs();
         };
         loadSDWs();
     }, []);
@@ -199,7 +178,7 @@ function CaseFrontend({ creating = false }) {
         sm_number: data.sm_number || "",
         spu: data.spu || "",
         assigned_sdw: data.assigned_sdw || "",
-        classifications: data.classifications || [],
+        classifications: data.classifications || "",
         is_active: data.is_active || "",
 
         dob: data.dob || "",
@@ -230,8 +209,8 @@ function CaseFrontend({ creating = false }) {
             last_name: data.last_name || "",
             sm_number: data.sm_number || "",
             spu: data.spu || "",
-            assigned_sdw: data.assigned_sdw._id || "",
-            classifications: data.classifications || [],
+            assigned_sdw: data.assigned_sdw || "",
+            classifications: data.classifications || "",
 
             dob: data.dob || "",
             civil_status: data.civil_status || "",
@@ -285,16 +264,35 @@ function CaseFrontend({ creating = false }) {
             setUser(currentUser);
             console.log("Session:", currentUser);
 
-            if (creating && currentUser) {
-                setDrafts(prev => ({
-                    ...prev,
-                    spu: currentUser.spu_name || "",
-                    assigned_sdw: currentUser._id || "",
-                }));
-            }
         };
         loadSession();
     }, [creating]);
+
+    useEffect(() => {
+        if (
+            creating &&
+            user &&
+            projectLocation.length > 0 &&
+            socialDevelopmentWorkers.length > 0
+        ) {
+            const matchSPU = projectLocation.find(p => p._id === user.spu_id);
+            const validSDW = socialDevelopmentWorkers.find(
+                sdw =>
+                    (sdw.id === user._id || sdw._id === user._id) && // use either id or _id for safety
+                    sdw.spu_id === matchSPU?.spu_name &&
+                    sdw.role === "sdw"
+            );
+
+            if (matchSPU && validSDW) {
+                setDrafts(prev => ({
+                    ...prev,
+                    spu: matchSPU._id,
+                    assigned_sdw: validSDW.id,
+                }));
+            }
+        }
+    }, [creating, user, projectLocation, socialDevelopmentWorkers]);
+
 
     //console.log(drafts);
 
@@ -417,13 +415,22 @@ function CaseFrontend({ creating = false }) {
         if (!drafts.spu) missing.push("SPU Project");
         if (!drafts.assigned_sdw) missing.push("Social Development Worker");
 
+        if (drafts.classifications === "") {
+            missing.push("Classification");
+        }
+
+        const selectedSPUName = projectLocation.find(
+            (spu) => spu._id === drafts.spu
+        )?.spu_name;
+
         const validSDWIds = socialDevelopmentWorkers
-            .filter((sdw) => sdw.spu_id === drafts.spu)
+            .filter((sdw) => sdw.spu_id === selectedSPUName && sdw.role === "sdw")
             .map((sdw) => sdw.id);
 
         if (drafts.assigned_sdw && !validSDWIds.includes(drafts.assigned_sdw)) {
             missing.push("valid Social Development Worker for selected SPU");
         }
+
 
 
         if (missing.length > 0) {
@@ -439,7 +446,7 @@ function CaseFrontend({ creating = false }) {
     };
 
 
-      const checkProblems = async () => {
+    const checkProblems = async () => {
         const missing = [];
 
         if (!drafts.problem_presented || drafts.problem_presented.trim() === "") {
@@ -854,7 +861,7 @@ function CaseFrontend({ creating = false }) {
             return;
         }
 
-            const evaluationsValid = await checkEvaluations();
+        const evaluationsValid = await checkEvaluations();
 
         if (!evaluationsValid) {
             setModalOnConfirm(() => () => {
@@ -894,6 +901,11 @@ function CaseFrontend({ creating = false }) {
         });
         setShowModal(true);
     };
+
+    console.log("proj loc", projectLocation);
+    console.log("data", data);
+    console.log("drafts", drafts);
+    console.log("socialDevelopmentWorkers", socialDevelopmentWorkers);
 
     return (
         <>
@@ -1039,7 +1051,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label">Middle Name</label>
                                     <input
-                                    disabled={!creating}
+                                        disabled={!creating}
                                         type="text"
                                         value={drafts.middle_name}
                                         placeholder='Middle Name'
@@ -1052,7 +1064,7 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex flex-col gap-5 w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
                                     <input
-                                    disabled={!creating}
+                                        disabled={!creating}
                                         type="text"
                                         value={drafts.last_name}
                                         placeholder='Last Name'
@@ -1066,7 +1078,7 @@ function CaseFrontend({ creating = false }) {
                             <div className="flex flex-col gap-5 w-full">
                                 <label className="font-bold-label"><span className='text-red-500'>*</span> CH Number</label>
                                 <input
-                                disabled={!creating}
+                                    disabled={!creating}
                                     type="text"
                                     value={drafts.sm_number}
                                     placeholder='CH Number'
@@ -1119,13 +1131,9 @@ function CaseFrontend({ creating = false }) {
                                         data-cy='spu'
                                     >
                                         <option value="">Select SPU</option>
-                                        {projectLocation.map((project) => (
-                                            <option
-                                                key={project.projectCode}
-                                                value={project.projectCode}
-                                            >
-                                                {project.name} (
-                                                {project.projectCode})
+                                        {projectLocation.map((spu) => (
+                                            <option key={spu._id} value={spu._id}>
+                                                {spu.spu_name}
                                             </option>
                                         ))}
                                     </select>
@@ -1136,8 +1144,8 @@ function CaseFrontend({ creating = false }) {
                                         SPU Project:
                                     </span>{" "}
                                     {projectLocation.find(
-                                        (p) => p.projectCode === data.spu,
-                                    )?.name || "-"}
+                                        (p) => p._id === data.spu,
+                                    )?.spu_name || "-"}
                                 </p>
                             )}
                         </div>
@@ -1155,20 +1163,25 @@ function CaseFrontend({ creating = false }) {
                                             setDrafts((prev) => ({
                                                 ...prev,
                                                 assigned_sdw: e.target.value,
-                                            }))
-                                        }
-                                        }
+                                            }));
+                                        }}
                                         data-cy="assigned-sdw"
                                     >
                                         <option value="">Select SDW</option>
                                         {socialDevelopmentWorkers
-                                            .filter((sdw) => sdw.spu_id === drafts.spu)
+                                            .filter((sdw) => {
+                                                const selectedSPUName = projectLocation.find(
+                                                    (spu) => spu._id === drafts.spu
+                                                )?.spu_name;
+                                                return sdw.spu_id === selectedSPUName && sdw.role === "sdw";
+                                            })
                                             .map((sdw) => (
                                                 <option key={sdw.id} value={sdw.id}>
-                                                    {sdw.username} ({sdw.sdw_id})
+                                                    {sdw.username}
                                                 </option>
                                             ))}
                                     </select>
+
 
                                 </>
                             ) : (
@@ -1186,17 +1199,26 @@ function CaseFrontend({ creating = false }) {
                     </div>
 
                     <div className='flex flex-col w-full'>
-                        <label className="font-bold-label mb-2">Classifications</label>
-                        {(editingField === "all" || editingField === "core-fields") ? (
+                        <label className="font-bold-label mb-2">
+                            {(editingField === "all" || editingField === "core-fields") && (
+                                <span className="text-red-500">* </span>
+                            )}
+                            Classification
+                            {!(editingField === "all" || editingField === "core-fields") && (
+                                <>: {data.classifications}</>
+                            )}
+                        </label>
+                        {(editingField === "all" || editingField === "core-fields") && (
                             <>
-                                <div className="flex w-full max-w-[65rem] items-center self-start">
+                                <div className="flex w-full max-w-[50rem] items-center self-start">
                                     <select
                                         className="text-input font-label"
-                                        value={selectedClassification}
+                                        value={drafts.classifications}
                                         onChange={(e) =>
-                                            setSelectedClassification(
-                                                e.target.value,
-                                            )
+                                            setDrafts((prev) => ({
+                                                ...prev,
+                                                classifications: e.target.value,
+                                            }))
                                         }
                                     >
                                         <option value="">
@@ -1208,72 +1230,8 @@ function CaseFrontend({ creating = false }) {
                                             </option>
                                         ))}
                                     </select>
-                                    <button
-                                        type="button"
-                                        className="btn-primary font-bold-label ml-5 !h-[4.5rem] !w-[4.5rem]"
-                                        onClick={() => {
-                                            if (
-                                                selectedClassification &&
-                                                !drafts.classifications.includes(
-                                                    selectedClassification,
-                                                )
-                                            ) {
-                                                setDrafts((prev) => ({
-                                                    ...prev,
-                                                    classifications: [
-                                                        ...prev.classifications,
-                                                        selectedClassification,
-                                                    ],
-                                                }));
-                                                setSelectedClassification("");
-                                            }
-                                        }}
-                                    >
-                                        +
-                                    </button>
-                                </div>
-
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    {drafts.classifications.map((item) => (
-                                        <div
-                                            key={item}
-                                            className="flex items-center gap-2 rounded-full bg-gray-200 px-3 py-1"
-                                        >
-                                            <span className="font-label">
-                                                {item}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                className="font-bold text-red-500"
-                                                onClick={() => {
-                                                    setDrafts((prev) => ({
-                                                        ...prev,
-                                                        classifications:
-                                                            prev.classifications.filter(
-                                                                (c) =>
-                                                                    c !== item,
-                                                            ),
-                                                    }));
-                                                }}
-                                                data-cy='cancel-core-details-section'
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    ))}
                                 </div>
                             </>
-                        ) : (
-                            <div className="flex flex-wrap gap-2">
-                                {data.classifications.map((item) => (
-                                    <span
-                                        key={item}
-                                        className="font-label rounded-full bg-gray-200 px-3 py-1"
-                                    >
-                                        {item}
-                                    </span>
-                                ))}
-                            </div>
                         )}
                     </div>
 
@@ -1299,7 +1257,7 @@ function CaseFrontend({ creating = false }) {
                                         sm_number: updated.sm_number || drafts.sm_number,
                                         spu: updated.spu || drafts.spu,
                                         assigned_sdw: updated.assigned_sdw || drafts.assigned_sdw,
-                                        classifications: updated.classifications || drafts.classifications || [],
+                                        classifications: updated.classifications || drafts.classifications,
                                     }));
 
                                     setEditingField(null);
@@ -1322,7 +1280,7 @@ function CaseFrontend({ creating = false }) {
                 <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                     <div className="flex justify-between items-center">
                         <h1 className="header-main">Identifying Data</h1>
-                        {user?.role == "sdw" && !creating && data.is_active &&  <button
+                        {user?.role == "sdw" && !creating && data.is_active && <button
                             className={
                                 editingField === "identifying-fields"
                                     ? "icon-button-setup x-button"
@@ -2088,16 +2046,16 @@ function CaseFrontend({ creating = false }) {
                     Create Case
                 </button>}
 
-                {data.is_active && !creating && 
-                    <button 
+                {data.is_active && !creating &&
+                    <button
                         onClick={() =>
                             handleCaseTermination(
                                 clientId
-                            )} 
+                            )}
                         className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
-                    data-cy='terminate-case'>
-                    Terminate Case
-                </button>}
+                        data-cy='terminate-case'>
+                        Terminate Case
+                    </button>}
 
                 {!data.is_active && <div className="mb-[5rem]"></div>}
             </main>

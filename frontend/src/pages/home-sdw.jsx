@@ -10,6 +10,8 @@ import {
   fetchHeadView,
 } from "../fetch-connections/account-connection";
 
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
+
 import { useNavigate } from "react-router-dom";
 
 function HomeSDW() {
@@ -23,17 +25,7 @@ function HomeSDW() {
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const projectLocation = [
-    { name: "AMP", projectCode: "AMP" },
-    { name: "FDQ", projectCode: "FDQ" },
-    { name: "MPH", projectCode: "MPH" },
-    { name: "MS", projectCode: "MS" },
-    { name: "AP", projectCode: "AP" },
-    { name: "AV", projectCode: "AV" },
-    { name: "MM", projectCode: "MM" },
-    { name: "MMP", projectCode: "MMP" },
-  ];
+  const [projectLocation, setProjectLocation] = useState([])
 
   useEffect(() => {
     const loadSession = async () => {
@@ -42,6 +34,14 @@ function HomeSDW() {
       setUser(sessionData?.user || null);
     };
     loadSession();
+
+    const loadSPUs = async () => {
+      const spus = await fetchAllSpus();
+      setProjectLocation(spus);
+    };
+
+    loadSPUs();
+
   }, []);
 
   useEffect(() => {
@@ -168,9 +168,9 @@ function HomeSDW() {
                     onChange={(e) => setCurrentSPU(e.target.value)}
                   >
                     <option value="">Select SPU</option>
-                    {projectLocation.map((project) => (
-                      <option key={project.projectCode} value={project.projectCode}>
-                        {project.name} ({project.projectCode})
+                    {projectLocation.map((spu) => (
+                      <option key={spu._id} value={spu.spu_name}>
+                        {spu.spu_name}
                       </option>
                     ))}
                   </select>

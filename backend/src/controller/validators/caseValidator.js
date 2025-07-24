@@ -75,7 +75,7 @@ const caseSchemaValidate = Joi.object({
   evaluation: Joi.string().empty('').allow(null).optional(),
   assessment: Joi.string().empty('').allow(null).optional(),
 
-  classifications: Joi.array().items(Joi.string()).allow(null).default([]).optional(),
+  classifications: Joi.string().empty('').allow(null).optional(),
 });
 /*
 //THIS IS FOR CORE ONLY
@@ -100,7 +100,7 @@ const caseCoreValidate = Joi.object({
     'any.required': 'SPU is required'
   }),
   is_active: Joi.boolean().required(),
-  classifications: Joi.array().items(Joi.string()).optional(),
+  classifications: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
     assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
     .messages({
       'string.pattern.base': 'assigned_sdw must be a valid ObjectId'
