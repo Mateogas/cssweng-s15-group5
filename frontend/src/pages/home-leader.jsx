@@ -8,6 +8,8 @@ import {
   fetchSession
 } from "../fetch-connections/account-connection";
 
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
+
 function HomeLeader() {
   const [allData, setAllData] = useState([]);
   const [currentData, setCurrentData] = useState([]);
@@ -18,17 +20,7 @@ function HomeLeader() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
 
-  const projectLocation = [
-    { name: "AMP", projectCode: "AMP" },
-    { name: "FDQ", projectCode: "FDQ" },
-    { name: "MPH", projectCode: "MPH" },
-    { name: "MS", projectCode: "MS" },
-    { name: "AP", projectCode: "AP" },
-    { name: "AV", projectCode: "AV" },
-    { name: "MM", projectCode: "MM" },
-    { name: "MMP", projectCode: "MMP" },
-  ];
-
+  const [projectLocation, setProjectLocation] = useState([])
   useEffect(() => {
     const loadUserAndEmployees = async () => {
       const sessionData = await fetchSession();
@@ -52,6 +44,13 @@ function HomeLeader() {
       console.log("Fetched employees:", employees);
       setAllData(employees);
     };
+
+    const loadSPUs = async () => {
+      const spus = await fetchAllSpus();
+      setProjectLocation(spus);
+    };
+
+    loadSPUs();
 
     loadUserAndEmployees();
   }, [currentSPU, isRegisterOpen]);
@@ -94,7 +93,6 @@ function HomeLeader() {
         onRegister={(newWorker) => {
           console.log("New worker added:", newWorker);
         }}
-        projectLocations={projectLocation}
       />
 
       <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
@@ -121,7 +119,7 @@ function HomeLeader() {
       <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
         <SideBar user={user} />
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">{user?.role == "supervisor" ? user.spu_name : "Teams"} Teams</h1>
+          <h1 className="header-main">{user?.role == "supervisor" ? user.spu_name : "Teams"}</h1>
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
@@ -133,8 +131,8 @@ function HomeLeader() {
                   >
                     <option value="">Select SPU</option>
                     {projectLocation.map((spu) => (
-                      <option key={spu.projectCode} value={spu.projectCode}>
-                        {spu.name} ({spu.projectCode})
+                      <option key={spu._id} value={spu._id}>
+                        {spu.spu_name}
                       </option>
                     ))}
                   </select>

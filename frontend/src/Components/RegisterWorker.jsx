@@ -4,12 +4,12 @@ import { fetchSDWs } from '../fetch-connections/case-connection';
 import SimpleModal from './SimpleModal';
 import { createAccount } from '../fetch-connections/account-connection';
 import { fetchEmployeeByUsername } from '../fetch-connections/account-connection';
+import { fetchAllSpus } from '../fetch-connections/spu-connection';
 
 export default function RegisterWorker({
   isOpen,
   onClose,
   onRegister,
-  projectLocations = [],
 }) {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -36,6 +36,18 @@ export default function RegisterWorker({
 
   const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
   const [supervisors, setSupervisors] = useState([]);
+  const [projectLocations, setProjectLocations] = useState([])
+
+  //   const projectLocations = [
+  //   { name: "AMP", projectCode: "AMP" },
+  //   { name: "FDQ", projectCode: "FDQ" },
+  //   { name: "MPH", projectCode: "MPH" },
+  //   { name: "MS", projectCode: "MS" },
+  //   { name: "AP", projectCode: "AP" },
+  //   { name: "AV", projectCode: "AV" },
+  //   { name: "MM", projectCode: "MM" },
+  //   { name: "MMP", projectCode: "MMP" },
+  // ];
 
   useEffect(() => {
     if (!isOpen) {
@@ -62,7 +74,16 @@ export default function RegisterWorker({
       const sdws = await fetchSDWs();
       setSocialDevelopmentWorkers(sdws);
     };
+
     loadSDWs();
+
+    const loadSPUs = async () => {
+      const spus = await fetchAllSpus();
+      setProjectLocations(spus);
+    };
+
+    loadSPUs();
+
   }, [isOpen]);
 
   const handleChange = (e) => {
@@ -403,8 +424,8 @@ export default function RegisterWorker({
                     >
                       <option value="">Select SPU</option>
                       {projectLocations.map((spu) => (
-                        <option key={spu.projectCode} value={spu.projectCode}>
-                          {spu.name} ({spu.projectCode})
+                        <option key={spu._id} value={spu.spu_name}>
+                          {spu.spu_name}
                         </option>
                       ))}
                     </select>
