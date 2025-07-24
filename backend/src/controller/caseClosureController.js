@@ -15,58 +15,58 @@ const Employee = require('../model/employee');
  *   @returns  if form does not exist, case object
  *             if form exists, case object AND form object
  */
-const loadCaseClosureForm = async(req, res) => {
-     try {
-          const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-          if (!caseSelected)
-               return res.status(404).json({ message: "Sponsored member not found" });
+// const loadCaseClosureForm = async(req, res) => {
+//      try {
+//           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
+//           if (!caseSelected)
+//                return res.status(404).json({ message: "Sponsored member not found" });
 
-          // assuming sessions is already set up
-          const active_user = req.session.user
-          // const active_user = await Employee.findById("68732fa1c9de746d02ac3755") 
-          if (!active_user)
-               return res.status(403).json({ message: "Unauthorized access." })
+//           // assuming sessions is already set up
+//           const active_user = req.session.user
+//           // const active_user = await Employee.findById("68732fa1c9de746d02ac3755") 
+//           if (!active_user)
+//                return res.status(403).json({ message: "Unauthorized access." })
 
-          // check if it is the appropriate supervisor or head
-          const handler = await Employee.findById(caseSelected.assigned_sdw)
-          var supervisor
-          if (active_user.role === "head") {
-               // no restrictions
-          }
-          else if (active_user.role == "super" || active_user.role == "supervisor") {
-               if (handler.role === "sdw") {
-                    supervisor = await Employee.findById(handler.manager);
-                    if (!supervisor || !supervisor._id.equals(active_user._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-               } else if (handler.role === "super" || handler.role === "supervisor") {
-                    if (!handler._id.equals(active_user._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-               } else if (handler.role === "head") {
-                    if (!active_user.manager || !active_user.manager.equals(handler._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-               }
-          } 
-          else if (active_user.role === "sdw") {
-               if (!handler._id.equals(active_user._id)) {
-                    return res.status(403).json({ message: "Unauthorized access." });
-               }
-          }
-          else {
-               return res.status(403).json({ message: "Unauthorized access." });
-          }
+//           // check if it is the appropriate supervisor or head
+//           const handler = await Employee.findById(caseSelected.assigned_sdw)
+//           var supervisor
+//           if (active_user.role === "head") {
+//                // no restrictions
+//           }
+//           else if (active_user.role == "super" || active_user.role == "supervisor") {
+//                if (handler.role === "sdw") {
+//                     supervisor = await Employee.findById(handler.manager);
+//                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
+//                          return res.status(403).json({ message: "Unauthorized access." });
+//                     }
+//                } else if (handler.role === "super" || handler.role === "supervisor") {
+//                     if (!handler._id.equals(active_user._id)) {
+//                          return res.status(403).json({ message: "Unauthorized access." });
+//                     }
+//                } else if (handler.role === "head") {
+//                     if (!active_user.manager || !active_user.manager.equals(handler._id)) {
+//                          return res.status(403).json({ message: "Unauthorized access." });
+//                     }
+//                }
+//           } 
+//           else if (active_user.role === "sdw") {
+//                if (!handler._id.equals(active_user._id)) {
+//                     return res.status(403).json({ message: "Unauthorized access." });
+//                }
+//           }
+//           else {
+//                return res.status(403).json({ message: "Unauthorized access." });
+//           }
 
-          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
-          if (formSelected)
-                return res.status(200).json({form: formSelected, case: caseSelected})
+//           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+//           if (formSelected)
+//                 return res.status(200).json({form: formSelected, case: caseSelected})
 
-          return res.status(200).json(caseSelected)
-     } catch(error) {
+//           return res.status(200).json(caseSelected)
+//      } catch(error) {
 
-     }
-} 
+//      }
+// } 
 
 /**
  *   Fetches the case closure form of the sponsored member
