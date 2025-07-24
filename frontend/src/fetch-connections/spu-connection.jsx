@@ -27,15 +27,35 @@ export const createSpu = async (spu_name) => {
 };
 
 // Delete an SPU by ID
+// export const deleteSpu = async (spuId) => {
+//     try {
+//         const response = await fetch(`/api/spu/deleteSpu/${spuId}`, {
+//             method: 'DELETE',
+//         });
+//         if (!response.ok) throw new Error("Failed to delete SPU");
+//         return await response.json();
+//     } catch (error) {
+//         console.error("Error deleting SPU:", error);
+//         return null;
+//     }
+// };
+
 export const deleteSpu = async (spuId) => {
     try {
-        const response = await fetch(`/api/spu/deleteSpu/${spuId}`, {
-            method: 'DELETE',
+        const res = await fetch(`/api/spu/deleteSpu/${spuId}`, {
+            method: "DELETE",
         });
-        if (!response.ok) throw new Error("Failed to delete SPU");
-        return await response.json();
+        const data = await res.json();
+
+        return {
+            ok: res.ok,
+            ...data,
+        };
     } catch (error) {
-        console.error("Error deleting SPU:", error);
-        return null;
+        console.error("Delete SPU failed:", error);
+        return {
+            ok: false,
+            error: "Network error or server unreachable.",
+        };
     }
 };

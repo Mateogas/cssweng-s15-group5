@@ -42,8 +42,6 @@ export default function WorkerEntry({
   let bgColor = getColorFromId(name);
   let textColor = getTextColorForBackground(bgColor);
 
-  console.log("found spu_id", spu_id);
-
   return (
     <a
       href={`/profile/${id}`}
