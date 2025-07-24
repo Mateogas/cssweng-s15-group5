@@ -240,9 +240,7 @@ export default function SpuPage() {
                                                     )}
                                                 </div>
 
-                                                <motion.div variants={containerVariants}
-                                                    initial="hidden"
-                                                    animate="show">
+                                                <mdiv>
                                                     <h3 className="font-bold-label mb-2">Cases:</h3>
                                                     {spuCases.length === 0 ? (
                                                         <p className="font-label">No cases recorded.</p>
@@ -265,7 +263,7 @@ export default function SpuPage() {
                                                             ))}
                                                         </>
                                                     )}
-                                                </motion.div>
+                                                </mdiv>
 
                                                 <div className="flex justify-end mt-6">
                                                     <button
