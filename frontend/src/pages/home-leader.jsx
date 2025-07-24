@@ -131,7 +131,7 @@ function HomeLeader() {
                   >
                     <option value="">Select SPU</option>
                     {projectLocation.map((spu) => (
-                      <option key={spu._id} value={spu._id}>
+                      <option key={spu._id} value={spu.spu_name}>
                         {spu.spu_name}
                       </option>
                     ))}
