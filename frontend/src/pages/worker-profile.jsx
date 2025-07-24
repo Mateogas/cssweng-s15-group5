@@ -12,6 +12,7 @@ import ChangePassword from "../Components/ChangePassword";
 import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
 import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connections/account-connection";
 import { fetchAllSpus } from "../fetch-connections/spu-connection";
+import NotFound from "./NotFound";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
@@ -32,16 +33,7 @@ export default function WorkerProfile() {
 
     const [user, setUser] = useState(null);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-
-    useEffect(() => {
-        const loadSession = async () => {
-            const sessionData = await fetchSession();
-            setUser(sessionData?.user || null);
-            console.log("Session:", sessionData?.user);
-        };
-
-        loadSession();
-    }, []);
+    const [loading, setLoading] = useState(true);
 
     const [data, setData] = useState({
         first_name: "",
@@ -76,25 +68,14 @@ export default function WorkerProfile() {
     const [editingField, setEditingField] = useState(null);
 
     const [projectLocation, setProjectLocation] = useState([])
-
-    useEffect(() => {
-        const loadSDWs = async () => {
-            const sdws = await fetchSDWs();
-            setSocialDevelopmentWorkers(sdws);
-        };
-        loadSDWs();
-
-        const loadSPUs = async () => {
-            const spus = await fetchAllSpus();
-            setProjectLocation(spus);
-        };
-
-        loadSPUs();
-    }, []);
+    const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
         const loadWorker = async () => {
-            if (!workerId) return;
+            if (!workerId) {
+                setLoading(false);
+                return;
+            };
 
             const { ok, data: empData } = await fetchEmployeeById(workerId);
 
@@ -129,16 +110,43 @@ export default function WorkerProfile() {
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
+                setLoading(false);
             } else {
-                console.error("Failed to fetch worker:", empData.message);
+                setNotFound(true);
+                setLoading(false);
+                return;
             }
         };
 
         loadWorker();
 
-        console.log("drafts", drafts);
+        // console.log("drafts", drafts);
     }, [workerId]);
 
+    useEffect(() => {
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            setUser(sessionData?.user || null);
+            console.log("Session:", sessionData?.user);
+        };
+
+        loadSession();
+    }, []);
+
+    useEffect(() => {
+        const loadSDWs = async () => {
+            const sdws = await fetchSDWs();
+            setSocialDevelopmentWorkers(sdws);
+        };
+        loadSDWs();
+
+        const loadSPUs = async () => {
+            const spus = await fetchAllSpus();
+            setProjectLocation(spus);
+        };
+
+        loadSPUs();
+    }, []);
 
     useEffect(() => {
         const filtered = socialDevelopmentWorkers.filter(
@@ -171,16 +179,6 @@ export default function WorkerProfile() {
 
         loadHandled();
     }, [data.role, data.spu_id, workerId]);
-
-
-    useEffect(() => {
-        console.log("handledWorkers updated:", handledWorkers);
-    }, [handledWorkers]);
-
-    useEffect(() => {
-        console.log("handledClients updated:", handledClients);
-    }, [handledClients]);
-
 
     const resetFields = () => {
         setDrafts({
@@ -291,6 +289,28 @@ export default function WorkerProfile() {
             missing.push("SPU Project");
         }
 
+        const hasSPUChanged = drafts.spu_id !== data.spu_id;
+
+        if (hasSPUChanged) {
+            if (data.role === "sdw" && handledClients.length > 0) {
+                setModalTitle("SPU Change Not Allowed");
+                setModalBody("This SDW is currently assigned to clients. Please reassign all clients before changing SPU.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
+
+            if (data.role === "supervisor" && handledWorkers.length > 0) {
+                setModalTitle("SPU Change Not Allowed");
+                setModalBody("This supervisor is currently managing SDWs. Please reassign all workers before changing SPU.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
+        }
+
         if (!drafts.role) {
             missing.push("Role");
         }
@@ -346,162 +366,164 @@ export default function WorkerProfile() {
         }
     };
 
-    console.log("data", data);
-    console.log("user", user);
+    if (loading) return null;
 
     return (
         <>
+            {notFound ? (
+                <NotFound message="The profile you are looking for does not exist." />
+            ) : (
+                <>
+                    <ChangePassword
+                        isOpen={isChangePasswordOpen}
+                        onClose={() => setIsChangePasswordOpen(false)}
+                        onSubmit={async (passwordData) => {
+                            const { ok, data } = await updateEmployeePasswordById(workerId, passwordData);
 
-            <ChangePassword
-                isOpen={isChangePasswordOpen}
-                onClose={() => setIsChangePasswordOpen(false)}
-                onSubmit={async (passwordData) => {
-                    const { ok, data } = await updateEmployeePasswordById(workerId, passwordData);
+                            if (ok) {
+                                setIsChangePasswordOpen(false);
+                            } else {
+                                setModalTitle("Error");
+                                setModalBody(data.message || "Failed to update password.");
+                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                setShowModal(true);
+                            }
+                        }}
+                        userId={workerId}
+                    />
 
-                    if (ok) {
-                        setIsChangePasswordOpen(false);
-                    } else {
-                        setModalTitle("Error");
-                        setModalBody(data.message || "Failed to update password.");
-                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                        setShowModal(true);
-                    }
-                }}
-                userId={workerId}
-            />
+                    <SimpleModal
+                        isOpen={showModal}
+                        onClose={() => {
+                            if (modalOnClose) modalOnClose();
+                            setShowModal(false);
+                            setModalTitle("");
+                            setModalBody("");
+                            setModalImageCenter(null);
+                            setModalConfirm(false);
+                            setModalOnConfirm(() => { });
+                            setModalOnClose(() => null);
+                        }}
+                        title={modalTitle}
+                        bodyText={modalBody}
+                        imageCenter={modalImageCenter}
+                        confirm={modalConfirm}
+                        onConfirm={() => {
+                            modalOnConfirm?.();
+                            setShowModal(false);
+                        }}
+                    />
 
-            <SimpleModal
-                isOpen={showModal}
-                onClose={() => {
-                    if (modalOnClose) modalOnClose();
-                    setShowModal(false);
-                    setModalTitle("");
-                    setModalBody("");
-                    setModalImageCenter(null);
-                    setModalConfirm(false);
-                    setModalOnConfirm(() => { });
-                    setModalOnClose(() => null);
-                }}
-                title={modalTitle}
-                bodyText={modalBody}
-                imageCenter={modalImageCenter}
-                confirm={modalConfirm}
-                onConfirm={() => {
-                    modalOnConfirm?.();
-                    setShowModal(false);
-                }}
-            />
-
-            <main className="flex flex-col gap-20 pt-15">
-                <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3 px-4">
-                    <button
-                        className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
-                        onClick={() => navigate("/")}
-                    >
-                        <div className="arrow-left-button"></div>
-                        Back
-                    </button>
-                </div>
-
-                <section className="flex flex-col gap-5" id="core-fields">
-                    {editingField === "core-fields" && (
-                        <div className="flex justify-between items-center">
-                            <h1 className="header-main">Worker Profile</h1>
+                    <main className="flex flex-col gap-20 pt-15">
+                        <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3 px-4">
                             <button
-                                className="icon-button-setup x-button"
-                                onClick={resetFields}
-                            ></button>
+                                className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
+                                onClick={() => navigate("/")}
+                            >
+                                <div className="arrow-left-button"></div>
+                                Back
+                            </button>
                         </div>
-                    )}
 
-                    {editingField === "core-fields" ? (
-                        <>
-                            <div className="flex gap-5 w-full">
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
-                                    <input
-                                        placeholder="First Name"
-                                        type="text"
-                                        value={drafts.first_name}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, first_name: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
+                        <section className="flex flex-col gap-5" id="core-fields">
+                            {editingField === "core-fields" && (
+                                <div className="flex justify-between items-center">
+                                    <h1 className="header-main">Worker Profile</h1>
+                                    <button
+                                        className="icon-button-setup x-button"
+                                        onClick={resetFields}
+                                    ></button>
                                 </div>
+                            )}
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Middle Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Middle Name"
-                                        value={drafts.middle_name}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, middle_name: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                            {editingField === "core-fields" ? (
+                                <>
+                                    <div className="flex gap-5 w-full">
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
+                                            <input
+                                                placeholder="First Name"
+                                                type="text"
+                                                value={drafts.first_name}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, first_name: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Last Name"
-                                        value={drafts.last_name}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, last_name: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
-                            </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label">Middle Name</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Middle Name"
+                                                value={drafts.middle_name}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, middle_name: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                            {/* === Row 2 === */}
-                            <div className="flex gap-5 w-full mt-5">
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Username"
-                                        value={drafts.username}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, username: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Last Name"
+                                                value={drafts.last_name}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, last_name: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Email"
-                                        value={drafts.email}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, email: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                                    {/* === Row 2 === */}
+                                    <div className="flex gap-5 w-full mt-5">
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Username"
+                                                value={drafts.username}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, username: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Contact Number"
-                                        value={drafts.contact_no}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, contact_no: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
-                            </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Email"
+                                                value={drafts.email}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, email: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                            {/* === Row 3 === */}
-                            <div className="flex gap-5 w-full mt-5">
-                                {/* <div className="flex flex-col w-full">
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Contact Number"
+                                                value={drafts.contact_no}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, contact_no: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* === Row 3 === */}
+                                    <div className="flex gap-5 w-full mt-5">
+                                        {/* <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> SDW ID</label>
                                     <input
                                         type="text"
@@ -513,287 +535,288 @@ export default function WorkerProfile() {
                                     />
                                 </div> */}
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.spu_id}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, spu_id: e.target.value }))
-                                        }
-                                    >
-                                        <option value="">Select SPU</option>
-                                        {projectLocation.map((spu) => (
-                                            <option key={spu._id} value={spu.spu_name}>
-                                                {spu.spu_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.spu_id}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, spu_id: e.target.value }))
+                                                }
+                                            >
+                                                <option value="">Select SPU</option>
+                                                {projectLocation.map((spu) => (
+                                                    <option key={spu._id} value={spu.spu_name}>
+                                                        {spu.spu_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Area of Assignment</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.area}
-                                        placeholder="Area of Assignment"
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, area: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label">Area of Assignment</label>
+                                            <input
+                                                type="text"
+                                                value={drafts.area}
+                                                placeholder="Area of Assignment"
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, area: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
-                                    <select
-                                        disabled={user?.role !== "head"}
-                                        className="text-input font-label"
-                                        value={drafts.role}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, role: e.target.value }))
-                                        }
-                                    >
-                                        <option value="">Select Role</option>
-                                        {user?.role == "head" && <option value="head">Head</option>}
-                                        <option value="supervisor">Supervisor</option>
-                                        <option value="sdw">Social Development Worker</option>
-                                    </select>
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
+                                            <select
+                                                disabled={user?.role !== "head"}
+                                                className="text-input font-label"
+                                                value={drafts.role}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, role: e.target.value }))
+                                                }
+                                            >
+                                                <option value="">Select Role</option>
+                                                {user?.role == "head" && <option value="head">Head</option>}
+                                                <option value="supervisor">Supervisor</option>
+                                                <option value="sdw">Social Development Worker</option>
+                                            </select>
+                                        </div>
 
-                                {(drafts.role === "" || drafts.role === "sdw") && (<div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Manager</label>
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.manager}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, manager: e.target.value }))
-                                        }
-                                    >
-                                        <option value="">Select Manager</option>
-                                        {(drafts.role === "sdw" ? supervisors : socialDevelopmentWorkers).map(
-                                            (person) => (
-                                                <option key={person._id || person.id} value={person._id || person.id}>
-                                                    {person.username
-                                                        ? person.username
-                                                        : `${person.first_name} ${person.middle_name || ""} ${person.last_name}`}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
-                                </div>)}
-                            </div>
+                                        {(drafts.role === "" || drafts.role === "sdw") && (<div className="flex flex-col w-full">
+                                            <label className="font-bold-label">Manager</label>
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.manager}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, manager: e.target.value }))
+                                                }
+                                            >
+                                                <option value="">Select Manager</option>
+                                                {(drafts.role === "sdw" ? supervisors : socialDevelopmentWorkers).map(
+                                                    (person) => (
+                                                        <option key={person._id || person.id} value={person._id || person.id}>
+                                                            {person.username
+                                                                ? person.username
+                                                                : `${person.first_name} ${person.middle_name || ""} ${person.last_name}`}
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>)}
+                                    </div>
 
-                            <button
-                                className="btn-transparent-rounded my-3 ml-auto"
-                                onClick={async () => {
-                                    const isValid = await checkEmployeeCore();
-                                    if (isValid === false) return;
+                                    <button
+                                        className="btn-transparent-rounded my-3 ml-auto"
+                                        onClick={async () => {
+                                            const isValid = await checkEmployeeCore();
+                                            if (isValid === false) return;
 
-                                    const payload = {
-                                        ...drafts,
-                                        manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
-                                    };
-
-
-                                    if (isValid === "demotion") {
-                                        setModalTitle("Role Demotion");
-                                        setModalBody("You are about to change your own role from Head to another role. You will lose access to employee data changing and other head-exclusive privileges. Are you sure you want to proceed?");
-                                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                        setModalConfirm(true);
-
-                                        setModalOnConfirm(() => async () => {
-                                            const { ok, data: result } = await updateEmployeeById(workerId, payload);
-                                            if (ok) {
-                                                setModalTitle("Success");
-                                                setModalBody("Worker profile updated successfully!");
-                                                setModalImageCenter(<div className="success-icon mx-auto"></div>);
-                                                setModalConfirm(false);
-                                                setShowModal(true);
-
-                                                const onUpdate = () => {
-                                                    setData(result.employee);
-                                                    setEditingField(null);
-
-                                                    setTimeout(() => window.location.reload(), 500);
-                                                };
-
-                                                setModalOnConfirm(() => onUpdate);
-                                                setModalOnClose(() => onUpdate);
-                                            }
-                                            else {
-                                                setModalTitle("Error");
-                                                setModalBody(result.message || "Failed to update worker.");
-                                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                                setModalConfirm(false);
-                                                setShowModal(true);
-                                            }
-                                        });
-                                        setModalOnClose(() => { });
-                                        setShowModal(true);
-                                        return;
-                                    } else {
-                                        const { ok, data: result } = await updateEmployeeById(workerId, payload);
-                                        if (ok) {
-                                            setModalTitle("Success");
-                                            setModalBody("Worker profile updated successfully!");
-                                            setModalImageCenter(<div className="success-icon mx-auto"></div>);
-                                            setModalConfirm(false);
-                                            setShowModal(true);
-
-                                            const onUpdate = () => {
-                                                setData(result.employee);
-                                                setEditingField(null);
+                                            const payload = {
+                                                ...drafts,
+                                                manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
                                             };
 
-                                            setModalOnConfirm(() => onUpdate);
-                                            setModalOnClose(() => onUpdate);
-                                        }
-                                        else {
-                                            setModalTitle("Error");
-                                            setModalBody(result.message || "Failed to update worker.");
-                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                            setModalConfirm(false);
-                                            setShowModal(true);
-                                        }
-                                    }
-                                }}
-                            >
-                                Submit Changes
-                            </button>
 
-                        </>
-                    ) : (
-                        <>
-                            <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
-                            <div className="flex justify-between items-center">
-                                <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                {(user?.role == "head" || data.manager == user?._id) && <button
-                                    className="icon-button-setup dots-button"
-                                    onClick={() => setEditingField("core-fields")}
-                                ></button>}
-                            </div>
+                                            if (isValid === "demotion") {
+                                                setModalTitle("Role Demotion");
+                                                setModalBody("You are about to change your own role from Head to another role. You will lose access to employee data changing and other head-exclusive privileges. Are you sure you want to proceed?");
+                                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                setModalConfirm(true);
 
-                            <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
-                                <p><span className="font-bold-label">Username:</span> {data.username || "-"}</p>
-                                <p><span className="font-bold-label">Email:</span> {data.email || "-"}</p>
-                                <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
+                                                setModalOnConfirm(() => async () => {
+                                                    const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                                    if (ok) {
+                                                        setModalTitle("Success");
+                                                        setModalBody("Worker profile updated successfully!");
+                                                        setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                                        setModalConfirm(false);
+                                                        setShowModal(true);
 
-                                {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
-                                <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
-                                <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
+                                                        const onUpdate = () => {
+                                                            setData(result.employee);
+                                                            setEditingField(null);
 
-                                {(data.role === "" || data.role === "sdw") && (
-                                    <p className="font-label">
-                                        <span className="font-bold-label">Manager:</span>{" "}
-                                        {socialDevelopmentWorkers.find(
-                                            (w) => w._id === data.manager || w.id === data.manager
-                                        )
-                                            ? `${socialDevelopmentWorkers.find(
-                                                (w) => w._id === data.manager || w.id === data.manager
-                                            ).username}`
-                                            : "-"}
-                                    </p>
-                                )}
+                                                            setTimeout(() => window.location.reload(), 500);
+                                                        };
 
-                            </div>
-                        </>
-                    )}
-                </section>
+                                                        setModalOnConfirm(() => onUpdate);
+                                                        setModalOnClose(() => onUpdate);
+                                                    }
+                                                    else {
+                                                        setModalTitle("Error");
+                                                        setModalBody(result.message || "Failed to update worker.");
+                                                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                        setModalConfirm(false);
+                                                        setShowModal(true);
+                                                    }
+                                                });
+                                                setModalOnClose(() => { });
+                                                setShowModal(true);
+                                                return;
+                                            } else {
+                                                const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                                if (ok) {
+                                                    setModalTitle("Success");
+                                                    setModalBody("Worker profile updated successfully!");
+                                                    setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                                    setModalConfirm(false);
+                                                    setShowModal(true);
 
-                <section className="flex flex-col gap-5">
-                    {data.role === "sdw" && (
-                        <>
-                            <h2 className="header-sub">Clients Assigned</h2>
+                                                    const onUpdate = () => {
+                                                        setData(result.employee);
+                                                        setEditingField(null);
+                                                    };
 
-                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                <p className="font-bold-label ml-[20%]">Name</p>
-                                <p className="font-bold-label text-center">CH Number</p>
-                                <p className="font-bold-label text-center">SDW Assigned</p>
-                            </div>
+                                                    setModalOnConfirm(() => onUpdate);
+                                                    setModalOnClose(() => onUpdate);
+                                                }
+                                                else {
+                                                    setModalTitle("Error");
+                                                    setModalBody(result.message || "Failed to update worker.");
+                                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                    setModalConfirm(false);
+                                                    setShowModal(true);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        Submit Changes
+                                    </button>
 
-                            {handledClients.length === 0 ? (
-                                <p className="font-bold-label mx-auto">No Clients Found</p>
+                                </>
                             ) : (
-                                handledClients.map((client) => (
-                                    <ClientEntry
-                                        key={client.id}
-                                        id={client.id}
-                                        sm_number={client.sm_number}
-                                        spu={client.spu}
-                                        name={client.name}
-                                        assigned_sdw_name={client.assigned_sdw_name}
-                                    />
-                                ))
+                                <>
+                                    <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
+                                    <div className="flex justify-between items-center">
+                                        <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
+                                        {(user?.role == "head" || data.manager == user?._id) && <button
+                                            className="icon-button-setup dots-button"
+                                            onClick={() => setEditingField("core-fields")}
+                                        ></button>}
+                                    </div>
+
+                                    <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
+                                        <p><span className="font-bold-label">Username:</span> {data.username || "-"}</p>
+                                        <p><span className="font-bold-label">Email:</span> {data.email || "-"}</p>
+                                        <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
+
+                                        {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
+                                        <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
+                                        <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
+
+                                        {(data.role === "" || data.role === "sdw") && (
+                                            <p className="font-label">
+                                                <span className="font-bold-label">Manager:</span>{" "}
+                                                {socialDevelopmentWorkers.find(
+                                                    (w) => w._id === data.manager || w.id === data.manager
+                                                )
+                                                    ? `${socialDevelopmentWorkers.find(
+                                                        (w) => w._id === data.manager || w.id === data.manager
+                                                    ).username}`
+                                                    : "-"}
+                                            </p>
+                                        )}
+
+                                    </div>
+                                </>
                             )}
-                        </>
-                    )}
+                        </section>
 
-                    {(data.role === "supervisor" || data.role === "head") && (
-                        <>
-                            <h2 className="header-sub">
-                                {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
-                            </h2>
+                        <section className="flex flex-col gap-5">
+                            {data.role === "sdw" && (
+                                <>
+                                    <h2 className="header-sub">Clients Assigned</h2>
 
-                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                <p className="font-bold-label ml-[20%]">Worker</p>
-                                <p className="font-bold-label text-center">Type</p>
-                                <p className="font-bold-label text-center">SPU</p>
-                            </div>
+                                    <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                        <p className="font-bold-label ml-[20%]">Name</p>
+                                        <p className="font-bold-label text-center">CH Number</p>
+                                        <p className="font-bold-label text-center">SDW Assigned</p>
+                                    </div>
 
-                            {handledWorkers.length === 0 ? (
-                                <p className="font-bold-label mx-auto">No Workers Found</p>
-                            ) : (
-                                handledWorkers.map((worker) => (
-                                    <WorkerEntry
-                                        key={worker._id}
-                                        id={worker.id}
-                                        // sdw_id={worker.sdw_id}
-                                        name={
-                                            worker.name ||
-                                            `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`
-                                        }
-                                        role={worker.role}
-                                        spu_id={worker.spu_id}
-                                    />
-                                ))
+                                    {handledClients.length === 0 ? (
+                                        <p className="font-bold-label mx-auto">No Clients Found</p>
+                                    ) : (
+                                        handledClients.map((client) => (
+                                            <ClientEntry
+                                                key={client.id}
+                                                id={client.id}
+                                                sm_number={client.sm_number}
+                                                spu={client.spu}
+                                                name={client.name}
+                                                assigned_sdw_name={client.assigned_sdw_name}
+                                            />
+                                        ))
+                                    )}
+                                </>
                             )}
-                        </>
-                    )}
-                </section>
 
-                <div className="flex justify-between">
-                    {(user?._id == workerId) && (
-                        <button
-                            className="btn-outline font-bold-label drop-shadow-base my-3 mr-20"
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button>
-                    )}
+                            {(data.role === "supervisor" || data.role === "head") && (
+                                <>
+                                    <h2 className="header-sub">
+                                        {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
+                                    </h2>
+
+                                    <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                        <p className="font-bold-label ml-[20%]">Worker</p>
+                                        <p className="font-bold-label text-center">Type</p>
+                                        <p className="font-bold-label text-center">SPU</p>
+                                    </div>
+
+                                    {handledWorkers.length === 0 ? (
+                                        <p className="font-bold-label mx-auto">No Workers Found</p>
+                                    ) : (
+                                        handledWorkers.map((worker) => (
+                                            <WorkerEntry
+                                                key={worker._id}
+                                                id={worker.id}
+                                                // sdw_id={worker.sdw_id}
+                                                name={
+                                                    worker.name ||
+                                                    `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`
+                                                }
+                                                role={worker.role}
+                                                spu_id={worker.spu_id}
+                                            />
+                                        ))
+                                    )}
+                                </>
+                            )}
+                        </section>
+
+                        <div className="flex justify-between">
+                            {(user?._id == workerId) && (
+                                <button
+                                    className="btn-outline font-bold-label drop-shadow-base my-3 mr-20"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
+                            )}
 
 
-                    {user?.role && data?.role && data?._id && (
-                        ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
-                            data.manager === user._id) && (
-                            <button
-                                className="btn-outline font-bold-label drop-shadow-base my-3"
-                                onClick={() => setIsChangePasswordOpen(true)}
-                            >
-                                Change Password
-                            </button>
-                        )
-                    )}
+                            {user?.role && data?.role && data?._id && (
+                                ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
+                                    data.manager === user._id) && (
+                                    <button
+                                        className="btn-outline font-bold-label drop-shadow-base my-3"
+                                        onClick={() => setIsChangePasswordOpen(true)}
+                                    >
+                                        Change Password
+                                    </button>
+                                )
+                            )}
 
 
 
 
 
-                    {user?.role == "head" && <button className="ml-auto btn-primary font-bold-label drop-shadow-base my-3">
-                        Terminate Worker
-                    </button>}
-                </div>
-            </main>
+                            {user?.role == "head" && <button className="ml-auto btn-primary font-bold-label drop-shadow-base my-3">
+                                Terminate Worker
+                            </button>}
+                        </div>
+                    </main>
+                </>)}
         </>
     );
 }

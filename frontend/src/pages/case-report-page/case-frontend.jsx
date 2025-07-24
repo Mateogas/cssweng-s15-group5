@@ -10,6 +10,7 @@ import { fetchSession } from "../../fetch-connections/account-connection";
 import { createNewCase } from "../../fetch-connections/case-connection";
 
 import { fetchAllSpus } from "../../fetch-connections/spu-connection";
+import NotFound from "../NotFound";
 
 // API Imports
 import {
@@ -87,13 +88,21 @@ function CaseFrontend({ creating = false }) {
     });
 
     const [familyMembers, setFamilyMembers] = useState([]);
+    const [notFound, setNotFound] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadCaseData = async () => {
             if (!clientId) return;
 
             const fetchedData = await fetchCaseData(clientId);
-            //console.log("FETCHED DATA", fetchedData);
+            console.log("FETCHED DATA", fetchedData);
+
+            if (!fetchedData || fetchedData.sm_number === "") {
+                setNotFound(true);
+                setLoading(false);
+                return;
+            }
 
             setData({
                 ...fetchedData,
@@ -129,6 +138,7 @@ function CaseFrontend({ creating = false }) {
             });
 
             setAge(calculateAge(fetchedData.dob));
+            setLoading(false);
         };
 
         const loadFamilyData = async () => {
@@ -314,8 +324,6 @@ function CaseFrontend({ creating = false }) {
         return age;
     }
 
-    const [selectedClassification, setSelectedClassification] = useState("");
-
     const [editingField, setEditingField] = useState(null);
 
     useEffect(() => {
@@ -329,18 +337,18 @@ function CaseFrontend({ creating = false }) {
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [editingFamilyValue, setEditingFamilyValue] = useState({});
 
-    const [familyCounter, setFamilyCounter] = useState(familyMembers.length);
-
     const [familyToDelete, setFamilyToDelete] = useState(null);
 
     const [familyConfirm, setFamilyConfirm] = useState(false);
 
     const [showModal, setShowModal] = useState(false);
 
+    const [forceSubmitAfterConfirm, setForceSubmitAfterConfirm] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalBody, setModalBody] = useState("");
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+    const [modalOnClose, setModalOnClose] = useState(() => null);
     const [modalImageCenter, setModalImageCenter] = useState(null);
 
     function formatListWithAnd(arr) {
@@ -359,6 +367,8 @@ function CaseFrontend({ creating = false }) {
         setShowModal(true);
     }
 
+    const [showSupervisorWarning, setShowSupervisorWarning] = useState(false);
+
     const checkCore = async () => {
         const missing = [];
 
@@ -367,10 +377,6 @@ function CaseFrontend({ creating = false }) {
         } else if (/\d/.test(drafts.first_name)) {
             missing.push("First Name must not contain numbers");
         }
-
-        // if (!drafts.middle_name || drafts.middle_name.trim() === "") {
-        //     missing.push("Middle Name");
-        // } else 
 
         if (/\d/.test(drafts.middle_name)) {
             missing.push("Middle Name must not contain numbers");
@@ -392,58 +398,48 @@ function CaseFrontend({ creating = false }) {
 
         if (drafts.sm_number) {
             const check = await fetchCaseBySMNumber(Number(drafts.sm_number));
-            console.log("Fetched case by SM:", check);
-
-            if (check.found) {
-                console.log(
-                    "Comparing found sm_number:", String(check.data.sm_number),
-                    "vs current draft sm_number:", String(drafts.sm_number)
-                );
-
-                if (String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
-                    // Same CH Number used by a different case → block
-                    missing.push(`CH Number already exists and belongs to another case`);
-                } else {
-                    // Same CH Number as current case → allow
-                    console.log("CH Number belongs to same case - valid");
-                }
-            } else {
-                console.log("CH Number is unique — valid");
+            if (check.found && String(check.data.sm_number).trim() !== String(data.sm_number).trim()) {
+                missing.push(`CH Number already exists and belongs to another case`);
             }
         }
 
         if (!drafts.spu) missing.push("SPU Project");
         if (!drafts.assigned_sdw) missing.push("Social Development Worker");
+        if (drafts.classifications === "") missing.push("Classification");
 
-        if (drafts.classifications === "") {
-            missing.push("Classification");
-        }
-
-        const selectedSPUName = projectLocation.find(
-            (spu) => spu._id === drafts.spu
-        )?.spu_name;
+        const selectedSPUName = projectLocation.find(spu => spu._id === drafts.spu)?.spu_name;
 
         const validSDWIds = socialDevelopmentWorkers
-            .filter((sdw) => sdw.spu_id === selectedSPUName && sdw.role === "sdw")
-            .map((sdw) => sdw.id);
+            .filter(sdw => sdw.spu_id === selectedSPUName && sdw.role === "sdw")
+            .map(sdw => sdw.id);
 
         if (drafts.assigned_sdw && !validSDWIds.includes(drafts.assigned_sdw)) {
             missing.push("valid Social Development Worker for selected SPU");
         }
 
-
-
         if (missing.length > 0) {
             setModalTitle("Invalid Fields");
             setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
-            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
             setModalConfirm(false);
             setShowModal(true);
             return false;
         }
 
+        // Supervisor warning
+        if (user?.role === "supervisor") {
+            const selectedSDW = socialDevelopmentWorkers.find(
+                sdw => sdw.spu_id === selectedSPUName && sdw.id === drafts.assigned_sdw
+            );
+
+            if (selectedSDW && selectedSDW.manager !== user._id) {
+                return "pending-super-confirm";
+            }
+        }
+
         return true;
     };
+
 
 
     const checkProblems = async () => {
@@ -902,199 +898,424 @@ function CaseFrontend({ creating = false }) {
         setShowModal(true);
     };
 
-    console.log("proj loc", projectLocation);
-    console.log("data", data);
-    console.log("drafts", drafts);
-    console.log("socialDevelopmentWorkers", socialDevelopmentWorkers);
+    const handleSubmitCoreUpdate = async () => {
+        try {
+            const updated = await updateCoreCaseData(drafts, clientId);
+
+            setData((prev) => ({
+                ...prev,
+                first_name: updated.first_name || drafts.first_name,
+                middle_name: updated.middle_name || drafts.middle_name,
+                last_name: updated.last_name || drafts.last_name,
+                sm_number: updated.sm_number || drafts.sm_number,
+                spu: updated.spu || drafts.spu,
+                assigned_sdw: updated.assigned_sdw || drafts.assigned_sdw,
+                classifications: updated.classifications || drafts.classifications,
+            }));
+
+            setEditingField(null);
+            showSuccess("Core details were successfully updated!");
+
+            if (user?.role === "supervisor") {
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 500);
+            }
+        } catch (error) {
+            setModalTitle("Update Error");
+            setModalBody(error.message || "An unexpected error occurred.");
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
+        }
+    };
+
+    if (loading) return null;
 
     return (
         <>
-            <SimpleModal
-                isOpen={showModal}
-                onClose={() => {
-                    setShowModal(false);
-                    setModalTitle("");
-                    setModalBody("");
-                    setModalImageCenter(null);
-                    setModalConfirm(false);
-                    setModalOnConfirm(() => { });
-                }}
-                title={modalTitle}
-                bodyText={modalBody}
-                imageCenter={modalImageCenter}
-                confirm={modalConfirm}
-                onConfirm={() => {
-                    modalOnConfirm?.();
-                    setShowModal(false);
-                }}
-            />
-
-            <main className="flex flex-col gap-20 pt-15">
-                {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
-                <div className="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1280px] items-center justify-between bg-white px-4 py-3">
-                    <button
-                        className="font-bold-label arrow-group flex items-center gap-5 px-4 py-2"
-                        onClick={() => {
-                            navigate("/");
+            {notFound ? (
+                <NotFound message="The profile you are looking for does not exist." />
+            ) : (
+                <>
+                    <SimpleModal
+                        isOpen={showModal}
+                        onClose={() => {
+                            setShowModal(false);
+                            setModalTitle("");
+                            setModalBody("");
+                            setModalImageCenter(null);
+                            setModalConfirm(false);
+                            setModalOnConfirm(() => { });
                         }}
-                    >
-                        <div className="arrow-left-button"></div>
-                        Back
-                    </button>
+                        title={modalTitle}
+                        bodyText={modalBody}
+                        imageCenter={modalImageCenter}
+                        confirm={modalConfirm}
+                        onConfirm={() => {
+                            modalOnConfirm?.();
+                            setShowModal(false);
+                        }}
+                    />
 
-                    <div className="flex gap-5">
-                        <NavLabelButton
-                            title="Identifying Data"
-                            iconClass="identifying-button"
-                            sectionId="identifying-data"
-                            currentSection={currentSection}
-                            setCurrentSection={setCurrentSection}
-                        />
-
-                        <NavLabelButton
-                            title="Family Composition"
-                            iconClass="family-button"
-                            sectionId="family-composition"
-                            currentSection={currentSection}
-                            setCurrentSection={setCurrentSection}
-                        />
-
-                        <NavLabelButton
-                            title="Problems and Findings"
-                            iconClass="findings-button"
-                            sectionId="problems-findings"
-                            currentSection={currentSection}
-                            setCurrentSection={setCurrentSection}
-                        />
-
-                        {!creating && <NavLabelButton
-                            title="Interventions"
-                            iconClass="interventions-button"
-                            sectionId="interventions"
-                            currentSection={currentSection}
-                            setCurrentSection={setCurrentSection}
-                        />}
-
-                        <NavLabelButton
-                            title="Assessments"
-                            iconClass="assessment-button"
-                            sectionId="assessments"
-                            currentSection={currentSection}
-                            setCurrentSection={setCurrentSection}
-                        />
-
-                        <NavLabelButton
-                            title="Evaluation and Recommendation"
-                            iconClass="evaluations-button"
-                            sectionId="evaluation-recommendation"
-                            currentSection={currentSection}
-                            setCurrentSection={setCurrentSection}
-                        />
-                    </div>
-                </div>
-
-                <section className="flex flex-col gap-5" id="core-fields">
-                    {!creating && <div className="flex items-center justify-between">
-                        {data.is_active === true ? (
-                            <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
-                                Active
-                            </div>
-                        ) : (
-                            <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
-                                Inactive
-                            </div>
-                        )}
-                        <button className="btn-blue font-bold-label drop-shadow-base"
-                            data-cy='download-case'
-                            onClick={() => generateCaseReport(clientId)}
-                        >
-                            Download
-                        </button>
-                    </div>}
-
-                    {((editingField === "all" || editingField === "core-fields")) && (
-                        <div className="flex items-center justify-between">
-                            <h1 className="header-main">Core Details</h1>
-                            {!creating && <button
-                                className={
-                                    editingField === "core-fields"
-                                        ? "icon-button-setup x-button"
-                                        : "icon-button-setup dots-button"
-                                }
+                    <main className="flex flex-col gap-20 pt-15">
+                        {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
+                        <div className="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1280px] items-center justify-between bg-white px-4 py-3">
+                            <button
+                                className="font-bold-label arrow-group flex items-center gap-5 px-4 py-2"
                                 onClick={() => {
-                                    if (editingField) {
-                                        resetFields();
-                                    } else {
-                                        setEditingField("core-fields");
-                                    }
+                                    navigate("/");
                                 }}
-                            ></button>}
-                        </div>
-                    )}
+                            >
+                                <div className="arrow-left-button"></div>
+                                Back
+                            </button>
 
-                    {(editingField === "all" || editingField === "core-fields") ? (
-                        <>
-                            <div className="flex gap-5 w-full">
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
-                                    <input
-                                        disabled={!creating}
-                                        type="text"
-                                        value={drafts.first_name}
-                                        placeholder='First Name'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
-                                        className="text-input font-label w-full"
-                                        data-cy='fname'
-                                    />
-                                </div>
+                            <div className="flex gap-5">
+                                <NavLabelButton
+                                    title="Identifying Data"
+                                    iconClass="identifying-button"
+                                    sectionId="identifying-data"
+                                    currentSection={currentSection}
+                                    setCurrentSection={setCurrentSection}
+                                />
 
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Middle Name</label>
-                                    <input
-                                        disabled={!creating}
-                                        type="text"
-                                        value={drafts.middle_name}
-                                        placeholder='Middle Name'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
-                                        className="text-input font-label w-full"
-                                        data-cy='mname'
-                                    />
-                                </div>
+                                <NavLabelButton
+                                    title="Family Composition"
+                                    iconClass="family-button"
+                                    sectionId="family-composition"
+                                    currentSection={currentSection}
+                                    setCurrentSection={setCurrentSection}
+                                />
 
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
-                                    <input
-                                        disabled={!creating}
-                                        type="text"
-                                        value={drafts.last_name}
-                                        placeholder='Last Name'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
-                                        className="text-input font-label w-full"
-                                        data-cy='lname'
-                                    />
-                                </div>
-                            </div>
+                                <NavLabelButton
+                                    title="Problems and Findings"
+                                    iconClass="findings-button"
+                                    sectionId="problems-findings"
+                                    currentSection={currentSection}
+                                    setCurrentSection={setCurrentSection}
+                                />
 
-                            <div className="flex flex-col gap-5 w-full">
-                                <label className="font-bold-label"><span className='text-red-500'>*</span> CH Number</label>
-                                <input
-                                    disabled={!creating}
-                                    type="text"
-                                    value={drafts.sm_number}
-                                    placeholder='CH Number'
-                                    onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
-                                    className="text-input font-label w-full max-w-[30rem]"
-                                    data-cy='sm-number'
+                                {!creating && <NavLabelButton
+                                    title="Interventions"
+                                    iconClass="interventions-button"
+                                    sectionId="interventions"
+                                    currentSection={currentSection}
+                                    setCurrentSection={setCurrentSection}
+                                />}
+
+                                <NavLabelButton
+                                    title="Assessments"
+                                    iconClass="assessment-button"
+                                    sectionId="assessments"
+                                    currentSection={currentSection}
+                                    setCurrentSection={setCurrentSection}
+                                />
+
+                                <NavLabelButton
+                                    title="Evaluation and Recommendation"
+                                    iconClass="evaluations-button"
+                                    sectionId="evaluation-recommendation"
+                                    currentSection={currentSection}
+                                    setCurrentSection={setCurrentSection}
                                 />
                             </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="flex items-center justify-between">
-                                <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
-                                {data.is_active && <button
+                        </div>
+
+                        <section className="flex flex-col gap-5" id="core-fields">
+                            {!creating && <div className="flex items-center justify-between">
+                                {data.is_active === true ? (
+                                    <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
+                                        Active
+                                    </div>
+                                ) : (
+                                    <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
+                                        Inactive
+                                    </div>
+                                )}
+                                <button className="btn-blue font-bold-label drop-shadow-base"
+                                    data-cy='download-case'
+                                    onClick={() => generateCaseReport(clientId)}
+                                >
+                                    Download
+                                </button>
+                            </div>}
+
+                            {((editingField === "all" || editingField === "core-fields")) && (
+                                <div className="flex items-center justify-between">
+                                    <h1 className="header-main">Core Details</h1>
+                                    {!creating && <button
+                                        className={
+                                            editingField === "core-fields"
+                                                ? "icon-button-setup x-button"
+                                                : "icon-button-setup dots-button"
+                                        }
+                                        onClick={() => {
+                                            if (editingField) {
+                                                resetFields();
+                                            } else {
+                                                setEditingField("core-fields");
+                                            }
+                                        }}
+                                    ></button>}
+                                </div>
+                            )}
+
+                            {(editingField === "all" || editingField === "core-fields") ? (
+                                <>
+                                    <div className="flex gap-5 w-full">
+                                        <div className="flex flex-col gap-5 w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
+                                            <input
+                                                disabled={!creating}
+                                                type="text"
+                                                value={drafts.first_name}
+                                                placeholder='First Name'
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, first_name: e.target.value }))}
+                                                className="text-input font-label w-full"
+                                                data-cy='fname'
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-5 w-full">
+                                            <label className="font-bold-label">Middle Name</label>
+                                            <input
+                                                disabled={!creating}
+                                                type="text"
+                                                value={drafts.middle_name}
+                                                placeholder='Middle Name'
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, middle_name: e.target.value }))}
+                                                className="text-input font-label w-full"
+                                                data-cy='mname'
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-5 w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
+                                            <input
+                                                disabled={!creating}
+                                                type="text"
+                                                value={drafts.last_name}
+                                                placeholder='Last Name'
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, last_name: e.target.value }))}
+                                                className="text-input font-label w-full"
+                                                data-cy='lname'
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-5 w-full">
+                                        <label className="font-bold-label"><span className='text-red-500'>*</span> CH Number</label>
+                                        <input
+                                            disabled={!creating}
+                                            type="text"
+                                            value={drafts.sm_number}
+                                            placeholder='CH Number'
+                                            onChange={(e) => setDrafts(prev => ({ ...prev, sm_number: e.target.value }))}
+                                            className="text-input font-label w-full max-w-[30rem]"
+                                            data-cy='sm-number'
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-between">
+                                        <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
+                                        {data.is_active && <button
+                                            className={
+                                                editingField === "core-fields"
+                                                    ? "icon-button-setup x-button"
+                                                    : "icon-button-setup dots-button"
+                                            }
+                                            onClick={() => {
+                                                if (editingField) {
+                                                    resetFields();
+                                                } else {
+                                                    setEditingField("core-fields");
+                                                }
+                                            }}
+                                            data-cy='edit-core-details-section'
+                                        ></button>}
+                                    </div>
+                                    <h2 className="header-sub">{data.sm_number}</h2>
+                                </>
+                            )}
+
+                            <div className="flex flex-wrap justify-between gap-10">
+                                {/* SPU Project */}
+                                <div className="flex w-full flex-col md:w-[48%]">
+                                    {(editingField === "all" || editingField === "core-fields") ? (
+                                        <>
+                                            <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.spu}
+                                                disabled={!["head", "supervisor"].includes(user?.role)}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({
+                                                        ...prev,
+                                                        spu: e.target.value,
+                                                    }))
+                                                }
+                                                data-cy='spu'
+                                            >
+                                                <option value="">Select SPU</option>
+                                                {projectLocation.map((spu) => (
+                                                    <option key={spu._id} value={spu._id}>
+                                                        {spu.spu_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </>
+                                    ) : (
+                                        <p className="font-label">
+                                            <span className="font-bold-label">
+                                                SPU Project:
+                                            </span>{" "}
+                                            {projectLocation.find(
+                                                (p) => p._id === data.spu,
+                                            )?.spu_name || "-"}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Social Development Worker */}
+                                <div className="flex w-full flex-col md:w-[48%]">
+                                    {(editingField === "all" || editingField === "core-fields") ? (
+                                        <>
+                                            <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
+                                            <select
+                                                className="text-input font-label"
+                                                disabled={!["head", "supervisor"].includes(user?.role)}
+                                                value={drafts.assigned_sdw}
+                                                onChange={(e) => {
+                                                    setDrafts((prev) => ({
+                                                        ...prev,
+                                                        assigned_sdw: e.target.value,
+                                                    }));
+                                                }}
+                                                data-cy="assigned-sdw"
+                                            >
+                                                <option value="">Select SDW</option>
+                                                {socialDevelopmentWorkers
+                                                    .filter((sdw) => {
+                                                        const selectedSPUName = projectLocation.find(
+                                                            (spu) => spu._id === drafts.spu
+                                                        )?.spu_name;
+                                                        return sdw.spu_id === selectedSPUName && sdw.role === "sdw";
+                                                    })
+                                                    .map((sdw) => (
+                                                        <option key={sdw.id} value={sdw.id}>
+                                                            {sdw.username}
+                                                        </option>
+                                                    ))}
+                                            </select>
+
+
+                                        </>
+                                    ) : (
+                                        <p className="font-label">
+                                            <span className="font-bold-label">
+                                                Social Development Worker:
+                                            </span>{" "}
+                                            {socialDevelopmentWorkers.find(
+                                                (w) => w.id === data.assigned_sdw,
+                                            )?.username || "-"}
+                                        </p>
+
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className='flex flex-col w-full'>
+                                <label className="font-bold-label mb-2">
+                                    {(editingField === "all" || editingField === "core-fields") && (
+                                        <span className="text-red-500">* </span>
+                                    )}
+                                    Classification
+                                    {!(editingField === "all" || editingField === "core-fields") && (
+                                        <>: {data.classifications}</>
+                                    )}
+                                </label>
+                                {(editingField === "all" || editingField === "core-fields") && (
+                                    <>
+                                        <div className="flex w-full max-w-[50rem] items-center self-start">
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.classifications}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({
+                                                        ...prev,
+                                                        classifications: e.target.value,
+                                                    }))
+                                                }
+                                            >
+                                                <option value="">
+                                                    Select Classification
+                                                </option>
+                                                {classificationList.map((item) => (
+                                                    <option key={item} value={item}>
+                                                        {item}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {editingField === "core-fields" && (
+                                <button
+                                    className="btn-transparent-rounded my-3 ml-auto"
+                                    onClick={async () => {
+                                        if (forceSubmitAfterConfirm) {
+                                            await handleSubmitCoreUpdate();
+                                            setForceSubmitAfterConfirm(false);
+                                            return;
+                                        }
+
+                                        const valid = await checkCore();
+                                        if (!valid) return;
+
+
+                                        console.log("VALID", valid);
+                                        if (valid === "pending-super-confirm") {
+                                            setModalTitle("SDW Outside Supervision");
+                                            setModalBody("You are about to assign the case to an SDW that is not under your supervision. You will no longer be able to modify the case. Are you sure you want to proceed?");
+                                            setModalImageCenter(<div className="warning-icon mx-auto" />);
+                                            setModalConfirm(true);
+
+                                            setModalOnConfirm(() => async () => {
+                                                setForceSubmitAfterConfirm(true);
+                                                setShowModal(false);
+                                                await handleSubmitCoreUpdate();
+                                            });
+
+                                            setModalOnClose(() => () => {
+                                                setForceSubmitAfterConfirm(false);
+                                            });
+
+                                            setShowModal(true);
+                                            return;
+                                        }
+
+                                        await handleSubmitCoreUpdate();
+                                    }}
+                                    data-cy="submit-core-details-section"
+                                >
+                                    Submit Changes
+                                </button>
+                            )}
+
+
+                        </section>
+
+                        <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
+                            <div className="flex justify-between items-center">
+                                <h1 className="header-main">Identifying Data</h1>
+                                {user?.role == "sdw" && !creating && data.is_active && <button
                                     className={
-                                        editingField === "core-fields"
+                                        editingField === "identifying-fields"
                                             ? "icon-button-setup x-button"
                                             : "icon-button-setup dots-button"
                                     }
@@ -1102,314 +1323,126 @@ function CaseFrontend({ creating = false }) {
                                         if (editingField) {
                                             resetFields();
                                         } else {
-                                            setEditingField("core-fields");
+                                            setEditingField("identifying-fields");
                                         }
                                     }}
-                                    data-cy='edit-core-details-section'
+                                    data-cy='edit-identifying-data-section'
                                 ></button>}
                             </div>
-                            <h2 className="header-sub">{data.sm_number}</h2>
-                        </>
-                    )}
 
-                    <div className="flex flex-wrap justify-between gap-10">
-                        {/* SPU Project */}
-                        <div className="flex w-full flex-col md:w-[48%]">
-                            {(editingField === "all" || editingField === "core-fields") ? (
+                            {(editingField === "all" || editingField === "identifying-fields") ? (
                                 <>
-                                    <label className='font-bold-label'><span className='text-red-500'>*</span> SPU Project</label>
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.spu}
-                                        disabled={creating}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({
-                                                ...prev,
-                                                spu: e.target.value,
-                                            }))
-                                        }
-                                        data-cy='spu'
-                                    >
-                                        <option value="">Select SPU</option>
-                                        {projectLocation.map((spu) => (
-                                            <option key={spu._id} value={spu._id}>
-                                                {spu.spu_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </>
-                            ) : (
-                                <p className="font-label">
-                                    <span className="font-bold-label">
-                                        SPU Project:
-                                    </span>{" "}
-                                    {projectLocation.find(
-                                        (p) => p._id === data.spu,
-                                    )?.spu_name || "-"}
-                                </p>
-                            )}
-                        </div>
+                                    <div className="flex justify-between gap-20">
+                                        <div className="flex w-full flex-col gap-5">
+                                            <label className="font-bold-label" htmlFor="age">Age</label>
+                                            <input
+                                                type="number"
+                                                id="age"
+                                                value={age}
+                                                readOnly
+                                                disabled
+                                                className="text-input font-label"
+                                                data-cy='age'
+                                            />
+                                        </div>
 
-                        {/* Social Development Worker */}
-                        <div className="flex w-full flex-col md:w-[48%]">
-                            {(editingField === "all" || editingField === "core-fields") ? (
-                                <>
-                                    <label className='font-bold-label'><span className='text-red-500'>*</span> Social Development Worker</label>
-                                    <select
-                                        className="text-input font-label"
-                                        disabled={creating}
-                                        value={drafts.assigned_sdw}
-                                        onChange={(e) => {
-                                            setDrafts((prev) => ({
-                                                ...prev,
-                                                assigned_sdw: e.target.value,
-                                            }));
-                                        }}
-                                        data-cy="assigned-sdw"
-                                    >
-                                        <option value="">Select SDW</option>
-                                        {socialDevelopmentWorkers
-                                            .filter((sdw) => {
-                                                const selectedSPUName = projectLocation.find(
-                                                    (spu) => spu._id === drafts.spu
-                                                )?.spu_name;
-                                                return sdw.spu_id === selectedSPUName && sdw.role === "sdw";
-                                            })
-                                            .map((sdw) => (
-                                                <option key={sdw.id} value={sdw.id}>
-                                                    {sdw.username}
-                                                </option>
-                                            ))}
-                                    </select>
+                                        <div className="flex flex-col gap-5 w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Date of Birth</label>
+                                            <input
+                                                disabled={!creating}
+                                                type="date"
+                                                value={drafts.dob || ""}
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
+                                                className="text-input font-label"
+                                                data-cy='dob'
+                                            />
+                                        </div>
 
+                                        <div className='flex flex-col gap-5 w-full'>
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
+                                            <select
+                                                disabled={!creating}
+                                                className='text-input font-label'
+                                                value={drafts.sex || ""}
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
+                                                data-cy='sex'
+                                            >
+                                                <option value="">Select Sex</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                        </div>
 
-                                </>
-                            ) : (
-                                <p className="font-label">
-                                    <span className="font-bold-label">
-                                        Social Development Worker:
-                                    </span>{" "}
-                                    {socialDevelopmentWorkers.find(
-                                        (w) => w.id === data.assigned_sdw,
-                                    )?.username || "-"}
-                                </p>
+                                        <div className="flex w-full flex-col gap-5">
+                                            <label className="font-bold-label">Contact No.</label>
+                                            <input
+                                                type="text"
+                                                className="text-input font-label"
+                                                placeholder="Contact No."
+                                                value={drafts.contact_no || ""}
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, contact_no: e.target.value }))}
+                                                data-cy='contact-num'
+                                            />
+                                        </div>
+                                    </div>
 
-                            )}
-                        </div>
-                    </div>
+                                    <div className='flex justify-between gap-20'>
+                                        <div className="flex flex-col gap-5 w-full">
+                                            <label className="font-bold-label">Educational Attainment</label>
+                                            <input
+                                                type="text"
+                                                placeholder='Educational Attainment'
+                                                value={drafts.edu_attainment || ""}
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, edu_attainment: e.target.value }))}
+                                                data-cy='educational-attainment'
+                                                className="text-input font-label"
+                                            />
+                                        </div>
 
-                    <div className='flex flex-col w-full'>
-                        <label className="font-bold-label mb-2">
-                            {(editingField === "all" || editingField === "core-fields") && (
-                                <span className="text-red-500">* </span>
-                            )}
-                            Classification
-                            {!(editingField === "all" || editingField === "core-fields") && (
-                                <>: {data.classifications}</>
-                            )}
-                        </label>
-                        {(editingField === "all" || editingField === "core-fields") && (
-                            <>
-                                <div className="flex w-full max-w-[50rem] items-center self-start">
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.classifications}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({
-                                                ...prev,
-                                                classifications: e.target.value,
-                                            }))
-                                        }
-                                    >
-                                        <option value="">
-                                            Select Classification
-                                        </option>
-                                        {classificationList.map((item) => (
-                                            <option key={item} value={item}>
-                                                {item}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </>
-                        )}
-                    </div>
+                                        <div className='flex flex-col gap-5 w-full'>
+                                            <label className="font-bold-label">Occupation</label>
+                                            <input
+                                                type="text"
+                                                value={drafts.occupation || ""}
+                                                placeholder='Occupation'
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
+                                                className='text-input font-label'
+                                                data-cy='occupation'
+                                            />
+                                        </div>
 
-                    {editingField === "core-fields" && (
-                        <button
-                            className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async () => {
-                                const valid = await checkCore();
-                                if (!valid) return;
+                                        <div className="flex flex-col gap-5 w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Civil Status</label>
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.civil_status || ""}
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, civil_status: e.target.value }))}
+                                                data-cy='civil-status'
+                                            >
+                                                <option value="">Select Civil Status</option>
+                                                <option value="Single">Single</option>
+                                                <option value="Married">Married</option>
+                                                <option value="Divorced">Divorced</option>
+                                                <option value="Separated">Separated</option>
+                                                <option value="Widowed">Widowed</option>
+                                            </select>
+                                        </div>
 
-                                // console.log("CURRENT DRAFTS", drafts);
+                                        <div className='flex flex-col gap-5 w-full'>
+                                            <label className="font-bold-label">Religion</label>
+                                            <input
+                                                type="text"
+                                                value={drafts.religion || ""}
+                                                placeholder='Religion'
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
+                                                className='text-input font-label'
+                                                data-cy='religion'
+                                            />
+                                        </div>
+                                    </div>
 
-                                try {
-                                    const updated = await updateCoreCaseData(drafts, clientId);
-
-                                    // console.log("UPDATED: ", updated);
-
-                                    setData((prev) => ({
-                                        ...prev,
-                                        first_name: updated.first_name || drafts.first_name,
-                                        middle_name: updated.middle_name || drafts.middle_name,
-                                        last_name: updated.last_name || drafts.last_name,
-                                        sm_number: updated.sm_number || drafts.sm_number,
-                                        spu: updated.spu || drafts.spu,
-                                        assigned_sdw: updated.assigned_sdw || drafts.assigned_sdw,
-                                        classifications: updated.classifications || drafts.classifications,
-                                    }));
-
-                                    setEditingField(null);
-                                    showSuccess("Core details were successfully updated!");
-                                } catch (error) {
-                                    setModalTitle("Update Error");
-                                    setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                    setModalConfirm(false);
-                                    setShowModal(true);
-                                }
-                            }}
-                            data-cy="submit-core-details-section"
-                        >
-                            Submit Changes
-                        </button>
-                    )}
-                </section>
-
-                <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
-                    <div className="flex justify-between items-center">
-                        <h1 className="header-main">Identifying Data</h1>
-                        {user?.role == "sdw" && !creating && data.is_active && <button
-                            className={
-                                editingField === "identifying-fields"
-                                    ? "icon-button-setup x-button"
-                                    : "icon-button-setup dots-button"
-                            }
-                            onClick={() => {
-                                if (editingField) {
-                                    resetFields();
-                                } else {
-                                    setEditingField("identifying-fields");
-                                }
-                            }}
-                            data-cy='edit-identifying-data-section'
-                        ></button>}
-                    </div>
-
-                    {(editingField === "all" || editingField === "identifying-fields") ? (
-                        <>
-                            <div className="flex justify-between gap-20">
-                                <div className="flex w-full flex-col gap-5">
-                                    <label className="font-bold-label" htmlFor="age">Age</label>
-                                    <input
-                                        type="number"
-                                        id="age"
-                                        value={age}
-                                        readOnly
-                                        disabled
-                                        className="text-input font-label"
-                                        data-cy='age'
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Date of Birth</label>
-                                    <input
-                                        disabled={!creating}
-                                        type="date"
-                                        value={drafts.dob || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, dob: e.target.value }))}
-                                        className="text-input font-label"
-                                        data-cy='dob'
-                                    />
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Sex</label>
-                                    <select
-                                        disabled={!creating}
-                                        className='text-input font-label'
-                                        value={drafts.sex || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, sex: e.target.value }))}
-                                        data-cy='sex'
-                                    >
-                                        <option value="">Select Sex</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                </div>
-
-                                <div className="flex w-full flex-col gap-5">
-                                    <label className="font-bold-label">Contact No.</label>
-                                    <input
-                                        type="text"
-                                        className="text-input font-label"
-                                        placeholder="Contact No."
-                                        value={drafts.contact_no || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, contact_no: e.target.value }))}
-                                        data-cy='contact-num'
-                                    />
-                                </div>
-                            </div>
-
-                            <div className='flex justify-between gap-20'>
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label">Educational Attainment</label>
-                                    <input
-                                        type="text"
-                                        placeholder='Educational Attainment'
-                                        value={drafts.edu_attainment || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, edu_attainment: e.target.value }))}
-                                        data-cy='educational-attainment'
-                                        className="text-input font-label"
-                                    />
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Occupation</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.occupation || ""}
-                                        placeholder='Occupation'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, occupation: e.target.value }))}
-                                        className='text-input font-label'
-                                        data-cy='occupation'
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-5 w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Civil Status</label>
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.civil_status || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, civil_status: e.target.value }))}
-                                        data-cy='civil-status'
-                                    >
-                                        <option value="">Select Civil Status</option>
-                                        <option value="Single">Single</option>
-                                        <option value="Married">Married</option>
-                                        <option value="Divorced">Divorced</option>
-                                        <option value="Separated">Separated</option>
-                                        <option value="Widowed">Widowed</option>
-                                    </select>
-                                </div>
-
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">Religion</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.religion || ""}
-                                        placeholder='Religion'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, religion: e.target.value }))}
-                                        className='text-input font-label'
-                                        data-cy='religion'
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between gap-20">
-                                {/* <div className="flex w-full flex-col gap-5">
+                                    <div className="flex justify-between gap-20">
+                                        {/* <div className="flex w-full flex-col gap-5">
                                     <label className="font-bold-label">Relationship to Client</label>
                                     <input
                                         type="text"
@@ -1421,158 +1454,153 @@ function CaseFrontend({ creating = false }) {
                                     />
                                 </div> */}
 
-                                <div className="flex w-full flex-col gap-5">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Present Address</label>
-                                    <textarea
-                                        className="text-input font-label resize-y min-h-[20rem]"
-                                        placeholder="Present Address"
-                                        value={drafts.present_address || ""}
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, present_address: e.target.value }))}
-                                        data-cy='address'
-                                    ></textarea>
+                                        <div className="flex w-full flex-col gap-5">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Present Address</label>
+                                            <textarea
+                                                className="text-input font-label resize-y min-h-[20rem]"
+                                                placeholder="Present Address"
+                                                value={drafts.present_address || ""}
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, present_address: e.target.value }))}
+                                                data-cy='address'
+                                            ></textarea>
+                                        </div>
+
+                                        <div className='flex flex-col gap-5 w-full'>
+                                            <label className="font-bold-label">{<span className='text-red-500'>* </span>}Place of Birth</label>
+                                            <input
+                                                disabled={!creating}
+                                                type="text"
+                                                value={drafts.pob || ""}
+                                                placeholder='Place of Birth'
+                                                onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
+                                                className='text-input font-label'
+                                                data-cy='pob'
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {!creating && <div className="flex justify-end">
+                                        <button
+                                            className="btn-transparent-rounded my-3 ml-auto"
+                                            onClick={async () => {
+                                                const valid = checkIdentifying();
+                                                if (!valid) return;
+
+                                                try {
+                                                    const updated = await updateIdentifyingCaseData(drafts, clientId);
+
+                                                    setData((prev) => ({
+                                                        ...prev,
+                                                        dob: updated.dob || drafts.dob,
+                                                        civil_status: updated.civil_status || drafts.civil_status,
+                                                        edu_attainment: updated.edu_attainment || drafts.edu_attainment,
+                                                        sex: updated.sex || drafts.sex,
+                                                        pob: updated.pob || drafts.pob,
+                                                        religion: updated.religion || drafts.religion,
+                                                        occupation: updated.occupation || drafts.occupation,
+                                                        present_address: updated.present_address || drafts.present_address,
+                                                        contact_no: updated.contact_no || drafts.contact_no,
+                                                        // relationship_to_client: updated.relationship_to_client || drafts.relationship_to_client,
+                                                    }));
+
+                                                    setEditingField(null);
+                                                    showSuccess("Identifying data was successfully updated!");
+                                                } catch (error) {
+                                                    setModalTitle("Update Error");
+                                                    setModalBody(error.message || "An unexpected error occurred.");
+                                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                    setModalConfirm(false);
+                                                    setShowModal(true);
+                                                }
+                                            }}
+                                            data-cy="submit-identifying-data-section"
+                                        >
+                                            Submit Changes
+                                        </button>
+                                    </div>}
+                                </>
+                            ) : (
+                                <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
+                                    <p><span className="font-bold-label">Age:</span> {age == 0 ? 0 : age || "-"}</p>
+                                    <p><span className="font-bold-label">Date of Birth:</span> {data.dob || "-"}</p>
+                                    <p><span className="font-bold-label">Sex:</span> {data.sex || "-"}</p>
+                                    <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
+                                    <p><span className="font-bold-label">Educational Attainment:</span> {data.edu_attainment || "-"}</p>
+                                    <p><span className="font-bold-label">Occupation:</span> {data.occupation || "-"}</p>
+                                    <p><span className="font-bold-label">Civil Status:</span> {data.civil_status || "-"}</p>
+                                    <p><span className="font-bold-label">Religion:</span> {data.religion || "-"}</p>
+                                    {/* <p><span className="font-bold-label">Relationship to Client:</span> {data.relationship_to_client || "-"}</p> */}
+                                    <p><span className="font-bold-label">Present Address:</span> {data.present_address || "-"}</p>
+                                    <p><span className="font-bold-label">Place of Birth:</span> {data.pob || "-"}</p>
                                 </div>
+                            )}
+                        </section>
 
-                                <div className='flex flex-col gap-5 w-full'>
-                                    <label className="font-bold-label">{<span className='text-red-500'>* </span>}Place of Birth</label>
-                                    <input
-                                        disabled={!creating}
-                                        type="text"
-                                        value={drafts.pob || ""}
-                                        placeholder='Place of Birth'
-                                        onChange={(e) => setDrafts(prev => ({ ...prev, pob: e.target.value }))}
-                                        className='text-input font-label'
-                                        data-cy='pob'
-                                    />
-                                </div>
-                            </div>
-
-                            {!creating && <div className="flex justify-end">
-                                <button
-                                    className="btn-transparent-rounded my-3 ml-auto"
-                                    onClick={async () => {
-                                        const valid = checkIdentifying();
-                                        if (!valid) return;
-
-                                        try {
-                                            const updated = await updateIdentifyingCaseData(drafts, clientId);
-
-                                            setData((prev) => ({
-                                                ...prev,
-                                                dob: updated.dob || drafts.dob,
-                                                civil_status: updated.civil_status || drafts.civil_status,
-                                                edu_attainment: updated.edu_attainment || drafts.edu_attainment,
-                                                sex: updated.sex || drafts.sex,
-                                                pob: updated.pob || drafts.pob,
-                                                religion: updated.religion || drafts.religion,
-                                                occupation: updated.occupation || drafts.occupation,
-                                                present_address: updated.present_address || drafts.present_address,
-                                                contact_no: updated.contact_no || drafts.contact_no,
-                                                // relationship_to_client: updated.relationship_to_client || drafts.relationship_to_client,
-                                            }));
-
-                                            setEditingField(null);
-                                            showSuccess("Identifying data was successfully updated!");
-                                        } catch (error) {
-                                            setModalTitle("Update Error");
-                                            setModalBody(error.message || "An unexpected error occurred.");
-                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                            setModalConfirm(false);
-                                            setShowModal(true);
-                                        }
-                                    }}
-                                    data-cy="submit-identifying-data-section"
-                                >
-                                    Submit Changes
-                                </button>
-                            </div>}
-                        </>
-                    ) : (
-                        <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
-                            <p><span className="font-bold-label">Age:</span> {age == 0 ? 0 : age || "-"}</p>
-                            <p><span className="font-bold-label">Date of Birth:</span> {data.dob || "-"}</p>
-                            <p><span className="font-bold-label">Sex:</span> {data.sex || "-"}</p>
-                            <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
-                            <p><span className="font-bold-label">Educational Attainment:</span> {data.edu_attainment || "-"}</p>
-                            <p><span className="font-bold-label">Occupation:</span> {data.occupation || "-"}</p>
-                            <p><span className="font-bold-label">Civil Status:</span> {data.civil_status || "-"}</p>
-                            <p><span className="font-bold-label">Religion:</span> {data.religion || "-"}</p>
-                            {/* <p><span className="font-bold-label">Relationship to Client:</span> {data.relationship_to_client || "-"}</p> */}
-                            <p><span className="font-bold-label">Present Address:</span> {data.present_address || "-"}</p>
-                            <p><span className="font-bold-label">Place of Birth:</span> {data.pob || "-"}</p>
-                        </div>
-                    )}
-                </section>
-
-                <section
-                    className="flex flex-col gap-8"
-                    id="family-composition"
-                    ref={ref2}
-                >
-                    <h1 className="header-main">Family Composition</h1>
-
-                    {creating && <p className="font-label">Family Composition can be filled out on created cases.</p>}
-
-                    {!creating && <>
-                        {data.is_active && user?.role == "sdw" && <button
-                            className="btn-primary font-bold-label drop-shadow-base"
-                            onClick={handleAddFamilyMember}
-                            data-cy='add-family-member'
+                        <section
+                            className="flex flex-col gap-8"
+                            id="family-composition"
+                            ref={ref2}
                         >
-                            Add New Family Member
-                        </button>}
+                            <h1 className="header-main">Family Composition</h1>
 
-                        <div className="flex justify-between gap-10">
-                            <div
-                                // ref={sliderRef}
-                                className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
-                            // onMouseDown={handleMouseDown}
-                            // onMouseLeave={handleMouseLeave}
-                            // onMouseUp={handleMouseUp}
-                            // onMouseMove={handleMouseMove}
-                            >
-                                {familyMembers.map((member, index) => (
-                                    <FamilyCard
-                                        key={index}
-                                        clientId={clientId}
-                                        index={index}
-                                        member={member}
-                                        selectedFamily={selectedFamily}
-                                        setSelectedFamily={setSelectedFamily}
-                                        editingFamilyValue={editingFamilyValue}
-                                        setEditingFamilyValue={
-                                            setEditingFamilyValue
-                                        }
-                                        familyMembers={familyMembers}
-                                        setFamilyMembers={setFamilyMembers}
-                                        handleDeleteFamilyMember={
-                                            handleDeleteFamilyMember
-                                        }
-                                        // setFamilyToDelete={setFamilyToDelete}
+                            {creating && <p className="font-label">Family Composition can be filled out on created cases.</p>}
 
-                                        setShowModal={setShowModal}
-                                        setModalTitle={setModalTitle}
-                                        setModalBody={setModalBody}
-                                        setModalImageCenter={setModalImageCenter}
-                                        setModalConfirm={setModalConfirm}
-                                        setModalOnConfirm={setModalOnConfirm}
+                            {!creating && <>
+                                {data.is_active && user?.role == "sdw" && <button
+                                    className="btn-primary font-bold-label drop-shadow-base"
+                                    onClick={handleAddFamilyMember}
+                                    data-cy='add-family-member'
+                                >
+                                    Add New Family Member
+                                </button>}
 
-                                        editable={user.role}
-                                        activeMember={data.is_active}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    </>}
-                </section>
+                                <div className="flex justify-between gap-10">
+                                    {familyMembers.length === 0 ? (
+                                        <div className="w-full text-center font-bold-label p-6 border rounded-lg">
+                                            No family members found
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="outline-gray flex w-full gap-8 overflow-x-auto rounded-lg p-6"
+                                        >
+                                            {familyMembers.map((member, index) => (
+                                                <FamilyCard
+                                                    key={index}
+                                                    clientId={clientId}
+                                                    index={index}
+                                                    member={member}
+                                                    selectedFamily={selectedFamily}
+                                                    setSelectedFamily={setSelectedFamily}
+                                                    editingFamilyValue={editingFamilyValue}
+                                                    setEditingFamilyValue={setEditingFamilyValue}
+                                                    familyMembers={familyMembers}
+                                                    setFamilyMembers={setFamilyMembers}
+                                                    handleDeleteFamilyMember={handleDeleteFamilyMember}
+                                                    setShowModal={setShowModal}
+                                                    setModalTitle={setModalTitle}
+                                                    setModalBody={setModalBody}
+                                                    setModalImageCenter={setModalImageCenter}
+                                                    setModalConfirm={setModalConfirm}
+                                                    setModalOnConfirm={setModalOnConfirm}
+                                                    editable={user.role}
+                                                    activeMember={data.is_active}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                <section
-                    className="flex flex-col gap-8"
-                    id="problems-findings"
-                    ref={ref3}
-                >
-                    <div className="flex items-center justify-between gap-4">
-                        <h1 className="header-main">Problems and Findings</h1>
-                        {/* {user?.role == "sdw" && !creating && <button
+                            </>}
+                        </section>
+
+                        <section
+                            className="flex flex-col gap-8"
+                            id="problems-findings"
+                            ref={ref3}
+                        >
+                            <div className="flex items-center justify-between gap-4">
+                                <h1 className="header-main">Problems and Findings</h1>
+                                {/* {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "history-fields"
                                     ? "icon-button-setup x-button"
@@ -1587,279 +1615,279 @@ function CaseFrontend({ creating = false }) {
                             }}
                             data-cy="edit-problems-findings-section"
                         ></button>} */}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-10">
-                        <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Problem Presented</h3>
-
-                            {(editingField === "all" || editingField === "history-fields") ? (
-                                <textarea
-                                    className="text-input font-label resize-y min-h-[20rem]"
-                                    value={drafts.problem_presented}
-                                    placeholder="Problem Presented"
-                                    onChange={(e) =>
-                                        setDrafts((prev) => ({
-                                            ...prev,
-                                            problem_presented: e.target.value,
-                                        }))
-                                    }
-                                    data-cy="problem"
-                                />
-                            ) : (
-                                <p className="font-label" data-cy="disp-problem">
-                                    {data.problem_presented || "-"}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}History of the Problem</h3>
-
-                            {(editingField === "all" || editingField === "history-fields") ? (
-                                <textarea
-                                    className="text-input font-label resize-y min-h-[20rem]"
-                                    placeholder="History of the Problem"
-                                    value={drafts.history_problem}
-                                    onChange={(e) =>
-                                        setDrafts((prev) => ({
-                                            ...prev,
-                                            history_problem: e.target.value,
-                                        }))
-                                    }
-                                    data-cy="problem-history"
-                                />
-                            ) : (
-                                <p className="font-label" data-cy="disp-problem-history">
-                                    {data.history_problem || "-"}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Findings</h3>
-
-                            {(editingField === "all" || editingField === "history-fields") ? (
-                                <textarea
-                                    className="text-input font-label resize-y min-h-[20rem]"
-                                    placeholder="Findings"
-                                    value={drafts.observation_findings}
-                                    onChange={(e) =>
-                                        setDrafts((prev) => ({
-                                            ...prev,
-                                            observation_findings: e.target.value,
-                                        }))
-                                    }
-                                    data-cy="finding"
-                                />
-                            ) : (
-                                <p className="font-label" data-cy="disp-finding">
-                                    {data.observation_findings || "-"}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {editingField === "history-fields" && (
-                        <button
-                            className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async () => {
-                                try {
-                                    const updated = await editProblemsFindings(clientId, {
-                                        problem_presented: drafts.problem_presented,
-                                        history_problem: drafts.history_problem,
-                                        observation_findings: drafts.observation_findings,
-                                    });
-
-                                    setData((prev) => ({
-                                        ...prev,
-                                        problem_presented: updated.problemPresented || drafts.problem_presented,
-                                        history_problem: updated.historyProblem || drafts.history_problem,
-                                        observation_findings: updated.observationFindings || drafts.observation_findings,
-                                    }));
-
-                                    setEditingField(null);
-                                    showSuccess("Problems and Findings were successfully updated!");
-                                } catch (error) {
-                                    console.error("❌ Update failed:", error);
-                                    setModalTitle("Update Error");
-                                    setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                    setModalConfirm(false);
-                                    setShowModal(true);
-                                }
-                            }}
-                            data-cy="submit-problems-findings-section"
-                        >
-                            Submit Changes
-                        </button>
-
-                    )}
-                </section>
-
-                {!creating && <section
-                    className="flex flex-col gap-8"
-                    id="interventions"
-                    ref={ref4}
-                >
-                    <h1 className="header-main">Interventions</h1>
-                    {user?.role == "sdw" && <button
-                        name="add_intervention"
-                        id="add_intervention"
-                        onClick={() => navigate("/intervention-form")}
-                        className="btn-primary font-bold-label self-center"
-                        data-cy='add-intervention'
-                    >
-                        New Intervention
-                    </button>}
-                    <div className="flex justify-between">
-                        <select
-                            name="services"
-                            id="services"
-                            value={intervention_selected}
-                            onChange={(e) =>
-                                setInterventionSelected(e.target.value)
-                            }
-                            className="label-base text-input max-w-96"
-                            data-cy='intervention-type'
-                        >
-                            <option value="" className="body-base">
-                                Select Intervention
-                            </option>
-                            {Object.entries(interventions).map(
-                                ([key, value], index) => (
-                                    <option
-                                        key={index}
-                                        value={key}
-                                        className="body-base"
-                                    >
-                                        {key}
-                                    </option>
-                                ),
-                            )}
-                        </select>
-                    </div>
-                    <div className="flex w-full flex-col">
-                        <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
-                            <div className="flex justify-between px-2.5">
-                                <p className="label-base w-80">Intervention</p>
-                                <p className="label-base w-80">Date</p>
                             </div>
-                        </div>
-                        <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {interventions[intervention_selected]?.length > 0 ? (
-                                interventions[intervention_selected]?.map(
-                                    (item, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() =>
-                                                handleInterventionNavigation(
-                                                    item.route,
-                                                    clientId,
-                                                    item.formID,
-                                                )
+
+                            <div className="grid grid-cols-2 gap-10">
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Problem Presented</h3>
+
+                                    {(editingField === "all" || editingField === "history-fields") ? (
+                                        <textarea
+                                            className="text-input font-label resize-y min-h-[20rem]"
+                                            value={drafts.problem_presented}
+                                            placeholder="Problem Presented"
+                                            onChange={(e) =>
+                                                setDrafts((prev) => ({
+                                                    ...prev,
+                                                    problem_presented: e.target.value,
+                                                }))
                                             }
-                                            className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                            data-cy={`intervention-item-${item.intervention}-${index}`}
-                                        >
-                                            <p className="label-base w-80">
-                                                {item.intervention} {index + 1}
-                                            </p>
-                                            <p className="label-base w-80">
-                                                {item.date}
-                                            </p>
-                                        </button>
-                                    ),
-                                )
-                            ) : intervention_selected && (
-                                <p className="body-base self-center mt-8">No Interventions Available</p>
-                            )
-                            }
-                            <button
-                                className="btn-primary label-base self-center mt-8"
-                                onClick={() =>
-                                    handleNewIntervention(
-                                        clientId
-                                    )
-                                }>
-                                New Intervention
-                            </button>
-                        </div>
-                    </div>
-                </section>}
+                                            data-cy="problem"
+                                        />
+                                    ) : (
+                                        <p className="font-label" data-cy="disp-problem">
+                                            {data.problem_presented || "-"}
+                                        </p>
+                                    )}
+                                </div>
 
-                {!creating && <section
-                    className="flex flex-col gap-8"
-                    id="interventions"
-                    ref={ref4}
-                >
-                    <div className="flex justify-between">
-                        <h1 className="header-main">Progress Reports</h1>
-                    </div>
-                    {user?.role == "sdw" && <button
-                        name="add_progress_report"
-                        id="add_progress_report"
-                        onClick={() => navigate("/progress-report")}
-                        className="btn-primary font-bold-label self-center"
-                        data-cy='add-progress-report'
-                    >
-                        New Progress Report
-                    </button>}
-                    <div className="flex w-full flex-col">
-                        <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
-                            <div className="flex justify-between px-2.5">
-                                <p className="label-base w-80">
-                                    Progress Report
-                                </p>
-                                <p className="label-base w-80">Date</p>
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}History of the Problem</h3>
+
+                                    {(editingField === "all" || editingField === "history-fields") ? (
+                                        <textarea
+                                            className="text-input font-label resize-y min-h-[20rem]"
+                                            placeholder="History of the Problem"
+                                            value={drafts.history_problem}
+                                            onChange={(e) =>
+                                                setDrafts((prev) => ({
+                                                    ...prev,
+                                                    history_problem: e.target.value,
+                                                }))
+                                            }
+                                            data-cy="problem-history"
+                                        />
+                                    ) : (
+                                        <p className="font-label" data-cy="disp-problem-history">
+                                            {data.history_problem || "-"}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Findings</h3>
+
+                                    {(editingField === "all" || editingField === "history-fields") ? (
+                                        <textarea
+                                            className="text-input font-label resize-y min-h-[20rem]"
+                                            placeholder="Findings"
+                                            value={drafts.observation_findings}
+                                            onChange={(e) =>
+                                                setDrafts((prev) => ({
+                                                    ...prev,
+                                                    observation_findings: e.target.value,
+                                                }))
+                                            }
+                                            data-cy="finding"
+                                        />
+                                    ) : (
+                                        <p className="font-label" data-cy="disp-finding">
+                                            {data.observation_findings || "-"}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex w-full flex-col flex-wrap gap-2.5">
-                            {progress_reports?.length > 0 ? (
-                                progress_reports?.map((item, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() =>
-                                            handleProgressReportNavigation(
-                                                clientId,
-                                                item.formID,
-                                            )
-                                        }
-                                        className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
-                                        data-cy={`progress-report-item-${item.name}-${index}`}
-                                    >
-                                        <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
-                                            {item.name} {index + 1}
-                                        </p>
-                                        <p className="label-base w-80">
-                                            {item.date}
-                                        </p>
-                                    </button>
-                                ))
-                            ) : (
-                                <p className="body-base self-center mt-8">No Progress Reports Available</p>
-                            )}
-                            <button
-                                className="btn-primary label-base self-center mt-8"
-                                onClick={() =>
-                                    handleNewProgressReport(
-                                        clientId
-                                    )
-                                }>
-                                New Progress Report
-                            </button>
-                        </div>
-                    </div>
-                </section>}
 
-                <section
-                    className="flex flex-col gap-8"
-                    id="assessments"
-                    ref={ref5}
-                >
-                    <div className="flex items-center justify-between gap-4">
-                        <h1 className="header-main">{creating && <span className='text-red-500'>* </span>}Assessment</h1>
-                        {/* {user?.role == "sdw" && !creating && <button
+                            {editingField === "history-fields" && (
+                                <button
+                                    className="btn-transparent-rounded my-3 ml-auto"
+                                    onClick={async () => {
+                                        try {
+                                            const updated = await editProblemsFindings(clientId, {
+                                                problem_presented: drafts.problem_presented,
+                                                history_problem: drafts.history_problem,
+                                                observation_findings: drafts.observation_findings,
+                                            });
+
+                                            setData((prev) => ({
+                                                ...prev,
+                                                problem_presented: updated.problemPresented || drafts.problem_presented,
+                                                history_problem: updated.historyProblem || drafts.history_problem,
+                                                observation_findings: updated.observationFindings || drafts.observation_findings,
+                                            }));
+
+                                            setEditingField(null);
+                                            showSuccess("Problems and Findings were successfully updated!");
+                                        } catch (error) {
+                                            console.error("❌ Update failed:", error);
+                                            setModalTitle("Update Error");
+                                            setModalBody(error.message || "An unexpected error occurred.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+                                        }
+                                    }}
+                                    data-cy="submit-problems-findings-section"
+                                >
+                                    Submit Changes
+                                </button>
+
+                            )}
+                        </section>
+
+                        {!creating && <section
+                            className="flex flex-col gap-8"
+                            id="interventions"
+                            ref={ref4}
+                        >
+                            <h1 className="header-main">Interventions</h1>
+                            {user?.role == "sdw" && <button
+                                name="add_intervention"
+                                id="add_intervention"
+                                onClick={() => navigate("/intervention-form")}
+                                className="btn-primary font-bold-label self-center"
+                                data-cy='add-intervention'
+                            >
+                                New Intervention
+                            </button>}
+                            <div className="flex justify-between">
+                                <select
+                                    name="services"
+                                    id="services"
+                                    value={intervention_selected}
+                                    onChange={(e) =>
+                                        setInterventionSelected(e.target.value)
+                                    }
+                                    className="label-base text-input max-w-96"
+                                    data-cy='intervention-type'
+                                >
+                                    <option value="" className="body-base">
+                                        Select Intervention
+                                    </option>
+                                    {Object.entries(interventions).map(
+                                        ([key, value], index) => (
+                                            <option
+                                                key={index}
+                                                value={key}
+                                                className="body-base"
+                                            >
+                                                {key}
+                                            </option>
+                                        ),
+                                    )}
+                                </select>
+                            </div>
+                            <div className="flex w-full flex-col">
+                                <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
+                                    <div className="flex justify-between px-2.5">
+                                        <p className="label-base w-80">Intervention</p>
+                                        <p className="label-base w-80">Date</p>
+                                    </div>
+                                </div>
+                                <div className="flex w-full flex-col flex-wrap gap-2.5">
+                                    {interventions[intervention_selected]?.length > 0 ? (
+                                        interventions[intervention_selected]?.map(
+                                            (item, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() =>
+                                                        handleInterventionNavigation(
+                                                            item.route,
+                                                            clientId,
+                                                            item.formID,
+                                                        )
+                                                    }
+                                                    className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                                    data-cy={`intervention-item-${item.intervention}-${index}`}
+                                                >
+                                                    <p className="label-base w-80">
+                                                        {item.intervention} {index + 1}
+                                                    </p>
+                                                    <p className="label-base w-80">
+                                                        {item.date}
+                                                    </p>
+                                                </button>
+                                            ),
+                                        )
+                                    ) : intervention_selected && (
+                                        <p className="body-base self-center mt-8">No Interventions Available</p>
+                                    )
+                                    }
+                                    <button
+                                        className="btn-primary label-base self-center mt-8"
+                                        onClick={() =>
+                                            handleNewIntervention(
+                                                clientId
+                                            )
+                                        }>
+                                        New Intervention
+                                    </button>
+                                </div>
+                            </div>
+                        </section>}
+
+                        {!creating && <section
+                            className="flex flex-col gap-8"
+                            id="interventions"
+                            ref={ref4}
+                        >
+                            <div className="flex justify-between">
+                                <h1 className="header-main">Progress Reports</h1>
+                            </div>
+                            {user?.role == "sdw" && <button
+                                name="add_progress_report"
+                                id="add_progress_report"
+                                onClick={() => navigate("/progress-report")}
+                                className="btn-primary font-bold-label self-center"
+                                data-cy='add-progress-report'
+                            >
+                                New Progress Report
+                            </button>}
+                            <div className="flex w-full flex-col">
+                                <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
+                                    <div className="flex justify-between px-2.5">
+                                        <p className="label-base w-80">
+                                            Progress Report
+                                        </p>
+                                        <p className="label-base w-80">Date</p>
+                                    </div>
+                                </div>
+                                <div className="flex w-full flex-col flex-wrap gap-2.5">
+                                    {progress_reports?.length > 0 ? (
+                                        progress_reports?.map((item, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() =>
+                                                    handleProgressReportNavigation(
+                                                        clientId,
+                                                        item.formID,
+                                                    )
+                                                }
+                                                className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
+                                                data-cy={`progress-report-item-${item.name}-${index}`}
+                                            >
+                                                <p className="label-base w-80" data-cy={`disp-progress-report-item-${item.name}-${index}`}>
+                                                    {item.name} {index + 1}
+                                                </p>
+                                                <p className="label-base w-80">
+                                                    {item.date}
+                                                </p>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="body-base self-center mt-8">No Progress Reports Available</p>
+                                    )}
+                                    <button
+                                        className="btn-primary label-base self-center mt-8"
+                                        onClick={() =>
+                                            handleNewProgressReport(
+                                                clientId
+                                            )
+                                        }>
+                                        New Progress Report
+                                    </button>
+                                </div>
+                            </div>
+                        </section>}
+
+                        <section
+                            className="flex flex-col gap-8"
+                            id="assessments"
+                            ref={ref5}
+                        >
+                            <div className="flex items-center justify-between gap-4">
+                                <h1 className="header-main">{creating && <span className='text-red-500'>* </span>}Assessment</h1>
+                                {/* {user?.role == "sdw" && !creating && <button
                             className={
                                 editingField === "assessment-field"
                                     ? "icon-button-setup x-button"
@@ -1874,73 +1902,73 @@ function CaseFrontend({ creating = false }) {
                             }}
                             data-cy="assessment-section"
                         ></button>} */}
-                    </div>
+                            </div>
 
-                    <div className="grid grid-cols-1 gap-10">
-                        <div className="flex flex-col gap-4">
-                            {(editingField === "all" || editingField === "assessment-field") ? (
-                                <textarea
-                                    className="text-input font-label resize-y min-h-[20rem]"
-                                    value={drafts.assessment || ""}
-                                    placeholder="Assessment"
-                                    onChange={(e) =>
-                                        setDrafts((prev) => ({
-                                            ...prev,
-                                            assessment: e.target.value,
-                                        }))
-                                    }
-                                    data-cy="assessment"
-                                />
-                            ) : (
-                                <p className="font-label" data-cy="disp-assessment">
-                                    {data.assessment || "-"}
-                                </p>
+                            <div className="grid grid-cols-1 gap-10">
+                                <div className="flex flex-col gap-4">
+                                    {(editingField === "all" || editingField === "assessment-field") ? (
+                                        <textarea
+                                            className="text-input font-label resize-y min-h-[20rem]"
+                                            value={drafts.assessment || ""}
+                                            placeholder="Assessment"
+                                            onChange={(e) =>
+                                                setDrafts((prev) => ({
+                                                    ...prev,
+                                                    assessment: e.target.value,
+                                                }))
+                                            }
+                                            data-cy="assessment"
+                                        />
+                                    ) : (
+                                        <p className="font-label" data-cy="disp-assessment">
+                                            {data.assessment || "-"}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {editingField === "assessment-field" && (
+                                <button
+                                    className="btn-transparent-rounded my-3 ml-auto"
+                                    onClick={async () => {
+                                        try {
+                                            const updated = await editAssessment(clientId, {
+                                                assessment: drafts.assessment,
+                                            });
+
+                                            setData((prev) => ({
+                                                ...prev,
+                                                assessment: updated.assessment || drafts.assessment,
+                                            }));
+
+                                            setEditingField(null);
+                                            showSuccess("Assessment was successfully updated!");
+                                        } catch (error) {
+                                            console.error("❌ Update failed:", error);
+                                            setModalTitle("Update Error");
+                                            setModalBody(error.message || "An unexpected error occurred.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+                                        }
+                                    }}
+                                    data-cy="submit-assessment-section"
+                                >
+                                    Submit Changes
+                                </button>
                             )}
-                        </div>
-                    </div>
+                        </section>
 
-                    {editingField === "assessment-field" && (
-                        <button
-                            className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async () => {
-                                try {
-                                    const updated = await editAssessment(clientId, {
-                                        assessment: drafts.assessment,
-                                    });
-
-                                    setData((prev) => ({
-                                        ...prev,
-                                        assessment: updated.assessment || drafts.assessment,
-                                    }));
-
-                                    setEditingField(null);
-                                    showSuccess("Assessment was successfully updated!");
-                                } catch (error) {
-                                    console.error("❌ Update failed:", error);
-                                    setModalTitle("Update Error");
-                                    setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                    setModalConfirm(false);
-                                    setShowModal(true);
-                                }
-                            }}
-                            data-cy="submit-assessment-section"
+                        <section
+                            className="flex flex-col gap-8"
+                            id="evaluation-recommendation"
+                            ref={ref6}
                         >
-                            Submit Changes
-                        </button>
-                    )}
-                </section>
-
-                <section
-                    className="flex flex-col gap-8"
-                    id="evaluation-recommendation"
-                    ref={ref6}
-                >
-                    <div className="flex items-center justify-between gap-4">
-                        <h1 className="header-main">
-                            Evaluation and Recommendation
-                        </h1>
-                        {/* {!creating && user?.role == "sdw" && <button
+                            <div className="flex items-center justify-between gap-4">
+                                <h1 className="header-main">
+                                    Evaluation and Recommendation
+                                </h1>
+                                {/* {!creating && user?.role == "sdw" && <button
                             className={
                                 editingField === "evaluation-fields"
                                     ? "icon-button-setup x-button"
@@ -1955,110 +1983,111 @@ function CaseFrontend({ creating = false }) {
                             }}
                             data-cy="edit-evaluation-recommendation-section"
                         ></button>} */}
-                    </div>
+                            </div>
 
-                    <div className="grid grid-cols-2 gap-10">
-                        <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Evaluation</h3>
+                            <div className="grid grid-cols-2 gap-10">
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Evaluation</h3>
 
-                            {(editingField === "all" || editingField === "evaluation-fields") ? (
-                                <textarea
-                                    className="text-input font-label resize-y min-h-[20rem]"
-                                    value={drafts.evaluation}
-                                    placeholder="Evaluation"
-                                    onChange={(e) =>
-                                        setDrafts((prev) => ({
-                                            ...prev,
-                                            evaluation: e.target.value,
-                                        }))
-                                    }
-                                    data-cy="evaluation"
-                                />
-                            ) : (
-                                <p className="font-label" data-cy="disp-evaluation">
-                                    {data.evaluation || "-"}
-                                </p>
+                                    {(editingField === "all" || editingField === "evaluation-fields") ? (
+                                        <textarea
+                                            className="text-input font-label resize-y min-h-[20rem]"
+                                            value={drafts.evaluation}
+                                            placeholder="Evaluation"
+                                            onChange={(e) =>
+                                                setDrafts((prev) => ({
+                                                    ...prev,
+                                                    evaluation: e.target.value,
+                                                }))
+                                            }
+                                            data-cy="evaluation"
+                                        />
+                                    ) : (
+                                        <p className="font-label" data-cy="disp-evaluation">
+                                            {data.evaluation || "-"}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Recommendation</h3>
+
+                                    {(editingField === "all" || editingField === "evaluation-fields") ? (
+                                        <textarea
+                                            className="text-input font-label resize-y min-h-[20rem]"
+                                            value={drafts.recommendation}
+                                            placeholder="Recommendation"
+                                            onChange={(e) =>
+                                                setDrafts((prev) => ({
+                                                    ...prev,
+                                                    recommendation: e.target.value,
+                                                }))
+                                            }
+                                            data-cy="recommendation"
+                                        />
+                                    ) : (
+                                        <p className="font-label" data-cy="disp-recommendation">
+                                            {data.recommendation || "-"}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {editingField === "evaluation-fields" && (
+                                <button
+                                    className="btn-transparent-rounded my-3 ml-auto"
+                                    onClick={async () => {
+                                        try {
+                                            const updated = await editEvalReco(clientId, {
+                                                evaluation: drafts.evaluation,
+                                                recommendation: drafts.recommendation,
+                                            });
+
+                                            setData((prev) => ({
+                                                ...prev,
+                                                evaluation: drafts.evaluation,
+                                                recommendation: drafts.recommendation,
+                                            }));
+                                            setEditingField(null);
+                                            showSuccess("Evaluation and Recommendation were successfully updated.");
+                                        } catch (error) {
+                                            console.error("❌ Update failed:", error);
+                                            setModalTitle("Update Error");
+                                            setModalBody(error.message || "An unexpected error occurred.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+                                        }
+                                    }}
+                                    data-cy="submit-evaluation-recommendation-section"
+                                >
+                                    Submit Changes
+                                </button>
+
+
                             )}
-                        </div>
+                        </section>
 
-                        <div className="flex flex-col gap-4">
-                            <h3 className="header-sub">{creating && <span className='text-red-500'>* </span>}Recommendation</h3>
+                        {creating && <button className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
+                            onClick={submitNewCase}
+                            data-cy='create-case'>
+                            Create Case
+                        </button>}
 
-                            {(editingField === "all" || editingField === "evaluation-fields") ? (
-                                <textarea
-                                    className="text-input font-label resize-y min-h-[20rem]"
-                                    value={drafts.recommendation}
-                                    placeholder="Recommendation"
-                                    onChange={(e) =>
-                                        setDrafts((prev) => ({
-                                            ...prev,
-                                            recommendation: e.target.value,
-                                        }))
-                                    }
-                                    data-cy="recommendation"
-                                />
-                            ) : (
-                                <p className="font-label" data-cy="disp-recommendation">
-                                    {data.recommendation || "-"}
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                        {data.is_active && !creating &&
+                            <button
+                                onClick={() =>
+                                    handleCaseTermination(
+                                        clientId
+                                    )}
+                                className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                                data-cy='terminate-case'>
+                                Terminate Case
+                            </button>}
 
-                    {editingField === "evaluation-fields" && (
-                        <button
-                            className="btn-transparent-rounded my-3 ml-auto"
-                            onClick={async () => {
-                                try {
-                                    const updated = await editEvalReco(clientId, {
-                                        evaluation: drafts.evaluation,
-                                        recommendation: drafts.recommendation,
-                                    });
-
-                                    setData((prev) => ({
-                                        ...prev,
-                                        evaluation: drafts.evaluation,
-                                        recommendation: drafts.recommendation,
-                                    }));
-                                    setEditingField(null);
-                                    showSuccess("Evaluation and Recommendation were successfully updated.");
-                                } catch (error) {
-                                    console.error("❌ Update failed:", error);
-                                    setModalTitle("Update Error");
-                                    setModalBody(error.message || "An unexpected error occurred.");
-                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                    setModalConfirm(false);
-                                    setShowModal(true);
-                                }
-                            }}
-                            data-cy="submit-evaluation-recommendation-section"
-                        >
-                            Submit Changes
-                        </button>
-
-
-                    )}
-                </section>
-
-                {creating && <button className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
-                    onClick={submitNewCase}
-                    data-cy='create-case'>
-                    Create Case
-                </button>}
-
-                {data.is_active && !creating &&
-                    <button
-                        onClick={() =>
-                            handleCaseTermination(
-                                clientId
-                            )}
-                        className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
-                        data-cy='terminate-case'>
-                        Terminate Case
-                    </button>}
-
-                {!data.is_active && <div className="mb-[5rem]"></div>}
-            </main>
+                        {!data.is_active && <div className="mb-[5rem]"></div>}
+                    </main>
+                </>)}
         </>
     );
 }
