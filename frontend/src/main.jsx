@@ -19,6 +19,8 @@ import InterventionForm from "./pages/intervention-forms/main-form.jsx";
 import InterventionRoutes from "./Routes/intervention-routes.jsx";
 import "./index.css";
 
+import SpuPage from "./pages/spu-page.jsx";
+
 import NotFound from "./pages/NotFound.jsx";
 
 //we need to add routes pa here for going to other pages so the actual routes are here we add the module Case to load that page
@@ -68,6 +70,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route
                     path="/case-closure"
                     element={<CaseClosure />}
+                />
+
+
+                <Route
+                    path="/spu"
+                    element={<SpuPage />}
                 />
 
                 <Route path="*" element={<NotFound message="Sorry, we couldn't find that page." />} />

@@ -8,7 +8,6 @@ import ProfileModal from "./ProfileModal";
 export default function SideBar({ user }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-    console.log("sidebar user", user);
     return (
         <>
             <ProfileModal
@@ -24,9 +23,9 @@ export default function SideBar({ user }) {
                 />
 
                 {(user?.role == "supervisor" || user?.role == "head") && <SideItem
-                    href="/"
-                    iconClass="progress-button"
-                    label="Progress"
+                    href="/spu"
+                    iconClass="spu-button"
+                    label="SPU's"
                     isActive={false}
                 />}
 

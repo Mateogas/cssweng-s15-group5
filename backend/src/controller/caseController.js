@@ -195,20 +195,22 @@ const getAllCasesbySDW = async (req, res) => {
  */
 const getAllCases = async (req, res) => {
      try {
-          const cases = await Sponsored_Member.find({})
-               .populate('assigned_sdw', 'spu','first_name middle_name last_name') // Only fetch name fields
-               .lean();
+          const cases = await Sponsored_Member.find({spu: { $type: 'objectId' }})
+               .populate('assigned_sdw', 'first_name middle_name last_name') // name for assigned SDW
+               .populate('spu', 'spu_name') 
 
           const simplifiedCases = cases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
                sm_number: c.sm_number,
-               spu: c.spu.spu_name,
+               spu: c.spu?.spu_name || null,
+               spuObjectId: c.spu._id,
                is_active: c.is_active,
                assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
-                    ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-                    : null
+               ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+               : null
+
           }));
 
           res.json(simplifiedCases);

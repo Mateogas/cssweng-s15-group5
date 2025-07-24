@@ -89,7 +89,7 @@ function CaseFrontend({ creating = false }) {
 
     const [familyMembers, setFamilyMembers] = useState([]);
     const [notFound, setNotFound] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(creating ? false : true);
 
     useEffect(() => {
         const loadCaseData = async () => {
@@ -302,9 +302,6 @@ function CaseFrontend({ creating = false }) {
             }
         }
     }, [creating, user, projectLocation, socialDevelopmentWorkers]);
-
-
-    //console.log(drafts);
 
     function calculateAge(dateValue) {
         const birthday = new Date(dateValue);

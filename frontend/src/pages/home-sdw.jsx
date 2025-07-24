@@ -168,9 +168,9 @@ function HomeSDW() {
                     onChange={(e) => setCurrentSPU(e.target.value)}
                   >
                     <option value="">Select SPU</option>
-                    {projectLocation.map((spu) => (
-                      <option key={spu._id} value={spu.spu_name}>
-                        {spu.spu_name}
+                    {projectLocation.map((project) => (
+                      <option key={project.projectCode} value={project.projectCode}>
+                        {project.name} ({project.projectCode})
                       </option>
                     ))}
                   </select>
