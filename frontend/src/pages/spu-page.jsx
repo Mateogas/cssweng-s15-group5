@@ -49,7 +49,8 @@ export default function SpuPage() {
 
             setSpus(allSpus || []);
             setSdws(allSdws || []);
-            setCases(allCases || []);
+            const activeCases = (allCases || []).filter(c => c.is_active);
+            setCases(activeCases);
 
             const initialCollapseState = {};
             (allSpus || []).forEach(spu => {
