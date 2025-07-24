@@ -142,6 +142,7 @@ const getCorrespondenceForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
+        // const sponsoredData = await Sponsored_Member.findById(sponsor_id).lean();
         const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('interventions.intervention').populate('spu').lean();
         const formData = await Intervention_Correspondence.findById(formId).lean()
 
