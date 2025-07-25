@@ -327,7 +327,7 @@ const deleteCaseClosureForm = async (req, res) => {
           else
                formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
 
-          console.log("Form Selected: ", formSelected);
+          // console.log("Form Selected: ", formSelected);
 
           if (!formSelected)
                return res.status(400).json({ message: "No termination request found." })
@@ -337,10 +337,35 @@ const deleteCaseClosureForm = async (req, res) => {
 
           // Uses sessions already, please comment out if needed or force assign an employee
           const active_user = req.session.user
-          if (!active_user)
-               return res.status(404).json({ message: "Unauthorized access." })
-          if (active_user && !caseSelected.assigned_sdw.equals(active_user._id))
-               return res.status(404).json({ message: "You do not have permissions for this case." })
+          const handler = await Employee.findById(caseSelected.assigned_sdw)
+          var supervisor
+          if (active_user.role === "head") {
+               // no restrictions
+          }
+          else if (active_user.role == "super" || active_user.role == "supervisor") {
+               if (handler.role === "sdw") {
+                    supervisor = await Employee.findById(handler.manager);
+                    if (!supervisor || !supervisor._id.equals(active_user._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               } else if (handler.role === "super" || handler.role === "supervisor") {
+                    if (!handler._id.equals(active_user._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               } else if (handler.role === "head") {
+                    if (!active_user.manager || !active_user.manager.equals(handler._id)) {
+                         return res.status(403).json({ message: "Unauthorized access." });
+                    }
+               }
+          } 
+          else if (active_user.role === "sdw") {
+               if (!handler._id.equals(active_user._id)) {
+                    return res.status(403).json({ message: "Unauthorized access." });
+               }
+          }
+          else {
+               return res.status(403).json({ message: "Unauthorized access." });
+          }
 
           // delete
           await formSelected.deleteOne();
