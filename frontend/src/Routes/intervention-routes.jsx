@@ -5,7 +5,7 @@ import CounselingForm from "../pages/intervention-forms/counseling";
 import CorrespondenceForm from "../pages/intervention-forms/correspondence";
 
 const InterventionRoutes = () => (
-    <Routes>
+    <>
         <Route path="/counselling-form" element={<CounselingForm />} />
         <Route path="/home-visitation-form" element={<HomeVisitationForm />} />
         <Route
@@ -13,7 +13,7 @@ const InterventionRoutes = () => (
             element={<FinancialAssessmentForm />}
         />
         <Route path="/correspondence-form" element={<CorrespondenceForm />} />
-    </Routes>
+    </>
 );
 
 export default InterventionRoutes;
