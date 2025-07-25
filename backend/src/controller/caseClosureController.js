@@ -316,6 +316,7 @@ const editCaseClosureForm = async (req, res) => {
  */
 const deleteCaseClosureForm = async (req, res) => {
      try {
+
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
           if (!caseSelected)
                return res.status(404).json({ message: "Case not found." })
@@ -325,6 +326,8 @@ const deleteCaseClosureForm = async (req, res) => {
                formSelected = await Case_Closure.findById(req.params.formID)
           else
                formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
+
+          console.log("Form Selected: ", formSelected);
 
           if (!formSelected)
                return res.status(400).json({ message: "No termination request found." })

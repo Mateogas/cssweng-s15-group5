@@ -103,9 +103,6 @@ app.use('/api/spu',spuRoutes);
 // Case Closure routes
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm);
 app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm);
-app.put('/api/case-closure/create/:caseID', (req, res) => {
-    console.log("VALID");
-});
 app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm);
 app.put('/api/case-closure/edit/:caseID/:formID', caseClosureController.editCaseClosureForm);
 app.put('/api/case-closure/terminate/:caseID', caseClosureController.confirmCaseTermination);
