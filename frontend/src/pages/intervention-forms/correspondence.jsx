@@ -12,6 +12,7 @@ import  {   fetchCorrespFormData,
             deleteCorrespInterventionForm
         }
 from '../../fetch-connections/correspFormConnection'; 
+import { generateCorrespondenceForm } from "../../generate-documents/generate-documents";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -462,6 +463,7 @@ function CorrespondenceForm() {
                                 setValue={setSponsorName}
                                 handleChange={handleChange("General Information")}
                                 error={errors["name_of_sponsor"]}
+                                disabled={viewForm}
                             ></TextInput>
                             <TextInput
                                 label="Sub-Project"
@@ -478,6 +480,7 @@ function CorrespondenceForm() {
                                 setValue={setSponsorshipDate}
                                 handleChange={handleChange("General Information")}
                                 error={errors["date_of_sponsorship"]}
+                                disabled={viewForm}
                             ></DateInput>
                         </div>
                     </div>
@@ -494,6 +497,7 @@ function CorrespondenceForm() {
                     value={identified_problem}
                     setValue={setIdentifiedProblem}
                     error={errors["identified_problem"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -504,12 +508,14 @@ function CorrespondenceForm() {
                     value={assesment}
                     setValue={setAssessment}
                     error={errors["assesment"]}
+                    disabled={viewForm}
                 ></TextArea>
                 <TextArea
                     label="Objective/s"
                     value={objective}
                     setValue={setObjective}
                     error={errors["objective"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -518,7 +524,7 @@ function CorrespondenceForm() {
                 <h3 className="header-md">Intervention Plan</h3>
                 <div className="flex flex-col gap-2">
                     <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
-                        <div className="flex justify-between px-4 gap-6 pr-30">
+                        <div className={`flex justify-between px-4 pr-30 ${viewForm ? 'gap-30' : 'gap-6'}`}>
                             <p className="label-base w-lg">Actions</p>
                             <p className="label-base w-sm">Time Frame</p>
                             <p className="label-base w-lg">Results</p>
@@ -546,6 +552,7 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_action`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-sm">
@@ -561,6 +568,7 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_time_frame`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
@@ -576,6 +584,7 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_results`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
@@ -591,12 +600,15 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_person_responsible`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
-                                <button
-                                    onClick={() => deleteIntervention(index)}
-                                    className="icon-button-setup trash-button px-10"
-                                ></button>
+                                {!viewForm && (
+                                    <button
+                                        onClick={() => deleteIntervention(index)}
+                                        className="icon-button-setup trash-button px-10"
+                                    ></button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -609,14 +621,16 @@ function CorrespondenceForm() {
                         <p className="text-sm self-end mt-2">{savedTime}</p>
                     )}
                 </div>
-                <button
-                    name="add_intervention"
-                    id="add_intervention"
-                    onClick={handleAddIntervention}
-                    className="btn-primary font-bold-label self-center"
-                >
-                    Add Intervention
-                </button>
+                {!viewForm && (
+                    <button
+                        name="add_intervention"
+                        id="add_intervention"
+                        onClick={handleAddIntervention}
+                        className="btn-primary font-bold-label self-center"
+                    >
+                        Add Intervention
+                    </button>
+                )}
             </section>
 
             {/* Recommendation */}
@@ -627,6 +641,7 @@ function CorrespondenceForm() {
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -647,21 +662,12 @@ function CorrespondenceForm() {
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => 
-                                setShowConfirm(true)
-                            }
-                        >
-                            Delete Form
-                        </button>
-                        <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleUpdate();
-                                navigate(`/case/${caseID}`);
+                            onClick={() => {
+                                generateCorrespondenceForm(formID)
                             }}
                         >
-                            Save Changes
+                            Download Form
                         </button>
                     </>
                 ) : (

@@ -12,6 +12,8 @@ import  {   fetchFinInterventionData,
         }
 from '../../fetch-connections/financialForm-connection'; 
 
+import { generateFinancialAssessmentForm  } from "../../generate-documents/generate-documents";
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -347,6 +349,7 @@ function FinancialAssessmentForm() {
                                         handleCheckboxChange(e.target.value)
                                         handleChange("Type of Assistance")(e)
                                     }}
+                                    disabled = {viewForm}
                                 />
                                 {item}
                             </label>
@@ -364,6 +367,7 @@ function FinancialAssessmentForm() {
                                         handleCheckboxChange(e.target.value);
                                         handleChange("Type of Assistance")(e);
                                     }}
+                                    disabled = {viewForm}
                                 />
                                 {item}
                             </label>
@@ -379,6 +383,7 @@ function FinancialAssessmentForm() {
                             }}
                             placeholder="Form of Assistance"
                             className={`body-base text-input h-32 w-full ${errors["other_assistance_detail"] ? "text-input-error" : ""}`}
+                            disabled = {viewForm}
                         ></textarea>
                         {errors["other_assistance_detail"] && (
                             <div className="text-red-500 text-sm self-end">
@@ -445,6 +450,7 @@ function FinancialAssessmentForm() {
                     value={problem_presented}
                     setValue={setProblemPresented}
                     error={errors["problem_presented"]}
+                    disabled = {viewForm}
                 ></TextArea>
             </section>
 
@@ -455,6 +461,7 @@ function FinancialAssessmentForm() {
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
+                    disabled = {viewForm}
                 ></TextArea>
             </section>
 
@@ -475,21 +482,12 @@ function FinancialAssessmentForm() {
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
+                            className="btn-primary font-bold-label w-min"
                             onClick={() => 
-                                setShowConfirm(true)
+                               generateFinancialAssessmentForm(formID)
                             }
                         >
-                            Delete Form
-                        </button>
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleUpdate();
-                                navigate(`/case/${caseID}`);
-                            }}
-                        >
-                            Save Changes
+                            Download Form
                         </button>
                     </>
                 ) : (

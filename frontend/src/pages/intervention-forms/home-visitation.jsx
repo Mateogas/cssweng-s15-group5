@@ -11,8 +11,8 @@ import {
     createHomeVis,
     editHomeVis,
     deleteHomeVis,
-    downloadHomeVis
 } from "../../fetch-connections/homeVisitation-connection";
+import { generateHomeVisitForm } from "../../generate-documents/generate-documents";
 
 
 function useQuery() {
@@ -934,7 +934,7 @@ function HomeVisitationForm() {
                             type="button"
                             className="btn-primary font-bold-label w-min"
                             onClick={() => 
-                                downloadHomeVis(formID)
+                                generateHomeVisitForm(formID)
                             }
                         >
                            Download Form

@@ -12,6 +12,7 @@ import {
     deleteCounselingIntervention
 } from "../../fetch-connections/intervention-connection";
 import { editAssessment } from "../../fetch-connections/case-connection";
+import { generateCounselingForm } from "../../generate-documents/generate-documents";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -351,6 +352,7 @@ function CounselingForm() {
                                 setValue={setGradeYearLevel}
                                 handleChange={handleChange("Sponsored Member")}
                                 error={errors["grade_year_level"]}
+                                disabled={viewForm}
                             ></TextInput>
                             <TextInput
                                 label="School"
@@ -358,6 +360,7 @@ function CounselingForm() {
                                 setValue={setSchool}
                                 handleChange={handleChange("Sponsored Member")}
                                 error={errors["school"]}
+                                disabled={viewForm}
                             ></TextInput>
                             <div className="flex gap-16">
                                 <p className="label-base w-72">Address</p>
@@ -391,6 +394,7 @@ function CounselingForm() {
                                 setValue={setAreaSelfHelp}
                                 handleChange={handleChange("General Information")}
                                 error={errors["area_self_help"]}
+                                disabled={viewForm}
                             ></TextInput>
                         </div>
                         <div className="flex flex-col gap-8">
@@ -400,6 +404,7 @@ function CounselingForm() {
                                 setValue={setCounselingDate}
                                 handleChange={handleChange("General Information")}
                                 error={errors["counseling_date"]}
+                                disabled={viewForm}
                             ></DateInput>
                         </div>
                     </div>
@@ -415,12 +420,14 @@ function CounselingForm() {
                     value={reason_for_counseling}
                     setValue={setReasonForCounseling}
                     error={errors["reason_for_counseling"]}
+                    disabled={viewForm}
                 ></TextArea>
                 <TextArea
                     label="Corrective and/or Disciplinary Action To Be Taken"
                     value={corrective_action}
                     setValue={setCorrectiveAction}
                     error={errors["corrective_action"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -433,12 +440,14 @@ function CounselingForm() {
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
+                    disabled={viewForm}
                 ></TextArea>
                 <TextArea
                     label="SM's Comments/Remarks"
                     value={sm_comments}
                     setValue={setSMComments}
                     error={errors["sm_comments"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -452,21 +461,12 @@ function CounselingForm() {
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => 
-                                setShowConfirm(true)
-                            }
-                        >
-                            Delete Form
-                        </button>
-                        <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleUpdate();
-                                navigate(`/case/${caseID}`);
+                            onClick={() => {
+                                generateCounselingForm(formID)
                             }}
                         >
-                            Save Changes
+                            Download Form
                         </button>
                     </>
                 ) : (
