@@ -550,8 +550,8 @@ function CaseFrontend({ creating = false }) {
             missing.push("Place of Birth");
         }
 
-        if (drafts.contact_no && drafts.contact_no.length !== 11) {
-            missing.push('Contact No. must be exactly 11 digits');
+        if (drafts.contact_no && !/^\d{11}$/.test(drafts.contact_no)) {
+            missing.push("Contact Number must be 11 numerical digits");
         }
 
         if (missing.length > 0) {
@@ -1728,15 +1728,6 @@ function CaseFrontend({ creating = false }) {
                             ref={ref4}
                         >
                             <h1 className="header-main">Interventions</h1>
-                            {user?.role == "sdw" && <button
-                                name="add_intervention"
-                                id="add_intervention"
-                                onClick={() => navigate("/intervention-form")}
-                                className="btn-primary font-bold-label self-center"
-                                data-cy='add-intervention'
-                            >
-                                New Intervention
-                            </button>}
                             <div className="flex justify-between">
                                 <select
                                     name="services"
@@ -1800,15 +1791,20 @@ function CaseFrontend({ creating = false }) {
                                         <p className="body-base self-center mt-8">No Interventions Available</p>
                                     )
                                     }
-                                    <button
-                                        className="btn-primary label-base self-center mt-8"
+
+                                    {user?.role == "sdw" && <button
+                                        name="add_intervention"
+                                        id="add_intervention"
                                         onClick={() =>
                                             handleNewIntervention(
                                                 clientId
                                             )
-                                        }>
+                                        }
+                                        className="btn-primary font-bold-label self-center mt-10"
+                                        data-cy='add-intervention'
+                                    >
                                         New Intervention
-                                    </button>
+                                    </button>}
                                 </div>
                             </div>
                         </section>}
@@ -1821,15 +1817,6 @@ function CaseFrontend({ creating = false }) {
                             <div className="flex justify-between">
                                 <h1 className="header-main">Progress Reports</h1>
                             </div>
-                            {user?.role == "sdw" && <button
-                                name="add_progress_report"
-                                id="add_progress_report"
-                                onClick={() => navigate("/progress-report")}
-                                className="btn-primary font-bold-label self-center"
-                                data-cy='add-progress-report'
-                            >
-                                New Progress Report
-                            </button>}
                             <div className="flex w-full flex-col">
                                 <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
                                     <div className="flex justify-between px-2.5">
@@ -1864,15 +1851,20 @@ function CaseFrontend({ creating = false }) {
                                     ) : (
                                         <p className="body-base self-center mt-8">No Progress Reports Available</p>
                                     )}
-                                    <button
-                                        className="btn-primary label-base self-center mt-8"
+
+                                    {user?.role == "sdw" && <button
+                                        name="add_progress_report"
+                                        id="add_progress_report"
                                         onClick={() =>
                                             handleNewProgressReport(
                                                 clientId
                                             )
-                                        }>
+                                        }
+                                        className="btn-primary font-bold-label self-center mt-10"
+                                        data-cy='add-progress-report'
+                                    >
                                         New Progress Report
-                                    </button>
+                                    </button>}
                                 </div>
                             </div>
                         </section>}
