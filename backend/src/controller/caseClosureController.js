@@ -18,17 +18,20 @@ const Employee = require('../model/employee');
 const loadCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-               .populate('spu') 
+               //.populate('spu') // temporarily removed
                .lean();
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
-          caseSelected.spu = caseSelected.spu.spu_name
+          // caseSelected.spu = caseSelected.spu.spu_name // temporarily removed
+          caseSelected.spu = caseSelected.spu
 
           // assuming sessions is already set up
           const active_user = req.session.user
           // const active_user = await Employee.findById("68732fa1c9de746d02ac3755") 
           if (!active_user)
                return res.status(403).json({ message: "Unauthorized access." })
+
+          console.log("Active User: ", active_user);
 
           // check if it is the appropriate supervisor or head
           const handler = await Employee.findById(caseSelected.assigned_sdw)
@@ -61,9 +64,10 @@ const loadCaseClosureForm = async(req, res) => {
                return res.status(403).json({ message: "Unauthorized access." });
           }
 
-          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
+
           if (formSelected)
-                return res.status(200).json({form: formSelected, case: caseSelected})
+                return res.status(200).json({form: formSelected, case: caseSelected, active_user_role: active_user.role})
 
           return res.status(200).json(caseSelected)
      } catch(error) {
@@ -124,7 +128,7 @@ const createCaseClosureForm = async(req, res) => {
                return res.status(404).json({ message: "Sponsored member not found" });
 
           // if a form is found, load the form immediately
-          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
           if (formSelected)
                return res.status(200).json({ form: formSelected, case: caseSelected })
 
@@ -132,7 +136,7 @@ const createCaseClosureForm = async(req, res) => {
           const active_user = req.session.user
           if (!active_user)
                return res.status(404).json({ message: "Unauthorized access." });
-          if (!active_user._id.equals(caseSelected.assigned_sdw))
+          if (!caseSelected.assigned_sdw.equals(active_user._id))
                return res.status(404).json({ message: "Unauthorized access." });
 
           // proceed to creation of form
@@ -320,7 +324,7 @@ const deleteCaseClosureForm = async (req, res) => {
           if (req.params.formID)
                formSelected = await Case_Closure.findById(req.params.formID)
           else
-               formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+               formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
 
           if (!formSelected)
                return res.status(400).json({ message: "No termination request found." })
@@ -357,7 +361,7 @@ const confirmCaseTermination = async (req, res) => {
           if (req.params.formID)
                formSelected = await Case_Closure.findById(req.params.formID)
           else
-               formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
+               formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
 
           if (!formSelected)
                return res.status(404).json({ message: "No termination request found." })

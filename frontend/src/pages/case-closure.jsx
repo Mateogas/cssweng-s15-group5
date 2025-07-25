@@ -6,7 +6,9 @@ import Signature from "../Components/Signature";
 // API Import
 import  {   fetchCaseData,
             fetchCaseClosureData, 
-            createCaseClosureForm
+            createCaseClosureForm,
+            terminateCase,
+            deleteCaseClosureForm
         }
 from '../fetch-connections/caseClosure-connection'; 
 
@@ -15,9 +17,6 @@ function useQuery() {
 }
 
 function CaseClosure() {
-
-    // --- Temporary data --- //
-    const sdw_view = true;
 
     // ===== START :: Setting Data ===== // 
 
@@ -56,7 +55,7 @@ function CaseClosure() {
             setLoading(true);
 
             const returnData = await fetchCaseData(caseID);
-            const caseData = returnData
+            const caseData = returnData.case || returnData
 
             setRawCaseData(caseData);
             setData((prev) => ({
@@ -93,18 +92,23 @@ function CaseClosure() {
     // < START :: View Form > //
     
     const viewForm = action !== 'create' ? true : false;
+    const [sdw_view, setSDWView] = useState(true);
 
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 setLoading(true);
     
-                const returnData = await fetchCaseClosureData(caseID, formID);
+                const returnData = await fetchCaseClosureData(caseID);
                 const formData = returnData.form
     
                 console.log("Form Data", formData)
     
                 setRawFormData(formData);
+
+                const user_sdw = returnData.active_user_role === "sdw" ? true : false;
+
+                setSDWView(user_sdw);
     
                 setData((prev) => ({
                     ...prev,
@@ -286,7 +290,31 @@ function CaseClosure() {
     };
     */
 
-    // < END :: Create Form > //
+    // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    const handleDelete = async () => {
+        try {
+            const response = await deleteCaseClosureForm(caseID); 
+        } catch (err) {
+            console.error("Failed to delete case:", err);
+        }
+    };
+
+    // < END :: Delete Form > //
+
+    // < START :: Terminate Case > //
+
+    const handleTermination = async () => {
+        try {
+            const response = await terminateCase(caseID); 
+        } catch (err) {
+            console.error("Failed to terminate case:", err);
+        }
+    };
+
+    // < END :: Terminate Case > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -696,20 +724,24 @@ function CaseClosure() {
                             <>
                                 <button
                                     className="btn-outline font-bold-label"
-                                    onClick={() => 
-                                        navigate(`/case/${caseID}`) /* Replace with Delete */
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        navigate(`/case/${caseID}`);
+                                    }
                                     }
                                 >
                                     Delete Request
                                 </button>
+                                {/*
                                 <button
                                     className="btn-primary font-bold-label w-min"
                                     onClick={() => {
-                                        navigate(`/case/${caseID}`); /* Replace with Update */
+                                        navigate(`/case/${caseID}`); 
                                     }}
                                 >
                                     Save Changes
                                 </button>
+                                */}
                             </>
                         ) : (
                             <>
@@ -721,9 +753,7 @@ function CaseClosure() {
                                 </button>
                                 <button
                                     className="btn-primary font-bold-label w-min"
-                                    onClick={async (e) => {
-                                        await handleSubmit(e);
-                                    }}
+                                    onClick={() => setShowConfirm(true)}
                                 >
                                     Create Request
                                 </button>
@@ -731,10 +761,13 @@ function CaseClosure() {
                         )}
                     </div>
                 ) : (
-                    <div className="flex w-full justify-center gap-20">
+                    <div className="flex w-full justify-center items-center gap-20">
                         <button
-                            className="label-base btn-outline-rounded"
-                            onClick={() => navigate(`/case/${caseID}`)} /* Replace with Delete */
+                            className="label-base btn-outline"
+                            onClick={async () => {
+                                await handleDelete();
+                                navigate(`/case/${caseID}`)
+                            }}
                         >
                             Reject Termination
                         </button>
@@ -752,8 +785,17 @@ function CaseClosure() {
                 {showConfirm && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
-                            <h2 className="header-md font-semibold mb-4">Close Case</h2>
-                            <p className="label-base mb-6">Are you sure you want to close this case?</p>
+                            {sdw_view ? (
+                                <>
+                                    <h2 className="header-md font-semibold mb-4">Close Case</h2>
+                                    <p className="label-base mb-6">Are you sure you want to close this case?</p>
+                                </>
+                            ) : (
+                                <>
+                                    <h2 className="header-md font-semibold mb-4">Terminate Case</h2>
+                                    <p className="label-base mb-6">Are you sure you want to terminate this case?</p>
+                                </>
+                            )}
                             <div className="flex justify-end gap-4">
                                 
                                 {/* Cancel */}
@@ -767,16 +809,29 @@ function CaseClosure() {
                                 </button>
 
                                 {/* Close Case */}
-                                <button
-                                    onClick={async () => {
-                                        await handleCreate();
-                                        setShowConfirm(false);
-                                        navigate(`/case/${caseID}`);
-                                    }}
-                                    className="btn-primary font-bold-label"
-                                >
-                                    Confirm
-                                </button>
+                                {sdw_view ? (
+                                    <button
+                                        onClick={async (e) => {
+                                            await handleSubmit(e);
+                                            setShowConfirm(false);
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        Confirm
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={async () => {
+                                            await handleTermination();
+                                            setShowConfirm(false);
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        Confirm
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

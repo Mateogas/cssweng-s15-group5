@@ -45,6 +45,12 @@ import {
 import {
     fetchProgressReportsForCase
 } from "../../fetch-connections/progress-report-connection";
+
+// Case Closure API Imports
+import {
+    fetchCaseClosureData
+} from "../../fetch-connections/caseClosure-connection";
+
 import { fetchAllHomeVisitForms } from "../../fetch-connections/homeVisitation-connection";
 
 // Case Download Import
@@ -604,7 +610,7 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedHomeVisitData = await fetchAllHomeVisitForms(clientId);
-            console.log("Fetched Home Visit: ", fetchedHomeVisitData);
+            // console.log("Fetched Home Visit: ", fetchedHomeVisitData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -623,7 +629,7 @@ function CaseFrontend({ creating = false }) {
                 };
             });
 
-            console.log("Home Visitation Forms: ", homeVisitInterventions);
+            // console.log("Home Visitation Forms: ", homeVisitInterventions);
 
             setHomeVisitations(homeVisitInterventions);
         };
@@ -770,6 +776,23 @@ function CaseFrontend({ creating = false }) {
         loadData();
     }, []);
 
+    const [caseClosureForm, setCaseClosureForm] = useState(null);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const fetchedClosureForm = await fetchCaseClosureData(clientId);
+            console.log("Fetched Closure Form: ", fetchedClosureForm);
+
+            const closureForm = fetchedClosureForm.form
+
+            console.log("Closure Form Data: ", closureForm);
+
+            setCaseClosureForm(closureForm);
+        };
+
+        loadData();
+    }, []);
+
     const handleNewIntervention = (caseID) => {
 
         const path = `/intervention-form/?action=create&caseID=${caseID}`;
@@ -791,6 +814,15 @@ function CaseFrontend({ creating = false }) {
     const handleCaseTermination = (caseID) => {
 
         const path = `/case-closure/?action=create&caseID=${caseID}`;
+
+        navigate(path);
+
+        // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
+    };
+
+    const handleViewCaseTermination = (caseID) => {
+
+        const path = `/case-closure/?action=view&caseID=${caseID}`;
 
         navigate(path);
 
@@ -955,7 +987,7 @@ function CaseFrontend({ creating = false }) {
                         }}
                     />
 
-                    <main className="flex flex-col gap-20 pt-15">
+                    <main className="flex flex-col gap-20 py-15">
                         {/* <div className='flex flex-1 top-0 justify-between fixed bg-white z-98 max-w-[1280px] py-3 mx-auto'> */}
                         <div className="fixed top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-[1280px] items-center justify-between bg-white px-4 py-3">
                             <button
@@ -1728,15 +1760,6 @@ function CaseFrontend({ creating = false }) {
                             ref={ref4}
                         >
                             <h1 className="header-main">Interventions</h1>
-                            {user?.role == "sdw" && <button
-                                name="add_intervention"
-                                id="add_intervention"
-                                onClick={() => navigate("/intervention-form")}
-                                className="btn-primary font-bold-label self-center"
-                                data-cy='add-intervention'
-                            >
-                                New Intervention
-                            </button>}
                             <div className="flex justify-between">
                                 <select
                                     name="services"
@@ -1800,6 +1823,7 @@ function CaseFrontend({ creating = false }) {
                                         <p className="body-base self-center mt-8">No Interventions Available</p>
                                     )
                                     }
+                                    {user?.role == "sdw" && 
                                     <button
                                         className="btn-primary label-base self-center mt-8"
                                         onClick={() =>
@@ -1809,6 +1833,7 @@ function CaseFrontend({ creating = false }) {
                                         }>
                                         New Intervention
                                     </button>
+                                    }
                                 </div>
                             </div>
                         </section>}
@@ -1821,15 +1846,6 @@ function CaseFrontend({ creating = false }) {
                             <div className="flex justify-between">
                                 <h1 className="header-main">Progress Reports</h1>
                             </div>
-                            {user?.role == "sdw" && <button
-                                name="add_progress_report"
-                                id="add_progress_report"
-                                onClick={() => navigate("/progress-report")}
-                                className="btn-primary font-bold-label self-center"
-                                data-cy='add-progress-report'
-                            >
-                                New Progress Report
-                            </button>}
                             <div className="flex w-full flex-col">
                                 <div className="flex w-full flex-col gap-40 border-b border-[var(--border-color)]">
                                     <div className="flex justify-between px-2.5">
@@ -1864,6 +1880,7 @@ function CaseFrontend({ creating = false }) {
                                     ) : (
                                         <p className="body-base self-center mt-8">No Progress Reports Available</p>
                                     )}
+                                    {user?.role == "sdw" && 
                                     <button
                                         className="btn-primary label-base self-center mt-8"
                                         onClick={() =>
@@ -1873,6 +1890,7 @@ function CaseFrontend({ creating = false }) {
                                         }>
                                         New Progress Report
                                     </button>
+                                    }
                                 </div>
                             </div>
                         </section>}
@@ -2071,16 +2089,33 @@ function CaseFrontend({ creating = false }) {
                             Create Case
                         </button>}
 
-                        {data.is_active && !creating &&
-                            <button
-                                onClick={() =>
-                                    handleCaseTermination(
-                                        clientId
-                                    )}
-                                className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
-                                data-cy='terminate-case'>
-                                Terminate Case
-                            </button>}
+                        {data.is_active && !creating && (
+                            caseClosureForm ? (
+                                <button
+                                    onClick={() =>
+                                        handleViewCaseTermination(
+                                            clientId
+                                        )
+                                    }
+                                    className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                                    data-cy='terminate-case'>
+                                    View Termination Form
+                                </button>
+                            ) : (
+                                user?.role === "sdw" ? (
+                                    <button
+                                        onClick={() =>
+                                            handleCaseTermination(
+                                                clientId
+                                            )}
+                                        className="btn-primary font-bold-label drop-shadow-base my-3 ml-auto"
+                                        data-cy='terminate-case'>
+                                        Terminate Case
+                                    </button>
+                                ) : null
+                            )
+                        )
+                        }
 
                         {!data.is_active && <div className="mb-[5rem]"></div>}
                     </main>

@@ -149,7 +149,8 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                subproject: sponsored_member.spu.spu_name,
+                // subproject: sponsored_member.spu.spu_name, // temporarily removed 
+                subproject: sponsored_member.spu,
                 address: sponsored_member.present_address,
             },
         });

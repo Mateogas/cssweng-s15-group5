@@ -99,19 +99,23 @@ app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.use('/api/intervention', homeVisRoutes);
 app.use('/api/spu',spuRoutes);
+
 // Case Closure routes
-app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
-app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm)
-app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm)
-app.put('/api/case-closure/edit/:caseID/:formID', caseClosureController.editCaseClosureForm)
-app.put('/api/case-closure/terminate/:caseID', caseClosureController.confirmCaseTermination)
-app.put('/api/case-closure/terminate/:caseID/:formID', caseClosureController.confirmCaseTermination)
-app.delete('/api/case-closure/delete/:caseID', caseClosureController.deleteCaseClosureForm)
-app.delete('/api/case-closure/delete/:caseID/:formID', caseClosureController.deleteCaseClosureForm)
+app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm);
+app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm);
+app.put('/api/case-closure/create/:caseID', (req, res) => {
+    console.log("VALID");
+});
+app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm);
+app.put('/api/case-closure/edit/:caseID/:formID', caseClosureController.editCaseClosureForm);
+app.put('/api/case-closure/terminate/:caseID', caseClosureController.confirmCaseTermination);
+app.put('/api/case-closure/terminate/:caseID/:formID', caseClosureController.confirmCaseTermination);
+app.delete('/api/case-closure/delete/:caseID', caseClosureController.deleteCaseClosureForm);
+app.delete('/api/case-closure/delete/:caseID/:formID', caseClosureController.deleteCaseClosureForm);
 
 // Log in and log out route
-app.put('/api/login', authController.loginUser)
-app.put('/api/logout', authController.logoutUser)
+app.put('/api/login', authController.loginUser);
+app.put('/api/logout', authController.logoutUser);
 
 // File Generator routes
 app.use('/api/file-generator', fileGenerator);
