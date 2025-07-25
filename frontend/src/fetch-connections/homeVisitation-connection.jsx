@@ -148,12 +148,3 @@ export const deleteHomeVis = async (formID) => {
         throw error;
     }
 };
-
-export const downloadHomeVis = async (formID) => {
-    try {
-        generateHomeVisitForm(formID)
-        return true
-    } catch (error) {
-        return false
-    }
-} 
