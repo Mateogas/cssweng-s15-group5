@@ -31,6 +31,9 @@ function CorrespondenceForm() {
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
 
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -53,33 +56,37 @@ function CorrespondenceForm() {
 
     // < START :: Auto-Filled Data > //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    const viewForm = action !== 'create' ? true : false;
 
-            const returnData = await fetchAutoFillCorrespData(caseID);
-            const caseData = returnData.returningData;
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            console.log("Case Data: ", caseData)
+                const returnData = await fetchAutoFillCorrespData(caseID);
+                const caseData = returnData.returningData;
 
-            setRawCaseData(caseData);
+                console.log("Case Data: ", caseData)
 
-            setData((prev) => ({
-                ...prev,
-                form_num: caseData.intervention_number || "",
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
-                ch_number: caseData.sm_number || "",
-                dob: caseData.dob || "",
-                address: caseData.address || "",
-                subproject: caseData.spu || "",
-            }));
+                setRawCaseData(caseData);
 
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+                setData((prev) => ({
+                    ...prev,
+                    form_num: caseData.intervention_number || "",
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    address: caseData.address || "",
+                    subproject: caseData.spu || "",
+                }));
+
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+    }
 
     useEffect(() => {
         setFormNum(data.form_num || "");
@@ -96,8 +103,6 @@ function CorrespondenceForm() {
 
     // < START :: View Form > //
 
-    const viewForm = action !== 'create' ? true : false;
-
     if (viewForm) {
         useEffect(() => {
             const loadFormData = async () => {
@@ -107,6 +112,7 @@ function CorrespondenceForm() {
                     caseID, formID
                 );
                 const formData = returnFormData.form;
+                const caseData = returnFormData.sponsored_member
     
                 console.log("form Data", formData);
                 console.log("FORM ID: ", formID);
@@ -115,6 +121,14 @@ function CorrespondenceForm() {
     
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    address: caseData.present_address || "",
+                    subproject: caseData.spu || "",
+                    
                     form_num: formData.intervention_number || "",
                     date: formData.createdAt || "",
                     name_of_sponsor: formData.name_of_sponsor || "",
@@ -131,17 +145,17 @@ function CorrespondenceForm() {
             };
             loadFormData();
         }, []);
-
-        useEffect(() => {
-            setFormNum(data.form_num || "");
-            setSponsorName(data.name_of_sponsor || "");
-            setSponsorshipDate(data.date_of_sponsorship || "");
-            setIdentifiedProblem(data.identified_problem || "");
-            setAssessment(data.assesment || "");
-            setObjective(data.objective || "");
-            setRecommendation(data.recommendation || "");
-        }, [data]);
     }
+
+    useEffect(() => {
+        setFormNum(data.form_num || "");
+        setSponsorName(data.name_of_sponsor || "");
+        setSponsorshipDate(data.date_of_sponsorship || "");
+        setIdentifiedProblem(data.identified_problem || "");
+        setAssessment(data.assesment || "");
+        setObjective(data.objective || "");
+        setRecommendation(data.recommendation || "");
+    }, [data]);
 
     // < END :: View Form > //
 
@@ -232,15 +246,16 @@ function CorrespondenceForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
             await handleCreate();
-            navigate(`/case/${caseID}`);
+            return true;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -259,6 +274,10 @@ function CorrespondenceForm() {
         console.log("Payload: ", payload);
 
         const response = await createCorrespForm(caseID, payload); 
+        console.log(response)
+        if (response?._id) {
+            setnewformID(response._id);
+        }
     };
 
     // < END :: Create Form > //
@@ -279,6 +298,10 @@ function CorrespondenceForm() {
         console.log("Payload: ", updatedPayload);
 
         const response = await editCorrespForm(formID, updatedPayload); 
+        console.log(response)
+        if (response?._id) {
+            setnewformID(response._id);
+        }
     };
 
     // < END :: Edit Form > //
@@ -679,9 +702,11 @@ function CorrespondenceForm() {
                             Cancel
                         </button>
                         <button
+                            type="submmit"
                             className="btn-primary font-bold-label w-min"
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                const success = await handleSubmit(e);
+                                if (success) setShowSuccessModal(true);
                             }}
                         >
                             Create Intervention
@@ -723,6 +748,38 @@ function CorrespondenceForm() {
                     </div>
                 )}
 
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Correspondence Form #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/correspondence-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Missing / Invalid Input */}
                 {showErrorOverlay && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -757,6 +814,14 @@ function CorrespondenceForm() {
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

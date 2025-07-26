@@ -34,6 +34,9 @@ function FinancialAssessmentForm() {
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
 
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -61,32 +64,35 @@ function FinancialAssessmentForm() {
     const [type_of_assistance, setTypeOfAssistance] = useState([]);
 
     // ===== START :: Create New Form ===== // 
+    const viewForm = action !== 'create' ? true : false;
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            const returnData = await fetchAutoFillFinancialData(caseID);
-            const caseData = returnData.returningData;
+                const returnData = await fetchAutoFillFinancialData(caseID);
+                const caseData = returnData.returningData;
 
-            console.log(caseData)
+                console.log(caseData)
 
-            setRawCaseData(caseData);
+                setRawCaseData(caseData);
 
-            setData((prev) => ({
-                ...prev,
-                form_num: caseData.intervention_number || "",
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
-                ch_number: caseData.sm_number || "",
-                area_and_subproject: caseData.spu || "",
-            }));
+                setData((prev) => ({
+                    ...prev,
+                    form_num: caseData.intervention_number || "",
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    area_and_subproject: caseData.spu || "",
+                }));
 
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+    }
 
     useEffect(() => {
         setFormNum(data.form_num || "");
@@ -100,8 +106,6 @@ function FinancialAssessmentForm() {
     // ===== END :: Create New Form ===== // 
 
     // ===== START :: View Form ===== //
-    
-    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
@@ -112,13 +116,19 @@ function FinancialAssessmentForm() {
                     caseID, formID
                 );
                 const formData = returnFormData.form;
+                const caseData = returnFormData.sponsored_member;
 
                 console.log("form Data", formData);
-
                 setRawFormData(formData);
 
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    area_and_subproject: caseData.spu || "",
+
                     form_num: formData.intervention_number || "",
                     date: formData.createdAt || "",
                     problem_presented: formData.problem_presented || "",
@@ -175,7 +185,7 @@ function FinancialAssessmentForm() {
             newErrors["type_of_assistance"] = "Please select at least one type of assistance.";
         }
         
-        if (type_of_assistance.includes("Other: Please Indicate Below")) {
+        if (type_of_assistance.includes("Other: Please Indicate Below") && other_assistance_detail == "") {
             newErrors["other_assistance_detail"] = "Please indicate the type of assistance.";
         }
 
@@ -190,15 +200,16 @@ function FinancialAssessmentForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
             await handleCreate();
-            navigate(`/case/${caseID}`);
+            return true;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -215,6 +226,10 @@ function FinancialAssessmentForm() {
         console.log("Payload: ", payload);
 
         const response = await createFinancialForm(caseID, payload); 
+        console.log(response)
+        if (response?._id) {
+            setnewformID(response._id);
+        }
     };
 
     // < END :: Create Form > //
@@ -499,9 +514,11 @@ function FinancialAssessmentForm() {
                             Cancel
                         </button>
                         <button
+                            type="submmit"
                             className="btn-primary font-bold-label w-min"
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                const success = await handleSubmit(e);
+                                if (success) setShowSuccessModal(true);
                             }}
                         >
                             Create Intervention
@@ -543,6 +560,38 @@ function FinancialAssessmentForm() {
                     </div>
                 )}
 
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Financial Assessment #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/financial-assessment-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Missing / Invalid Input */}
                 {showErrorOverlay && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -577,6 +626,14 @@ function FinancialAssessmentForm() {
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

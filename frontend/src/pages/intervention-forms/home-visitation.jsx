@@ -28,8 +28,8 @@ function HomeVisitationForm() {
     const caseID = query.get('caseID') || ""; 
     const formID = query.get('formID') || "";  
 
-    console.log("Home Visit");
-    console.log("Home Visit Case ID: ", caseID);
+    // console.log("Home Visit");
+    // console.log("Home Visit Case ID: ", caseID);
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -37,6 +37,9 @@ function HomeVisitationForm() {
     const [rawMotherData, setRawMotherData] = useState(null);
     const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
+
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const [data, setData] = useState({
         form_num: "",
@@ -293,15 +296,16 @@ function HomeVisitationForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
             await handleCreate();
-            navigate(`/case/${caseID}`);
+            return true;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -350,6 +354,9 @@ function HomeVisitationForm() {
 
         // console.log("Payload: ", payload);
         const response = await createHomeVis(payload, caseID); 
+        if (response?.form?._id) {
+            setnewformID(response.form._id);
+        }
     };
 
     // < END :: Create Form > //
@@ -952,7 +959,8 @@ function HomeVisitationForm() {
                             type="submmit"
                             className="btn-primary font-bold-label w-min"
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                const success = await handleSubmit(e);
+                                if (success) setShowSuccessModal(true);
                             }}
                         >
                             Create Intervention
@@ -994,6 +1002,38 @@ function HomeVisitationForm() {
                     </div>
                 )}
 
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Home Intervention #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/home-visitation-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Missing / Invalid Input */}
                 {showErrorOverlay && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -1028,6 +1068,14 @@ function HomeVisitationForm() {
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

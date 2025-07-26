@@ -106,12 +106,12 @@ export const TextArea = ({
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">{label}</h4>
                 {sublabel ? (
-                    <p className="label-base">
-                        {sublabel}
+                    <div>
+                        <p className="label-base">{sublabel}</p>
                         {description ? (
                             <p className="body-base text-muted-foreground italic">{description}</p>
                         ) : null}
-                    </p>
+                    </div>
                 ) : null}
                 <textarea
                     value={value}

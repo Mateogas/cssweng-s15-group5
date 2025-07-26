@@ -95,7 +95,7 @@ export const createHomeVis = async (createdData, caseID) => {
         if (!response.ok) throw new Error("API error");
 
         const newHomeVis = await response.json();
-        console.log(newHomeVis);
+        return newHomeVis
     } catch (err) {
         console.error("Error creating form:", err);
         return null;

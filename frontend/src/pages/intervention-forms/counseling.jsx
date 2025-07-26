@@ -45,46 +45,51 @@ function CounselingForm() {
         sm_comments: "",
     });
 
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
     /********** TEST DATA **********/
 
     /********** USE STATES **********/
 
     // < START :: Auto-Filled Data > //
 
-    // LOAD DATA
-    useEffect(() => {
-        const loadData = async () => {
-            // setLoading(true);
-            const fetchedData = await fetchCaseData(caseID);
-            setData(fetchedData);
-            // setLoading(false);
+    // [TO UPDATE] :: Temporary state
+    const viewForm = action !== 'create' ? true : false;
 
-            setFormNum(fetchedData.intervention_number || "");
-            setLastName(fetchedData.last_name || "");
-            setMiddleName(fetchedData.middle_name || "");
-            setFirstName(fetchedData.first_name || "");
-            setCHNumber(fetchedData.ch_number || "");
-            setGradeYearLevel(fetchedData.grade_year_level || "");
-            setSchool(fetchedData.school || "");
-            setAddress(fetchedData.address || "");
-            setSubproject(fetchedData.subproject || "");
-            setAreaSelfHelp(fetchedData.area_self_help || "");
-            setCounselingDate(fetchedData.counseling_date || "");
-            setReasonForCounseling(fetchedData.reason_for_counseling || "");
-            setCorrectiveAction(fetchedData.corrective_action || "");
-            setRecommendation(fetchedData.recommendation || "");
-            setSMComments(fetchedData.sm_comments || "");
-        };
-        
-        loadData();
-    }, []);
+    // LOAD DATA
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                // setLoading(true);
+                const fetchedData = await fetchCaseData(caseID);
+                setData(fetchedData);
+                // setLoading(false);
+
+                setFormNum(fetchedData.intervention_number || 1);
+                setLastName(fetchedData.last_name || "");
+                setMiddleName(fetchedData.middle_name || "");
+                setFirstName(fetchedData.first_name || "");
+                setCHNumber(fetchedData.ch_number || "");
+                setGradeYearLevel(fetchedData.grade_year_level || "");
+                setSchool(fetchedData.school || "");
+                setAddress(fetchedData.address || "");
+                setSubproject(fetchedData.subproject.spu_name || "");
+                setAreaSelfHelp(fetchedData.area_self_help || "");
+                setCounselingDate(fetchedData.counseling_date || "");
+                setReasonForCounseling(fetchedData.reason_for_counseling || "");
+                setCorrectiveAction(fetchedData.corrective_action || "");
+                setRecommendation(fetchedData.recommendation || "");
+                setSMComments(fetchedData.sm_comments || "");
+            };
+            
+            loadData();
+        }, []);
+    }
 
     // < END :: Auto-Filled Data > //
 
     // < START :: View Form > //
-
-    // [TO UPDATE] :: Temporary state
-    const viewForm = action !== 'create' ? true : false;
 
     // View Form
     if (viewForm) {
@@ -105,7 +110,7 @@ function CounselingForm() {
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");
-                setSubproject(fetchedData.subproject || "");
+                setSubproject(fetchedData.subproject|| "");
                 setAreaSelfHelp(fetchedData.area_self_help || "");
                 setCounselingDate(fetchedData.counseling_date || "");
                 setReasonForCounseling(fetchedData.reason_for_counseling || "");
@@ -165,15 +170,16 @@ function CounselingForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
             await handleCreate();
-            navigate(`/case/${caseID}`);
+            return true;
         } catch (err) {
             console.error("Submission failed:", err);
+            return true;
         }
 
     };
@@ -193,6 +199,10 @@ function CounselingForm() {
         console.log("Payload: ", payload);
 
         const response = await addCounselingIntervention(payload, caseID); 
+        console.log(response)
+        if (response?.intervention?._id) {
+            setnewformID(response.intervention._id);
+        }
     };
 
     // < END :: Create Form > //
@@ -480,12 +490,45 @@ function CounselingForm() {
                         <button
                             className="btn-primary font-bold-label w-min"
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                const success = await handleSubmit(e);
+                                if (success) setShowSuccessModal(true);
                             }}
                         >
                             Create Intervention
                         </button>
                     </>
+                )}
+
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Counseling Form #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/counselling-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {/* Confirm Delete Form */}
@@ -556,6 +599,14 @@ function CounselingForm() {
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

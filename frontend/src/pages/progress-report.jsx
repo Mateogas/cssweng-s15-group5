@@ -28,8 +28,10 @@ function ProgressReport() {
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
-    
 
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -51,49 +53,51 @@ function ProgressReport() {
 
     // < START :: Auto-Filled Data > //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    const viewForm = action !== 'create' ? true : false;
 
-            const returnData = await fetchCaseData(caseID);
-            const caseData = returnData
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            console.log("CaseData: ", caseData)
+                const returnData = await fetchCaseData(caseID);
+                const caseData = returnData
 
-            setRawCaseData(caseData);
+                console.log("CaseData: ", caseData)
 
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
-                ch_number: caseData.ch_number || "",
-                dob: caseData.dob || "",
-                subproject: caseData.subproject || "",
-                form_num: caseData.reportNumber || "",
-            }));
+                setRawCaseData(caseData);
 
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+                setData((prev) => ({
+                    ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.ch_number || "",
+                    dob: caseData.dob || "",
+                    subproject: caseData.subproject.spu_name || "",
+                    form_num: caseData.reportNumber || "",
+                }));
 
-    useEffect(() => {
-        setFirstName(data.first_name || "");
-        setMiddleName(data.middle_name || "");
-        setLastName(data.last_name || "");
-        setCHNumber(data.ch_number || "");
-        setDOB(data.dob || "");
-        setAge("");
-        setSubproject(data.subproject || "");
-        setFormNum(data.form_num || "");
-    }, [data]);
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+
+        useEffect(() => {
+            setFirstName(data.first_name || "");
+            setMiddleName(data.middle_name || "");
+            setLastName(data.last_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB(data.dob || "");
+            setAge("");
+            setSubproject(data.subproject || "");
+            setFormNum(data.form_num || "");
+        }, [data]);
+    }   
 
     // < END :: Auto-Filled Data > //
 
     // < START :: View Form > //
-
-    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
@@ -102,6 +106,7 @@ function ProgressReport() {
     
                 const returnData = await fetchProgressReport(formID);
                 const formData = returnData.progressReport
+                const caseData = returnData.case
                 const report_number = returnData.reportNumber
     
                 console.log(formData)
@@ -111,6 +116,13 @@ function ProgressReport() {
     
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    subproject: caseData.subproject.spu_name || "",
+
                     form_num: report_number || "",
                     sponsor_name: formData.sponsor_name || "",
                     sponsorship_date: formData.sponsorship_date || "",
@@ -129,6 +141,14 @@ function ProgressReport() {
         }, []);
 
         useEffect(() => {
+            setFirstName(data.first_name || "");
+            setMiddleName(data.middle_name || "");
+            setLastName(data.last_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB(data.dob || "");
+            setAge("");
+            setSubproject(data.subproject || "");
+
             setFormNum(data.form_num || "");
             setSponsorName(data.sponsor_name || "");
             setSponsorshipDate(data.sponsorship_date || "");
@@ -238,15 +258,16 @@ function ProgressReport() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
             await handleCreate();
-            navigate(`/case/${caseID}`);
+            return true;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -263,10 +284,13 @@ function ProgressReport() {
             participation,
             relation_to_sponsor
         };
-
         console.log("Payload: ", payload);
 
         const response = await addProgressReport(payload, caseID); 
+        console.log(response)
+        if (response?.progressReport?._id) {
+            setnewformID(response.progressReport._id);
+        }
     };
 
     // < END :: Create Form > //
@@ -524,7 +548,7 @@ function ProgressReport() {
                     </div>
                     <div className="flex w-full gap-16">
                         <TextArea
-                            label="Sponsored Member (observation)"
+                            label="Sponsored Member (Observation)"
                             value={sm_update}
                             setValue={setSMUpdate}
                             error={errors["sm_update"]}
@@ -570,33 +594,25 @@ function ProgressReport() {
                     </h4>
                     <div className={`flex gap-y-16 flex-wrap ${errors["relation_to_sponsor"] ? "px-8 py-12 gap-x-28 border rounded-xl border-red-500" : "gap-x-40"}`}>
                         {questions.map((q) => (
-                            <div className={`flex flex-col`}>
-                                <div
-                                    key={q.id}
-                                    className="flex flex-col justify-end gap-8"
-                                >
+                            <div key={q.id} className="flex flex-col">
+                                <div className="flex flex-col justify-end gap-8">
                                     <p className="body-base">{q.text}</p>
                                     <div className="flex gap-12">
                                         {options.map((option) => (
                                             <label
-                                                key={option}
+                                                key={`${q.id}_${option}`}
                                                 className="flex items-center gap-4 body-base"
                                             >
                                                 <input
                                                     type="checkbox"
                                                     name={q.id}
                                                     value={option}
-                                                    checked={
-                                                        relation_to_sponsor[q.id] === option
-                                                    }
+                                                    checked={relation_to_sponsor[q.id] === option}
                                                     onChange={(e) => {
-                                                        handleCheckboxChange(
-                                                            q.id,
-                                                            option,
-                                                        );
+                                                        handleCheckboxChange(q.id, option);
                                                         handleChange("Relation to Sponsor and Unbound")(e);
                                                     }}
-                                                    disabled = {viewForm}
+                                                    disabled={viewForm}
                                                 />
                                                 {option}
                                             </label>
@@ -646,7 +662,8 @@ function ProgressReport() {
                             <button
                                 className="btn-primary font-bold-label w-min"
                                 onClick={async (e) => {
-                                    await handleSubmit(e);
+                                    const success = await handleSubmit(e);
+                                    if (success) setShowSuccessModal(true);
                                 }}
                             >
                                 Create Report
@@ -688,6 +705,38 @@ function ProgressReport() {
                         </div>
                     )}
 
+                    {/* Saved Intervention */}
+                    {showSuccessModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                            <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                                <h2 className="header-sm font-semibold mb-4">Progress Report #{form_num} Saved</h2>
+                                <div className="flex justify-end gap-4">
+                                    {/* Go Back to Case */}
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        className="btn-outline font-bold-label"
+                                    >
+                                        Go Back to Case
+                                    </button>
+
+                                    {/* View Form */}
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            navigate(`/progress-report/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        View Form
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Missing / Invalid Input */}
                     {showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -722,6 +771,14 @@ function ProgressReport() {
                     </div>
                     )}
                 </div>
+
+                {!viewForm && (
+                    <div className="-mt-8">
+                        <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                            ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                        </p>
+                    </div>
+                )}
             </div>
         </main>
     );
