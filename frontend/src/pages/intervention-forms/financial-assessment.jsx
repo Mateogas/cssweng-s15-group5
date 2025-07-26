@@ -409,7 +409,7 @@ function FinancialAssessmentForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
@@ -466,7 +466,7 @@ function FinancialAssessmentForm() {
             </section>
 
             {/* Signature */}
-            <div className="flex w-full flex-col gap-16 px-16 pt-24">
+            {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                 <div className="flex w-full justify-between">
                     <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
                     <Signature label="Noted by:" signer="OIC-Cluster Coordinator"></Signature>
@@ -475,7 +475,7 @@ function FinancialAssessmentForm() {
                 <div className="flex w-full justify-between">
                     <Signature label="Checked and Reviewed by:" signer="Finance Staff"></Signature>
                 </div>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">

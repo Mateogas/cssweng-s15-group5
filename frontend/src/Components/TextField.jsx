@@ -109,7 +109,7 @@ export const TextArea = ({
                     <p className="label-base">
                         {sublabel}
                         {description ? (
-                            <span className="body-base ml-16">{description}</span>
+                            <p className="body-base text-muted-foreground italic">{description}</p>
                         ) : null}
                     </p>
                 ) : null}
@@ -118,7 +118,8 @@ export const TextArea = ({
                     onChange={handleChange || ((e) => setValue?.(e.target.value))}
                     className={`body-base text-area h-32 ${
                             error ? "text-area-error" : ""
-                        } ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
+                        } ${disabled ? "cursor-not-allowed bg-gray-100 text-black" : ""}`}
+                    disabled={disabled}
                 ></textarea>
                 {showTime && savedTime && (
                     <p className="text-color-muted mt-1 self-end text-sm">

@@ -408,7 +408,7 @@ function CorrespondenceForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
@@ -455,7 +455,7 @@ function CorrespondenceForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Name of Sponsor"
@@ -646,7 +646,7 @@ function CorrespondenceForm() {
             </section>
 
             {/* Signature */}
-            <div className="flex w-full flex-col gap-16 px-16 pt-24">
+            {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                 <div className="flex w-full justify-between">
                     <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
                     <Signature label="Attested by:" signer="SM/Parent/SHG Leader"></Signature>
@@ -655,7 +655,7 @@ function CorrespondenceForm() {
                 <div className="flex w-full justify-between">
                     <Signature label="Approved by:" signer="SPU Coordinator"></Signature>
                 </div>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">

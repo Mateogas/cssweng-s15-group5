@@ -640,7 +640,7 @@ function HomeVisitationForm() {
                                 disabled={viewForm}
                             ></TextInput>
                             <div className="flex flex-col">
-                                <div className="flex items-center gap-16">
+                                <div className="flex items-center gap-20">
                                     <p className="label-base w-64">Family Type</p>
                                     <select
                                         name="family_type"
@@ -697,7 +697,7 @@ function HomeVisitationForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date"
@@ -819,7 +819,7 @@ function HomeVisitationForm() {
                 </h3>
 
                 {familyMembers.length === 0 ? (
-                    <div className="text-muted-foreground text-sm italic">
+                    <div className="w-full text-center font-bold-label p-6 border rounded-lg">
                     No other family members registered.
                     </div>
                 ) : (
@@ -921,10 +921,10 @@ function HomeVisitationForm() {
             </section>
 
             {/* Signature */}
-            <div className="flex w-full justify-between px-16 pt-24">
+            {/*<div className="flex w-full justify-between px-16 pt-24">
                 <Signature label="Visited by:"></Signature>
                 <Signature label="Attested by:"></Signature>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">

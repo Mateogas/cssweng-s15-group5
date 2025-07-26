@@ -464,7 +464,7 @@ function ProgressReport() {
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-16">
+                        <div className="inline-flex items-start justify-center gap-16">
                             <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Sub-Project"
@@ -515,9 +515,9 @@ function ProgressReport() {
 
                 {/* Update/Developmert */}
                 <section className="flex w-full flex-col gap-16">
-                    <div className="flex w-full flex-col gap-8">
+                    <div className="flex w-full flex-col gap-3">
                         <h3 className="header-md">Update/Development</h3>
-                        <h4 className="header-sm">
+                        <h4 className="text-3xl italic">
                             e.g. Education, Health, Socio-Economic, Behavioral,
                             Social, etc.
                         </h4>
@@ -617,10 +617,10 @@ function ProgressReport() {
                 </section>
 
                 {/* Signature */}
-                <div className="flex w-full justify-between px-16 pt-24">
+                {/*<div className="flex w-full justify-between px-16 pt-24">
                     <Signature label="Prepared by:" signer="SDW/SEDO/SPC"></Signature>
                     <Signature label="Reviewed and Noted by:" signer="SPC/SDDH"></Signature>
-                </div>
+                </div>*/}
 
                 {/* Buttons */}
                 <div className="flex w-full justify-center gap-20">

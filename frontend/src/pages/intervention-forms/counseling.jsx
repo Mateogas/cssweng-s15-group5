@@ -322,7 +322,7 @@ function CounselingForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
@@ -381,7 +381,7 @@ function CounselingForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Sub-Project"
@@ -435,8 +435,8 @@ function CounselingForm() {
             <section className="flex w-full flex-col gap-16">
                 <TextArea
                     label="Recommendation for Improvement (Intervention)"
-                    sublabel="Sponsor Member (SM) Please Note:"
-                    description="Failure to improve performance or further violation of policy will result in additional disciplinary action up to and possible retirement."
+                    sublabel="Sponsor Member (SM)"
+                    description="Please Note: Failure to improve performance or further violation of policy will result in additional disciplinary action up to and possible retirement."
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
@@ -452,9 +452,9 @@ function CounselingForm() {
             </section>
 
             {/* Signature */}
-            <div className="flex w-full justify-between px-16 pt-24">
+            {/*<div className="flex w-full justify-between px-16 pt-24">
                 <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
