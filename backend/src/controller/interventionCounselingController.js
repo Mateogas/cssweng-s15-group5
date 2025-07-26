@@ -69,6 +69,7 @@ const getCaseData = async (req, res) => {
 const getCounselingInterventionById = async (req, res) => {
     try {
         const counselingId = req.params.counselingId;
+        const caseId = req.params.caseId
 
         // Find the counseling intervention by ID
         const intervention = await Intervention_Counseling.findById(counselingId);
@@ -85,6 +86,9 @@ const getCounselingInterventionById = async (req, res) => {
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
+
+        if (sponsored_member._id.toString() != caseId)
+            return res.status(404).json({ error: 'Case and form mismatch' });
 
         // Get the intervention number associated with the counseling intervention
         // const intervention_number = sponsored_member.interventions.find(i => i.intervention.toString() === counselingId)?.intervention_number;

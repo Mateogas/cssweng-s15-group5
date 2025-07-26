@@ -37,6 +37,9 @@ function FinancialAssessmentForm() {
     const [newformID, setnewformID] = useState(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -72,6 +75,10 @@ function FinancialAssessmentForm() {
                 setLoading(true);
 
                 const returnData = await fetchAutoFillFinancialData(caseID);
+                if (!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
                 const caseData = returnData.returningData;
 
                 console.log(caseData)
@@ -115,6 +122,11 @@ function FinancialAssessmentForm() {
                 const returnFormData = await fetchFinInterventionData(
                     caseID, formID
                 );
+                if (!returnFormData) {
+                    setNoFormFound(true)
+                    return
+                }
+
                 const formData = returnFormData.form;
                 const caseData = returnFormData.sponsored_member;
 
@@ -333,6 +345,48 @@ function FinancialAssessmentForm() {
 
     if (!data) return <div>No data found.</div>;
 
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    Assessment Form for Special Family Assistance
+                </h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    Assessment Form for Special Family Assistance
+                </h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
+
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
@@ -371,7 +425,7 @@ function FinancialAssessmentForm() {
                         ))}
                     </div>
                     <div className="flex flex-col gap-4">
-                        {all_assistance.slice(4, 8).map((item, index) => (
+                        {all_assistance.slice(4, 8).map((item, index, arr) => (
                             <label key={`assistance_${index}`} className="body-base flex gap-4">
                                 <input
                                     type="checkbox"
@@ -381,6 +435,13 @@ function FinancialAssessmentForm() {
                                     onChange={(e) => {
                                         handleCheckboxChange(e.target.value);
                                         handleChange("Type of Assistance")(e);
+
+                                        const isLast = index === arr.length - 1;
+                                        const isChecked = e.target.checked;
+
+                                        if (isLast && !isChecked) {
+                                            setOtherAssistance("");
+                                        }
                                     }}
                                     disabled = {viewForm}
                                 />
@@ -398,7 +459,7 @@ function FinancialAssessmentForm() {
                             }}
                             placeholder="Form of Assistance"
                             className={`body-base text-input h-32 w-full ${errors["other_assistance_detail"] ? "text-input-error" : ""}`}
-                            disabled = {viewForm}
+                            disabled={!type_of_assistance.includes(all_assistance[7]) || viewForm}
                         ></textarea>
                         {errors["other_assistance_detail"] && (
                             <div className="text-red-500 text-sm self-end">

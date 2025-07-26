@@ -8,6 +8,7 @@ const interventionCounselingController = require('../controller/interventionCoun
 // /api/intervention
 router.get('/counseling/add/:id', interventionCounselingController.getCaseData);
 router.get('/counseling/intervention/:counselingId', interventionCounselingController.getCounselingInterventionById);
+router.get('/counseling/intervention/:caseId/:counselingId', interventionCounselingController.getCounselingInterventionById);
 router.get('/counseling/member/:memberID', interventionCounselingController.getAllCounselingInterventionsByMemberId);
 router.post('/counseling/add/:memberID', interventionCounselingController.addCounselingIntervention);
 router.delete('/counseling/delete/:counselingId', interventionCounselingController.deleteCounselingIntervention);

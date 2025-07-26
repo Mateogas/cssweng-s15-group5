@@ -17,6 +17,7 @@ const Progress_Report = require('../model/progress_report');
 const getProgressReportById = async (req, res) => {
     try {
         const reportId = req.params.reportId;
+        const caseId = req.params.caseId
 
         // Validate progress report ID
         if (!mongoose.Types.ObjectId.isValid(reportId)) {
@@ -35,6 +36,10 @@ const getProgressReportById = async (req, res) => {
             .lean();
         if (!sm) {
             return res.status(404).json({ error: 'Sponsored member not found for this report' });
+        }
+
+        if (sm._id.toString() != caseId) {
+            return res.status(403).json({ error: 'Case and form mismatch' });
         }
 
         // Get report number from the sponsored member's progress reports

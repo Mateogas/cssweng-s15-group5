@@ -34,6 +34,9 @@ function CorrespondenceForm() {
     const [newformID, setnewformID] = useState(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -64,10 +67,13 @@ function CorrespondenceForm() {
                 setLoading(true);
 
                 const returnData = await fetchAutoFillCorrespData(caseID);
+                if (!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
+
                 const caseData = returnData.returningData;
-
-                console.log("Case Data: ", caseData)
-
+                // console.log("Case Data: ", caseData)
                 setRawCaseData(caseData);
 
                 setData((prev) => ({
@@ -111,11 +117,16 @@ function CorrespondenceForm() {
                 const returnFormData = await fetchCorrespFormData(
                     caseID, formID
                 );
+                if (!returnFormData) {
+                    setNoFormFound(true)
+                    return
+                }
+
                 const formData = returnFormData.form;
                 const caseData = returnFormData.sponsored_member
     
-                console.log("form Data", formData);
-                console.log("FORM ID: ", formID);
+                // console.log("form Data", formData);
+                // console.log("FORM ID: ", formID);
     
                 setRawFormData(formData);
     
@@ -409,6 +420,48 @@ function CorrespondenceForm() {
     // ===== END :: Local Functions ===== //
 
     if (!data) return <div>No data found.</div>;
+
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    SMs, Families, and SHGs Intervention Plan
+                </h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    SMs, Families, and SHGs Intervention Plan
+                </h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">

@@ -31,6 +31,10 @@ function ProgressReport() {
 
     const [newformID, setnewformID] = useState(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+    const [customError, setCustomError] = useState("");
     
     const [data, setData] = useState({
         form_num: "",
@@ -61,12 +65,13 @@ function ProgressReport() {
                 setLoading(true);
 
                 const returnData = await fetchCaseData(caseID);
+                if (!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
                 const caseData = returnData
 
-                console.log("CaseData: ", caseData)
-
                 setRawCaseData(caseData);
-
                 setData((prev) => ({
                     ...prev,
                     first_name: caseData.first_name || "",
@@ -104,7 +109,13 @@ function ProgressReport() {
             const loadData = async () => {
                 setLoading(true);
     
-                const returnData = await fetchProgressReport(formID);
+                const returnData = await fetchProgressReport(caseID, formID);
+
+                if (!returnData) {
+                    setNoFormFound(true)
+                    return
+                }
+
                 const formData = returnData.progressReport
                 const caseData = returnData.case
                 const report_number = returnData.reportNumber
@@ -236,7 +247,7 @@ function ProgressReport() {
                 value === "" ||                    
                 (typeof value === "string" && !value.trim())
             ) {
-            newErrors[field] = "Missing input";
+                newErrors[field] = "Missing input";
             }
         });
 
@@ -247,8 +258,14 @@ function ProgressReport() {
             newErrors["relation_to_sponsor"] = "Missing input";
         }
 
-        setErrors(newErrors);
+        if (sponsorship_date > date_accomplished) {
+            newErrors["sponsorship_date"] = "Please check dates.";
+            newErrors["date_accomplished"] = "Please check dates.";
+            setCustomError("Invalid date: Sponsorship date must not be later than accomplishment date.");
+            setShowErrorOverlay(true);
+        }
 
+        setErrors(newErrors);
         return Object.keys(newErrors).length === 0; 
     };
 
@@ -426,6 +443,44 @@ function ProgressReport() {
     }
 
     // ===== END :: Functions ===== //
+
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">Individual Progress Report</h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">Individual Progress Report</h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
 
     return (
         <main className="flex justify-center w-full p-16">
@@ -741,7 +796,7 @@ function ProgressReport() {
                     {showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
-                                        animate-fadeIn scale-100 transform transition duration-300">
+                                        animate-fadeIn scale-100 transform transition duration-1000">
                         <div className="flex items-center gap-4 border-b-1 ]">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -762,11 +817,13 @@ function ProgressReport() {
                             </h2>
                         </div>
                         <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                            Please fill out all required fields before submitting the form.
+                            {customError || "Please fill out all required fields before submitting the form."}
                         </p>
-                        <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                            Write N/A if necessary.
-                        </p>
+                        {customError === "" && (
+                            <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                                Write N/A if necessary.
+                            </p>
+                        )}
                         </div>
                     </div>
                     )}
