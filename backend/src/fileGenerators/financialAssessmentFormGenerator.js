@@ -24,7 +24,8 @@ const generateFinancialAssessmentForm = async (req, res) => {
         }
 
         // Fetch the sponsored member associated with the counseling
-        const sponsored_member = await Sponsored_Member.findOne({ 'interventions.intervention': financialId });
+        const sponsored_member = await Sponsored_Member.findOne({ 'interventions.intervention': financialId })
+            .populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ message: "Sponsored member not found." });
         }
@@ -49,7 +50,7 @@ const generateFinancialAssessmentForm = async (req, res) => {
         formattedData.first_name = sponsored_member.first_name;
         formattedData.middle_name = sponsored_member.middle_name;
         formattedData.sm_number = sponsored_member.sm_number;
-        formattedData.spu = sponsored_member.spu;
+        formattedData.spu = sponsored_member.spu.spu_name;
 
         console.log('FORMATTED FINANCIAL ASSESSMENT FORM: ', formattedData);
         // Return data
