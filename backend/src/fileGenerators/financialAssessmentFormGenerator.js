@@ -46,13 +46,13 @@ const generateFinancialAssessmentForm = async (req, res) => {
         const formattedData = formatFinancialData(financial);
 
         // Add additional fields from sponsored member
-        formattedData.last_name = sponsored_member.last_name;
-        formattedData.first_name = sponsored_member.first_name;
-        formattedData.middle_name = sponsored_member.middle_name;
-        formattedData.sm_number = sponsored_member.sm_number;
-        formattedData.spu = sponsored_member.spu.spu_name;
+        formattedData.last_name = sponsored_member.last_name || '';
+        formattedData.first_name = sponsored_member.first_name || '';
+        formattedData.middle_name = sponsored_member.middle_name || '';
+        formattedData.sm_number = sponsored_member.sm_number || '';
+        formattedData.spu = sponsored_member.spu.spu_name || '';
 
-        console.log('FORMATTED FINANCIAL ASSESSMENT FORM: ', formattedData);
+        // console.log('FORMATTED FINANCIAL ASSESSMENT FORM: ', formattedData);
         // Return data
         return res.status(200).json(formattedData);
     } catch (error) {
