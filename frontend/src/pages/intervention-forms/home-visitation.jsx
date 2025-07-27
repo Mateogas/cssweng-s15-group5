@@ -312,8 +312,8 @@ function HomeVisitationForm() {
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            return true;
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
             return false;
@@ -362,11 +362,14 @@ function HomeVisitationForm() {
             observation_findings,
             interventions,
         };
-
         // console.log("Payload: ", payload);
+
         const response = await createHomeVis(payload, caseID); 
         if (response?.form?._id) {
             setnewformID(response.form._id);
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -455,13 +458,7 @@ function HomeVisitationForm() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -980,12 +977,6 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
-            {/* Signature */}
-            {/*<div className="flex w-full justify-between px-16 pt-24">
-                <Signature label="Visited by:"></Signature>
-                <Signature label="Attested by:"></Signature>
-            </div>*/}
-
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 {viewForm ? (
@@ -1019,40 +1010,6 @@ function HomeVisitationForm() {
                             Create Intervention
                         </button>
                     </>
-                )}
-
-                {/* Confirm Delete Form */}
-                {showConfirm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
-                            <h2 className="header-md font-semibold mb-4">Delete Form</h2>
-                            <p className="label-base mb-6">Are you sure you want to delete this form?</p>
-                            <div className="flex justify-end gap-4">
-                                
-                                {/* Cancel */}
-                                <button
-                                    onClick={() => 
-                                        setShowConfirm(false)
-                                    }
-                                    className="btn-outline font-bold-label"
-                                >
-                                    Cancel
-                                </button>
-
-                                {/* Delete Form */}
-                                <button
-                                    onClick={async () => {
-                                        await handleDelete();
-                                        setShowConfirm(false);
-                                        navigate(`/case/${caseID}`);
-                                    }}
-                                    className="btn-primary font-bold-label"
-                                >
-                                    Confirm
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 )}
 
                 {/* Saved Intervention */}
@@ -1117,6 +1074,14 @@ function HomeVisitationForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}

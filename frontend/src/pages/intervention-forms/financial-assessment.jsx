@@ -174,7 +174,6 @@ function FinancialAssessmentForm() {
 
     const validateForm = () => {
         const newErrors = {};
-
         const requiredFields = {
             type_of_assistance,
             problem_presented,
@@ -182,7 +181,6 @@ function FinancialAssessmentForm() {
         };
 
         Object.entries(requiredFields).forEach(([field, value]) => {
-
             if (
                 value === undefined ||               
                 value === null ||                    
@@ -196,13 +194,11 @@ function FinancialAssessmentForm() {
         if (type_of_assistance.length === 0) {
             newErrors["type_of_assistance"] = "Please select at least one type of assistance.";
         }
-        
         if (type_of_assistance.includes("Other: Please Indicate Below") && other_assistance_detail == "") {
             newErrors["other_assistance_detail"] = "Please indicate the type of assistance.";
         }
 
         setErrors(newErrors);
-
         return Object.keys(newErrors).length === 0; 
     };
 
@@ -217,8 +213,8 @@ function FinancialAssessmentForm() {
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            return true;
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
             return false;
@@ -234,13 +230,14 @@ function FinancialAssessmentForm() {
             problem_presented,
             recommendation
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createFinancialForm(caseID, payload); 
-        console.log(response)
         if (response?._id) {
             setnewformID(response._id);
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -258,7 +255,6 @@ function FinancialAssessmentForm() {
         };
 
         console.log("Payload: ", updatedPayload);
-
         const response = await editFinancialForm(formID, updatedPayload); 
     };
 
@@ -267,7 +263,6 @@ function FinancialAssessmentForm() {
     // < START :: Delete Form > //
 
     const handleDelete = async () => {
-
         const response = await deleteCorrespInterventionForm(formID); 
     };
 
@@ -308,13 +303,7 @@ function FinancialAssessmentForm() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -683,6 +672,14 @@ function FinancialAssessmentForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}

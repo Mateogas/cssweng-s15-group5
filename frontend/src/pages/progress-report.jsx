@@ -240,7 +240,6 @@ function ProgressReport() {
         };
 
         Object.entries(requiredFields).forEach(([field, value]) => {
-
             if (
                 value === undefined ||               
                 value === null ||                    
@@ -258,10 +257,10 @@ function ProgressReport() {
             newErrors["relation_to_sponsor"] = "Missing input";
         }
 
-        if (sponsorship_date > date_accomplished) {
+        if (sponsorship_date > date_accomplished || new Date(date_accomplished) > new Date()) {
             newErrors["sponsorship_date"] = "Please check dates.";
             newErrors["date_accomplished"] = "Please check dates.";
-            setCustomError("Invalid date: Sponsorship date must not be later than accomplishment date.");
+            setCustomError("Invalid date: Sponsorship date must not be later than accomplishment date, and accomplishment date must not be in the future.");
             setShowErrorOverlay(true);
         }
 
@@ -280,8 +279,8 @@ function ProgressReport() {
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            return true;
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
             return false;
@@ -301,12 +300,14 @@ function ProgressReport() {
             participation,
             relation_to_sponsor
         };
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await addProgressReport(payload, caseID); 
-        console.log(response)
         if (response?.progressReport?._id) {
             setnewformID(response.progressReport._id);
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -328,7 +329,6 @@ function ProgressReport() {
         };
 
         console.log("Payload: ", updatedPayload);
-
         const response = await editProgressReport(formID, updatedPayload); 
     };
 
@@ -392,13 +392,7 @@ function ProgressReport() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -824,6 +818,14 @@ function ProgressReport() {
                                 Write N/A if necessary.
                             </p>
                         )}
+
+                        {/* OK Button */}
+                        <button
+                            onClick={() => setShowErrorOverlay(false)}
+                            className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                        >
+                            OK
+                        </button>
                         </div>
                     </div>
                     )}

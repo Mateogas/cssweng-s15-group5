@@ -91,16 +91,14 @@ const getCounselingInterventionById = async (req, res) => {
             return res.status(404).json({ error: 'Case and form mismatch' });
 
         // Get the intervention number associated with the counseling intervention
-        // const intervention_number = sponsored_member.interventions.find(i => i.intervention.toString() === counselingId)?.intervention_number;
-
-        console.log(sponsored_member, counselingId)
+        // console.log(sponsored_member, counselingId)
         const matchingIntervention = (sponsored_member.interventions || []).find(
         (entry) =>
-            entry.intervention._id.toString() === counselingId
+            (entry.intervention?._id?.toString() || entry._id?.toString()) === counselingId
         );
-        console.log(matchingIntervention)
+        // console.log(matchingIntervention)
         const intervention_number = matchingIntervention?.intervention_number || null;
-        console.log('intervention_number: ', intervention_number);
+        // console.log('intervention_number: ', intervention_number);
 
         return res.status(200).json({
             message: 'Counseling intervention retrieved successfully',

@@ -186,8 +186,8 @@ function CounselingForm() {
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            return true;
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
             return true;
@@ -206,13 +206,14 @@ function CounselingForm() {
             recommendation,
             sm_comments
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await addCounselingIntervention(payload, caseID); 
-        console.log(response)
         if (response?.intervention?._id) {
             setnewformID(response.intervention._id);
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -232,8 +233,7 @@ function CounselingForm() {
             sm_comments
         };
 
-        console.log("Payload: ", updatedPayload);
-
+        // console.log("Payload: ", updatedPayload);
         const response = await editCounselingIntervention(updatedPayload, formID); 
     };
 
@@ -242,7 +242,6 @@ function CounselingForm() {
     // < START :: Delete Form > //
 
     const handleDelete = async () => {
-
         const response = await deleteCounselingIntervention(formID); 
     };
 
@@ -295,13 +294,7 @@ function CounselingForm() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -644,6 +637,14 @@ function CounselingForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}
