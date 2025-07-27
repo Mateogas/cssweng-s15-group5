@@ -263,7 +263,7 @@ const getHeadViewbySpu = async (req, res) => {
 
     let cases = [];
     let employee = [];
-    let spuObject = await Spu.findOne({ spu_name: spuFilter })
+    let spuObject = await Spu.findById(spuFilter);
     if (!spuObject) {
       return res.status(400).json({ message: 'SPU not found' });
     }
