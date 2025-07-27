@@ -1766,15 +1766,16 @@ function CaseFrontend({ creating = false }) {
                                     {interventions[intervention_selected]?.length > 0 ? (
                                         interventions[intervention_selected]?.map(
                                             (item, index) => (
-                                                <button
+                                                <a
                                                     key={index}
-                                                    onClick={() =>
-                                                        handleInterventionNavigation(
-                                                            item.route,
-                                                            clientId,
-                                                            item.formID,
-                                                        )
-                                                    }
+                                                    href={`/${item.route}/?action=view&caseID=${clientId}&formID=${item.formID}`}
+                                                    // onClick={() =>
+                                                    //     handleInterventionNavigation(
+                                                    //         item.route,
+                                                    //         clientId,
+                                                    //         item.formID,
+                                                    //     )
+                                                    // }
                                                     className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
                                                     data-cy={`intervention-item-${item.intervention}-${index}`}
                                                 >
@@ -1784,7 +1785,7 @@ function CaseFrontend({ creating = false }) {
                                                     <p className="label-base w-80">
                                                         {item.date}
                                                     </p>
-                                                </button>
+                                                </a>
                                             ),
                                         )
                                     ) : intervention_selected && (
@@ -1829,14 +1830,13 @@ function CaseFrontend({ creating = false }) {
                                 <div className="flex w-full flex-col flex-wrap gap-2.5">
                                     {progress_reports?.length > 0 ? (
                                         progress_reports?.map((item, index) => (
-                                            <button
+                                            <a
                                                 key={index}
-                                                onClick={() =>
-                                                    handleProgressReportNavigation(
-                                                        clientId,
-                                                        item.formID,
-                                                    )
-                                                }
+                                                href={`/progress-report/?action=view&caseID=${clientId}&formID=${item.formID}`}
+                                                // onClick={(e) => {
+                                                //     e.preventDefault();
+                                                //     handleProgressReportNavigation(clientId, item.formID);
+                                                // }}
                                                 className="flex h-16 items-center justify-between rounded-lg p-2.5 text-left hover:bg-[var(--bg-color-dark)]"
                                                 data-cy={`progress-report-item-${item.name}-${index}`}
                                             >
@@ -1846,7 +1846,7 @@ function CaseFrontend({ creating = false }) {
                                                 <p className="label-base w-80">
                                                     {item.date}
                                                 </p>
-                                            </button>
+                                            </a>
                                         ))
                                     ) : (
                                         <p className="body-base self-center mt-8">No Progress Reports Available</p>
