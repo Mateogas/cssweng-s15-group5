@@ -427,20 +427,12 @@ const confirmCaseTermination = async (req, res) => {
                return res.status(403).json({ message: "Unauthorized access." })
           }
 
-          console.log("Case Selected Before", caseSelected);
-          console.log("Form Selected Before", formSelected);
-
           // security checks passed, proceed to deactivation
           caseSelected.is_active = false;
           await caseSelected.save();
-           console.log("✅ Case saved");
 
           formSelected.status = "Accepted";
           await formSelected.save();
-           console.log("✅ Form saved");
-
-          console.log("Case Selected After", caseSelected);
-          console.log("Form Selected After", formSelected);
 
           // return case selected again, status should now be inactive
           return res.status(200).json({ message: "Case successfully terminated.", case: caseSelected, form: formSelected });
