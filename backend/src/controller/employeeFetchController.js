@@ -263,10 +263,18 @@ const getHeadViewbySpu = async (req, res) => {
 
     let cases = [];
     let employee = [];
-    let spuObject = await Spu.findById(spuFilter);
+    
+    let spuObject = null;
+    if (mongoose.Types.ObjectId.isValid(spuFilter)) {
+      spuObject = await Spu.findById(spuFilter);
+    }
+    if (!spuObject) {
+      spuObject = await Spu.findOne({ spu_name: spuFilter });
+    }
     if (!spuObject) {
       return res.status(400).json({ message: 'SPU not found' });
     }
+
     if (user.role == 'head') {
       cases = await Sponsored_Member.find({ is_active: true, spu:spuObject._id})
         .populate('assigned_sdw')
