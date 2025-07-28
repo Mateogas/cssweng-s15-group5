@@ -129,13 +129,11 @@ app.get('/api/session', (req, res) => {
   }
 });
 
-
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found', path: req.originalUrl });
 });
 
 // Fetching for viewing
-
 // app.use('/api/dashboard',fetchingRoute);
 
 /**
