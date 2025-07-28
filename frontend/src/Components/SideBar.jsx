@@ -5,7 +5,7 @@ import { useState } from "react";
 import SideItem from "./SideItem";
 import ProfileModal from "./ProfileModal";
 
-export default function SideBar() {
+export default function SideBar({ user }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
@@ -16,38 +16,39 @@ export default function SideBar() {
             />
             <div className="side-nav fixed z-20">
                 <SideItem
-                    href="/home-sdw"
+                    href="/"
                     iconClass="home-button"
                     label="Home"
                     isActive={false}
                 />
 
-                <SideItem
-                    href="/"
-                    iconClass="progress-button"
-                    label="Progress"
+                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
+                    href="/spu"
+                    iconClass="spu-button"
+                    label="SPU's"
                     isActive={false}
-                />
+                />}
 
-                <SideItem
-                    href="/home-admin"
-                    iconClass="family-button"
-                    label="Team"
+                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
+                    href="/case"
+                    iconClass="case-button"
+                    label="Cases"
                     isActive={false}
-                />
+                />}
 
-                <SideItem
+                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
                     href="/archive"
                     iconClass="archive-button"
                     label="Archive"
                     isActive={false}
-                />
+                />}
 
-                <button className={`side-item`}
-                    onClick={() => setIsProfileOpen(true)}>
-                    <div className={`side-icon-setup identifying-button`}></div>
-                    <p>Account</p>
-                </button>
+                {(user?._id) && <SideItem
+                    href={`/profile/${user._id}`}
+                    iconClass="identifying-button"
+                    label="Profile"
+                    isActive={false}
+                />}
             </div>
         </>
     );

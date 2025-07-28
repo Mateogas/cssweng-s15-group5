@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../fetch-connections/account-connection";
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -18,40 +19,43 @@ export default function Login() {
     }, []);
 
 
-    const handleLogin = () => {
-        const users = [
-            { username: "admin", password: "123" },
-            { username: "sdw", password: "123" },
-            { username: "super", password: "123" },
-        ];
+    const handleLogin = async () => {
+        const payload = {
+            username: username,
+            password: password,
+            rememberMe: rememberMe
+        };
 
-        const foundUser = users.find(
-            (user) => user.username === username && user.password === password
-        );
+        const res = await loginUser(payload);
 
-        if (foundUser) {
+        if (res.ok && !res.data.errorMsg) {
+            console.log('Login success:', res.data);
             setErrorMessage('');
-            console.log('Login successful:', foundUser);
-            navigate('/home-sdw');
+            window.location.href = '/';
         } else {
-            setErrorMessage('Username and password do not match.');
+            setErrorMessage(res.data.errorMsg || 'Username and password do not match.');
         }
     };
 
     return (
         <>
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white
-                      max-w-[75rem] w-full max-h-[45rem] h-full rounded-lg drop-shadow-card flex
-                      flex-col justify-around items-center pb-10 gap-5">
+                            max-w-[75rem] w-full min-h-max rounded-lg drop-shadow-card flex
+                            flex-col justify-around items-center pb-10 gap-5">
 
                 <div className="main-logo main-logo-text-nav flex items-center">
                     <div className="main-logo-setup folder-logo !w-[8rem] !h-[12rem]"></div>
-                    <h1 className="text-[6.5rem]">
-                        SCSR
-                    </h1>
+                    <div className="flex flex-col">
+                        <p className="main-logo-text-nav-sub !text-[2rem] mb-[-1rem]">Unbound Manila Foundation Inc.</p>
+                        <p className="main-logo-text-nav !text-[3rem]">Case Management System</p>
+                    </div>
                 </div>
 
-                <div className="flex flex-col justify-between items-center gap-12 max-w-[40rem] w-full">
+                <form className="flex flex-col justify-between items-center gap-12 max-w-[40rem] w-full"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleLogin();
+                    }}>
                     <input
                         type="text"
                         className="text-input font-label w-full"
@@ -84,27 +88,26 @@ export default function Login() {
                             <label htmlFor="remember" className="font-label">Remember me</label>
                         </div>
 
-                        <p className="font-label !text-blue-500 cursor-pointer">
-                            Forgot Password?
-                        </p>
                     </div>
-                </div>
 
-                {errorMessage && (
-                    <p className="font-label !text-red-500">
-                        {errorMessage}
-                    </p>
-                )}
+                    <div className="mt-[-10] flex flex-col justify-center items-center">
+                        {errorMessage && (
+                            <p className="font-label !text-red-500 text-center">
+                                {errorMessage}
+                            </p>
+                        )}
 
+                        <button
+                            type="submit"
+                            // onClick={handleLogin}
+                            className="btn-primary font-bold-label drop-shadow-base !text-[2.5rem] !py-5 !px-30 m-4"
+                            data-cy='login-button'
+                        >
+                            Login
+                        </button>
+                    </div>
 
-                <button
-                    onClick={handleLogin}
-                    className="btn-primary font-bold-label drop-shadow-base !text-[2.5rem] !py-5 !px-30 m-4"
-                    data-cy='login-button'
-                >
-                    Login
-                </button>
-
+                </form>
             </div>
         </>
     );

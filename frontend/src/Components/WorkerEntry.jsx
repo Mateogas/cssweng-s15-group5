@@ -32,35 +32,36 @@ function getTextColorForBackground(hsl) {
 
 export default function WorkerEntry({
   id,
-  username,
+  // sdw_id,
+  name,
   role,
-  spuAssigned
+  spu_id
 }) {
-  const initials = username.charAt(0).toUpperCase();
+  const initials = name.charAt(0).toUpperCase();
 
-  let bgColor = getColorFromId(username);
+  let bgColor = getColorFromId(name);
   let textColor = getTextColorForBackground(bgColor);
 
   return (
     <a
-      href={`/worker-profile`}
+      href={`/profile/${id}`}
       // href={`/workers/${id}`}
       className="client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 bg-white rounded-lg font-bold-label"
     >
       <div className="flex items-center gap-6">
         <div
-          className="rounded-full h-[4.5rem] w-[4.5rem] flex justify-center items-center header-sub"
+          className="rounded-full h-[4.5rem] min-w-[4.5rem] flex justify-center items-center header-sub"
           style={{ backgroundColor: bgColor, color: textColor }}
         >
           {initials}
         </div>
         <div className="flex flex-col gap-2">
-        <p>{username}</p>
-        <p>{id}</p>
+          <p>{name}</p>
+          {/* <p>{sdw_id}</p> */}
         </div>
       </div>
-      <p className="text-center">{role === "sdw" ? "SDW" : role === "super" ? "Supervisor" : "Admin"}</p>
-      <p className="text-center">{spuAssigned}</p>
+      <p className="text-center">{role === "sdw" ? "SDW" : role === "supervisor" ? "Supervisor" : "Head"}</p>
+      <p className="text-center">{spu_id}</p>
     </a>
   );
 }

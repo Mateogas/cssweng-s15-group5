@@ -58,7 +58,8 @@ const createFinForm = async (req, res) => {
 
         //gets last number
         const maxNumber = sameTypeInterventions.length > 0
-            ? Math.max(...sameTypeInterventions.map(i => i.intervention_number))
+            /* ? Math.max(...sameTypeInterventions.map(i => i.intervention_number)) */
+            ? sameTypeInterventions.length
             : 0;
 
         //pushes 
@@ -105,13 +106,19 @@ const getFinancialForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).select('first_name middle_name last_name sm_number spu')
-            .lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('spu').lean();
         const formData = await Intervention_Financial.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
             return res.status(404).json({ message: 'Sponsored Member or Form not found' });
         }
+        const interventionEntry = sponsoredData.interventions.find(
+            i => i.intervention && i.intervention.toString() === formId.toString() && 
+                i.interventionType === 'Intervention Financial Assessment'
+        );
+
+        const intervention_number = interventionEntry ? interventionEntry.intervention_number : null;
+
 
         const mergedData = {
             sponsored_member: {
@@ -119,9 +126,11 @@ const getFinancialForm = async(req,res)=>{
                 middle_name: sponsoredData.middle_name,
                 last_name: sponsoredData.last_name,
                 sm_number: sponsoredData.sm_number,
-                spu: sponsoredData.spu
+                spu: sponsoredData.spu.spu_name
             },
-            form: formData
+            form: {
+            ...formData,
+            intervention_number}
         };
         
         return res.status(200).json(mergedData);
@@ -158,18 +167,18 @@ const getAllFinancialInterventions = async (req, res) => {
     }
 
     try {
-        const sponsoredMember = await Sponsored_Member.findById(sponsored_id).lean();
+        const sponsoredMember = await Sponsored_Member.findById(sponsored_id).populate('interventions.intervention').lean();
 
         if (!sponsoredMember) {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
 
-        // Filter interventions in memory instead
         const financialInterventions = (sponsoredMember.interventions || [])
             .filter(i => i.interventionType === 'Intervention Financial Assessment')
             .map(i => ({
-                id: i.intervention,
-                intervention_number: i.intervention_number
+                id: i.intervention._id || i.intervention,
+                intervention_number: i.intervention_number,
+                createdAt: i.intervention.createdAt || null
             }));
 
         return res.status(200).json(financialInterventions);
@@ -178,7 +187,6 @@ const getAllFinancialInterventions = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
 
 
 const editFinancialForm = async(req,res) =>{
@@ -217,9 +225,106 @@ const editFinancialForm = async(req,res) =>{
     }
 
 }
+
+/**
+ * @route   DELETE /api/interventions/financial/delete/:formId
+ * @desc    Deletes an Intervention Financial Assessment form and removes it from the Sponsored Member's interventions
+ * 
+ * @required
+ *    - :formId URL parameter: ObjectId of the Intervention Financial Assessment form to delete
+ * 
+ * @notes
+ *    - Validates if the provided id is a valid Mongo ObjectId
+ *    - Finds and deletes the form document
+ *    - Removes the intervention reference from the Sponsored Member's interventions array
+ * 
+ * @returns
+ *    - 200 OK: Success message with deleted form ID
+ *    - 404 Not Found: If the form or associated Sponsored Member doesn't exist
+ *    - 500 Internal Server Error: If something goes wrong during the process
+ */
+const deleteFinForm = async(req, res) => {
+    const formId = req.params.formId;
+
+    if (!mongoose.Types.ObjectId.isValid(formId)) {
+        return res.status(400).json({ message: 'Invalid Form ID' });
+    }
+
+    try {
+        const financialForm = await Intervention_Financial.findById(formId);
+        
+        if (!financialForm) {
+            return res.status(404).json({ message: 'Financial intervention form not found' });
+        }
+
+        // Remove the intervention from the sponsored member's interventions array
+        const sponsoredMember = await Sponsored_Member.findOneAndUpdate(
+            { 'interventions.intervention': formId },
+            { $pull: { interventions: { intervention: formId } } },
+            { new: true }
+        );
+
+        if (!sponsoredMember) {
+            return res.status(404).json({ message: 'Sponsored member not found' });
+        }
+
+        await Intervention_Financial.findByIdAndDelete(formId);
+
+        return res.status(200).json({
+            message: 'Financial intervention form deleted successfully',
+            formId: formId,
+            sponsored_member: {
+                id: sponsoredMember._id
+            }
+        });
+    } catch (error) {
+        console.error('Error deleting financial intervention form:', error);
+        return res.status(500).json({ 
+            message: 'Failed to delete financial intervention form', 
+            error: error.message 
+        });
+    }
+}
+
+const getAutoFillData = async(req,res)=>{
+    const smId = req.params.smId;
+    if(!mongoose.Types.ObjectId.isValid(smId)){
+        return res.status(400).json({message:'Invalid User Id'});
+    }
+    try{
+        const caseData = await Sponsored_Member.findById(smId).populate('spu').lean();
+        if(!caseData){
+            return res.status(404).json({message:'Not Found'});
+        }
+        const returningData = {
+            last_name : caseData.last_name,
+            first_name: caseData.first_name,
+            middle_name: caseData.middle_name,
+            sm_number:caseData.sm_number,
+            spu:caseData.spu.spu_name
+        };
+
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Financial Assessment'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+
+        returningData.intervention_number = lastInterventionNumber + 1;
+
+        return res.status(200).json({message: 'Fetched Succesfully', returningData});
+    }catch(error){
+        console.error(error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
 module.exports = {
     createFinForm,
     getFinancialForm,
     getAllFinancialInterventions,
     editFinancialForm,
+    deleteFinForm,
+    getAutoFillData,
 }

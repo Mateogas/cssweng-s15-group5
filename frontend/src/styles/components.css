@@ -34,6 +34,14 @@
     inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.btn-primary:disabled {
+  background-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
+}
+
 .btn-blue {
   background-color: var(--color-blue);
   color: var(--color-white);
@@ -71,6 +79,14 @@
 .btn-outline {
   border: 0.1rem solid var(--accent-dark);
   @apply w-max px-8 py-4 rounded-lg;
+}
+
+.btn-outline:disabled {
+  background-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
 }
 
 .btn-outline:hover {
@@ -117,6 +133,11 @@
   @apply w-full px-4 py-4 rounded-xl;
 }
 
+.text-input-error {
+  border: 0.1rem solid;
+  @apply w-full px-4 py-4 rounded-xl border-red-500;
+}
+
 .text-input:disabled {
   @apply bg-gray-200;
 }
@@ -125,6 +146,11 @@
 .text-area {
   border: 0.1rem solid var(--accent-dark);
   @apply w-full px-4 py-4 rounded-xl;
+}
+
+.text-area-error {
+  border: 0.1rem solid;
+  @apply w-full px-4 py-4 rounded-xl border-red-500;
 }
 
 /* Entry Items */

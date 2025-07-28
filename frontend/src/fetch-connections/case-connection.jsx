@@ -28,6 +28,31 @@ var localID
 
 // ======== API calls ======== // 
 /**
+ * Creates a new Sponsored Member case
+ * @param {object} newCaseData - the case fields to send
+ * @returns {Promise<{ ok: boolean, data: object }>}
+ */
+export const createNewCase = async (newCaseData) => {
+  try {
+    const response = await fetch('/api/cases/case-create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newCaseData),
+    });
+
+    const data = await response.json();
+    return { ok: response.ok, data };
+
+  } catch (error) {
+    console.error('Error creating new case:', error);
+    return { ok: false, data: { message: 'Network error' } };
+  }
+};
+
+/**
  *   Fetches case data
  * 
  *   @param {*} caseID Case ID to fetch
@@ -75,7 +100,7 @@ export const fetchCaseBySMNumber = async (smNumber) => {
     return result; 
   } catch (error) {
     console.error('[fetchCaseBySMNumber] Error:', error);
-    return { found: false, message: error.message || 'Error fetching case by SM Number' };
+    return { found: false, message: error.message || 'Error fetching case by CH Number' };
   }
 };
 
@@ -227,8 +252,7 @@ export const fetchSDWs = async () => {
                sdw_id: sdw.sdw_id,
                id: sdw._id,
                username: `${sdw.first_name} ${sdw.last_name}`,
-               spu_id: sdw.spu_id || '', // Adjust as needed
-               sdw_id: sdw.sdw_id,
+               spu_id: sdw.spu_id || '',
                role: sdw.role,
                manager: sdw.manager
           }));
@@ -505,3 +529,61 @@ export const fetchAllCases = async () => {
      }
 };
 
+
+/**
+ *   Creates a new sponsored member case
+ * 
+ *   @param {Object} newCaseData Object containing all required case data fields
+ *                               including personal information, identifying data,
+ *                               and classifications
+ * 
+ *   @returns {Promise<Object>} The newly created case data with generated ID
+ *                              and success message from the server
+ * 
+ *   @throws {Error} If case creation fails due to validation errors,
+ *                   network issues, or server errors
+ */
+export const addNewCase = async(newCaseData) => {
+     try{
+          const response = await fetch('/api/cases/case-create',{
+               method: 'POST',
+               headers: {
+                    'Content-Type': 'application/json',
+               },
+               credentials: 'include',
+               body: JSON.stringify(newCaseData),
+          });
+          if(!response.ok) throw new Error('Failed to create new case');
+          return await response.json();
+     }catch(error){
+          console.error('Error Creating case: ', error);
+          throw error;
+     }
+};
+/**
+ * @route   GET /api/cases/case-by-sdw/:sdwID
+ * @desc    Fetches all cases assigned to a specific Social Development Worker
+ * 
+ * @param {string} sdwID - MongoDB ObjectId of the Social Development Worker
+ * 
+ * @returns {Promise<Array>} Array of simplified case objects with:
+ *    - id: Case ObjectId
+ *    - name: Full name of sponsored member
+ *    - sm_number: Sponsored member number
+ *    - spu: Service providing unit code
+ *    - is_active: Boolean indicating if the case is active
+ *    - assigned_sdw: ObjectId of the assigned social development worker
+ *    - assigned_sdw_name: Full name of the assigned social development worker
+ * 
+ * @throws {Error} If API request fails or network error occurs
+ */
+export const fetchCasebySDW = async(sdwID) => {
+     try{
+          const response = await fetch(`/api/cases/case-by-sdw/${sdwID}`);
+          if(!response.ok) throw new Error('Failed to fetch sdw cases');
+          return await response.json();
+     }catch(error){
+          console.error('Error Fetching cases: ', error);
+          throw error;
+     }
+};

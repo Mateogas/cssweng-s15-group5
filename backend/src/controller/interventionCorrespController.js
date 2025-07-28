@@ -33,7 +33,8 @@ const createCorespForm = async(req,res)=>{
 
         //gets last number
         const maxNumber = sameTypeInterventions.length > 0
-            ? Math.max(...sameTypeInterventions.map(i => i.intervention_number))
+            /* ? Math.max(...sameTypeInterventions.map(i => i.intervention_number)) */
+            ? sameTypeInterventions.length
             : 0;
 
         //pushes 
@@ -69,7 +70,8 @@ const addInterventionPlan = async (req, res) => {
         !newPlan ||
         typeof newPlan.action !== 'string' || newPlan.action.length < 1 ||
         typeof newPlan.time_frame !== 'string' || newPlan.time_frame.length < 1 ||
-        typeof newPlan.results !== 'string' || newPlan.results.length < 1
+        typeof newPlan.results !== 'string' || newPlan.results.length < 1 ||
+        typeof newPlan.person_responsible !== 'string' || newPlan.results.length < 1
     ) {
         return res.status(400).json({ message: 'Invalid intervention plan data' });
     }
@@ -140,13 +142,19 @@ const getCorrespondenceForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).select('first_name middle_name last_name sm_number dob present_address')
-            .lean();
+        // const sponsoredData = await Sponsored_Member.findById(sponsor_id).lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('interventions.intervention').populate('spu').lean();
         const formData = await Intervention_Correspondence.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
             return res.status(404).json({ message: 'Sponsored Member or Form not found' });
         }
+        const interventionEntry = sponsoredData.interventions.find(
+            i => i.intervention && i.intervention._id.toString() === formId.toString() && 
+                i.interventionType === 'Intervention Correspondence'
+        );
+
+        const intervention_number = interventionEntry ? interventionEntry.intervention_number : null;
 
         const mergedData = {
             sponsored_member: {
@@ -155,10 +163,12 @@ const getCorrespondenceForm = async(req,res)=>{
                 last_name: sponsoredData.last_name,
                 sm_number: sponsoredData.sm_number,
                 dob: sponsoredData.dob,
+                spu: sponsoredData.spu.spu_name,
                 present_address: sponsoredData.present_address,
-                spu:sponsoredData.spu,
             },
-            form: formData
+            form:{...formData,
+                intervention_number
+            }
         };
         
         return res.status(200).json(mergedData);
@@ -177,24 +187,22 @@ const getAllCorrespondenceInterventions = async (req, res) => {
     }
 
     try {
+
         const sponsoredMember = await Sponsored_Member.findById(sponsored_id)
-            .populate({
-                path: 'interventions.intervention',
-                match: { interventionType: 'Intervention Correspondence' }
-            })
+            .populate('interventions.intervention')
             .lean();
 
         if (!sponsoredMember) {
             return res.status(404).json({ message: 'Sponsored Member not found' });
         }
-
-        // Return both id and intervention_number for each correspondence intervention
-       const correspondenceInterventions = (sponsoredMember.interventions || [])
-        .filter(i => i.interventionType === 'Intervention Correspondence')
-        .map(i => ({
-            id: i.intervention ? i.intervention._id : i.intervention, // could be null
-            intervention_number: i.intervention_number
-        }));
+ 
+        const correspondenceInterventions = (sponsoredMember.interventions || [])
+            .filter(i => i.interventionType === 'Intervention Correspondence')
+            .map(i => ({
+                id: i.intervention ? i.intervention._id || i.intervention : null,
+                intervention_number: i.intervention_number,
+                createdAt: i.intervention ? i.intervention.createdAt : null
+            }));
 
         return res.status(200).json(correspondenceInterventions);
     } catch (error) {
@@ -240,7 +248,103 @@ const editCorrespondenceForm = async(req,res) =>{
     }
 
 }
+/**
+ * @route   DELETE /api/interventions/correspondence/delete/:formId
+ * @desc    Deletes an Intervention Correspondence form and removes it from the Sponsored Member's interventions
+ * 
+ * @required
+ *    - :formId URL parameter: ObjectId of the Intervention Correspondence form to delete
+ * 
+ * @notes
+ *    - Validates if the provided id is a valid Mongo ObjectId
+ *    - Finds and deletes the form document
+ *    - Removes the intervention reference from the Sponsored Member's interventions array
+ * 
+ * @returns
+ *    - 200 OK: Success message with deleted form ID
+ *    - 400 Bad Request: If the provided id is invalid
+ *    - 404 Not Found: If the form or associated Sponsored Member doesn't exist
+ *    - 500 Internal Server Error: If something goes wrong during the process
+ */
+const deleteCorrespondenceForm = async(req, res) => {
+    const formId = req.params.formId;
 
+    if (!mongoose.Types.ObjectId.isValid(formId)) {
+        return res.status(400).json({ message: 'Invalid Form ID' });
+    }
+
+    try {
+        // Verify the form exists
+        const correspondenceForm = await Intervention_Correspondence.findById(formId);
+        
+        if (!correspondenceForm) {
+            return res.status(404).json({ message: 'Correspondence intervention form not found' });
+        }
+
+        // Remove the intervention from the sponsored member's interventions array
+        const sponsoredMember = await Sponsored_Member.findOneAndUpdate(
+            { 'interventions.intervention': formId },
+            { $pull: { interventions: { intervention: formId } } },
+            { new: true }
+        );
+
+        if (!sponsoredMember) {
+            return res.status(404).json({ message: 'Sponsored member not found' });
+        }
+
+        await Intervention_Correspondence.findByIdAndDelete(formId);
+
+        return res.status(200).json({
+            message: 'Correspondence intervention form deleted successfully',
+            formId: formId,
+            sponsored_member: {
+                id: sponsoredMember._id
+            }
+        });
+    } catch (error) {
+        console.error('Error deleting correspondence intervention form:', error);
+        return res.status(500).json({ 
+            message: 'Failed to delete correspondence intervention form', 
+            error: error.message 
+        });
+    }
+};
+
+const getAutoFillData = async(req,res)=>{
+    const smId = req.params.smId;
+    if(!mongoose.Types.ObjectId.isValid(smId)){
+        return res.status(400).json({message:'Invalid User Id'});
+    }
+    try{
+        const caseData = await Sponsored_Member.findById(smId).populate('spu').lean();
+        if(!caseData){
+            return res.status(404).json({message:'Not Found'});
+        }
+        const returningData = {
+            last_name : caseData.last_name,
+            first_name: caseData.first_name,
+            middle_name: caseData.middle_name,
+            sm_number:caseData.sm_number,
+            spu:caseData.spu.spu_name,
+            dob : caseData.dob,
+            address:caseData.present_address,
+        };
+
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Correspondence'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+        returningData.intervention_number = lastInterventionNumber + 1;
+
+        return res.status(200).json({message: 'Fetched Succesfully', returningData});
+    }catch(error){
+        console.error(error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
 module.exports = {
     createCorespForm,
     getCorrespondenceForm,
@@ -248,4 +352,6 @@ module.exports = {
     editCorrespondenceForm,
     addInterventionPlan,
     deleteInterventionPlanById,
+    deleteCorrespondenceForm,
+    getAutoFillData
 }

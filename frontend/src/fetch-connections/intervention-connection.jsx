@@ -14,25 +14,17 @@ export const fetchCaseData = async (caseID) => {
 
         const sm_data = await response.json();
 
-        const counselingData = {
-            first_name: sm_data.first_name || "",
-            middle_name: sm_data.middle_name || "",
-            last_name: sm_data.last_name || "",
-            ch_number: sm_data.sm_number || "",
-            address: sm_data.present_address || "",
-            subproject: sm_data.spu || "",
-        };
-
-        return counselingData;
+        return sm_data;
     } catch (error) {
         console.error("Error fetching counseling information:", error);
-        throw error;
+        return null;
+        // throw error;
     }
 };
 
-export const fetchCounselingIntervention = async (counselingId) => {
+export const fetchCounselingIntervention = async (caseId, counselingId) => {
     try {
-        const response = await fetch(`/api/intervention/counseling/intervention/${counselingId}`);
+        const response = await fetch(`/api/intervention/counseling/intervention/${caseId}/${counselingId}`);
 
         if (!response.ok) {
             throw new Error("Failed to fetch counseling intervention");
@@ -42,7 +34,8 @@ export const fetchCounselingIntervention = async (counselingId) => {
         return intervention;
     } catch (error) {
         console.error("Error fetching counseling intervention:", error);
-        throw error;
+        return null;
+        // throw error;
     }
 }
 
@@ -80,6 +73,28 @@ export const addCounselingIntervention = async (data, caseID) => {
         return result;
     } catch (error) {
         console.error("Error adding counseling intervention:", error);
+        throw error;
+    }
+};
+
+export const editCounselingIntervention = async (data, counselingId) => {
+    try {
+        const response = await fetch(`/api/intervention/counseling/edit/${counselingId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to edit counseling intervention");
+        }
+
+        const result = await response.json();        
+        return result;
+    } catch (error) {
+        console.error("Error editing counseling intervention:", error);
         throw error;
     }
 };

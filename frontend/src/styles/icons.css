@@ -131,9 +131,31 @@
   -webkit-mask-image: url("/progress.svg");
 }
 
+.spu-button {
+  mask-image: url("/spu.svg");
+  -webkit-mask-image: url("/spu.svg");
+}
+
+.chevron-button {
+  height: 4rem;
+  width: 4rem;
+  mask-image: url("/chevron.svg");
+  -webkit-mask-image: url("/chevron.svg");
+    transition: transform 0.3s ease;
+}
+
+.chevron-button.rotate {
+  transform: rotate(180deg);
+}
+
 .archive-button {
   mask-image: url("/archive.svg");
   -webkit-mask-image: url("/archive.svg");
+}
+
+.case-button {
+  mask-image: url("/case.svg");
+  -webkit-mask-image: url("/case.svg");
 }
 
 .order-button {

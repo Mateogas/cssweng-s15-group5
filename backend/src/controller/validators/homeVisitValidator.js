@@ -9,20 +9,20 @@ const homeVisitFormValidate = Joi.object({
      family_type: Joi.string().required(),
 
      father: Joi.object({
-     father_details: Joi.string().hex().length(24).optional(),
-     father_relationship: Joi.string().hex().length(24).optional()
+          father_details: Joi.string().hex().length(24).optional(),
+          father_relationship: Joi.string().hex().length(24).optional()
      }).optional(),
 
      mother: Joi.object({
-     mother_details: Joi.string().hex().length(24).optional(),
-     mother_relationship: Joi.string().hex().length(24).optional()
+          mother_details: Joi.string().hex().length(24).optional(),
+          mother_relationship: Joi.string().hex().length(24).optional()
      }).optional(),
 
      familyMembers: Joi.array().items(
-     Joi.object({
-          family_member_details: Joi.string().hex().length(24).optional(),
-          family_member_relationship: Joi.string().hex().length(24).optional()
-     })
+          Joi.object({
+               family_member_details: Joi.string().hex().length(24).optional(),
+               family_member_relationship: Joi.string().hex().length(24).optional()
+          })
      ).optional(),
 
      sm_progress: Joi.string().required(),

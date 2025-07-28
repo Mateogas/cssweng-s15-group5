@@ -38,7 +38,7 @@ export const createCorrespForm = async (caseId, formData) => {
  * @param {string} caseId - The ObjectId of the Sponsored Member.
  * @param {string} formId - The ObjectId of the Intervention Correspondence form.
  * @returns {Promise<{sponsored_member: object, form: object}|null>}
- *   sponsored_member: { first_name, middle_name, last_name, sm_number, dob, present_address ,spu}
+ *   sponsored_member: { first_name, middle_name, last_name, sm_number, dob, present_address }
  *   form: { ...all form fields... }
  */
 export const fetchCorrespFormData = async (caseId, formId) => {
@@ -131,6 +131,36 @@ export const deleteCorrespInterventionPlan = async (formId, planId) => {
         return result.form;
     } catch (error) {
         console.error('Error deleting intervention plan:', error);
+        return null;
+    }
+};
+/**
+ * Deletes an  correspondence form by formId.
+ * @param {string} formId - The ObjectId of the correspondence form.
+ * @returns {Promise<object|null>} The updated form object, or null on error.
+ */
+export const deleteCorrespInterventionForm = async(formId) => {
+    try {
+        const response = await fetch(`/api/interventions/correspondence/delete/${formId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('API error');
+        const result = await response.json();
+        return result.form;
+    } catch (error) {
+        console.error('Error deleting intervention correspondence plan:', error);
+        return null;
+    }
+}
+
+export const fetchAutoFillCorrespData = async(caseId) =>{
+    try{
+        const response = await fetch(`/api/interventions/correspondence/getAutoFillForm/${caseId}`)
+        if(!response.ok) throw new Error('API Error');
+        const result = await response.json();
+        return result
+    }catch(error){
+        console.error('Error fetching Case Data', error);
         return null;
     }
 };

@@ -34,12 +34,6 @@ const InterventionCounselingSchema = new Schema ({
           type: String,
           required: false        
      },
-     progress_reports: {
-          type: [mongoose.Schema.Types.ObjectId], 
-          ref: 'Progress Report',
-
-          required: false
-     }
 }, { timestamps: true });
 
 const InterventionCounseling = mongoose.model('Intervention Counseling', InterventionCounselingSchema);

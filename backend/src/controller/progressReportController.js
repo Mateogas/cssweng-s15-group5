@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
-const Intervention_Counseling = require('../model/intervention_counseling');
-const Intervention_Home_Visitation = require('../model/intervention_homevisit');
-const Intervention_Correspondence = require('../model/intervention_correspondence');
-const Intervention_Financial_Assessment = require('../model/intervention_financial');
+const Sponsored_member = require('../model/sponsored_member');
 const Progress_Report = require('../model/progress_report');
 
 /**
@@ -20,6 +17,7 @@ const Progress_Report = require('../model/progress_report');
 const getProgressReportById = async (req, res) => {
     try {
         const reportId = req.params.reportId;
+        const caseId = req.params.caseId
 
         // Validate progress report ID
         if (!mongoose.Types.ObjectId.isValid(reportId)) {
@@ -32,7 +30,30 @@ const getProgressReportById = async (req, res) => {
             return res.status(404).json({ error: 'Progress report not found' });
         }
 
-        return res.status(200).json(progressReport);
+        // Get the sponsored member associated with the report
+        const sm = await Sponsored_member.findOne({ "progress_reports.progress_report": reportId })
+            .populate("spu")
+            .lean();
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found for this report' });
+        }
+
+        if (sm._id.toString() != caseId) {
+            return res.status(403).json({ error: 'Case and form mismatch' });
+        }
+
+        // Get report number from the sponsored member's progress reports
+        const reportNumber = sm.progress_reports.find(report => report.progress_report.toString() === reportId)?.report_number;
+        if (!reportNumber) {
+            return res.status(404).json({ error: 'Report number not found for this progress report' });
+        }
+        
+        sm.subproject = sm.spu
+        return res.status(200).json({
+            progressReport,
+            reportNumber,
+            case: sm,
+        });
     } catch (error) {
         console.error('Error fetching progress report:', error);
         return res.status(500).json({ error: 'Internal server error' });
@@ -40,58 +61,121 @@ const getProgressReportById = async (req, res) => {
 }
 
 /**
- * Adds a progress report to an intervention.
+ * Fetches case data for a given case ID.
  * 
- * @route POST /api/progress-report/add/:interventionId
+ * @route GET /api/progress-report/add/:caseId
  * 
- * @param {string} interventionId - The ID of the intervention.
+ * @param {string} caseId - The ID of the case to fetch data for.
+ * 
+ * @returns {Object} 200 - Case data object.
+ * @returns {Object} 400 - Invalid case ID.
+ * @returns {Object} 404 - Case not found.
+ * @returns {Object} 500 - Internal server error.
+ */
+const getCaseData = async (req, res) => {
+    try {
+        const caseId = req.params.caseId;
+
+        // Validate case ID
+        if (!mongoose.Types.ObjectId.isValid(caseId)) {
+            return res.status(400).json({ error: 'Invalid case ID' });
+        }
+
+        // Fetch the case data (assuming a Case model exists)
+        const sm_data = await Sponsored_member.findById(caseId).populate('spu');
+        if (!sm_data) {
+            return res.status(404).json({ error: 'Case not found' });
+        }
+
+        // Get the last progress report number
+        const lastReport = sm_data.progress_reports[sm_data.progress_reports.length - 1];
+        const lastReportNumber = lastReport ? lastReport.report_number : 0;
+
+        const caseData = {
+            last_name: sm_data.last_name || '',
+            middle_name: sm_data.middle_name || '',
+            first_name: sm_data.first_name || '',
+            ch_number: sm_data.sm_number || '',
+            dob: new Date(sm_data.dob).toISOString().split('T')[0] || '',
+            subproject: sm_data.spu || '',
+            reportNumber: lastReportNumber + 1,
+        }
+
+        return res.status(200).json(caseData);
+    } catch (error) {
+        console.error('Error fetching case data:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+/**
+ * Gets all progress reports for a case.
+ * 
+ * @route GET /api/progress-report/case/:caseId
+ * 
+ * @param {string} caseId - The ID of the case to fetch progress reports for.
+ * 
+ * @returns {Object} 200 - Array of progress reports.
+ * @returns {Object} 400 - Invalid case ID.
+ * @returns {Object} 404 - Sponsored member not found.
+ * @returns {Object} 500 - Internal server error.
+ */
+const getAllProgressReportsForCase = async (req, res) => {
+    try {
+        const caseId = req.params.caseId;
+
+        // Validate case ID
+        if (!mongoose.Types.ObjectId.isValid(caseId)) {
+            return res.status(400).json({ error: 'Invalid case ID' });
+        }
+
+        // Fetch all progress reports for the sponsored member
+        const sm = await Sponsored_member.findById(caseId).populate('progress_reports.progress_report');
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
+        }
+
+        const progressReports = sm.progress_reports.map(report => ({
+            _id: report.progress_report._id,
+            report_number: "Progress Report " + report.report_number,
+            created_at: report.progress_report.createdAt,
+        }));
+
+        return res.status(200).json(progressReports);
+    } catch (error) {
+        console.error('Error fetching all progress reports:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+/**
+ * Adds a progress report to a sponsored member.
+ * 
+ * @route POST /api/progress-report/add/:caseId
+ * 
+ * @param {string} caseId - The ID of the sponsored member.
  * 
  * @param {Object} req.body - The progress report data.
- * @param {string} req.body.intervention_type - The type of intervention.
  * 
  * @returns {Object} 201 - Progress report added successfully.
- * @returns {Object} 400 - Invalid intervention ID, type, or missing required fields.
- * @returns {Object} 404 - Intervention not found.
+ * @returns {Object} 400 - Invalid case ID, type, or missing required fields.
+ * @returns {Object} 404 - Sponsored member not found.
  * @returns {Object} 500 - Internal server error.
  */
 const addProgressReport = async (req, res) => {
     try {
-        const interventionId = req.params.interventionId;
-        const interventionType = req.body.intervention_type;
+        const caseId = req.params.caseId;
 
-        // Validate intervention ID
-        if (!mongoose.Types.ObjectId.isValid(interventionId)) {
-            return res.status(400).json({ error: 'Invalid intervention ID' });
+        // Validate case ID
+        if (!mongoose.Types.ObjectId.isValid(caseId)) {
+            return res.status(400).json({ error: 'Invalid case ID' });
         }
 
-        // Validate intervention type
-        if (!['Intervention Counseling', 'Intervention Home Visitation', 'Intervention Correspondence', 'Intervention Financial Assessment'].includes(interventionType)) {
-            return res.status(400).json({ error: 'Invalid intervention type' });
+        // Find sponsored member
+        const sm = await Sponsored_member.findById(caseId);
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
         }
-
-        // Find the intervention by ID and type
-        let intervention;
-
-        switch (interventionType) {
-            case 'Intervention Counseling':
-                intervention = await Intervention_Counseling.findById(interventionId);
-                break;
-            case 'Intervention Home Visitation':
-                intervention = await Intervention_Home_Visitation.findById(interventionId);
-                break;
-            case 'Intervention Correspondence':
-                intervention = await Intervention_Correspondence.findById(interventionId);
-                break;
-            case 'Intervention Financial Assessment':
-                intervention = await Intervention_Financial_Assessment.findById(interventionId);
-                break;
-            default:
-                return res.status(400).json({ error: 'Invalid intervention type' });
-        }
-        if (!intervention) {
-            return res.status(404).json({ error: 'Intervention not found' });
-        }
-        console.log('Found intervention:', intervention);
 
         // Validate required fields
         const requiredFields = [
@@ -135,12 +219,13 @@ const addProgressReport = async (req, res) => {
 
         // Validate relation_to_sponsor structure
         if (!req.body.relation_to_sponsor || 
-            typeof req.body.relation_to_sponsor.q1 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q2 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q3 === 'undefined') {
+            typeof req.body.relation_to_sponsor.know_sponsor_name === 'undefined' ||
+            typeof req.body.relation_to_sponsor.cooperative === 'undefined' ||
+            typeof req.body.relation_to_sponsor.personalized_letter === 'undefined') {
+
             return res.status(400).json({ 
                 error: 'Invalid relation_to_sponsor structure',
-                message: 'relation_to_sponsor must include q1, q2, and q3 properties'
+                message: 'relation_to_sponsor must include know_sponsor_name, cooperative, and personalized_letter properties'
             });
         }
 
@@ -155,9 +240,9 @@ const addProgressReport = async (req, res) => {
             services_to_family: req.body.services_to_family,
             participation: req.body.participation,
             relation_to_sponsor: {
-                know_sponsor_name: req.body.relation_to_sponsor.q1,
-                cooperative: req.body.relation_to_sponsor.q2,
-                personalized_letter: req.body.relation_to_sponsor.q3,
+                know_sponsor_name: req.body.relation_to_sponsor.know_sponsor_name,
+                cooperative: req.body.relation_to_sponsor.cooperative,
+                personalized_letter: req.body.relation_to_sponsor.personalized_letter,
             },
         };
 
@@ -165,40 +250,40 @@ const addProgressReport = async (req, res) => {
         await progressReport.save();
         console.log('Progress report created:', progressReport);
 
-        // Add the progress report to the intervention
-        intervention.progress_reports.push(progressReport._id);
-        await intervention.save();
-        console.log('Progress report added to intervention');
+        // Add the progress report to the sponsored member's progress_reports array
+        sm.progress_reports.push({
+            progress_report: progressReport._id,
+            report_number: sm.progress_reports.length + 1
+        });
+        await sm.save();
+        console.log('Progress report added to sponsored member');
 
         return res.status(201).json({
             message: 'Progress report added successfully',
             progressReport,
-            interventionId: intervention._id,
-            interventionType: interventionType
+            case: sm,
         });
     } catch (error) {
         console.error('Error adding progress report:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }
 
 /**
- * Deletes a progress report from an intervention.
+ * Deletes a progress report from a sponsored member.
  * 
  * @route DELETE /api/progress-report/delete/:reportId
  * 
  * @param {string} reportId - The ID of the progress report to delete.
- * @param {string} req.body.intervention_type - The type of intervention.
  * 
  * @returns {Object} 200 - Progress report deleted successfully.
- * @returns {Object} 400 - Invalid report ID or intervention type.
+ * @returns {Object} 400 - Invalid report ID.
  * @returns {Object} 404 - Progress report or intervention not found.
  * @returns {Object} 500 - Internal server error.
  */
 const deleteProgressReport = async (req, res) => {
     try {
         const reportId = req.params.reportId;
-        const interventionType = req.body.intervention_type;
 
         // Validate progress report ID
         if (!mongoose.Types.ObjectId.isValid(reportId)) {
@@ -211,41 +296,17 @@ const deleteProgressReport = async (req, res) => {
             return res.status(404).json({ error: 'Progress report not found' });
         }
 
-        // Validate intervention type
-        if (!['Intervention Counseling', 'Intervention Home Visitation', 'Intervention Correspondence', 'Intervention Financial Assessment'].includes(interventionType)) {
-            return res.status(400).json({ error: 'Invalid intervention type' });
-        }
-
-        let interventionModel;
-
-        switch (interventionType) {
-            case 'Intervention Counseling':
-                interventionModel = Intervention_Counseling;
-                break;
-            case 'Intervention Home Visitation':
-                interventionModel = Intervention_Home_Visitation;
-                break;
-            case 'Intervention Correspondence':
-                interventionModel = Intervention_Correspondence;
-                break;
-            case 'Intervention Financial Assessment':
-                interventionModel = Intervention_Financial_Assessment;
-                break;
-            default:
-                return res.status(400).json({ error: 'Invalid intervention type' });
-        }
-
-        // Find the intervention that contains the progress report and remove it
-        const intervention = await interventionModel.findOneAndUpdate(
-            { progress_reports: reportId },
-            { $pull: { progress_reports: reportId } },
+        // Find the sponsored member and delete the progress report
+        const sm = await Sponsored_member.findOneAndUpdate(
+            { "progress_reports.progress_report": reportId },
+            { $pull: { progress_reports: { progress_report: reportId } } },
             { new: true }
         );
-        
-        if (!intervention) {
-            return res.status(404).json({ error: 'Intervention not found' });
+
+        if (!sm) {
+            return res.status(404).json({ error: 'Sponsored member not found' });
         }
-        console.log('Progress report removed from intervention');
+        console.log('Progress report removed from sponsored member:', sm._id);
 
         // Delete the progress report
         await Progress_Report.findByIdAndDelete(reportId);
@@ -323,9 +384,9 @@ const editProgressReport = async (req, res) => {
 
         // Validate relation_to_sponsor structure
         if (!req.body.relation_to_sponsor || 
-            typeof req.body.relation_to_sponsor.q1 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q2 === 'undefined' ||
-            typeof req.body.relation_to_sponsor.q3 === 'undefined') {
+            typeof req.body.relation_to_sponsor.know_sponsor_name === 'undefined' ||
+            typeof req.body.relation_to_sponsor.cooperative === 'undefined' ||
+            typeof req.body.relation_to_sponsor.personalized_letter === 'undefined') {
             return res.status(400).json({ 
                 error: 'Invalid relation_to_sponsor structure',
                 message: 'relation_to_sponsor must include q1, q2, and q3 properties'
@@ -342,9 +403,9 @@ const editProgressReport = async (req, res) => {
         progressReport.services_to_family = req.body.services_to_family;
         progressReport.participation = req.body.participation;
         progressReport.relation_to_sponsor = {
-            know_sponsor_name: req.body.relation_to_sponsor.q1,
-            cooperative: req.body.relation_to_sponsor.q2,
-            personalized_letter: req.body.relation_to_sponsor.q3,
+            know_sponsor_name: req.body.relation_to_sponsor.know_sponsor_name,
+            cooperative: req.body.relation_to_sponsor.cooperative,
+            personalized_letter: req.body.relation_to_sponsor.personalized_letter,
         };
         await progressReport.save();
         console.log('Progress report updated:', progressReport);
@@ -361,6 +422,8 @@ const editProgressReport = async (req, res) => {
 
 module.exports = {
     getProgressReportById,
+    getCaseData,
+    getAllProgressReportsForCase,
     addProgressReport,
     deleteProgressReport,
     editProgressReport,

@@ -38,7 +38,7 @@ export default function ProfileModal({ isOpen, onClose }) {
         id: "1234567890",
         username: "Employee.Yippee",
         email: "hello@email.com",
-        role: "super",
+        role: "supervisor",
         spu: "MNL",
         contact_number: "0917-123-4567"
     };
@@ -129,7 +129,7 @@ export default function ProfileModal({ isOpen, onClose }) {
 
                             </div>
                             <div className="w-full flex gap-3 justify-around">
-                                <p className='header-plain'><span className="header-sub">Role:</span> {userData.role === "sdw" ? "SDW" : userData.role === "super" ? "Supervisor" : "Admin"}</p>
+                                <p className='header-plain'><span className="header-sub">Role:</span> {userData.role === "sdw" ? "SDW" : userData.role === "supervisor" ? "Supervisor" : "Admin"}</p>
                                 <p className='header-plain'><span className="header-sub">SPU:</span> {userData.spu}</p>
                             </div>
 

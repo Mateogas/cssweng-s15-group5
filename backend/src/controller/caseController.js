@@ -8,7 +8,7 @@ const Family_Relationship = require('../model/family_relationship');
 const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
 const Employee = require('../model/employee');
-
+const Spu = require('../model/spu')
 const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
 // ================================================== //
@@ -59,7 +59,7 @@ const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require(
 // };
 
 const getCaseById = async (req, res) => {
-  const id = req.params.id;
+     const id = req.params.id;
 
      try {
           //finds an id in our mongo
@@ -78,41 +78,48 @@ const getCaseById = async (req, res) => {
 };
 
 const getCaseBySMNumber = async (req, res) => {
-  const smNumber = req.params.sm_number;
+     const smNumber = req.params.sm_number;
 
-  console.log('[getCaseBySMNumber] Called with SM Number:', smNumber);
+     console.log('[getCaseBySMNumber] Called with CH Number:', smNumber);
 
-  try {
-    const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
-      .populate('assigned_sdw')
-      .lean();
+     try {
+          const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
+               .populate('assigned_sdw')
+               .lean();
 
-    console.log('[getCaseBySMNumber] Found:', caseItem);
+          console.log('[getCaseBySMNumber] Found:', caseItem);
 
-    if (!caseItem) {
-      return res.status(200).json({
-        found: false,
-        message: 'Case not found for given SM Number',
-      });
-    }
+          if (!caseItem) {
+               return res.status(200).json({
+                    found: false,
+                    message: 'Case not found for given CH Number',
+               });
+          }
 
-    res.status(200).json({
-      found: true,
-      data: caseItem,
-    });
-  } catch (error) {
-    console.error('[getCaseBySMNumber] Error:', error);
-    res.status(500).json({ message: 'Error fetching case', error: error.message });
-  }
+          res.status(200).json({
+               found: true,
+               data: caseItem,
+          });
+     } catch (error) {
+          console.error('[getCaseBySMNumber] Error:', error);
+          res.status(500).json({ message: 'Error fetching case', error: error.message });
+     }
 };
 
 
 const getAllSDWs = async (req, res) => {
      try {
-          console.log('Fetching all employees...');
-          const employees = await Employee.find();
-          console.log('Employees found:', employees);
-          res.json(employees);
+          // console.log('Fetching all employees...');
+          const employees = await Employee.find({
+            spu_id: { $type: 'objectId' }
+        }).populate('spu_id').lean();
+          
+          // console.log('Employees found:', employees);
+          const simplifiedSDWs = employees.map(sdw => ({
+          ...sdw,
+          spu_id: sdw.spu_id?.spu_name || "", 
+          }));
+          res.json(simplifiedSDWs);
      } catch (error) {
           console.error('Failed to fetch employees:', error);
           res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
@@ -124,7 +131,7 @@ const getAllSDWs = async (req, res) => {
  *   Gets all cases that are viable to be seen based on user priveleges
  */
 const getAllCaseViable = async (req, res) => {
-     const userPriv = req.userId
+     const userPriv = req.userId;
      try {
           const cases = await Sponsored_Member.find({
                assigned_sdw: userPriv,
@@ -142,23 +149,68 @@ const getAllCaseViable = async (req, res) => {
           });
      }
 }
+/**  
+ *   Gets all cases of social development worker
+ *   returns name of sponsored member and id only
+ */
+const getAllCasesbySDW = async (req, res) => {
+     const sdwId = req.params.sdwID;
+     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
+          return res.status(400).json({ message: "Invalid Social Development Worker Id" });
+     }
+     try {
+          const allCases = await Sponsored_Member.find({
+               is_active: true,
+               assigned_sdw: sdwId
+          })
+               .populate('assigned_sdw')
+               .populate('spu')
+               .lean()
 
+          const simplifiedCases = allCases.map(c => ({
+               id: c._id,
+               name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
+               sm_number: c.sm_number,
+               spu: c.spu.spu_name,
+               is_active: c.is_active,
+               assigned_sdw: c.assigned_sdw._id,
+               assigned_sdw_name: c.assigned_sdw
+                    ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+                    : null
+          }));
+
+          res.status(200).json(simplifiedCases);
+
+     } catch (error) {
+          console.error("Error fetching Cases for SDW: ", error);
+          res.status(500).json({
+               message: "Error fetching Cases for SDW",
+               error: error.message
+          })
+     }
+
+}
 /**  
  *   Gets all cases returns name and id only
  */
 const getAllCases = async (req, res) => {
      try {
-          const cases = await Sponsored_Member.find({})
-               .populate('assigned_sdw', 'first_name middle_name last_name') // Only fetch name fields
-               .lean();
+          const cases = await Sponsored_Member.find({spu: { $type: 'objectId' }})
+               .populate('assigned_sdw', 'first_name middle_name last_name') // name for assigned SDW
+               .populate('spu', 'spu_name') 
 
           const simplifiedCases = cases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
-               ch_number: c.sm_number,
+               sm_number: c.sm_number,
+               spu: c.spu?.spu_name || null,
+               spuObjectId: c.spu._id,
+               is_active: c.is_active,
+               assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
-                    ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-                    : null
+               ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+               : null
+
           }));
 
           res.json(simplifiedCases);
@@ -247,36 +299,53 @@ const reassignSDW = async (req, res) => {
 
 const addNewCase = async (req, res) => {
      const newCaseData = req.body;
-     const sdwId = '6849646feaa08161083d1ad8' // ||req.session.userId should be session id but static for now
+     const sessionUser = req.session?.user;
+     const sdwId = sessionUser?._id;
+     const spu_id = sessionUser?.spu_id;
+
+     // Add these logs:
+     console.log("=== [addNewCase] Debug ===");
+     console.log("Session user:", sessionUser);
+     console.log("sdwId:", sdwId);
+     console.log("spu_id:", spu_id);
+     console.log("newCaseData:", newCaseData);
+
      if (!newCaseData) {
           return res.status(400).json({ message: 'Invalid case' });
      }
+     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
+          return res.status(400).json({ message: 'Invalid SDW' });
+     }
 
      try {
-          //const latestCase = await Sponsored_Member.findOne().sort({ sm_number: -1 }).lean();
-          //let smNewNumber = latestCase ? Number(latestCase.sm_number) + 1 : 1;
-          //assigns newCase with our current newData
-
-          const newCase = new Sponsored_Member({
-               ...newCaseData,
-               assigned_sdw: sdwId
-          });
-          //here we just validate the newCase before saving it doesnt work lol
-          const { error } = caseSchemaValidate.validate(newCase);
-
+          // First validate the raw data with our assigned_sdw
+          const dataToValidate = {
+               ...newCaseData,// Convert ObjectId to string for validation
+               assigned_sdw: sdwId,
+               spu: spu_id
+          };
+          console.log("beforeValidation");
+          // Validate BEFORE creating the Mongoose model
+          const { error } = caseSchemaValidate.validate(dataToValidate);
           if (error) {
                return res.status(400).json({
                     message: 'Validation error',
                     details: error.details.map(detail => detail.message)
                });
           }
+          console.log("survived validation");
+          // Only create the Mongoose model after validation passes
+          const caseToSave = {
+               ...dataToValidate,
+          };
 
+          const newCase = new Sponsored_Member(caseToSave);
           const savedCase = await newCase.save();
+          console.log(savedCase);
           res.status(201).json({
                message: 'New case created successfully',
                case: savedCase
           });
-
      } catch (error) {
           console.error('Error creating new case:', error);
           res.status(500).json({ message: 'Failed to create case', error });
@@ -399,7 +468,7 @@ const editCaseIdentifyingData = async (req, res) => {
 
 
 const archiveCase = async (req, res) => {
-     const caseId = req.params.id; // Fixed: params not param
+     const caseId = req.params.sdwID; // Fixed: params not param
      if (!mongoose.Types.ObjectId.isValid(caseId)) {
           return res.status(400).json({ message: 'Invalid case ID format' });
      }
@@ -522,6 +591,23 @@ const addFamilyMember = async (req, res) => {
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = 0
 
+          // Occupation and Education fix
+          const occupation = (updateDetails.occupation || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.occupation = occupation
+
+          const edu_attainment = (updateDetails.education || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.education = edu_attainment
+
           const newMember = new Family_Member({
                first_name: updateDetails.first,
                middle_name: updateDetails.middle || "",
@@ -535,6 +621,24 @@ const addFamilyMember = async (req, res) => {
           })
           // console.log(newMember);
           await newMember.validate();
+
+          // Relationship fix
+          mother_codes = ["mom", "mother", "mama", "nanay"]
+          father_codes = ["dad", "father", "papa", "tatay"]
+
+          let relationship = updateDetails.relationship.trim().toLowerCase();
+
+          if (mother_codes.includes(relationship)) {
+               relationship = "Mother";
+          } else if (father_codes.includes(relationship)) {
+               relationship = "Father";
+          } else {
+               relationship = relationship
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          }
+          updateDetails.relationship = relationship
 
           const newRelationship = new Family_Relationship({
                family_id: newMember._id,
@@ -562,9 +666,9 @@ const addFamilyMember = async (req, res) => {
                occupation: newMember.occupation,
                education: newMember.edu_attainment,
                relationship: updateDetails.relationship,
-               status: newMember.status,
 
-               deceased: newMember.status === "Deceased"
+               status: newMember.status,
+               // deceased: newMember.status === "Deceased"
           }
           // console.log(returnData);
 
@@ -626,10 +730,6 @@ const editFamilyMember = async (req, res) => {
           if (!familySelected || !caseSelected || !relationshipSelected)
                throw error;
 
-          // var status = "Living"
-          // if (updateDetails.deceased)
-          //      status = "Deceased"
-
           if (updateDetails.income < 0)
                updateDetails.income = familySelected.income
 
@@ -640,9 +740,46 @@ const editFamilyMember = async (req, res) => {
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = familySelected.age
 
+          // Relationship fix
+          mother_codes = ["mom", "mother", "mama", "nanay"]
+          father_codes = ["dad", "father", "papa", "tatay"]
+
+          if (updateDetails.relationship || updateDetails.relationship !== "") {
+               let relationship = updateDetails.relationship.trim().toLowerCase();
+
+               if (mother_codes.includes(relationship)) {
+                    relationship = "Mother";
+               } else if (father_codes.includes(relationship)) {
+                    relationship = "Father";
+               } else {
+                    relationship = relationship
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+               }
+
+               updateDetails.relationship = relationship
+          }
+
+          // Occupation and Education fix
+          const occupation = (updateDetails.occupation || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.occupation = occupation
+
+          const edu_attainment = (updateDetails.education || "")
+               .trim()
+               .toLowerCase()
+               .split(' ')
+               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+               .join(' ');
+          updateDetails.education = edu_attainment
+
           /**
            *   Updating part
-           * 
            *   In case that the updateDetails is an empty string, the default value is retrieved
            */
           const updatedData = {
@@ -685,8 +822,7 @@ const editFamilyMember = async (req, res) => {
                relationship: updatedRel.relationship_to_sm,
 
                status: updatedFam.status,
-
-               deceased: updatedFam.status === "Deceased"
+               // deceased: updatedFam.status === "Deceased"
           }
 
           // Response
@@ -836,11 +972,12 @@ module.exports = {
      getAllCases,
      getAllCaseViable,
      reassignSDW,
-     addNewCase, // Also add this if needed
+     addNewCase,
      editProblemsAndFindings,
      editAssessment,
      editEvaluationAndRecommendation,
      editCaseCore,
      editCaseIdentifyingData,
      getAllSDWs,
+     getAllCasesbySDW,
 }

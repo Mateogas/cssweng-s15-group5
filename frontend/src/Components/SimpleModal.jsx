@@ -48,7 +48,10 @@ export default function SimpleModal({ isOpen, onClose, title, imageCenter,
               ) : (
                 <button
                   className="btn-outline font-bold-label"
-                  onClick={onClose}>
+                      onClick={() => {
+                    onConfirm?.();
+                    onClose();
+                  }}>
                   OK
                 </button>
               )}

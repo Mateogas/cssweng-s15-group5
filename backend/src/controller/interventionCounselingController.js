@@ -3,6 +3,58 @@ const Sponsored_Member = require('../model/sponsored_member');
 const Intervention_Counseling = require('../model/intervention_counseling');
 
 /**
+ * Retrieves case data for a counseling intervention by case ID.
+ * 
+ * @route GET /api/intervention/counseling/add/:id
+ * 
+ * @param {string} req.params.id - ID of the case
+ * 
+ * @return {Object} 200 - JSON object with case data and last intervention number
+ * @return {Object} 404 - If case or sponsored member is not found
+ * @return {Object} 500 - If a server error occurs
+ */
+const getCaseData = async (req, res) => {
+    try {
+        const caseId = req.params.id;
+        // console.log('Fetching case data for ID:', caseId);
+
+        // Find the case by ID
+        const caseData = await Sponsored_Member.findById(caseId)
+            .populate("spu")
+            .lean();
+        if (!caseData) {
+            return res.status(404).json({ error: 'Case not found' });
+        }
+        // console.log('Case data found');
+
+        // Get last intervention number
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Counseling'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+
+        // console.log('Last intervention number:', lastInterventionNumber);
+
+        return res.status(200).json({
+            message: 'Case retrieved successfully',
+            last_name: caseData.last_name,
+            first_name: caseData.first_name,
+            middle_name: caseData.middle_name,
+            ch_number: caseData.sm_number,
+            address: caseData.present_address,
+            subproject: caseData.spu,
+            intervention_number: lastInterventionNumber + 1,
+        });
+    } catch (error) {
+        console.error('Error fetching case data:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+/**
  * Retrieves a counseling intervention by its ID, including detailed intervention data
  * and associated sponsored member information.
  *
@@ -17,6 +69,7 @@ const Intervention_Counseling = require('../model/intervention_counseling');
 const getCounselingInterventionById = async (req, res) => {
     try {
         const counselingId = req.params.counselingId;
+        const caseId = req.params.caseId
 
         // Find the counseling intervention by ID
         const intervention = await Intervention_Counseling.findById(counselingId);
@@ -28,14 +81,28 @@ const getCounselingInterventionById = async (req, res) => {
         // Populate the sponsored member details
         const sponsored_member = await Sponsored_Member.findOne({
             'interventions.intervention': counselingId
-        }).populate('interventions.intervention');
+        }).populate('interventions.intervention').populate('spu');
 
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
 
+        if (sponsored_member._id.toString() != caseId)
+            return res.status(404).json({ error: 'Case and form mismatch' });
+
+        // Get the intervention number associated with the counseling intervention
+        // console.log(sponsored_member, counselingId)
+        const matchingIntervention = (sponsored_member.interventions || []).find(
+        (entry) =>
+            (entry.intervention?._id?.toString() || entry._id?.toString()) === counselingId
+        );
+        // console.log(matchingIntervention)
+        const intervention_number = matchingIntervention?.intervention_number || null;
+        // console.log('intervention_number: ', intervention_number);
+
         return res.status(200).json({
             message: 'Counseling intervention retrieved successfully',
+            intervention_number: intervention_number,
             grade_year_level: intervention.grade_year_level,
             school: intervention.school,
             area_self_help: intervention.area_self_help,
@@ -49,7 +116,7 @@ const getCounselingInterventionById = async (req, res) => {
             middle_name: sponsored_member.middle_name,
             last_name: sponsored_member.last_name,
             ch_number: sponsored_member.sm_number,
-            subproject: sponsored_member.spu,
+            subproject: sponsored_member.spu.spu_name,
             address: sponsored_member.present_address,
         });
     } catch (error) {
@@ -75,7 +142,7 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
         const memberID = req.params.memberID;
 
         // Find the sponsored member by ID
-        const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention');
+        const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention').populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
@@ -94,7 +161,7 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                subproject: sponsored_member.spu,
+                subproject: sponsored_member.spu.spu_name,
                 address: sponsored_member.present_address,
             },
         });
@@ -121,7 +188,7 @@ const addCounselingIntervention = async (req, res) => {
     try {
         const memberID = req.params.memberID;
 
-        const sponsored_member = await Sponsored_Member.findById(memberID);
+        const sponsored_member = await Sponsored_Member.findById(memberID).populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         };
@@ -192,11 +259,17 @@ const addCounselingIntervention = async (req, res) => {
         }
         console.log('intervention ID is valid');
 
+        const interventions = sponsored_member.interventions || [];
+        // Filter through the same type of intervention in the sponsored member
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Counseling'
+        );
+
         // Relate the new intervention to the sponsored member
         sponsored_member.interventions.push({
             intervention: intervention._id,
             interventionType: 'Intervention Counseling',
-            intervention_number: sponsored_member.interventions.length + 1
+            intervention_number: sameTypeInterventions.length + 1
         });
         await sponsored_member.save();
         console.log('sponsored member updated with intervention');
@@ -210,7 +283,7 @@ const addCounselingIntervention = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                subproject: sponsored_member.spu,
+                subproject: sponsored_member.spu.spu_name,
                 address: sponsored_member.present_address,
             },
         });
@@ -344,6 +417,7 @@ const editCounselingIntervention = async (req, res) => {
 }
 
 module.exports = {
+    getCaseData,
     getCounselingInterventionById,
     getAllCounselingInterventionsByMemberId,
     addCounselingIntervention,

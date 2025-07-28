@@ -32,16 +32,13 @@ function getTextColorForBackground(hsl) {
 
 export default function ClientEntry({
   id,
-  smNumber,
-  firstName,
-  middleName,
-  lastName,
-  chNumber,
-  sdwAssigned,
-  archive = false
+  sm_number,
+  spu,
+  name,
+  assigned_sdw_name,
+  archive
 }) {
-  const initials = firstName.charAt(0).toUpperCase();
-  const name = `${firstName} ${middleName} ${lastName}`;
+  const initials = name.charAt(0).toUpperCase();
 
   let bgColor = getColorFromId(name);
   let textColor = getTextColorForBackground(bgColor);
@@ -58,15 +55,15 @@ export default function ClientEntry({
     >
       <div className="flex items-center gap-6">
         <div
-          className="rounded-full h-[4.5rem] w-[4.5rem] flex justify-center items-center header-sub"
+          className="rounded-full h-[4.5rem] min-w-[4.5rem] flex justify-center items-center header-sub"
           style={{ backgroundColor: bgColor, color: textColor }}
         >
           {initials}
         </div>
         <p>{name}</p>
       </div>
-      <p className="text-center">{chNumber}</p>
-      <p className="text-center">{sdwAssigned}</p>
+      <p className="text-center">{sm_number}</p>
+      <p className="text-center">{assigned_sdw_name}</p>
     </a>
   );
 }

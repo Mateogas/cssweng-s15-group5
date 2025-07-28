@@ -3,18 +3,25 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 
+import Authorization from "./Components/Authorization.jsx";
+
 import Login from "./pages/login.jsx";
 import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
-import HomeAdmin from "./pages/home-admin.jsx";
+import HomeLeader from "./pages/home-leader.jsx";
 import Archive from "./pages/archive.jsx";
-import WorkerProfile from "./pages/WorkerProfile.jsx";
+import WorkerProfile from "./pages/worker-profile.jsx";
 
 import ProgressReport from "./pages/progress-report.jsx";
 import CaseClosure from "./pages/case-closure.jsx";
 import InterventionForm from "./pages/intervention-forms/main-form.jsx";
+import InterventionRoutes from "./Routes/intervention-routes.jsx";
 import "./index.css";
+
+import SpuPage from "./pages/spu-page.jsx";
+
+import NotFound from "./pages/NotFound.jsx";
 
 //we need to add routes pa here for going to other pages so the actual routes are here we add the module Case to load that page
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -29,20 +36,30 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <Route path="/case-frontend" element={<CaseFrontend />} />
                 <Route path="/case/:clientId" element={<CaseFrontend />} />
 
+                <Route path="/create-case" element={<CaseFrontend creating={true} />} />
 
-                <Route path="/home-sdw" element={<HomeSDW />} />
-                <Route path="/home-admin" element={<HomeAdmin />} />
-                <Route path="/archive" element={<Archive />} />
+                {/* <Route path="/home-sdw" element={<HomeSDW />} />
+                <Route path="/home-leader" element={<HomeLeader />} /> */}
 
-                <Route path="/worker-profile" element={<WorkerProfile />} />
+                {/* <Route path="/home-sdw" element={
+                    <Authorization allowedRoles={['sdw']}>
+                        <HomeSDW />
+                    </Authorization>
+                } />
+
+                <Route path="/home-leader" element={
+                        <HomeLeader />
+                } /> */}
+
+                <Route path="/profile/:workerId" element={<WorkerProfile />} />
 
 
-                <Route path="/home-sdw" element={<HomeSDW />} />
-                <Route path="/home-admin" element={<HomeAdmin />} />
+                <Route path="/case" element={<HomeSDW />} />
+                <Route path="/team" element={<HomeLeader />} />
                 <Route path="/archive" element={<Archive />} />
 
                 <Route
-                    path="/intervention-form"
+                    path="/intervention-form/"
                     element={<InterventionForm />}
                 />
 
@@ -55,7 +72,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     element={<CaseClosure />}
                 />
 
-                <Route path="/home-sdw" element={<HomeSDW />} />
+
+                <Route
+                    path="/spu"
+                    element={<SpuPage />}
+                />
+
+                {InterventionRoutes()}
+
+                <Route path="*" element={<NotFound message="Sorry, we couldn't find that page." />} />
 
             </Routes>
         </BrowserRouter>
