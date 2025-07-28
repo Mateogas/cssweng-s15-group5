@@ -212,7 +212,7 @@ const getAllCases = async (req, res) => {
                : null
 
           }));
-
+          
           res.json(simplifiedCases);
      } catch (error) {
           console.error('Error fetching cases:', error);

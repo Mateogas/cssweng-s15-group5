@@ -129,6 +129,7 @@ app.get('/api/session', (req, res) => {
   }
 });
 
+// 404 Route
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found', path: req.originalUrl });
 });

@@ -229,7 +229,8 @@ const getHeadView = async (req, res) => {
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
       sdw_id: e.sdw_id,
       spu: e.spu_id.spu_name,
-      role: e.role
+      role: e.role,
+      is_active: e.is_active ?? true
     }));
 
     return res.status(200).json({
@@ -372,7 +373,9 @@ const getSupervisorViewbySpu = async (req, res) => {
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
       sdw_id: e.sdw_id,
       spu_id: e.spu_id.spu_name,
-      role: e.role
+      spu: e.spu_id.spu_name,
+      role: e.role,
+      is_active: e.is_active
     }));
 
     return res.status(200).json({
