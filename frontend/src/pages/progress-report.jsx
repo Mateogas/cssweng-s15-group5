@@ -35,6 +35,7 @@ function ProgressReport() {
     const [noFormFound, setNoFormFound] = useState(false);
     const [noCaseFound, setNoCaseFound] = useState(false);
     const [customError, setCustomError] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
     
     const [data, setData] = useState({
         form_num: "",
@@ -703,19 +704,35 @@ function ProgressReport() {
                     ) : (
                         <>
                             <button
-                                className="btn-outline font-bold-label"
-                                onClick={() => navigate(`/case/${caseID}`)}
+                                className={`btn-outline font-bold-label ${
+                                    isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                }`}
+                                onClick={() => {
+                                    if (!isProcessing) {
+                                        navigate(`/case/${caseID}`);
+                                    }
+                                }}
+                                disabled={isProcessing}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="btn-primary font-bold-label w-min"
+                                type="submit"
+                                className={`btn-primary font-bold-label w-min ${
+                                    isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                }`}
                                 onClick={async (e) => {
+                                    e.preventDefault(); 
+                                    setIsProcessing(true);
                                     const success = await handleSubmit(e);
-                                    if (success) setShowSuccessModal(true);
+                                    if (success) {
+                                        setShowSuccessModal(true);
+                                    }
+                                    setIsProcessing(false);
                                 }}
+                                disabled={isProcessing}
                             >
-                                Create Report
+                                {isProcessing ? "Creating..." : "Create Report"}
                             </button>
                         </>
                     )}

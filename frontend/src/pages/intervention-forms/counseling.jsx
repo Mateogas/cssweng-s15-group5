@@ -50,6 +50,7 @@ function CounselingForm() {
 
     const [noFormFound, setNoFormFound] = useState(false);
     const [noCaseFound, setNoCaseFound] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     /********** TEST DATA **********/
 
@@ -503,11 +504,6 @@ function CounselingForm() {
                 ></TextArea>
             </section>
 
-            {/* Signature */}
-            {/*<div className="flex w-full justify-between px-16 pt-24">
-                <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
-            </div>*/}
-
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 {viewForm ? (
@@ -524,19 +520,35 @@ function CounselingForm() {
                 ) : (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => navigate(`/case/${caseID}`)}
+                            className={`btn-outline font-bold-label ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => {
+                                if (!isProcessing) {
+                                    navigate(`/case/${caseID}`);
+                                }
+                            }}
+                            disabled={isProcessing}
                         >
                             Cancel
                         </button>
                         <button
-                            className="btn-primary font-bold-label w-min"
+                            type="submit"
+                            className={`btn-primary font-bold-label w-min ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
                             onClick={async (e) => {
+                                e.preventDefault(); 
+                                setIsProcessing(true);
                                 const success = await handleSubmit(e);
-                                if (success) setShowSuccessModal(true);
+                                if (success) {
+                                    setShowSuccessModal(true);
+                                }
+                                setIsProcessing(false);
                             }}
+                            disabled={isProcessing}
                         >
-                            Create Intervention
+                            {isProcessing ? "Creating..." : "Create Intervention"}
                         </button>
                     </>
                 )}
