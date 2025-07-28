@@ -69,13 +69,14 @@ const deleteAccount = async (req, res) => {
      }
 
      // Delete
-     await Employee.findByIdAndDelete(account_selected._id);
+     account_selected.is_active = false;
+     await Employee.save()
 
      // Query all employees again for return; must be updated
-     const employees = await Employee.find();
+     const employees = await Employee.find({ is_active: true });
      return res.status(200).json({ message: "Account deleted successfully", employees });
 }
 
-module.export = {
+module.exports = {
      deleteAccount
 }
