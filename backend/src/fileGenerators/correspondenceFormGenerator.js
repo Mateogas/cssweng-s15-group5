@@ -34,6 +34,7 @@ const generateCorrespondenceForm = async (req, res) => {
 
         // Fetch the sponsored member associated with the correspondence
         const sponsored_member = await Sponsored_Member.findOne({ 'interventions.intervention': correspondenceId })
+            .populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ message: "Sponsored member not found." });
         }
@@ -61,9 +62,9 @@ const generateCorrespondenceForm = async (req, res) => {
         formattedData.sm_number = sponsored_member.sm_number || '';
         formattedData.dob = formatDate(sponsored_member.dob) || '';
         formattedData.present_address = sponsored_member.present_address || '';
-        formattedData.spu = sponsored_member.spu || '';
+        formattedData.spu = sponsored_member.spu.spu_name || '';
 
-        console.log('FORMATTED CORRESPONDENCE FORM: ', formattedData);
+        // console.log('FORMATTED CORRESPONDENCE FORM: ', formattedData);
         // Return data
         return res.status(200).json(formattedData);
     } catch (error) {

@@ -28,8 +28,15 @@ function ProgressReport() {
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
-    
 
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+    const [customError, setCustomError] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
+    
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -51,57 +58,67 @@ function ProgressReport() {
 
     // < START :: Auto-Filled Data > //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    const viewForm = action !== 'create' ? true : false;
 
-            const returnData = await fetchCaseData(caseID);
-            const caseData = returnData
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            console.log("CaseData: ", caseData)
+                const returnData = await fetchCaseData(caseID);
+                if (!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
+                const caseData = returnData
 
-            setRawCaseData(caseData);
+                setRawCaseData(caseData);
+                setData((prev) => ({
+                    ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.ch_number || "",
+                    dob: caseData.dob || "",
+                    subproject: caseData.subproject.spu_name || "",
+                    form_num: caseData.reportNumber || "",
+                }));
 
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
-                ch_number: caseData.ch_number || "",
-                dob: caseData.dob || "",
-                subproject: caseData.subproject || "",
-                form_num: caseData.reportNumber || "",
-            }));
+                setLoading(false);
+            };
+            loadData();
+        }, []);
 
-            setLoading(false);
-        };
-        loadData();
-    }, []);
-
-    useEffect(() => {
-        setFirstName(data.first_name || "");
-        setMiddleName(data.middle_name || "");
-        setLastName(data.last_name || "");
-        setCHNumber(data.ch_number || "");
-        setDOB(data.dob || "");
-        setAge("");
-        setSubproject(data.subproject || "");
-        setFormNum(data.form_num || "");
-    }, [data]);
+        useEffect(() => {
+            setFirstName(data.first_name || "");
+            setMiddleName(data.middle_name || "");
+            setLastName(data.last_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB(data.dob || "");
+            setAge("");
+            setSubproject(data.subproject || "");
+            setFormNum(data.form_num || "");
+        }, [data]);
+    }   
 
     // < END :: Auto-Filled Data > //
 
     // < START :: View Form > //
-
-    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 setLoading(true);
     
-                const returnData = await fetchProgressReport(formID);
+                const returnData = await fetchProgressReport(caseID, formID);
+
+                if (!returnData) {
+                    setNoFormFound(true)
+                    return
+                }
+
                 const formData = returnData.progressReport
+                const caseData = returnData.case
                 const report_number = returnData.reportNumber
     
                 console.log(formData)
@@ -111,6 +128,13 @@ function ProgressReport() {
     
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    subproject: caseData.subproject.spu_name || "",
+
                     form_num: report_number || "",
                     sponsor_name: formData.sponsor_name || "",
                     sponsorship_date: formData.sponsorship_date || "",
@@ -129,6 +153,14 @@ function ProgressReport() {
         }, []);
 
         useEffect(() => {
+            setFirstName(data.first_name || "");
+            setMiddleName(data.middle_name || "");
+            setLastName(data.last_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB(data.dob || "");
+            setAge("");
+            setSubproject(data.subproject || "");
+
             setFormNum(data.form_num || "");
             setSponsorName(data.sponsor_name || "");
             setSponsorshipDate(data.sponsorship_date || "");
@@ -209,14 +241,13 @@ function ProgressReport() {
         };
 
         Object.entries(requiredFields).forEach(([field, value]) => {
-
             if (
                 value === undefined ||               
                 value === null ||                    
                 value === "" ||                    
                 (typeof value === "string" && !value.trim())
             ) {
-            newErrors[field] = "Missing input";
+                newErrors[field] = "Missing input";
             }
         });
 
@@ -227,8 +258,14 @@ function ProgressReport() {
             newErrors["relation_to_sponsor"] = "Missing input";
         }
 
-        setErrors(newErrors);
+        if (sponsorship_date > date_accomplished || new Date(date_accomplished) > new Date()) {
+            newErrors["sponsorship_date"] = "Please check dates.";
+            newErrors["date_accomplished"] = "Please check dates.";
+            setCustomError("Invalid date: Sponsorship date must not be later than accomplishment date, and accomplishment date must not be in the future.");
+            setShowErrorOverlay(true);
+        }
 
+        setErrors(newErrors);
         return Object.keys(newErrors).length === 0; 
     };
 
@@ -238,15 +275,16 @@ function ProgressReport() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -263,10 +301,15 @@ function ProgressReport() {
             participation,
             relation_to_sponsor
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await addProgressReport(payload, caseID); 
+        if (response?.progressReport?._id) {
+            setnewformID(response.progressReport._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -287,7 +330,6 @@ function ProgressReport() {
         };
 
         console.log("Payload: ", updatedPayload);
-
         const response = await editProgressReport(formID, updatedPayload); 
     };
 
@@ -351,13 +393,7 @@ function ProgressReport() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -402,6 +438,44 @@ function ProgressReport() {
     }
 
     // ===== END :: Functions ===== //
+
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">Individual Progress Report</h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">Individual Progress Report</h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
 
     return (
         <main className="flex justify-center w-full p-16">
@@ -464,7 +538,7 @@ function ProgressReport() {
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-16">
+                        <div className="inline-flex items-start justify-center gap-16">
                             <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Sub-Project"
@@ -515,16 +589,16 @@ function ProgressReport() {
 
                 {/* Update/Developmert */}
                 <section className="flex w-full flex-col gap-16">
-                    <div className="flex w-full flex-col gap-8">
+                    <div className="flex w-full flex-col gap-3">
                         <h3 className="header-md">Update/Development</h3>
-                        <h4 className="header-sm">
+                        <h4 className="text-3xl italic">
                             e.g. Education, Health, Socio-Economic, Behavioral,
                             Social, etc.
                         </h4>
                     </div>
                     <div className="flex w-full gap-16">
                         <TextArea
-                            label="Sponsored Member (observation)"
+                            label="Sponsored Member (Observation)"
                             value={sm_update}
                             setValue={setSMUpdate}
                             error={errors["sm_update"]}
@@ -570,33 +644,25 @@ function ProgressReport() {
                     </h4>
                     <div className={`flex gap-y-16 flex-wrap ${errors["relation_to_sponsor"] ? "px-8 py-12 gap-x-28 border rounded-xl border-red-500" : "gap-x-40"}`}>
                         {questions.map((q) => (
-                            <div className={`flex flex-col`}>
-                                <div
-                                    key={q.id}
-                                    className="flex flex-col justify-end gap-8"
-                                >
+                            <div key={q.id} className="flex flex-col">
+                                <div className="flex flex-col justify-end gap-8">
                                     <p className="body-base">{q.text}</p>
                                     <div className="flex gap-12">
                                         {options.map((option) => (
                                             <label
-                                                key={option}
+                                                key={`${q.id}_${option}`}
                                                 className="flex items-center gap-4 body-base"
                                             >
                                                 <input
                                                     type="checkbox"
                                                     name={q.id}
                                                     value={option}
-                                                    checked={
-                                                        relation_to_sponsor[q.id] === option
-                                                    }
+                                                    checked={relation_to_sponsor[q.id] === option}
                                                     onChange={(e) => {
-                                                        handleCheckboxChange(
-                                                            q.id,
-                                                            option,
-                                                        );
+                                                        handleCheckboxChange(q.id, option);
                                                         handleChange("Relation to Sponsor and Unbound")(e);
                                                     }}
-                                                    disabled = {viewForm}
+                                                    disabled={viewForm}
                                                 />
                                                 {option}
                                             </label>
@@ -638,18 +704,35 @@ function ProgressReport() {
                     ) : (
                         <>
                             <button
-                                className="btn-outline font-bold-label"
-                                onClick={() => navigate(`/case/${caseID}`)}
+                                className={`btn-outline font-bold-label ${
+                                    isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                }`}
+                                onClick={() => {
+                                    if (!isProcessing) {
+                                        navigate(`/case/${caseID}`);
+                                    }
+                                }}
+                                disabled={isProcessing}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="btn-primary font-bold-label w-min"
+                                type="submit"
+                                className={`btn-primary font-bold-label w-min ${
+                                    isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                }`}
                                 onClick={async (e) => {
-                                    await handleSubmit(e);
+                                    e.preventDefault(); 
+                                    setIsProcessing(true);
+                                    const success = await handleSubmit(e);
+                                    if (success) {
+                                        setShowSuccessModal(true);
+                                    }
+                                    setIsProcessing(false);
                                 }}
+                                disabled={isProcessing}
                             >
-                                Create Report
+                                {isProcessing ? "Creating..." : "Create Report"}
                             </button>
                         </>
                     )}
@@ -688,11 +771,43 @@ function ProgressReport() {
                         </div>
                     )}
 
+                    {/* Saved Intervention */}
+                    {showSuccessModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                            <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                                <h2 className="header-sm font-semibold mb-4">Progress Report #{form_num} Saved</h2>
+                                <div className="flex justify-end gap-4">
+                                    {/* Go Back to Case */}
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        className="btn-outline font-bold-label"
+                                    >
+                                        Go Back to Case
+                                    </button>
+
+                                    {/* View Form */}
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            navigate(`/progress-report/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        View Form
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Missing / Invalid Input */}
                     {showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
-                                        animate-fadeIn scale-100 transform transition duration-300">
+                                        animate-fadeIn scale-100 transform transition duration-1000">
                         <div className="flex items-center gap-4 border-b-1 ]">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -713,15 +828,33 @@ function ProgressReport() {
                             </h2>
                         </div>
                         <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                            Please fill out all required fields before submitting the form.
+                            {customError || "Please fill out all required fields before submitting the form."}
                         </p>
-                        <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                            Write N/A if necessary.
-                        </p>
+                        {customError === "" && (
+                            <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                                Write N/A if necessary.
+                            </p>
+                        )}
+
+                        {/* OK Button */}
+                        <button
+                            onClick={() => setShowErrorOverlay(false)}
+                            className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                        >
+                            OK
+                        </button>
                         </div>
                     </div>
                     )}
                 </div>
+
+                {!viewForm && (
+                    <div className="-mt-8">
+                        <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                            ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                        </p>
+                    </div>
+                )}
             </div>
         </main>
     );

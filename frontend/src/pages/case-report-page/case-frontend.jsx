@@ -63,7 +63,6 @@ function CaseFrontend({ creating = false }) {
 
     const navigate = useNavigate();
     const { clientId } = useParams();
-
     const [user, setUser] = useState(null);
 
     const [data, setData] = useState({
@@ -279,7 +278,6 @@ function CaseFrontend({ creating = false }) {
             const currentUser = sessionData?.user || null;
             setUser(currentUser);
             console.log("Session:", currentUser);
-
         };
         loadSession();
     }, [creating]);
@@ -328,7 +326,6 @@ function CaseFrontend({ creating = false }) {
     }
 
     const [editingField, setEditingField] = useState(null);
-
     useEffect(() => {
         if (creating) {
             setEditingField("all");
@@ -341,7 +338,6 @@ function CaseFrontend({ creating = false }) {
     const [editingFamilyValue, setEditingFamilyValue] = useState({});
 
     const [familyToDelete, setFamilyToDelete] = useState(null);
-
     const [familyConfirm, setFamilyConfirm] = useState(false);
 
     const [showModal, setShowModal] = useState(false);
@@ -442,8 +438,6 @@ function CaseFrontend({ creating = false }) {
 
         return true;
     };
-
-
 
     const checkProblems = async () => {
         const missing = [];
@@ -606,7 +600,6 @@ function CaseFrontend({ creating = false }) {
     const [intervention_selected, setInterventionSelected] = useState("");
 
     const [home_visitations, setHomeVisitations] = useState([]);
-
     useEffect(() => {
         const loadData = async () => {
             const fetchedHomeVisitData = await fetchAllHomeVisitForms(clientId);
@@ -619,24 +612,30 @@ function CaseFrontend({ creating = false }) {
             });
 
             const homeVisitInterventions = fetchedHomeVisitData.interventions.map(item => {
-                const date = new Date(item.intervention.createdAt);
+                const createdAt = item.intervention?.createdAt;
+                let dateLabel = "No Date Available";
+
+                if (createdAt) {
+                    const date = new Date(createdAt);
+                    if (!isNaN(date)) {
+                    dateLabel = formatter.format(date);
+                    }
+                }
 
                 return {
                     formID: item.intervention._id,
                     route: "home-visitation-form",
                     intervention: item.interventionType,
-                    date: isNaN(date) ? '' : formatter.format(date),
+                    date: dateLabel,
                 };
             });
             // console.log("Home Visitation Forms: ", homeVisitInterventions);
             setHomeVisitations(homeVisitInterventions);
         };
-
         loadData();
     }, []);
 
     const [counsellings, setCounsellings] = useState([]);
-
     useEffect(() => {
         const loadData = async () => {
             const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
@@ -649,27 +648,31 @@ function CaseFrontend({ creating = false }) {
             });
 
             const counsellingInterventions = fetchedCounsellingData.interventions.map(item => {
-                const date = new Date(item.intervention.createdAt);
+                const createdAt = item.intervention?.createdAt;
+                let dateLabel = "No Date Available";
+
+                if (createdAt) {
+                    const date = new Date(createdAt);
+                    if (!isNaN(date)) {
+                    dateLabel = formatter.format(date);
+                    }
+                }
 
                 return {
                     formID: item.intervention._id,
                     route: "counselling-form",
                     intervention: item.interventionType,
-                    date: isNaN(date) ? '' : formatter.format(date),
+                    date: dateLabel,
                 };
             });
 
             //console.log("Counselling Data: ", counsellingInterventions);
-
             setCounsellings(counsellingInterventions);
         };
-
-
         loadData();
     }, []);
 
     const [financial_assistances, setFinancialAssistances] = useState([]);
-
     useEffect(() => {
         const loadData = async () => {
             const fetchedFinancialData = await fetchAllFinInterventions(clientId);
@@ -682,28 +685,31 @@ function CaseFrontend({ creating = false }) {
             });
 
             const financialInterventions = fetchedFinancialData.map(item => {
-                // const date = new Date(item.intervention.createdAt);
+                const createdAt = item.intervention?.createdAt || item.createdAt;
+                let dateLabel = "No Date Available";
+
+                if (createdAt) {
+                    const date = new Date(createdAt);
+                    if (!isNaN(date)) {
+                    dateLabel = formatter.format(date);
+                    }
+                }
 
                 return {
                     formID: item.id,
                     route: "financial-assessment-form",
                     intervention: "Financial Assistance",
-                    // date: isNaN(date) ? '' : formatter.format(date),
-                    date: "May 05, 2025",
+                    date: dateLabel,
                 };
             });
 
             //console.log("Financial Data: ", financialInterventions);
-
             setFinancialAssistances(financialInterventions);
         };
-
-
         loadData();
     }, []);
 
     const [correspondences, setCorrespondences] = useState([]);
-
     useEffect(() => {
         const loadData = async () => {
             const fetchedCorrespondenceData = await fetchAllCorrespInterventions(clientId);
@@ -716,22 +722,27 @@ function CaseFrontend({ creating = false }) {
             });
 
             const correspondenceInterventions = fetchedCorrespondenceData.map(item => {
-                // const date = new Date(item.intervention.createdAt);
+                const createdAt = item.intervention?.createdAt || item?.createdAt;
+                let dateLabel = "No Date Available";
+
+                if (createdAt) {
+                    const date = new Date(createdAt);
+                    if (!isNaN(date)) {
+                    dateLabel = formatter.format(date);
+                    }
+                }
 
                 return {
                     formID: item.id,
                     route: "correspondence-form",
                     intervention: "Correspondence",
-                    // date: isNaN(date) ? '' : formatter.format(date),
-                    date: "July 04, 2025",
+                    date: dateLabel,
                 };
             });
 
             //console.log("Correspondence Data: ", correspondenceInterventions);
-
             setCorrespondences(correspondenceInterventions);
         };
-
         loadData();
     }, []);
 

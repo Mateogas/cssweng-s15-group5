@@ -45,53 +45,70 @@ function CounselingForm() {
         sm_comments: "",
     });
 
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+
     /********** TEST DATA **********/
 
     /********** USE STATES **********/
 
     // < START :: Auto-Filled Data > //
 
-    // LOAD DATA
-    useEffect(() => {
-        const loadData = async () => {
-            // setLoading(true);
-            const fetchedData = await fetchCaseData(caseID);
-            setData(fetchedData);
-            // setLoading(false);
+    // [TO UPDATE] :: Temporary state
+    const viewForm = action !== 'create' ? true : false;
 
-            setFormNum(fetchedData.intervention_number || "");
-            setLastName(fetchedData.last_name || "");
-            setMiddleName(fetchedData.middle_name || "");
-            setFirstName(fetchedData.first_name || "");
-            setCHNumber(fetchedData.ch_number || "");
-            setGradeYearLevel(fetchedData.grade_year_level || "");
-            setSchool(fetchedData.school || "");
-            setAddress(fetchedData.address || "");
-            setSubproject(fetchedData.subproject || "");
-            setAreaSelfHelp(fetchedData.area_self_help || "");
-            setCounselingDate(fetchedData.counseling_date || "");
-            setReasonForCounseling(fetchedData.reason_for_counseling || "");
-            setCorrectiveAction(fetchedData.corrective_action || "");
-            setRecommendation(fetchedData.recommendation || "");
-            setSMComments(fetchedData.sm_comments || "");
-        };
-        
-        loadData();
-    }, []);
+    // LOAD DATA
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                // setLoading(true);
+                const fetchedData = await fetchCaseData(caseID);
+                if (!fetchedData) {
+                    setNoCaseFound(true)
+                    return
+                }
+                setData(fetchedData);
+                // setLoading(false);
+
+                setFormNum(fetchedData.intervention_number || 1);
+                setLastName(fetchedData.last_name || "");
+                setMiddleName(fetchedData.middle_name || "");
+                setFirstName(fetchedData.first_name || "");
+                setCHNumber(fetchedData.ch_number || "");
+                setGradeYearLevel(fetchedData.grade_year_level || "");
+                setSchool(fetchedData.school || "");
+                setAddress(fetchedData.address || "");
+                setSubproject(fetchedData.subproject.spu_name || "");
+                setAreaSelfHelp(fetchedData.area_self_help || "");
+                setCounselingDate(fetchedData.counseling_date || "");
+                setReasonForCounseling(fetchedData.reason_for_counseling || "");
+                setCorrectiveAction(fetchedData.corrective_action || "");
+                setRecommendation(fetchedData.recommendation || "");
+                setSMComments(fetchedData.sm_comments || "");
+            };
+            
+            loadData();
+        }, []);
+    }
 
     // < END :: Auto-Filled Data > //
 
     // < START :: View Form > //
-
-    // [TO UPDATE] :: Temporary state
-    const viewForm = action !== 'create' ? true : false;
 
     // View Form
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 // setLoading(true);
-                const fetchedData = await fetchCounselingIntervention(formID);
+                const fetchedData = await fetchCounselingIntervention(caseID, formID);
+                if (!fetchedData) {
+                    setNoFormFound(true)
+                    return
+                }
                 setData(fetchedData);
                 // setLoading(false);
 
@@ -105,7 +122,7 @@ function CounselingForm() {
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");
-                setSubproject(fetchedData.subproject || "");
+                setSubproject(fetchedData.subproject|| "");
                 setAreaSelfHelp(fetchedData.area_self_help || "");
                 setCounselingDate(fetchedData.counseling_date || "");
                 setReasonForCounseling(fetchedData.reason_for_counseling || "");
@@ -165,15 +182,16 @@ function CounselingForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return true;
         }
 
     };
@@ -189,10 +207,15 @@ function CounselingForm() {
             recommendation,
             sm_comments
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await addCounselingIntervention(payload, caseID); 
+        if (response?.intervention?._id) {
+            setnewformID(response.intervention._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -211,8 +234,7 @@ function CounselingForm() {
             sm_comments
         };
 
-        console.log("Payload: ", updatedPayload);
-
+        // console.log("Payload: ", updatedPayload);
         const response = await editCounselingIntervention(updatedPayload, formID); 
     };
 
@@ -221,7 +243,6 @@ function CounselingForm() {
     // < START :: Delete Form > //
 
     const handleDelete = async () => {
-
         const response = await deleteCounselingIntervention(formID); 
     };
 
@@ -274,13 +295,7 @@ function CounselingForm() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -303,6 +318,44 @@ function CounselingForm() {
 
     if (!data) return <div>No data found.</div>;
 
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">Counselling Form</h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">Counselling Form</h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
+
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
@@ -322,7 +375,7 @@ function CounselingForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
@@ -381,7 +434,7 @@ function CounselingForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Sub-Project"
@@ -435,8 +488,8 @@ function CounselingForm() {
             <section className="flex w-full flex-col gap-16">
                 <TextArea
                     label="Recommendation for Improvement (Intervention)"
-                    sublabel="Sponsor Member (SM) Please Note:"
-                    description="Failure to improve performance or further violation of policy will result in additional disciplinary action up to and possible retirement."
+                    sublabel="Sponsor Member (SM)"
+                    description="Please Note: Failure to improve performance or further violation of policy will result in additional disciplinary action up to and possible retirement."
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
@@ -467,20 +520,69 @@ function CounselingForm() {
                 ) : (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => navigate(`/case/${caseID}`)}
+                            className={`btn-outline font-bold-label ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => {
+                                if (!isProcessing) {
+                                    navigate(`/case/${caseID}`);
+                                }
+                            }}
+                            disabled={isProcessing}
                         >
                             Cancel
                         </button>
                         <button
-                            className="btn-primary font-bold-label w-min"
+                            type="submit"
+                            className={`btn-primary font-bold-label w-min ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                e.preventDefault(); 
+                                setIsProcessing(true);
+                                const success = await handleSubmit(e);
+                                if (success) {
+                                    setShowSuccessModal(true);
+                                }
+                                setIsProcessing(false);
                             }}
+                            disabled={isProcessing}
                         >
-                            Create Intervention
+                            {isProcessing ? "Creating..." : "Create Intervention"}
                         </button>
                     </>
+                )}
+
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Counseling Form #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/counselling-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {/* Confirm Delete Form */}
@@ -547,10 +649,26 @@ function CounselingForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

@@ -37,7 +37,7 @@ const generateCaseClosure = async (req, res) => {
 
         // Generate the case closure form
         const form = {
-            spu: sponsoredMember.spu || '',
+            spu: sponsoredMember.spu.spu_name || '',
             sm_number: sponsoredMember.sm_number || '',
             sm_name: `${sponsoredMember.last_name || ''}, ${sponsoredMember.first_name || ''} ${sponsoredMember.middle_name || ''}`.trim(),
             address: sponsoredMember.present_address || '',

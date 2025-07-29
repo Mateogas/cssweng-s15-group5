@@ -34,7 +34,8 @@ const generateCounselingForm = async (req, res) => {
         }
 
         // Fetch the sponsored member associated with the counseling
-        const sponsored_member = await Sponsored_Member.findOne({ 'interventions.intervention': counselingId });
+        const sponsored_member = await Sponsored_Member.findOne({ 'interventions.intervention': counselingId })
+            .populate('spu');
         if (!sponsored_member) {
             return res.status(404).json({ message: "Sponsored member not found." });
         }
@@ -55,14 +56,14 @@ const generateCounselingForm = async (req, res) => {
         const formattedData = formatCounselingData(counseling);
 
         // Add additional fields from sponsored member
-        formattedData.spu = sponsored_member.spu || '';
+        formattedData.spu = sponsored_member.spu.spu_name || '';
         formattedData.present_address = sponsored_member.present_address || '';
         formattedData.last_name = sponsored_member.last_name || '';
         formattedData.first_name = sponsored_member.first_name || '';
         formattedData.mi = sponsored_member.middle_name[0] || '';
         formattedData.sm_number = sponsored_member.sm_number || '';
 
-        console.log('FORMATTED COUNSELING FORM: ', formattedData);
+        // console.log('FORMATTED COUNSELING FORM: ', formattedData);
         // Return data
         return res.status(200).json(formattedData);
     } catch (error) {

@@ -19,7 +19,9 @@ const getCaseData = async (req, res) => {
         // console.log('Fetching case data for ID:', caseId);
 
         // Find the case by ID
-        const caseData = await Sponsored_Member.findById(caseId);
+        const caseData = await Sponsored_Member.findById(caseId)
+            .populate("spu")
+            .lean();
         if (!caseData) {
             return res.status(404).json({ error: 'Case not found' });
         }
@@ -67,6 +69,7 @@ const getCaseData = async (req, res) => {
 const getCounselingInterventionById = async (req, res) => {
     try {
         const counselingId = req.params.counselingId;
+        const caseId = req.params.caseId
 
         // Find the counseling intervention by ID
         const intervention = await Intervention_Counseling.findById(counselingId);
@@ -84,8 +87,17 @@ const getCounselingInterventionById = async (req, res) => {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
 
+        if (sponsored_member._id.toString() != caseId)
+            return res.status(404).json({ error: 'Case and form mismatch' });
+
         // Get the intervention number associated with the counseling intervention
-        const intervention_number = sponsored_member.interventions.find(i => i.intervention.toString() === counselingId)?.intervention_number;
+        // console.log(sponsored_member, counselingId)
+        const matchingIntervention = (sponsored_member.interventions || []).find(
+        (entry) =>
+            (entry.intervention?._id?.toString() || entry._id?.toString()) === counselingId
+        );
+        // console.log(matchingIntervention)
+        const intervention_number = matchingIntervention?.intervention_number || null;
         // console.log('intervention_number: ', intervention_number);
 
         return res.status(200).json({

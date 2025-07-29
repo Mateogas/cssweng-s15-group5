@@ -17,6 +17,7 @@ const Progress_Report = require('../model/progress_report');
 const getProgressReportById = async (req, res) => {
     try {
         const reportId = req.params.reportId;
+        const caseId = req.params.caseId
 
         // Validate progress report ID
         if (!mongoose.Types.ObjectId.isValid(reportId)) {
@@ -30,9 +31,15 @@ const getProgressReportById = async (req, res) => {
         }
 
         // Get the sponsored member associated with the report
-        const sm = await Sponsored_member.findOne({ "progress_reports.progress_report": reportId });
+        const sm = await Sponsored_member.findOne({ "progress_reports.progress_report": reportId })
+            .populate("spu")
+            .lean();
         if (!sm) {
             return res.status(404).json({ error: 'Sponsored member not found for this report' });
+        }
+
+        if (sm._id.toString() != caseId) {
+            return res.status(403).json({ error: 'Case and form mismatch' });
         }
 
         // Get report number from the sponsored member's progress reports
@@ -40,10 +47,12 @@ const getProgressReportById = async (req, res) => {
         if (!reportNumber) {
             return res.status(404).json({ error: 'Report number not found for this progress report' });
         }
-
+        
+        sm.subproject = sm.spu
         return res.status(200).json({
             progressReport,
-            reportNumber
+            reportNumber,
+            case: sm,
         });
     } catch (error) {
         console.error('Error fetching progress report:', error);
@@ -252,6 +261,7 @@ const addProgressReport = async (req, res) => {
         return res.status(201).json({
             message: 'Progress report added successfully',
             progressReport,
+            case: sm,
         });
     } catch (error) {
         console.error('Error adding progress report:', error);

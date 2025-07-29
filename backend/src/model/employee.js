@@ -61,7 +61,12 @@ const EmployeeSchema = new mongoose.Schema({
     area: {
         type: String,
         required: false
-    }
+    },
+    is_active: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
 });
 
 const Employee = mongoose.model('Employee', EmployeeSchema);

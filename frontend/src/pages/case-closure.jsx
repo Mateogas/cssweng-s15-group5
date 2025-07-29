@@ -483,7 +483,7 @@ function CaseClosure() {
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">Sponsored Member</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-16">
+                        <div className="inline-flex items-start justify-center gap-16">
                             <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Last Name"
@@ -537,7 +537,7 @@ function CaseClosure() {
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-16">
+                        <div className="inline-flex items-start justify-center gap-16">
                             <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Name of SPU/Cluster"
@@ -667,7 +667,7 @@ function CaseClosure() {
                         }
                         <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
-                                <div key={index} className="flex w-full justify-between items-center px-4 gap-6">
+                                <div key={index} className="flex w-full justify-between items-center px-15 gap-6">
                                     <TextArea
                                         label={item.service}
                                         value={item.description}

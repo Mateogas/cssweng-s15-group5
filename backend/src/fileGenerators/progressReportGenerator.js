@@ -18,7 +18,8 @@ const generateProgressReport = async (req, res) => {
         if (!reportSelected)
             return res.status(404).json({ message: "Invalid report ID." });
 
-        const sponsored_member = await Sponsored_Member.findOne({ 'progress_reports.progress_report': reportSelected._id });
+        const sponsored_member = await Sponsored_Member.findOne({ 'progress_reports.progress_report': reportSelected._id })
+            .populate('spu');
         if (!sponsored_member)
             return res.status(404).json({ message: "Sponsored member not found." });
 
@@ -41,7 +42,7 @@ const generateProgressReport = async (req, res) => {
         formattedData.first_name = sponsored_member.first_name || '';
         formattedData.middle_name = sponsored_member.middle_name || '';
         formattedData.sm_number = sponsored_member.sm_number || '';
-        formattedData.spu = sponsored_member.spu || '';
+        formattedData.spu = sponsored_member.spu.spu_name || '';
         formattedData.dob = formatDate(sponsored_member.dob) || '';
         formattedData.age = calculateAge(sponsored_member.dob) || '0';
 

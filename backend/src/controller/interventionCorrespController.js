@@ -150,7 +150,7 @@ const getCorrespondenceForm = async(req,res)=>{
             return res.status(404).json({ message: 'Sponsored Member or Form not found' });
         }
         const interventionEntry = sponsoredData.interventions.find(
-            i => i.intervention && i.intervention.toString() === formId.toString() && 
+            i => i.intervention && i.intervention._id.toString() === formId.toString() && 
                 i.interventionType === 'Intervention Correspondence'
         );
 
