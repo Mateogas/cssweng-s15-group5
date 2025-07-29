@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchSDWs } from "../fetch-connections/case-connection";
-import { fetchEmployeeById, updateEmployeeById } from "../fetch-connections/account-connection";
+import { fetchEmployeeById, updateEmployeeById, terminateWorker } from "../fetch-connections/account-connection";
 import SimpleModal from "../Components/SimpleModal";
 import { fetchSDWViewById, fetchHeadViewBySupervisor, fetchHeadViewBySpu } from "../fetch-connections/account-connection";
 import WorkerEntry from "../Components/WorkerEntry";
@@ -28,6 +28,8 @@ export default function WorkerProfile() {
     const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
     const [modalOnClose, setModalOnClose] = useState(() => null);
 
+    const [showConfirmTerminate, setShowConfirmTerminate] = useState(false);
+
     const [handledClients, setHandledClients] = useState([]);
     const [handledWorkers, setHandledWorkers] = useState([]);
 
@@ -48,6 +50,7 @@ export default function WorkerProfile() {
         spu_name: "",
         role: "",
         manager: "",
+        is_active: true,
     });
 
     const [drafts, setDrafts] = useState({
@@ -95,6 +98,7 @@ export default function WorkerProfile() {
                     spu_id: empData.spu_id.spu_name || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
+                    is_active: empData.is_active ?? true
                 });
 
                 setDrafts({
@@ -119,7 +123,6 @@ export default function WorkerProfile() {
         };
 
         loadWorker();
-
         // console.log("drafts", drafts);
     }, [workerId]);
 
@@ -129,7 +132,6 @@ export default function WorkerProfile() {
             setUser(sessionData?.user || null);
             console.log("Session:", sessionData?.user);
         };
-
         loadSession();
     }, []);
 
@@ -144,7 +146,6 @@ export default function WorkerProfile() {
             const spus = await fetchAllSpus();
             setProjectLocation(spus);
         };
-
         loadSPUs();
     }, []);
 
@@ -179,6 +180,21 @@ export default function WorkerProfile() {
 
         loadHandled();
     }, [data.role, data.spu_id, workerId]);
+
+    const [showTerminateError, setShowTerminateError] = useState(false);
+    const [terminateErrorMessage, setTerminateErrorMessage] = useState("");
+    const handleTerminate = async () => {
+        console.log("Terminating worker...");
+        const result = await terminateWorker(workerId);
+
+        if (result.success) {
+            window.location.reload();
+        } else {
+            // alert("Failed to terminate: " + result.message);
+            setTerminateErrorMessage(result.message || "Failed to terminate account.");
+            setShowTerminateError(true);
+        }
+    };
 
     const resetFields = () => {
         setDrafts({
@@ -383,6 +399,43 @@ export default function WorkerProfile() {
 
     return (
         <>
+            {showTerminateError && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
+                                    animate-fadeIn scale-100 transform transition duration-300">
+                    <div className="flex items-center gap-4 border-b-1">
+                        <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-[2.4rem] w-[2.4rem] text-red-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                        />
+                        </svg>
+                        <h2 className="header-sm font-bold text-red-600 text-center">
+                        Termination Failed
+                        </h2>
+                    </div>
+                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                        {terminateErrorMessage || "An unexpected error occurred while attempting to terminate the account."}
+                    </p>
+
+                    <button
+                        onClick={() => setShowTerminateError(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
+                    </div>
+                </div>
+            )}
+
             {notFound ? (
                 <NotFound message="The profile you are looking for does not exist." />
             ) : (
@@ -428,9 +481,9 @@ export default function WorkerProfile() {
                     />
 
                     <main className="flex flex-col gap-20 pt-15">
-                        <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3 px-4">
+                        <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3">
                             <button
-                                className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
+                                className="flex items-center gap-5 py-2 font-bold-label arrow-group"
                                 onClick={() => navigate("/")}
                             >
                                 <div className="arrow-left-button"></div>
@@ -438,14 +491,24 @@ export default function WorkerProfile() {
                             </button>
                         </div>
 
+                        <span
+                            className={`font-bold-label w-fit rounded-full p-2 px-8 !text-white whitespace-nowrap ${
+                                data.is_active === true ? "bg-[var(--color-green)]" : "bg-[var(--accent-dark)]"
+                            } inline-block`}
+                            >
+                            {data.is_active === true ? "Active" : "Inactive"}
+                        </span>
+
                         <section className="flex flex-col gap-5" id="core-fields">
                             {editingField === "core-fields" && (
                                 <div className="flex justify-between items-center">
                                     <h1 className="header-main">Worker Profile</h1>
-                                    <button
-                                        className="icon-button-setup x-button"
-                                        onClick={resetFields}
-                                    ></button>
+                                    {data.is_active === true && (
+                                        <button
+                                            className="icon-button-setup x-button"
+                                            onClick={resetFields}
+                                        ></button>
+                                    )}
                                 </div>
                             )}
 
@@ -703,10 +766,12 @@ export default function WorkerProfile() {
                                     <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
                                     <div className="flex justify-between items-center">
                                         <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                        {(user?.role == "head" || data.manager == user?._id) && <button
-                                            className="icon-button-setup dots-button"
-                                            onClick={() => setEditingField("core-fields")}
-                                        ></button>}
+                                        {((user?.role == "head" || data.manager == user?._id) && data.is_active ) && (
+                                            <button
+                                                className="icon-button-setup dots-button"
+                                                onClick={() => setEditingField("core-fields")}
+                                            ></button>
+                                        )}
                                     </div>
 
                                     <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
@@ -806,9 +871,7 @@ export default function WorkerProfile() {
                                     Logout
                                 </button>
                             )}
-
-
-                            {user?.role && data?.role && data?._id && (
+                            {user?.role && data?.role && data?._id && data?.is_active && (
                                 ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
                                     data.manager === user._id) && (
                                     <button
@@ -819,15 +882,64 @@ export default function WorkerProfile() {
                                     </button>
                                 )
                             )}
-
-
-
-
-
-                            {user?.role == "head" && <button className="ml-auto btn-primary font-bold-label drop-shadow-base my-3">
-                                Terminate Worker
-                            </button>}
+                            {user?.role === "head" && data?.is_active && (
+                                <button 
+                                    className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
+                                    onClick={() => setShowConfirmTerminate(true)}
+                                >
+                                    Terminate Worker
+                                </button>
+                            )}
                         </div>
+
+                        {showConfirmTerminate && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                                <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-10
+                                                animate-fadeIn scale-100 transform transition duration-300">
+                                    <div className="flex items-center gap-4 border-b-1">
+                                        <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-[2.4rem] w-[2.4rem] text-red-600"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                                        />
+                                        </svg>
+                                        <h2 className="header-sm font-bold text-red-600 text-center">
+                                        Confirm Termination
+                                        </h2>
+                                    </div>
+
+                                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                                        Are you sure you want to terminate this worker? This action will mark the user as <b>inactive</b> and revoke access to the system.
+                                    </p>
+
+                                    <div className="flex gap-4">
+                                        <button
+                                        onClick={() => setShowConfirmTerminate(false)}
+                                        className="bg-gray-300 text-2xl text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+                                        >
+                                        Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowConfirmTerminate(false);
+                                                handleTerminate();
+                                            }}
+                                            className="bg-red-600 text-2xl text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                                        >
+                                        OK
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </main>
                 </>)}
         </>

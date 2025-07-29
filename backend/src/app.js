@@ -57,6 +57,7 @@ const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 const spuRoutes = require('./route/spuRoutes');
 
 const createAccountController = require('./controller/createAccountController');
+const deleteAccountController = require('./controller/deleteAccountController.js')
 const profileRoute = require('../src/route/employeeRoute.js');
 const fetchingRoute = require('./route/fetchingRoute.js');
 const fileGenerator = require('./route/fileGeneratorRoutes.js');
@@ -99,6 +100,7 @@ app.use('/api/interventions/financial',interventFinRoutes);
 app.use('/api/interventions/correspondence',interventCorrespRoutes);
 app.use('/api/intervention', homeVisRoutes);
 app.use('/api/spu',spuRoutes);
+
 // Case Closure routes
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm)
 app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm)
@@ -108,6 +110,9 @@ app.put('/api/case-closure/terminate/:caseID', caseClosureController.confirmCase
 app.put('/api/case-closure/terminate/:caseID/:formID', caseClosureController.confirmCaseTermination)
 app.delete('/api/case-closure/delete/:caseID', caseClosureController.deleteCaseClosureForm)
 app.delete('/api/case-closure/delete/:caseID/:formID', caseClosureController.deleteCaseClosureForm)
+
+// Delete Accoute routes
+app.delete('/api/delete-account/:account', deleteAccountController.deleteAccount);
 
 // Log in and log out route
 app.put('/api/login', authController.loginUser)
@@ -124,16 +129,13 @@ app.get('/api/session', (req, res) => {
   }
 });
 
-
+// 404 Route
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found', path: req.originalUrl });
 });
 
 // Fetching for viewing
-
 // app.use('/api/dashboard',fetchingRoute);
-
-
 
 /**
  *  ============ Extras ==============
