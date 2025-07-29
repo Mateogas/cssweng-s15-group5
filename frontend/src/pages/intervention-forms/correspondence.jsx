@@ -646,7 +646,7 @@ function CorrespondenceForm() {
             </section>
 
             {/* Signature */}
-            <div className="flex w-full flex-col gap-16 px-16 pt-24">
+            {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                 <div className="flex w-full justify-between">
                     <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
                     <Signature label="Attested by:" signer="SM/Parent/SHG Leader"></Signature>
@@ -655,7 +655,7 @@ function CorrespondenceForm() {
                 <div className="flex w-full justify-between">
                     <Signature label="Approved by:" signer="SPU Coordinator"></Signature>
                 </div>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">

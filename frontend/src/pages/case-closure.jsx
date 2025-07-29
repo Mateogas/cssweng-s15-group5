@@ -30,7 +30,6 @@ function CaseClosure() {
     const [rawFormData, setRawFormData] = useState(null);
 
     const [data, setData] = useState({
-        form_num: "",
         first_name: "",
         middle_name: "",
         last_name: "",
@@ -350,7 +349,6 @@ function CaseClosure() {
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
     const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState("");
     const [age, setAge] = useState("");
     const [religion, setReligion] = useState(data?.religion || "");
@@ -476,7 +474,6 @@ function CaseClosure() {
                         <div className="arrow-left-button"></div>
                         Go Back
                     </button>
-                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 </div>
                 <h3 className="header-md">Case Closure Report</h3>
 
@@ -706,7 +703,7 @@ function CaseClosure() {
                 </section>
 
                 {/* Signature */}
-                <div className="flex w-full flex-col gap-16 px-16 pt-24">
+                {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                     <div className="flex w-full justify-between">
                         <Signature label="Prepared by:" signer="Social Development Worker" date={true}></Signature>
                         <Signature label="Conforme by:" signer="SM/Guardian" date={true}></Signature>
@@ -715,7 +712,7 @@ function CaseClosure() {
                     <div className="flex w-full justify-between">
                         <Signature label="Noted by:" signer="SPC Coordinator"date={true}></Signature>
                     </div>
-                </div>
+                </div>*/}
 
                 {/* Buttons */}
                 {sdw_view ? (

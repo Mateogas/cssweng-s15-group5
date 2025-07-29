@@ -617,10 +617,10 @@ function ProgressReport() {
                 </section>
 
                 {/* Signature */}
-                <div className="flex w-full justify-between px-16 pt-24">
+                {/*<div className="flex w-full justify-between px-16 pt-24">
                     <Signature label="Prepared by:" signer="SDW/SEDO/SPC"></Signature>
                     <Signature label="Reviewed and Noted by:" signer="SPC/SDDH"></Signature>
-                </div>
+                </div>*/}
 
                 {/* Buttons */}
                 <div className="flex w-full justify-center gap-20">
