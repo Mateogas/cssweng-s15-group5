@@ -781,7 +781,7 @@ export default function WorkerProfile() {
 
                                         {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
                                         <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
-                                        <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
+                                        <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "supervisor" ? "Supervisor" : "Social Development Worker"}</p>
 
                                         {(data.role === "" || data.role === "sdw") && (
                                             <p className="font-label">
