@@ -592,7 +592,7 @@ function CaseClosure() {
                                             type="checkbox"
                                             name="sm_awareness"
                                             value="yes"
-                                            checked={sm_awareness === "yes"}
+                                            checked={sm_awareness}
                                             onChange={(e) =>
                                                 handleCheckboxChange(e.target.value)
                                             }
@@ -753,7 +753,9 @@ function CaseClosure() {
                                 </button>
                                 <button
                                     className="btn-primary font-bold-label w-min"
-                                    onClick={() => setShowConfirm(true)}
+                                    onClick={() => {
+                                        validateForm() && setShowConfirm(true)
+                                    }}
                                 >
                                     Create Request
                                 </button>
@@ -782,7 +784,7 @@ function CaseClosure() {
             
 
                 {/* Confirm Close Case */}
-                {showConfirm && (
+                {showConfirm && !errors (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
                             {sdw_view ? (

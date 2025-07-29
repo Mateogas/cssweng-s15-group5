@@ -43,7 +43,7 @@ const getCaseData = async (req, res) => {
             middle_name: caseData.middle_name,
             ch_number: caseData.sm_number,
             address: caseData.present_address,
-            subproject: caseData.spu,
+            subproject: caseData.spu.spu_name,
             intervention_number: lastInterventionNumber + 1,
         });
     } catch (error) {
@@ -149,8 +149,7 @@ const getAllCounselingInterventionsByMemberId = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                // subproject: sponsored_member.spu.spu_name, // temporarily removed 
-                subproject: sponsored_member.spu,
+                subproject: sponsored_member.spu.spu_name,
                 address: sponsored_member.present_address,
             },
         });

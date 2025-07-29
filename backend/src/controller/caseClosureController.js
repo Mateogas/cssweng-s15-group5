@@ -18,11 +18,11 @@ const Employee = require('../model/employee');
 const loadCaseClosureForm = async(req, res) => {
      try {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
-               //.populate('spu') // temporarily removed
+               .populate('spu') 
                .lean();
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
-          // caseSelected.spu = caseSelected.spu.spu_name // temporarily removed
+          caseSelected.spu = caseSelected.spu.spu_name
           caseSelected.spu = caseSelected.spu
 
           // assuming sessions is already set up
@@ -62,7 +62,8 @@ const loadCaseClosureForm = async(req, res) => {
                return res.status(403).json({ message: "Unauthorized access." });
           }
 
-          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
+          // const formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
+          const formSelected = await Case_Closure.findOne({ sm: caseSelected._id })
 
           if (formSelected)
                 return res.status(200).json({form: formSelected, case: caseSelected, active_user_role: active_user.role})
