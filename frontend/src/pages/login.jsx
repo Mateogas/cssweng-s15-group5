@@ -88,9 +88,6 @@ export default function Login() {
                             <label htmlFor="remember" className="font-label">Remember me</label>
                         </div>
 
-                        <p className="font-label !text-blue-500 cursor-pointer">
-                            Forgot Password?
-                        </p>
                     </div>
 
                     <div className="mt-[-10] flex flex-col justify-center items-center">

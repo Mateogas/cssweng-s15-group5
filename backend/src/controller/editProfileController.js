@@ -67,7 +67,7 @@ const editAccount = async (req, res) => {
             return res.status(400).json({ message: "Contact number is required." });
         }
         if (!/^\d{11}$/.test(contact_number)) {
-            return res.status(400).json({ message: "Contact number must be exactly 11 digits." });
+            return res.status(400).json({ message: "Contact number must be exactly 11 numerical digits." });
         }   
         if (!first_name || first_name.trim() === '') {
             return res.status(400).json({ message: "First name is required." });

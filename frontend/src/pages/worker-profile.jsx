@@ -258,7 +258,7 @@ export default function WorkerProfile() {
         if (!drafts.contact_no) {
             missing.push("Contact Number");
         } else if (!/^\d{11}$/.test(drafts.contact_no)) {
-            missing.push("Contact Number must be 11 digits");
+            missing.push("Contact Number must be 11 numerical digits");
         }
 
         // if (!drafts.sdw_id) {
@@ -290,6 +290,7 @@ export default function WorkerProfile() {
         }
 
         const hasSPUChanged = drafts.spu_id !== data.spu_id;
+        const hasRoleChanged = drafts.role !== data.role;
 
         if (hasSPUChanged) {
             if (data.role === "sdw" && handledClients.length > 0) {
@@ -310,6 +311,18 @@ export default function WorkerProfile() {
                 return false;
             }
         }
+
+        if (hasRoleChanged) {
+                if (data.role === "sdw" && handledClients.length > 0) {
+                setModalTitle("Role Change Not Allowed");
+                setModalBody("This SDW is currently assigned to clients. Please reassign all clients before changing role as they would lose access to their cases.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
+        }
+
 
         if (!drafts.role) {
             missing.push("Role");

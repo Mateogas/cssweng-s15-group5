@@ -207,7 +207,14 @@ export default function RegisterWorker({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) missing.push("Valid Email");
-    if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 digits)");
+      // if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 numerical digits)");
+
+    if (!formData.contact_no) {
+        missing.push("Contact Number");
+    } else if (!/^\d{11}$/.test(formData.contact_no)) {
+        missing.push("Contact Number must be 11 numerical digits");
+    }
+
 
     console.log(formData.role, formData.manager)
     if (formData.role == "sdw" && formData.manager == "") missing.push("Social Development Workers must have a Supervisor");

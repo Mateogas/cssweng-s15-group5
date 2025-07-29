@@ -129,6 +129,8 @@ function HomeSDW() {
 
   const finalClients = getFilteredClients();
 
+  console.log(projectLocation);
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
@@ -169,8 +171,8 @@ function HomeSDW() {
                   >
                     <option value="">Select SPU</option>
                     {projectLocation.map((project) => (
-                      <option key={project.projectCode} value={project.projectCode}>
-                        {project.name} ({project.projectCode})
+                      <option key={project._id} value={project._id}>
+                        {project.spu_name}
                       </option>
                     ))}
                   </select>

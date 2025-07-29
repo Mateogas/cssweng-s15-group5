@@ -59,7 +59,7 @@ const caseSchemaValidate = Joi.object({
   }),
 
   contact_no: Joi.string().pattern(/^[0-9]{11}$/).messages({
-    'string.pattern.base': 'Contact number must be exactly 11 digits'
+    'string.pattern.base': 'Contact number must be exactly 11 numerical digits'
   }).empty('').optional(),
 
   relationship_to_client: Joi.string().empty('').allow(null).optional(),
@@ -148,7 +148,7 @@ const caseIdentifyingValidate = Joi.object({
   }),
 
   contact_no: Joi.string().pattern(/^[0-9]{11}$/).messages({
-    'string.pattern.base': 'Contact number must be exactly 11 digits'
+    'string.pattern.base': 'Contact number must be exactly 11 numerical digits'
   }).empty('').optional(),
 
   relationship_to_client: Joi.string().empty('').optional()

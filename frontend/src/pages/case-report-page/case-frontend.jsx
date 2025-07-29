@@ -556,8 +556,8 @@ function CaseFrontend({ creating = false }) {
             missing.push("Place of Birth");
         }
 
-        if (drafts.contact_no && drafts.contact_no.length !== 11) {
-            missing.push('Contact No. must be exactly 11 digits');
+        if (drafts.contact_no && !/^\d{11}$/.test(drafts.contact_no)) {
+            missing.push("Contact Number must be 11 numerical digits");
         }
 
         if (missing.length > 0) {
@@ -1823,14 +1823,18 @@ function CaseFrontend({ creating = false }) {
                                         <p className="body-base self-center mt-8">No Interventions Available</p>
                                     )
                                     }
-                                    {user?.role == "sdw" && 
-                                    <button
-                                        className="btn-primary label-base self-center mt-8"
+
+                                    {user?.role == "sdw" && <button
+                                        name="add_intervention"
+                                        id="add_intervention"
                                         onClick={() =>
                                             handleNewIntervention(
                                                 clientId
                                             )
-                                        }>
+                                        }
+                                        className="btn-primary font-bold-label self-center mt-10"
+                                        data-cy='add-intervention'
+                                    >
                                         New Intervention
                                     </button>
                                     }
@@ -1880,14 +1884,18 @@ function CaseFrontend({ creating = false }) {
                                     ) : (
                                         <p className="body-base self-center mt-8">No Progress Reports Available</p>
                                     )}
-                                    {user?.role == "sdw" && 
-                                    <button
-                                        className="btn-primary label-base self-center mt-8"
+
+                                    {user?.role == "sdw" && <button
+                                        name="add_progress_report"
+                                        id="add_progress_report"
                                         onClick={() =>
                                             handleNewProgressReport(
                                                 clientId
                                             )
-                                        }>
+                                        }
+                                        className="btn-primary font-bold-label self-center mt-10"
+                                        data-cy='add-progress-report'
+                                    >
                                         New Progress Report
                                     </button>
                                     }

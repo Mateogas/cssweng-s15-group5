@@ -11,6 +11,7 @@ import  {   fetchProgressReport,
             deleteProgressReport,
         } 
 from '../fetch-connections/progress-report-connection'; 
+import { generateProgressReport } from "../generate-documents/generate-documents";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -476,6 +477,7 @@ function ProgressReport() {
                                     setValue={setDateAccomplished}
                                     handleChange={handleChange("General Information")}
                                     error={errors["date_accomplished"]}
+                                    disabled = {viewForm}
                                 ></DateInput>
                                 <TextInput
                                     label="Period Covered"
@@ -483,6 +485,7 @@ function ProgressReport() {
                                     setValue={setPeriodCovered}
                                     handleChange={handleChange("General Information")}
                                     error={errors["period_covered"]}
+                                    disabled = {viewForm}
                                 ></TextInput>
                             </div>
                             <div className="flex flex-col gap-8">
@@ -492,6 +495,7 @@ function ProgressReport() {
                                     setValue={setSponsorName}
                                     handleChange={handleChange("General Information")}
                                     error={errors["sponsor_name"]}
+                                    disabled = {viewForm}
                                 ></TextInput>
                                 <DateInput
                                     label="Sponsorship Begin Date"
@@ -499,6 +503,7 @@ function ProgressReport() {
                                     setValue={setSponsorshipDate}
                                     handleChange={handleChange("General Information")}
                                     error={errors["sponsorship_date"]}
+                                    disabled = {viewForm}
                                 ></DateInput>
                             </div>
                         </div>
@@ -523,12 +528,14 @@ function ProgressReport() {
                             value={sm_update}
                             setValue={setSMUpdate}
                             error={errors["sm_update"]}
+                            disabled = {viewForm}
                         ></TextArea>
                         <TextArea
                             label="Family"
                             value={family_update}
                             setValue={setFamilyUpdate}
                             error={errors["family_update"]}
+                            disabled = {viewForm}
                         ></TextArea>
                     </div>
                 </section>
@@ -540,6 +547,7 @@ function ProgressReport() {
                         value={services_to_family}
                         setValue={setServicesToFamily}
                         error={errors["services_to_family"]}
+                        disabled = {viewForm}
                     ></TextArea>
                 </section>
 
@@ -551,6 +559,7 @@ function ProgressReport() {
                         value={participation}
                         setValue={setParticipation}
                         error={errors["participation"]}
+                        disabled = {viewForm}
                     ></TextArea>
                 </section>
 
@@ -587,6 +596,7 @@ function ProgressReport() {
                                                         );
                                                         handleChange("Relation to Sponsor and Unbound")(e);
                                                     }}
+                                                    disabled = {viewForm}
                                                 />
                                                 {option}
                                             </label>
@@ -617,21 +627,12 @@ function ProgressReport() {
                     {viewForm ? (
                         <>
                             <button
-                                className="btn-outline font-bold-label"
-                                onClick={() => 
-                                    setShowConfirm(true)
-                                }
-                            >
-                                Delete Form
-                            </button>
-                            <button
                                 className="btn-primary font-bold-label w-min"
-                                onClick={async () => {
-                                    await handleUpdate();
-                                    navigate(`/case/${caseID}`);
+                                onClick={() => {
+                                    generateProgressReport(formID)
                                 }}
                             >
-                                Save Changes
+                                Download Form
                             </button>
                         </>
                     ) : (
