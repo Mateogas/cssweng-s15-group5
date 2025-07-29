@@ -200,7 +200,6 @@ function CaseClosure() {
             reason_for_retirement,
             sm_awareness,
             sm_notification,
-            services_provided,
             evaluation,
             recommendation
         };
@@ -551,6 +550,7 @@ function CaseClosure() {
                                     value={closure_date}
                                     setValue={setClosureDate}
                                     handleChange={handleChange("General Information")}
+                                    disabled={viewForm}
                                     error={errors["closure_date"]}
                                 ></DateInput>
                                 <DateInput
@@ -558,6 +558,7 @@ function CaseClosure() {
                                     value={sponsorship_date}
                                     setValue={setSponsorshipDate}
                                     handleChange={handleChange("General Information")}
+                                    disabled={viewForm}
                                     error={errors["sponsorship_date"]}
                                 ></DateInput>
                             </div>
@@ -575,6 +576,7 @@ function CaseClosure() {
                         sublabel="Indicate reason based on the result of the case conference"
                         value={reason_for_retirement}
                         setValue={setReasonForRetirement}
+                        disabled={viewForm}
                         error={errors["reason_for_retirement"]}
                     ></TextArea>
                     <div className="flex w-full items-center gap-12">
@@ -589,10 +591,11 @@ function CaseClosure() {
                                             type="checkbox"
                                             name="sm_awareness"
                                             value="yes"
-                                            checked={sm_awareness}
+                                            checked={sm_awareness === "yes"  || sm_awareness === true}
                                             onChange={(e) =>
                                                 handleCheckboxChange(e.target.value)
                                             }
+                                            disabled={viewForm}
                                         />
                                         Yes
                                     </label>
@@ -601,10 +604,11 @@ function CaseClosure() {
                                             type="checkbox"
                                             name="sm_awareness"
                                             value="no"
-                                            checked={sm_awareness === "no"}
+                                            checked={sm_awareness === "no" || sm_awareness === false}
                                             onChange={(e) =>
                                                 handleCheckboxChange(e.target.value)
                                             }
+                                            disabled={viewForm}
                                         />
                                         No
                                     </label>
@@ -620,7 +624,8 @@ function CaseClosure() {
                             sublabel="If yes, how was the client notified"
                             value={sm_notification}
                             setValue={setSMNotification}
-                            error={errors["sm_notification"]}
+                            disabled={viewForm}
+                            error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
                         ></TextArea>
                     </div>
                 </section>
@@ -637,7 +642,8 @@ function CaseClosure() {
                             development to each sponsored member through its
                             program?
                         </h4>
-                        <select
+                        {viewForm ? ("") : 
+                        (<select
                             name="services"
                             id="services"
                             value={service_selected}
@@ -656,7 +662,8 @@ function CaseClosure() {
                                     {service}
                                 </option>
                             ))}
-                        </select>
+                        </select>)
+                        }
                         <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
                                 <div key={index} className="flex w-full justify-between items-center px-4 gap-6">
@@ -666,14 +673,17 @@ function CaseClosure() {
                                         handleChange={(e) =>
                                             updateDescription(index, e.target.value)
                                         }
+                                        disabled={viewForm}
                                         error={errors[item.service]}
                                     ></TextArea>
-                                    {(index !== 0 && index !== 1) && (
-                                        <button
-                                            onClick={() => deleteService(index)}
-                                            className="icon-button-setup trash-button px-10"
-                                        ></button>
-                                    )}
+                                    {viewForm ? ("") : 
+                                        (index !== 0 && index !== 1) && (
+                                            <button
+                                                onClick={() => deleteService(index)}
+                                                className="icon-button-setup trash-button px-10"
+                                            ></button>
+                                        )
+                                    }
                                 </div>
                             ))}
                         </div>
@@ -687,6 +697,7 @@ function CaseClosure() {
                         sublabel="Based on the intervention plans including Case Management Results"
                         value={evaluation}
                         setValue={setEvaluation}
+                        disabled={viewForm}
                         error={errors["evaluation"]}
                     ></TextArea>
                 </section>
@@ -698,6 +709,7 @@ function CaseClosure() {
                         sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
                         value={recommendation}
                         setValue={setRecommendation}
+                        disabled={viewForm}
                         error={errors["recommendation"]}
                     ></TextArea>
                 </section>
@@ -751,7 +763,9 @@ function CaseClosure() {
                                 <button
                                     className="btn-primary font-bold-label w-min"
                                     onClick={() => {
-                                        validateForm() && setShowConfirm(true)
+                                        if (validateForm()) {
+                                            setShowConfirm(true)
+                                        }
                                     }}
                                 >
                                     Create Request
@@ -781,7 +795,7 @@ function CaseClosure() {
             
 
                 {/* Confirm Close Case */}
-                {showConfirm && !errors (
+                {showConfirm && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
                             {sdw_view ? (

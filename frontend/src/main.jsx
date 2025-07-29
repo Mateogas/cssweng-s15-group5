@@ -78,10 +78,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     element={<SpuPage />}
                 />
 
+                {InterventionRoutes()}
+
                 <Route path="*" element={<NotFound message="Sorry, we couldn't find that page." />} />
 
             </Routes>
-            <InterventionRoutes />
         </BrowserRouter>
     </React.StrictMode>,
 );
