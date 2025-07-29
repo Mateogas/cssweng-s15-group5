@@ -667,7 +667,7 @@ function CaseClosure() {
                         }
                         <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
-                                <div key={index} className="flex w-full justify-between items-center px-15 gap-6">
+                                <div key={index} className="flex w-full justify-between items-center gap-6">
                                     <TextArea
                                         label={item.service}
                                         value={item.description}
