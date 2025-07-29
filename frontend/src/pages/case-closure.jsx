@@ -474,6 +474,7 @@ function CaseClosure() {
                         Go Back
                     </button>
                 </div>
+                {/*<h4 className="header-sm self-end">Form #: {form_num}</h4>*/}
                 <h3 className="header-md">Case Closure Report</h3>
 
                 {/* Sponsored Member and General Info */}

@@ -628,9 +628,7 @@ function CaseFrontend({ creating = false }) {
                     date: isNaN(date) ? '' : formatter.format(date),
                 };
             });
-
             // console.log("Home Visitation Forms: ", homeVisitInterventions);
-
             setHomeVisitations(homeVisitInterventions);
         };
 

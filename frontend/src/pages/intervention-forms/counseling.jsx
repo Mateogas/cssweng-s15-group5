@@ -451,11 +451,6 @@ function CounselingForm() {
                 ></TextArea>
             </section>
 
-            {/* Signature */}
-            {/*<div className="flex w-full justify-between px-16 pt-24">
-                <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
-            </div>*/}
-
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 {viewForm ? (
