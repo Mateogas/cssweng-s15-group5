@@ -88,7 +88,9 @@ function CaseFrontend({ creating = false }) {
         assessment: "",
         assigned_sdw: "",
         spu: "",
-        classifications: ""
+        classifications: "",
+
+        pendingTermination: false
     });
 
     const [familyMembers, setFamilyMembers] = useState([]);
@@ -1037,23 +1039,35 @@ function CaseFrontend({ creating = false }) {
                         </div>
 
                         <section className="flex flex-col gap-5" id="core-fields">
-                            {!creating && <div className="flex items-center justify-between">
-                                {data.is_active === true ? (
-                                    <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
-                                        Active
+                            {!creating && 
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        {data.is_active === true ? (
+                                        <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
+                                            Active
+                                        </div>
+                                        ) : (
+                                        <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
+                                            Inactive
+                                        </div>
+                                        )}
+
+                                        {data.pendingTermination && (
+                                        <div className="font-bold-label rounded-full bg-red-600 p-2 px-8 !text-white">
+                                            Pending Termination
+                                        </div>
+                                        )}
                                     </div>
-                                ) : (
-                                    <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
-                                        Inactive
-                                    </div>
-                                )}
-                                <button className="btn-blue font-bold-label drop-shadow-base"
-                                    data-cy='download-case'
-                                    onClick={() => generateCaseReport(clientId)}
-                                >
-                                    Download
-                                </button>
-                            </div>}
+
+                                    <button
+                                        className="btn-blue font-bold-label drop-shadow-base"
+                                        data-cy="download-case"
+                                        onClick={() => generateCaseReport(clientId)}
+                                    >
+                                        Download
+                                    </button>
+                                </div>
+                            }
 
                             {((editingField === "all" || editingField === "core-fields")) && (
                                 <div className="flex items-center justify-between">

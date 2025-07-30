@@ -36,7 +36,8 @@ export default function ClientEntry({
   spu,
   name,
   assigned_sdw_name,
-  archive
+  archive,
+  pendingTermination = false
 }) {
   const initials = name.charAt(0).toUpperCase();
 
@@ -51,7 +52,9 @@ export default function ClientEntry({
   return (
     <a
       href={`/case/${id}`}
-      className="client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 bg-white rounded-lg font-bold-label"
+      className={`client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 rounded-lg font-bold-label transition-colors ${
+        pendingTermination ? "bg-red-100" : "bg-white"
+      }`}
     >
       <div className="flex items-center gap-6">
         <div
@@ -64,6 +67,14 @@ export default function ClientEntry({
       </div>
       <p className="text-center">{sm_number}</p>
       <p className="text-center">{assigned_sdw_name}</p>
+
+      {pendingTermination && (
+        <div className="col-span-3 text-left mt-4">
+          <p className="text-xl text-red-600 font-medium">
+            Termination Request Found
+          </p>
+        </div>
+      )}
     </a>
   );
 }

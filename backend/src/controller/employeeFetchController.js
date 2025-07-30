@@ -3,6 +3,8 @@ const Employee = require('../model/employee');
 const Sponsored_Member = require('../model/sponsored_member');
 const bcrypt = require('bcrypt');``
 const Spu = require('../model/spu')
+const Case_Closure = require('../model/case_closure')
+
 /**
  * Fetches a single employee by its ObjectId.
  * - Requires a valid ObjectId in req.params.id
@@ -283,9 +285,18 @@ const getHeadViewbySpu = async (req, res) => {
         .lean();
 
       employee = await Employee.find({spu_id:spuObject._id}).populate('spu_id').lean();
-    }else{
+    } else {
       return res.status(403).json({ message: "Permission Error: Head access required" });
     }
+
+    const smIds = cases.map(c => c._id);
+    const pendingClosures = await Case_Closure.find({
+      sm: { $in: smIds },
+      status: "Pending",
+    }).select("sm").lean();
+    const pendingIds = pendingClosures.map(pc => pc.sm.toString());
+    // console.log("PEND", pendingIds)
+    // console.log("SM", smIds)
 
 
     // Simplify Sponsored Members
@@ -298,7 +309,8 @@ const getHeadViewbySpu = async (req, res) => {
       assigned_sdw: c.assigned_sdw?._id || null,
       assigned_sdw_name: c.assigned_sdw
         ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-        : null
+        : null,
+      pendingTermination: pendingIds.includes(c._id.toString()) ?? false,
     }));
 
     // Simplify Employees
@@ -349,10 +361,16 @@ const getSupervisorViewbySpu = async (req, res) => {
         .lean();
 
        employee = await Employee.find({role: {$nin: ['head','admin']}, spu_id: user.spu_id}).populate('spu_id').lean(); 
-    }else{
+    } else {
       return res.status(403).json({ message: "Permission Error: Supervisor access required" });
     }
 
+    const smIds = cases.map(c => c._id);
+    const pendingClosures = await Case_Closure.find({
+      sm: { $in: smIds },
+      status: "Pending",
+    }).select("sm").lean();
+    const pendingIds = pendingClosures.map(pc => pc.sm.toString());
 
     // Simplify Sponsored Members
     const simplifiedCases = cases.map(c => ({
@@ -364,7 +382,8 @@ const getSupervisorViewbySpu = async (req, res) => {
       assigned_sdw: c.assigned_sdw?._id || null,
       assigned_sdw_name: c.assigned_sdw
         ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-        : null
+        : null,
+      pendingTermination: pendingIds.includes(c._id.toString()) ?? false,
     }));
 
     // Simplify Employees
@@ -490,16 +509,26 @@ const getSDWViewbyParam = async(req,res) =>{
         .populate('spu')
         .lean()
 
+        const smIds = cases.map(c => c._id);
+        const pendingClosures = await Case_Closure.find({
+          sm: { $in: smIds },
+          status: "Pending",
+        }).select("sm").lean();
+        const pendingIds = pendingClosures.map(pc => pc.sm.toString());
+        console.log("PEND", pendingIds)
+        console.log("SM", smIds)
+
         const simplifiedCases = cases.map(c => ({
-        id: c._id,
-        name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
-        sm_number: c.sm_number,
-        spu: c.spu.spu_name,
-        is_active: c.is_active,
-        assigned_sdw: c.assigned_sdw?._id || null,
-        assigned_sdw_name: c.assigned_sdw
-            ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-            : null
+            id: c._id,
+            name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
+            sm_number: c.sm_number,
+            spu: c.spu.spu_name,
+            is_active: c.is_active,
+            assigned_sdw: c.assigned_sdw?._id || null,
+            assigned_sdw_name: c.assigned_sdw
+                ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
+                : null,
+            pendingTermination: pendingIds.includes(c._id.toString()) ?? false,
         }));
 
         return res.status(200).json(simplifiedCases);

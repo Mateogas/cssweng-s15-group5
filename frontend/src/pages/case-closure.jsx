@@ -862,7 +862,7 @@ function CaseClosure() {
                             {sdw_view ? (
                                 <>
                                     <h2 className="header-md font-semibold mb-4">Close Case</h2>
-                                    <p className="text-2xl mb-6">You are submitting a request for case termination. Please confirm to proceed.</p>
+                                    <p className="text-2xl mb-6">You are submitting a request for case termination, which will be subject to approval. Please confirm to proceed.</p>
                                 </>
                             ) : (
                                 <>
@@ -991,6 +991,14 @@ function CaseClosure() {
                     </button>
                     </div>
                 </div>
+                )}
+
+                {!viewForm && (
+                    <div className="-mt-8">
+                        <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                            ⚠️ Warning: This form cannot be edited after saving. Make sure your inputs are correct. ⚠️
+                        </p>
+                    </div>
                 )}
             </div>
         </main>
