@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 import Signature from "../Components/Signature";
+import { generateCaseClosureForm } from "../generate-documents/generate-documents";
 
 // API Import
 import  {   fetchCaseData,
@@ -121,6 +122,7 @@ function CaseClosure() {
                 if (formData.status == "Accepted" && !data.is_active)
                     setIsTerminated(true)
     
+                setnewformID(formData._id)
                 setData((prev) => ({
                     ...prev,
                     irst_name: caseData.first_name || "",
@@ -773,9 +775,14 @@ function CaseClosure() {
                         {viewForm ? (
                             <>
                                 {isTerminated ? (
-                                    <div className="text-red-500 font-bold-label">
-                                        Case has been terminated.
-                                    </div>
+                                    <button
+                                        className="btn-outline font-bold-label"
+                                        onClick={async () => {
+                                            generateCaseClosureForm(newformID)
+                                        }}
+                                    >
+                                        Download Form
+                                    </button>
                                 ) : (
                                     <button
                                         className="btn-outline font-bold-label"
@@ -812,9 +819,14 @@ function CaseClosure() {
                 ) : (
                     <div className="flex w-full justify-center items-center gap-20">
                         {isTerminated ? (
-                            <div className="text-red-600 font-bold-label">
-                                Case has been terminated.
-                            </div>
+                            <button
+                                className="btn-outline font-bold-label"
+                                onClick={async () => {
+                                    generateCaseClosureForm(newformID)
+                                }}
+                            >
+                                Download Form
+                            </button>
                         ) : (
                             <>
                                 <button
