@@ -54,6 +54,7 @@ function ProgressReport() {
         family_update: "",
         services_to_family: "",
         participation: "",
+        is_active: true
     });
 
     // < START :: Auto-Filled Data > //
@@ -71,6 +72,7 @@ function ProgressReport() {
                     return
                 }
                 const caseData = returnData
+                console.log(caseData)
 
                 setRawCaseData(caseData);
                 setData((prev) => ({
@@ -82,6 +84,7 @@ function ProgressReport() {
                     dob: caseData.dob || "",
                     subproject: caseData.subproject.spu_name || "",
                     form_num: caseData.reportNumber || "",
+                    is_active: caseData.is_active ?? true
                 }));
 
                 setLoading(false);
@@ -144,6 +147,8 @@ function ProgressReport() {
                     family_update: formData.family_update || "",
                     services_to_family: formData.services_to_family || "",
                     participation: formData.participation || "",
+
+                    is_active: caseData.is_active ?? true
                 }));
                 
                 setRelationToSponsor(formData.relation_to_sponsor)
@@ -438,6 +443,14 @@ function ProgressReport() {
     }
 
     // ===== END :: Functions ===== //
+
+    if (data && !data.is_active) {
+        return (
+            <div className="text-red-600 font-bold-label">
+                Case has been terminated.
+            </div>
+        );
+    }
 
     if (noFormFound) {
         return (

@@ -79,7 +79,6 @@ function CaseFrontend({ creating = false }) {
         religion: "",
         contact_no: "",
         present_address: "",
-        // relationship_to_client: "",
         problem_presented: "",
         observation_findings: "",
         recommendation: "",
@@ -95,13 +94,14 @@ function CaseFrontend({ creating = false }) {
     const [familyMembers, setFamilyMembers] = useState([]);
     const [notFound, setNotFound] = useState(false);
     const [loading, setLoading] = useState(creating ? false : true);
+    const [isTerminated, setIsTerminated] = useState(false);
 
     useEffect(() => {
         const loadCaseData = async () => {
             if (!clientId) return;
 
             const fetchedData = await fetchCaseData(clientId);
-            console.log("FETCHED DATA", fetchedData);
+            // console.log("FETCHED DATA", fetchedData);
 
             if (!fetchedData || fetchedData.sm_number === "") {
                 setNotFound(true);
@@ -132,7 +132,6 @@ function CaseFrontend({ creating = false }) {
                 occupation: fetchedData.occupation || "",
                 present_address: fetchedData.present_address || "",
                 contact_no: fetchedData.contact_no || "",
-                // relationship_to_client: fetchedData.relationship_to_client || "",
 
                 problem_presented: fetchedData.problem_presented || "",
                 history_problem: fetchedData.history_problem || "",
@@ -150,7 +149,6 @@ function CaseFrontend({ creating = false }) {
             if (!clientId) return;
 
             const fetchedData = await fetchFamilyMembers(clientId);
-
             setFamilyMembers(fetchedData);
         };
 
@@ -172,7 +170,6 @@ function CaseFrontend({ creating = false }) {
                 const spus = await fetchAllSpus();
                 setProjectLocation(spus);
             };
-
             loadSPUs();
         };
         loadSDWs();
@@ -205,7 +202,6 @@ function CaseFrontend({ creating = false }) {
         occupation: data.occupation || "",
         present_address: data.present_address || "",
         contact_no: data.contact_no || "",
-        // relationship_to_client: data.relationship_to_client || "",
 
         problem_presented: data.problem_presented || "",
         history_problem: data.history_problem || "",
@@ -217,7 +213,6 @@ function CaseFrontend({ creating = false }) {
 
     const resetFields = () => {
         // console.log("RESET FIEDLS", data.assigned_sdw._id);
-
         setDrafts({
             first_name: data.first_name || "",
             middle_name: data.middle_name || "",
@@ -236,7 +231,6 @@ function CaseFrontend({ creating = false }) {
             occupation: data.occupation || "",
             present_address: data.present_address || "",
             contact_no: data.contact_no || "",
-            // relationship_to_client: data.relationship_to_client || "",
 
             problem_presented: data.problem_presented || "",
             history_problem: data.history_problem || "",
@@ -245,7 +239,6 @@ function CaseFrontend({ creating = false }) {
             recommendation: data.recommendation || "",
             evaluation: data.evaluation || "",
         });
-
         setEditingField(null);
     };
 
@@ -277,7 +270,7 @@ function CaseFrontend({ creating = false }) {
             const sessionData = await fetchSession();
             const currentUser = sessionData?.user || null;
             setUser(currentUser);
-            console.log("Session:", currentUser);
+            // console.log("Session:", currentUser);
         };
         loadSession();
     }, [creating]);
@@ -292,7 +285,7 @@ function CaseFrontend({ creating = false }) {
             const matchSPU = projectLocation.find(p => p._id === user.spu_id);
             const validSDW = socialDevelopmentWorkers.find(
                 sdw =>
-                    (sdw.id === user._id || sdw._id === user._id) && // use either id or _id for safety
+                    (sdw.id === user._id || sdw._id === user._id) && 
                     sdw.spu_id === matchSPU?.spu_name &&
                     sdw.role === "sdw"
             );
@@ -790,12 +783,13 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadData = async () => {
             const fetchedClosureForm = await fetchCaseClosureData(clientId);
-            console.log("Fetched Closure Form: ", fetchedClosureForm);
+            // console.log("Fetched Closure Form: ", fetchedClosureForm);
 
             const closureForm = fetchedClosureForm.form
+            // console.log("Closure Form Data: ", closureForm);
 
-            console.log("Closure Form Data: ", closureForm);
-
+            if (caseClosureForm && closureForm.status == "Accepted" && data.is_active == false)
+                setIsTerminated(true)
             setCaseClosureForm(closureForm);
         };
 
@@ -803,56 +797,38 @@ function CaseFrontend({ creating = false }) {
     }, []);
 
     const handleNewIntervention = (caseID) => {
-
         const path = `/intervention-form/?action=create&caseID=${caseID}`;
-
         navigate(path);
-
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     const handleNewProgressReport = (caseID) => {
-
         const path = `/progress-report/?action=create&caseID=${caseID}`;
-
         navigate(path);
-
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     const handleCaseTermination = (caseID) => {
-
         const path = `/case-closure/?action=create&caseID=${caseID}`;
-
         navigate(path);
-
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     const handleViewCaseTermination = (caseID) => {
-
         const path = `/case-closure/?action=view&caseID=${caseID}`;
-
         navigate(path);
-
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     const handleInterventionNavigation = (intervention, caseID, formID) => {
-
         const path = `/${intervention}/?action=view&caseID=${caseID}&formID=${formID}`;
-
         navigate(path);
-
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
     const handleProgressReportNavigation = (caseID, formID) => {
-
         const path = `/progress-report/?action=view&caseID=${caseID}&formID=${formID}`;
-
         navigate(path);
-
         // navigate(`/intervention-form?selected=${encodeURIComponent(key)}`);
     };
 
@@ -1159,7 +1135,7 @@ function CaseFrontend({ creating = false }) {
                                 <>
                                     <div className="flex items-center justify-between">
                                         <h1 className="header-main">{`${data.first_name} ${data.middle_name} ${data.last_name}`}</h1>
-                                        {data.is_active && <button
+                                        {data.is_active && !isTerminated && <button
                                             className={
                                                 editingField === "core-fields"
                                                     ? "icon-button-setup x-button"
@@ -1351,7 +1327,7 @@ function CaseFrontend({ creating = false }) {
                         <section className='flex flex-col gap-8' id="identifying-data" ref={ref1}>
                             <div className="flex justify-between items-center">
                                 <h1 className="header-main">Identifying Data</h1>
-                                {user?.role == "sdw" && !creating && data.is_active && <button
+                                {user?.role == "sdw" && !creating && data.is_active && !isTerminated && <button
                                     className={
                                         editingField === "identifying-fields"
                                             ? "icon-button-setup x-button"
@@ -1538,7 +1514,6 @@ function CaseFrontend({ creating = false }) {
                                                         occupation: updated.occupation || drafts.occupation,
                                                         present_address: updated.present_address || drafts.present_address,
                                                         contact_no: updated.contact_no || drafts.contact_no,
-                                                        // relationship_to_client: updated.relationship_to_client || drafts.relationship_to_client,
                                                     }));
 
                                                     setEditingField(null);
@@ -1584,7 +1559,7 @@ function CaseFrontend({ creating = false }) {
                             {creating && <p className="font-label">Family Composition can be filled out on created cases.</p>}
 
                             {!creating && <>
-                                {data.is_active && user?.role == "sdw" && <button
+                                {data.is_active && user?.role == "sdw" && !isTerminated && <button
                                     className="btn-primary font-bold-label drop-shadow-base"
                                     onClick={handleAddFamilyMember}
                                     data-cy='add-family-member'
@@ -1621,6 +1596,7 @@ function CaseFrontend({ creating = false }) {
                                                     setModalConfirm={setModalConfirm}
                                                     setModalOnConfirm={setModalOnConfirm}
                                                     editable={user.role}
+                                                    terminated={isTerminated}
                                                     activeMember={data.is_active}
                                                 />
                                             ))}
@@ -1834,7 +1810,7 @@ function CaseFrontend({ creating = false }) {
                                     )
                                     }
 
-                                    {user?.role == "sdw" && <button
+                                    {user?.role == "sdw" && !isTerminated && <button
                                         name="add_intervention"
                                         id="add_intervention"
                                         onClick={() =>
@@ -1894,7 +1870,7 @@ function CaseFrontend({ creating = false }) {
                                         <p className="body-base self-center mt-8">No Progress Reports Available</p>
                                     )}
 
-                                    {user?.role == "sdw" && <button
+                                    {user?.role == "sdw" && !isTerminated && <button
                                         name="add_progress_report"
                                         id="add_progress_report"
                                         onClick={() =>
@@ -2106,7 +2082,7 @@ function CaseFrontend({ creating = false }) {
                             Create Case
                         </button>}
 
-                        {data.is_active && !creating && (
+                        {!creating && (
                             caseClosureForm ? (
                                 <button
                                     onClick={() =>

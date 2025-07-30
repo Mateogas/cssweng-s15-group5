@@ -99,6 +99,7 @@ const getCaseData = async (req, res) => {
             dob: new Date(sm_data.dob).toISOString().split('T')[0] || '',
             subproject: sm_data.spu.spu_name || '',
             reportNumber: lastReportNumber + 1,
+            is_active: sm_data.is_active
         }
 
         return res.status(200).json(caseData);

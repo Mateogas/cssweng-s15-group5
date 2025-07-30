@@ -28,6 +28,9 @@ function CaseClosure() {
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
+    const [isTerminated, setIsTerminated] = useState(false);
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const [data, setData] = useState({
         first_name: "",
@@ -45,53 +48,60 @@ function CaseClosure() {
         sm_notification: "",
         evaluation: "",
         recommendation: "",
+        is_active: ""
     });
 
     // < START :: Create New Form > //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    const viewForm = action !== 'create' ? true : false;
+    const [sdw_view, setSDWView] = useState(true);
 
-            const returnData = await fetchCaseData(caseID);
-            const caseData = returnData.case || returnData
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            setRawCaseData(caseData);
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
+                const returnData = await fetchCaseData(caseID);
+                const caseData = returnData.case || returnData
+                
+                if (returnData?.form)
+                    navigate(`/case-closure/?action=view&caseID=${caseID}`);
 
-                ch_number: caseData.sm_number || "",
-                dob: caseData.dob || "",
-                religion: caseData.religion || "",
-                address: caseData.present_address || "",
-                spu: caseData.spu || "",
-            }));
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+                setRawCaseData(caseData);
+                setData((prev) => ({
+                    ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
 
-    useEffect(() => {
-        setLastName(data.last_name || "");
-        setMiddleName(data.middle_name || "");
-        setFirstName(data.first_name || "");
-        setCHNumber(data.ch_number || "");
-        setDOB("");
-        setAge("");
-        setReligion(data.religion || "");
-        setAddress(data.address || "");
-        setSPU(data.spu || "");
-    }, [data]);
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    religion: caseData.religion || "",
+                    address: caseData.present_address || "",
+                    spu: caseData.spu || "",
+                    is_active: caseData.is_active || true,
+                }));
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+
+        useEffect(() => {
+            setLastName(data.last_name || "");
+            setMiddleName(data.middle_name || "");
+            setFirstName(data.first_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB("");
+            setAge("");
+            setReligion(data.religion || "");
+            setAddress(data.address || "");
+            setSPU(data.spu || "");
+        }, [data]);
+    }
 
     // < END :: Create New Form > //
 
     // < START :: View Form > //
-    
-    const viewForm = action !== 'create' ? true : false;
-    const [sdw_view, setSDWView] = useState(true);
 
     if (viewForm) {
         useEffect(() => {
@@ -100,17 +110,30 @@ function CaseClosure() {
     
                 const returnData = await fetchCaseClosureData(caseID);
                 const formData = returnData.form
+                const caseData = returnData.case
     
-                console.log("Form Data", formData)
+                // console.log("Form Data", formData)
     
                 setRawFormData(formData);
-
                 const user_sdw = returnData.active_user_role === "sdw" ? true : false;
-
                 setSDWView(user_sdw);
+
+                if (formData.status == "Accepted" && !data.is_active)
+                    setIsTerminated(true)
     
                 setData((prev) => ({
                     ...prev,
+                    irst_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    religion: caseData.religion || "",
+                    address: caseData.present_address || "",
+                    spu: caseData.spu || "",
+                    is_active: caseData.is_active || true,
+
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     reason_for_retirement: formData.reason_for_retirement || "",
@@ -127,6 +150,16 @@ function CaseClosure() {
         }, []);
     
         useEffect(() => {
+            setLastName(data.last_name || "");
+            setMiddleName(data.middle_name || "");
+            setFirstName(data.first_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB("");
+            setAge("");
+            setReligion(data.religion || "");
+            setAddress(data.address || "");
+            setSPU(data.spu || "");
+
             setClosureDate(data.closure_date || "");
             setSponsorshipDate(data.closure_date || "");
             setReasonForRetirement(data.reason_for_retirement || "");
@@ -135,7 +168,6 @@ function CaseClosure() {
             setEvaluation(data.evaluation || "");
             setRecommendation(data.recommendation || "");
         }, [data]);
-    
     }
 
     // < END :: View Form > //
@@ -199,35 +231,42 @@ function CaseClosure() {
             sponsorship_date,
             reason_for_retirement,
             sm_awareness,
-            sm_notification,
             evaluation,
             recommendation
         };
 
         Object.entries(requiredFields).forEach(([field, value]) => {
-
             if (
                 value === undefined ||               
                 value === null ||                    
                 value === "" ||                    
                 (typeof value === "string" && !value.trim())
             ) {
-            newErrors[field] = "Missing input";
+                newErrors[field] = "Missing input";
             }
         });
 
-        services_provided.forEach((item, index) => {
+        if (
+            sm_awareness?.toLowerCase?.() === "yes" &&
+            (sm_notification === undefined ||
+            sm_notification === null ||
+            sm_notification === "" ||
+            (typeof sm_notification === "string" && !sm_notification.trim()))
+        ) {
+            newErrors.sm_notification = "Missing input";
+        }
+
+        services_provided.forEach((item) => {
             if (!item.description || item.description.trim() === "") {
                 newErrors[item.service] = "Missing input";
             }
-
-            console.log(item.service);
-        })
+        });
 
         setErrors(newErrors);
 
-        return Object.keys(newErrors).length === 0; 
+        return Object.keys(newErrors).length === 0;
     };
+
 
     const handleSubmit = async (e) => {
         e?.preventDefault();
@@ -240,10 +279,11 @@ function CaseClosure() {
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -259,10 +299,16 @@ function CaseClosure() {
             evaluation,
             recommendation
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createCaseClosureForm(payload, caseID); 
+        console.log(response)
+        if (response?.form?._id) {
+            setnewformID(response.form?._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -397,13 +443,7 @@ function CaseClosure() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -732,26 +772,21 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         {viewForm ? (
                             <>
-                                <button
-                                    className="btn-outline font-bold-label"
-                                    onClick={async () => {
-                                        await handleDelete();
-                                        navigate(`/case/${caseID}`);
-                                    }
-                                    }
-                                >
-                                    Delete Request
-                                </button>
-                                {/*
-                                <button
-                                    className="btn-primary font-bold-label w-min"
-                                    onClick={() => {
-                                        navigate(`/case/${caseID}`); 
-                                    }}
-                                >
-                                    Save Changes
-                                </button>
-                                */}
+                                {isTerminated ? (
+                                    <div className="text-red-500 font-bold-label">
+                                        Case has been terminated.
+                                    </div>
+                                ) : (
+                                    <button
+                                        className="btn-outline font-bold-label"
+                                        onClick={async () => {
+                                            await handleDelete();
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                    >
+                                        Delete Request
+                                    </button>
+                                )}
                             </>
                         ) : (
                             <>
@@ -776,21 +811,29 @@ function CaseClosure() {
                     </div>
                 ) : (
                     <div className="flex w-full justify-center items-center gap-20">
-                        <button
-                            className="label-base btn-outline"
-                            onClick={async () => {
-                                await handleDelete();
-                                navigate(`/case/${caseID}`)
-                            }}
-                        >
-                            Reject Termination
-                        </button>
-                        <button
-                            className="label-base btn-primary"
-                            onClick={() => setShowConfirm(true)}
-                        >
-                            Approve Termination
-                        </button>
+                        {isTerminated ? (
+                            <div className="text-red-600 font-bold-label">
+                                Case has been terminated.
+                            </div>
+                        ) : (
+                            <>
+                                <button
+                                    className="label-base btn-outline"
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                >
+                                    Reject Termination
+                                </button>
+                                <button
+                                    className="label-base btn-primary"
+                                    onClick={() => setShowConfirm(true)}
+                                >
+                                    Approve Termination
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             
@@ -802,12 +845,12 @@ function CaseClosure() {
                             {sdw_view ? (
                                 <>
                                     <h2 className="header-md font-semibold mb-4">Close Case</h2>
-                                    <p className="label-base mb-6">Are you sure you want to close this case?</p>
+                                    <p className="text-2xl mb-6">You are submitting a request for case termination. Please confirm to proceed.</p>
                                 </>
                             ) : (
                                 <>
                                     <h2 className="header-md font-semibold mb-4">Terminate Case</h2>
-                                    <p className="label-base mb-6">Are you sure you want to terminate this case?</p>
+                                    <p className="text-2xl mb-6">Are you sure you want to terminate this case?</p>
                                 </>
                             )}
                             <div className="flex justify-end gap-4">
@@ -828,7 +871,12 @@ function CaseClosure() {
                                         onClick={async (e) => {
                                             await handleSubmit(e);
                                             setShowConfirm(false);
-                                            navigate(`/case/${caseID}`);
+                                            const success = await handleSubmit(e);
+                                            console.log(success)
+                                            if (success) {
+                                                setShowSuccessModal(true);
+                                                
+                                            }
                                         }}
                                         className="btn-primary font-bold-label"
                                     >
@@ -846,6 +894,38 @@ function CaseClosure() {
                                         Confirm
                                     </button>
                                 )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Case Closure Request Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case-closure/?action=view&caseID=${caseID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -881,6 +961,14 @@ function CaseClosure() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}

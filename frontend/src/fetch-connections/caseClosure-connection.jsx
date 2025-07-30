@@ -57,7 +57,7 @@ export const createCaseClosureForm = async(createdData, caseID) => {
                throw new Error('API error');
 
           const newCaseClose = await response.json();
-          console.log(newCaseClose)
+          return newCaseClose
      } catch (err) {
           console.error('Error creating form:', err);
           return null;
