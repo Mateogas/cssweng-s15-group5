@@ -32,6 +32,7 @@ function CaseClosure() {
     const [isTerminated, setIsTerminated] = useState(false);
     const [newformID, setnewformID] = useState(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [data, setData] = useState({
         first_name: "",
@@ -774,14 +775,6 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         {viewForm ? (
                             <>
-                                <button
-                                    className="btn-primary font-bold-label"
-                                    onClick={async () => {
-                                        generateCaseClosureForm(newformID)
-                                    }}
-                                >
-                                    Download Form
-                                </button>
                                 {!isTerminated && (
                                     <button
                                         className="btn-outline font-bold-label"
@@ -794,6 +787,14 @@ function CaseClosure() {
                                     </button>
                                     
                                 )}
+                                <button
+                                    className="btn-primary font-bold-label"
+                                    onClick={async () => {
+                                        generateCaseClosureForm(newformID)
+                                    }}
+                                >
+                                    Download Form
+                                </button>
                             </>
                         ) : (
                             <>
@@ -804,14 +805,18 @@ function CaseClosure() {
                                     Cancel
                                 </button>
                                 <button
-                                    className="btn-primary font-bold-label w-min"
-                                    onClick={() => {
-                                        if (validateForm()) {
-                                            setShowConfirm(true)
-                                        }
+                                    type="submit"
+                                    className={`btn-primary font-bold-label w-min ${
+                                        isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                    }`}
+                                    onClick={async (e) => {
+                                        e.preventDefault(); 
+                                        setIsProcessing(true);
+                                        setShowConfirm(true)
                                     }}
+                                    disabled={isProcessing}
                                 >
-                                    Create Request
+                                    {isProcessing ? "Creating..." : "Create Request"}
                                 </button>
                             </>
                         )}
@@ -884,10 +889,8 @@ function CaseClosure() {
                                             await handleSubmit(e);
                                             setShowConfirm(false);
                                             const success = await handleSubmit(e);
-                                            console.log(success)
                                             if (success) {
                                                 setShowSuccessModal(true);
-                                                
                                             }
                                         }}
                                         className="btn-primary font-bold-label"
@@ -922,6 +925,7 @@ function CaseClosure() {
                                     onClick={() => {
                                         setShowSuccessModal(false);
                                         navigate(`/case/${caseID}`);
+                                        setShowConfirm(false);
                                     }}
                                     className="btn-outline font-bold-label"
                                 >
@@ -933,6 +937,7 @@ function CaseClosure() {
                                     onClick={() => {
                                         setShowSuccessModal(false);
                                         navigate(`/case-closure/?action=view&caseID=${caseID}`);
+                                        setIsProcessing(false)
                                     }}
                                     className="btn-primary font-bold-label"
                                 >
@@ -976,7 +981,10 @@ function CaseClosure() {
 
                     {/* OK Button */}
                     <button
-                        onClick={() => setShowErrorOverlay(false)}
+                        onClick={() => {
+                            setShowErrorOverlay(false)
+                            setIsProcessing(false);
+                        }}
                         className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
                     >
                         OK
