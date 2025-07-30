@@ -13,28 +13,22 @@ const deleteAccount = async (req, res) => {
      // active user; assuming sessions are already working
      const active_user = req.session.user
 
-     console.log("flag1")
-
      // security checks
      if (!account_selected)
           return res.status(403).json({ message: "Employee not found." })
 
-     console.log("flag2")
 
      if (!active_user)
           return res.status(403).json({ message: "Unauthorized access." })
 
-     console.log("flag3")
 
      if (active_user._id.toString() === account_selected._id.toString())
           return res.status(403).json({ message: "Unauthorized access. You cannot delete your own account." });
 
-     console.log("flag4")
 
      if (active_user.role != "head" && active_user.role != "Head")
           return res.status(403).json({ message: "Unauthorized access." })
 
-     console.log("flag5")
 
      var SDWexists
      var SVexists
@@ -46,16 +40,12 @@ const deleteAccount = async (req, res) => {
                is_active: true
           });
 
-          console.log("flag6: ", SDWexists)
-
           if (SDWexists)
                return res.status(403).json({ message: "SDW has active case(s)." })
      } 
-     
-     console.log("flag6")
 
      // Supervisor must not have SDWs under them and active cases
-     if (account_selected.role === "super" || account_selected.role === "Super" ||  account_selected.role === "Supervisor") {
+     if (account_selected.role === "super" || account_selected.role === "supervisor") {
           SVexists = await Employee.exists({ manager: account_selected._id });
           SDWexists = await Sponsored_Member.exists({
                assigned_sdw: account_selected._id,
@@ -67,8 +57,6 @@ const deleteAccount = async (req, res) => {
           if (SDWexists)
                return res.status(403).json({ message: "Supervisor has active case(s)." })
      }
-
-     console.log("flag7")
 
      // Head must not have supervisors/SDWs under them and active cases
      if (account_selected.role === "head" || account_selected.role === "Head") {
@@ -83,9 +71,6 @@ const deleteAccount = async (req, res) => {
           if (SDWexists)
                return res.status(403).json({ message: "Head has active case(s)." })
      }
-
-     console.log("flag8")
-     console.log("making inactiv: ", account_selected);
 
      // Change Status
      account_selected.is_active = false;
