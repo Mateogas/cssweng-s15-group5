@@ -774,16 +774,15 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         {viewForm ? (
                             <>
-                                {isTerminated ? (
-                                    <button
-                                        className="btn-outline font-bold-label"
-                                        onClick={async () => {
-                                            generateCaseClosureForm(newformID)
-                                        }}
-                                    >
-                                        Download Form
-                                    </button>
-                                ) : (
+                                <button
+                                    className="btn-primary font-bold-label"
+                                    onClick={async () => {
+                                        generateCaseClosureForm(newformID)
+                                    }}
+                                >
+                                    Download Form
+                                </button>
+                                {!isTerminated && (
                                     <button
                                         className="btn-outline font-bold-label"
                                         onClick={async () => {
@@ -793,6 +792,7 @@ function CaseClosure() {
                                     >
                                         Delete Request
                                     </button>
+                                    
                                 )}
                             </>
                         ) : (
@@ -820,7 +820,7 @@ function CaseClosure() {
                     <div className="flex w-full justify-center items-center gap-20">
                         {isTerminated ? (
                             <button
-                                className="btn-outline font-bold-label"
+                                className="btn-primary font-bold-label"
                                 onClick={async () => {
                                     generateCaseClosureForm(newformID)
                                 }}
