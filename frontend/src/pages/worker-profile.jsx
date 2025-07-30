@@ -144,15 +144,24 @@ export default function WorkerProfile() {
 
         const loadSPUs = async () => {
             const spus = await fetchAllSpus();
-            setProjectLocation(spus);
+
+            const filtered = spus.filter(
+                (spu) => spu.is_active === true
+            );
+
+            setProjectLocation(filtered);
         };
         loadSPUs();
     }, []);
 
     useEffect(() => {
         const filtered = socialDevelopmentWorkers.filter(
-            (w) => w.spu_id === drafts.spu_id && w.role === 'supervisor'
+            (w) =>
+                w.spu_id === drafts.spu_id &&
+                w.role === 'supervisor' &&
+                w.is_active === true
         );
+
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
 
@@ -165,18 +174,35 @@ export default function WorkerProfile() {
     useEffect(() => {
         if (!data.role || !workerId) return;
 
+        // const loadHandled = async () => {
+        //     if (data.role === "sdw") {
+        //         const res = await fetchSDWViewById(workerId);
+        //         setHandledClients(res || []);
+        //     } else if (data.role === "supervisor") {
+        //         const res = await fetchHeadViewBySupervisor(workerId);
+        //         setHandledWorkers(res || []);
+        //     } else if (data.role === "head") {
+        //         const res = await fetchHeadViewBySpu(data.spu_id);
+        //         setHandledWorkers(res.employees || []);
+        //     }
+        // };
+
         const loadHandled = async () => {
             if (data.role === "sdw") {
                 const res = await fetchSDWViewById(workerId);
-                setHandledClients(res || []);
+                const activeClients = (res || []).filter((client) => client.is_active === true);
+                setHandledClients(activeClients);
             } else if (data.role === "supervisor") {
                 const res = await fetchHeadViewBySupervisor(workerId);
-                setHandledWorkers(res || []);
+                const activeWorkers = (res || []).filter((worker) => worker.is_active === true);
+                setHandledWorkers(activeWorkers);
             } else if (data.role === "head") {
                 const res = await fetchHeadViewBySpu(data.spu_id);
-                setHandledWorkers(res.employees || []);
+                const activeEmployees = (res.employees || []).filter((emp) => emp.is_active === true);
+                setHandledWorkers(activeEmployees);
             }
         };
+
 
         loadHandled();
     }, [data.role, data.spu_id, workerId]);
@@ -329,7 +355,7 @@ export default function WorkerProfile() {
         }
 
         if (hasRoleChanged) {
-                if (data.role === "sdw" && handledClients.length > 0) {
+            if (data.role === "sdw" && handledClients.length > 0) {
                 setModalTitle("Role Change Not Allowed");
                 setModalBody("This SDW is currently assigned to clients. Please reassign all clients before changing role as they would lose access to their cases.");
                 setModalImageCenter(<div className="warning-icon mx-auto"></div>);
@@ -403,35 +429,35 @@ export default function WorkerProfile() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                     animate-fadeIn scale-100 transform transition duration-300">
-                    <div className="flex items-center gap-4 border-b-1">
-                        <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-[2.4rem] w-[2.4rem] text-red-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
-                        />
-                        </svg>
-                        <h2 className="header-sm font-bold text-red-600 text-center">
-                        Termination Failed
-                        </h2>
-                    </div>
-                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                        {terminateErrorMessage || "An unexpected error occurred while attempting to terminate the account."}
-                    </p>
+                        <div className="flex items-center gap-4 border-b-1">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-[2.4rem] w-[2.4rem] text-red-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                                />
+                            </svg>
+                            <h2 className="header-sm font-bold text-red-600 text-center">
+                                Termination Failed
+                            </h2>
+                        </div>
+                        <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                            {terminateErrorMessage || "An unexpected error occurred while attempting to terminate the account."}
+                        </p>
 
-                    <button
-                        onClick={() => setShowTerminateError(false)}
-                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
-                    >
-                        OK
-                    </button>
+                        <button
+                            onClick={() => setShowTerminateError(false)}
+                            className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                        >
+                            OK
+                        </button>
                     </div>
                 </div>
             )}
@@ -492,10 +518,9 @@ export default function WorkerProfile() {
                         </div>
 
                         <span
-                            className={`font-bold-label w-fit rounded-full p-2 px-8 !text-white whitespace-nowrap ${
-                                data.is_active === true ? "bg-[var(--color-green)]" : "bg-[var(--accent-dark)]"
-                            } inline-block`}
-                            >
+                            className={`font-bold-label w-fit rounded-full p-2 px-8 !text-white whitespace-nowrap ${data.is_active === true ? "bg-[var(--color-green)]" : "bg-[var(--accent-dark)]"
+                                } inline-block`}
+                        >
                             {data.is_active === true ? "Active" : "Inactive"}
                         </span>
 
@@ -766,7 +791,7 @@ export default function WorkerProfile() {
                                     <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
                                     <div className="flex justify-between items-center">
                                         <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                        {((user?.role == "head" || data.manager == user?._id) && data.is_active ) && (
+                                        {((user?.role == "head" || data.manager == user?._id) && data.is_active) && (
                                             <button
                                                 className="icon-button-setup dots-button"
                                                 onClick={() => setEditingField("core-fields")}
@@ -846,7 +871,7 @@ export default function WorkerProfile() {
                                     ) : (
                                         handledWorkers.map((worker) => (
                                             <WorkerEntry
-                                                key={worker._id}
+                                                key={worker.id}
                                                 id={worker.id}
                                                 // sdw_id={worker.sdw_id}
                                                 name={
@@ -877,13 +902,14 @@ export default function WorkerProfile() {
                                     <button
                                         className="btn-outline font-bold-label drop-shadow-base my-3"
                                         onClick={() => setIsChangePasswordOpen(true)}
+                                        disabled={isChangePasswordOpen}
                                     >
                                         Change Password
                                     </button>
                                 )
                             )}
                             {user?.role === "head" && data?.is_active && (
-                                <button 
+                                <button
                                     className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
                                     onClick={() => setShowConfirmTerminate(true)}
                                 >
@@ -898,21 +924,21 @@ export default function WorkerProfile() {
                                                 animate-fadeIn scale-100 transform transition duration-300">
                                     <div className="flex items-center gap-4 border-b-1">
                                         <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-[2.4rem] w-[2.4rem] text-red-600"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        strokeWidth={2}
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-[2.4rem] w-[2.4rem] text-red-600"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
                                         >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
-                                        />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                                            />
                                         </svg>
                                         <h2 className="header-sm font-bold text-red-600 text-center">
-                                        Confirm Termination
+                                            Confirm Termination
                                         </h2>
                                     </div>
 
@@ -922,10 +948,10 @@ export default function WorkerProfile() {
 
                                     <div className="flex gap-4">
                                         <button
-                                        onClick={() => setShowConfirmTerminate(false)}
-                                        className="bg-gray-300 text-2xl text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+                                            onClick={() => setShowConfirmTerminate(false)}
+                                            className="bg-gray-300 text-2xl text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition"
                                         >
-                                        Cancel
+                                            Cancel
                                         </button>
                                         <button
                                             onClick={() => {
@@ -934,7 +960,7 @@ export default function WorkerProfile() {
                                             }}
                                             className="bg-red-600 text-2xl text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
                                         >
-                                        OK
+                                            OK
                                         </button>
                                     </div>
                                 </div>

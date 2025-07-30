@@ -249,12 +249,13 @@ export const fetchSDWs = async () => {
           // Map to expected format
 
           return data.map(sdw => ({
-               sdw_id: sdw.sdw_id,
+               // sdw_id: sdw.sdw_id,
                id: sdw._id,
                username: `${sdw.first_name} ${sdw.last_name}`,
                spu_id: sdw.spu_id || '',
                role: sdw.role,
-               manager: sdw.manager
+               manager: sdw.manager,
+               is_active: sdw.is_active
           }));
 
      } catch (err) {

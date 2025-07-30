@@ -37,7 +37,10 @@ function HomeSDW() {
 
     const loadSPUs = async () => {
       const spus = await fetchAllSpus();
-      setProjectLocation(spus);
+      const filtered = spus.filter(
+        (spu) => spu.is_active === true
+      );
+      setProjectLocation(filtered);
     };
 
     loadSPUs();
@@ -128,8 +131,6 @@ function HomeSDW() {
   };
 
   const finalClients = getFilteredClients();
-
-  console.log(projectLocation);
 
   return (
     <>

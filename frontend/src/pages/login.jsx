@@ -29,9 +29,13 @@ export default function Login() {
         const res = await loginUser(payload);
 
         if (res.ok && !res.data.errorMsg) {
-            console.log('Login success:', res.data);
-            setErrorMessage('');
-            window.location.href = '/';
+            if (res.data.is_active){
+                console.log('Login success:', res.data);
+                setErrorMessage('');
+                window.location.href = '/';
+            } else {
+                setErrorMessage('Worker account is no longer active.');
+            }
         } else {
             setErrorMessage(res.data.errorMsg || 'Username and password do not match.');
         }

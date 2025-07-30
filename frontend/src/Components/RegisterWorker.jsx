@@ -72,14 +72,22 @@ export default function RegisterWorker({
   useEffect(() => {
     const loadSDWs = async () => {
       const sdws = await fetchSDWs();
-      setSocialDevelopmentWorkers(sdws);
+
+      const filtered = sdws.filter(
+        (sdw) => sdw.is_active === true
+      );
+      console.log("Fetched employees:", sdws);
+      setSocialDevelopmentWorkers(filtered);
     };
 
     loadSDWs();
 
     const loadSPUs = async () => {
       const spus = await fetchAllSpus();
-      setProjectLocations(spus);
+      const filtered = spus.filter(
+        (spu) => spu.is_active === true
+      );
+      setProjectLocations(filtered);
     };
 
     loadSPUs();
@@ -145,25 +153,25 @@ export default function RegisterWorker({
   const checkRegisterWorker = async () => {
     const missing = [];
 
-        if (!formData.first_name || formData.first_name.trim() === "") {
-            missing.push("First Name");
-        } else if (/\d/.test(formData.first_name)) {
-            missing.push("First Name must not contain numbers");
-        }
+    if (!formData.first_name || formData.first_name.trim() === "") {
+      missing.push("First Name");
+    } else if (/\d/.test(formData.first_name)) {
+      missing.push("First Name must not contain numbers");
+    }
 
-        // if (!formData.middle_name || formData.middle_name.trim() === "") {
-        //     missing.push("Middle Name");
-        // } else 
+    // if (!formData.middle_name || formData.middle_name.trim() === "") {
+    //     missing.push("Middle Name");
+    // } else 
 
-        if (/\d/.test(formData.middle_name)) {
-            missing.push("Middle Name must not contain numbers");
-        }
+    if (/\d/.test(formData.middle_name)) {
+      missing.push("Middle Name must not contain numbers");
+    }
 
-        if (!formData.last_name || formData.last_name.trim() === "") {
-            missing.push("Last Name");
-        } else if (/\d/.test(formData.last_name)) {
-            missing.push("Last Name must not contain numbers");
-        }
+    if (!formData.last_name || formData.last_name.trim() === "") {
+      missing.push("Last Name");
+    } else if (/\d/.test(formData.last_name)) {
+      missing.push("Last Name must not contain numbers");
+    }
 
 
     if (!formData.username) {
@@ -207,12 +215,12 @@ export default function RegisterWorker({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) missing.push("Valid Email");
-      // if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 numerical digits)");
+    // if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 numerical digits)");
 
     if (!formData.contact_no) {
-        missing.push("Contact Number");
+      missing.push("Contact Number");
     } else if (!/^\d{11}$/.test(formData.contact_no)) {
-        missing.push("Contact Number must be 11 numerical digits");
+      missing.push("Contact Number must be 11 numerical digits");
     }
 
 

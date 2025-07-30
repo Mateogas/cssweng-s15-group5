@@ -158,13 +158,21 @@ function CaseFrontend({ creating = false }) {
     useEffect(() => {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
-            setSocialDevelopmentWorkers(sdws);
+
+            const filtered = sdws.filter(
+                (sdws) => sdws.is_active === true
+            );
+            setSocialDevelopmentWorkers(filtered);
 
             // console.log("LOADING SDW", sdws);
 
             const loadSPUs = async () => {
                 const spus = await fetchAllSpus();
-                setProjectLocation(spus);
+
+                const filtered = spus.filter(
+                    (spu) => spu.is_active === true
+                );
+                setProjectLocation(filtered);
             };
 
             loadSPUs();
@@ -1284,7 +1292,6 @@ function CaseFrontend({ creating = false }) {
                                         if (!valid) return;
 
 
-                                        console.log("VALID", valid);
                                         if (valid === "pending-super-confirm") {
                                             setModalTitle("SDW Outside Supervision");
                                             setModalBody("You are about to assign the case to an SDW that is not under your supervision. You will no longer be able to modify the case. Are you sure you want to proceed?");
@@ -1772,6 +1779,7 @@ function CaseFrontend({ creating = false }) {
                                     </div>
                                 </div>
                                 <div className="flex w-full flex-col flex-wrap gap-2.5">
+                                    {intervention_selected == "" && <p className="body-base self-center mt-8">No Intervention Type Selected</p>}
                                     {interventions[intervention_selected]?.length > 0 ? (
                                         interventions[intervention_selected]?.map(
                                             (item, index) => (

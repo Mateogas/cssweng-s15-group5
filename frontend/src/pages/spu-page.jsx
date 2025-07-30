@@ -47,8 +47,10 @@ export default function SpuPage() {
                 fetchAllCases(),
             ]);
 
-            setSpus(allSpus || []);
-            setSdws(allSdws || []);
+            const activeSpus = (allSpus || []).filter(spu => spu.is_active);
+            setSpus(activeSpus || []);
+            const activeSdws = (allSdws || []).filter(sdw => sdw.is_active);
+            setSdws(activeSdws || []);
             const activeCases = (allCases || []).filter(c => c.is_active);
             setCases(activeCases);
 
@@ -173,6 +175,7 @@ export default function SpuPage() {
                         <button
                             className="btn-blue font-bold-label"
                             onClick={() => setAddOpen(true)}
+                            disabled={addOpen}
                         >
                             + Add SPU
                         </button>

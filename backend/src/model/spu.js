@@ -5,7 +5,7 @@ const SpuSchema = new Schema({
     spu_name: {
         type: String,
         required: true,
-        unique: true
+        unique: false
     },
     is_active: {
         type: Boolean,

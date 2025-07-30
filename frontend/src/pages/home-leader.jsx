@@ -41,13 +41,19 @@ function HomeLeader() {
         employees = data || [];
       }
 
-      console.log("Fetched employees:", employees);
-      setAllData(employees);
+      const filtered = employees.filter(
+        (e) => e.is_active === true
+      );
+      console.log("Fetched employees:", filtered);
+      setAllData(filtered);
     };
 
     const loadSPUs = async () => {
       const spus = await fetchAllSpus();
-      setProjectLocation(spus);
+      const filtered = spus.filter(
+        (spu) => spu.is_active === true
+      );
+      setProjectLocation(filtered);
     };
 
     loadSPUs();
@@ -84,9 +90,6 @@ function HomeLeader() {
 
     setCurrentData(filtered);
   }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
-
-  console.log(projectLocation);
-  console.log(allData);
 
   return (
     <>
@@ -167,6 +170,7 @@ function HomeLeader() {
                 <button
                   className="btn-outline font-bold-label flex gap-4 whitespace-nowrap"
                   onClick={() => setIsRegisterOpen(true)}
+                  disabled={isRegisterOpen}
                 >
                   <p>+</p>
                   <p>Add Account</p>
@@ -191,7 +195,7 @@ function HomeLeader() {
             ) : (
               currentData.map((worker) => (
                 <WorkerEntry
-                  key={worker._id}
+                  key={worker.id}
                   id={worker.id}
                   // sdw_id={worker.sdw_id}
                   name={worker.name}
