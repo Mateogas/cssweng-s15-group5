@@ -221,3 +221,24 @@ export const fetchSDWViewById = async (sdwId) => {
   });
   return response.json();
 };
+
+export const terminateWorker = async (account) => {
+  try {
+    const response = await fetch(`/api/delete-account/${account}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, message: data.message };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: "Connection error" };
+  }
+};

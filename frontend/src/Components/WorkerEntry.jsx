@@ -35,12 +35,18 @@ export default function WorkerEntry({
   // sdw_id,
   name,
   role,
-  spu_id
+  spu_id,
+  archive
 }) {
   const initials = name.charAt(0).toUpperCase();
 
   let bgColor = getColorFromId(name);
   let textColor = getTextColorForBackground(bgColor);
+
+  if (archive) {
+    bgColor = "#6b6c6e";
+    textColor = "#ffffff";
+  }
 
   return (
     <a
@@ -61,7 +67,7 @@ export default function WorkerEntry({
         </div>
       </div>
       <p className="text-center">{role === "sdw" ? "SDW" : role === "supervisor" ? "Supervisor" : "Head"}</p>
-      <p className="text-center">{spu_id}</p>
+      <p className="text-center ml-[4%]">{spu_id}</p>
     </a>
   );
 }

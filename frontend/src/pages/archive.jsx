@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import SideItem from "../Components/SideItem";
 import ClientEntry from "../Components/ClientEntry";
+import WorkerEntry from "../Components/WorkerEntry";
 import SideBar from "../Components/SideBar";
 import { fetchAllCases } from "../fetch-connections/case-connection";
-import { fetchSession } from "../fetch-connections/account-connection";
+import { fetchHeadView, fetchSession, fetchSupervisorView } from "../fetch-connections/account-connection";
 import { useNavigate } from "react-router-dom";
 
 function Archive() {
     const navigate = useNavigate();
-    const [allData, setAllData] = useState([]);
+    const [allCases, setAllCases] = useState([]);
+    const [allEmployees, setAllEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [user, setUser] = useState(null);
@@ -18,6 +20,9 @@ function Archive() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [searchQuery, setSearchQuery] = useState("");
     const [currentData, setCurrentData] = useState([]);
+    const [archiveEmp, setArchiveEmp] = useState([])
+
+    const [viewMode, setViewMode] = useState("cases");
 
     const projectLocation = [
         { name: "AMP", projectCode: "AMP" },
@@ -37,15 +42,14 @@ function Archive() {
             setUser(sessionData.user);
 
             const cases = await fetchAllCases();
-            setAllData(cases);
+            setAllCases(cases);
         };
 
         loadSessionAndCases();
     }, []);
 
     useEffect(() => {
-        let filtered = [...allData];
-
+        let filtered = [...allCases];
         filtered = filtered.filter((client) => !client.is_active);
 
         if (user) {
@@ -83,8 +87,50 @@ function Archive() {
 
         setCurrentData(filtered);
         console.log(currentData);
-    }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
+    }, [allCases, currentSPU, sortBy, sortOrder, searchQuery]);
 
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            if (viewMode === "employees") {
+                try {
+                    var response = null;
+                    if (user?.role == "head") {
+                        response = await fetchHeadView();
+                    }
+                    else if (user?.role == "supervisor") {
+                        response = await fetchSupervisorView();
+                    }
+                    let filtered = response.employees.filter(emp => emp.is_active === false);
+
+                    // Filter by SPU if set
+                    if (currentSPU !== "") {
+                        filtered = filtered.filter(emp => emp.spu === currentSPU);
+                    }
+
+                    // Sort
+                    if (sortBy === "name") {
+                        filtered.sort((a, b) =>
+                            `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)
+                        );
+                    }
+
+                    // Apply sort order
+                    if (sortOrder === "desc") {
+                        filtered.reverse();
+                    }
+
+                    setAllEmployees(response);
+                    setArchiveEmp(filtered)
+                } catch (error) {
+                    console.error("Failed to fetch employees:", error);
+                }
+            }
+        };
+
+        fetchEmployees();
+    }, [viewMode, currentSPU, sortBy, sortOrder]);
+
+    
     return (
         <>
             <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
@@ -115,13 +161,23 @@ function Archive() {
                     <div className="flex justify-between gap-10">
                         <div className="flex gap-5 justify-between items-center w-full">
                             <div className="flex gap-5 w-full">
+                                <select
+                                    className="text-input font-label max-w-[150px]"
+                                    value={viewMode}
+                                    id="view-toggle"
+                                    onChange={(e) => setViewMode(e.target.value)}
+                                    >
+                                    <option value="cases">Cases</option>
+                                    <option value="employees">Employees</option>
+                                </select>
+
                                 {user?.role === "head" && <select
                                     className="text-input font-label max-w-[30rem]"
                                     value={currentSPU}
                                     id="spu"
                                     onChange={(e) => setCurrentSPU(e.target.value)}
                                 >
-                                    <option value="">Select SPU</option>
+                                    <option value="">All SPUs</option>
                                     {projectLocation.map((project) => (
                                         <option
                                             key={project.projectCode}
@@ -140,7 +196,9 @@ function Archive() {
                                 >
                                     <option value="">Sort By</option>
                                     <option value="name">Name</option>
-                                    <option value="sm_number">CH Number</option>
+                                    {viewMode === "cases" && (
+                                        <option value="sm_number">CH Number</option>
+                                    )}
                                 </select>
 
                                 <button
@@ -163,6 +221,8 @@ function Archive() {
                     </div>
 
                     <div className="flex flex-col w-full gap-3">
+                    {viewMode === "cases" ? (
+                        <>
                         <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
                             <p className="font-bold-label ml-[20%]">Name</p>
                             <p className="font-bold-label text-center">CH Number</p>
@@ -171,22 +231,46 @@ function Archive() {
 
                         {currentData.length === 0 ? (
                             <p className="font-bold-label mx-auto">No Clients Found</p>
+                            ) : (
+                                currentData.map((client) => (
+                                    <ClientEntry
+                                        key={client.id}
+                                        id={client.id}
+                                        sm_number={client.sm_number}
+                                        spu={client.spu}
+                                        name={client.name}
+                                        assigned_sdw_name={client.assigned_sdw_name}
+                                        archive={true}
+                                    />
+                                ))
+                            )}
+                            </>
                         ) : (
-                            currentData.map((client) => (
-                                <ClientEntry
-                                    key={client.id}
-                                    id={client.id}
-                                    sm_number={client.sm_number}
-                                    spu={client.spu}
-                                    name={client.name}
-                                    assigned_sdw_name={client.assigned_sdw_name}
-                                    archive={true}
-                                />
-                            ))
+                            <>
+                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                <p className="font-bold-label ml-[20%]">Worker</p>
+                                <p className="font-bold-label text-center">Type</p>
+                                <p className="font-bold-label text-center">SPU</p>
+                            </div>
+
+                            {archiveEmp.length === 0 ? (
+                                <p className="font-bold-label mx-auto">No Employees Found</p>
+                            ) : (
+                                archiveEmp.map((worker, index) => (
+                                    <WorkerEntry
+                                        key={`${worker._id}-${index}`}
+                                        id={worker.id}
+                                        // sdw_id={worker.sdw_id}
+                                        name={worker.name}
+                                        role={worker.role}
+                                        spu_id={worker.spu}
+                                        archive={true}
+                                    />
+                                ))
+                            )}
+                            </>
                         )}
-
                     </div>
-
                     {/* <button className="font-bold-label mx-auto">Show More</button> */}
                 </div>
             </main>
