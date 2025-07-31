@@ -114,7 +114,8 @@ function CaseClosure() {
                 const formData = returnData.form
                 const caseData = returnData.case
     
-                // console.log("Form Data", formData)
+                console.log("Form Data", formData)
+                console.log(caseData)
     
                 setRawFormData(formData);
                 const user_sdw = returnData.active_user_role === "sdw" ? true : false;
@@ -126,7 +127,7 @@ function CaseClosure() {
                 setnewformID(formData._id)
                 setData((prev) => ({
                     ...prev,
-                    irst_name: caseData.first_name || "",
+                    first_name: caseData.first_name || "",
                     middle_name: caseData.middle_name || "",
                     last_name: caseData.last_name || "",
 
@@ -782,6 +783,7 @@ function CaseClosure() {
                                             await handleDelete();
                                             navigate(`/case/${caseID}`);
                                         }}
+                                        disabled={loading}
                                     >
                                         Delete Request
                                     </button>
@@ -792,6 +794,7 @@ function CaseClosure() {
                                     onClick={async () => {
                                         generateCaseClosureForm(newformID)
                                     }}
+                                    disabled={loading}
                                 >
                                     Download Form
                                 </button>
@@ -801,6 +804,7 @@ function CaseClosure() {
                                 <button
                                     className="btn-outline font-bold-label"
                                     onClick={() => navigate(`/case/${caseID}`)}
+                                    disabled={loading}
                                 >
                                     Cancel
                                 </button>
@@ -814,43 +818,50 @@ function CaseClosure() {
                                         setIsProcessing(true);
                                         setShowConfirm(true)
                                     }}
-                                    disabled={isProcessing}
+                                    disabled={isProcessing || loading || showSuccessModal}
                                 >
-                                    {isProcessing ? "Creating..." : "Create Request"}
+                                    {showSuccessModal
+                                    ? "Request Created"
+                                    : isProcessing
+                                        ? "Creating..."
+                                        : "Create Request"}
                                 </button>
                             </>
                         )}
                     </div>
                 ) : (
-                    <div className="flex w-full justify-center items-center gap-20">
-                        {isTerminated ? (
+                    <div className={`flex w-full items-center ${isTerminated ? 'justify-center' : 'justify-between'}`}>
+                        {!isTerminated && (
+                            <div className="flex gap-4">
                             <button
-                                className="btn-primary font-bold-label"
+                                className="label-base btn-outline"
                                 onClick={async () => {
-                                    generateCaseClosureForm(newformID)
+                                await handleDelete();
+                                navigate(`/case/${caseID}`);
                                 }}
+                                disabled={loading}
                             >
-                                Download Form
+                                Reject Termination
                             </button>
-                        ) : (
-                            <>
-                                <button
-                                    className="label-base btn-outline"
-                                    onClick={async () => {
-                                        await handleDelete();
-                                        navigate(`/case/${caseID}`);
-                                    }}
-                                >
-                                    Reject Termination
-                                </button>
-                                <button
-                                    className="label-base btn-primary"
-                                    onClick={() => setShowConfirm(true)}
-                                >
-                                    Approve Termination
-                                </button>
-                            </>
+                            <button
+                                className="label-base btn-primary"
+                                onClick={() => setShowConfirm(true)}
+                                disabled={loading}
+                            >
+                                Approve Termination
+                            </button>
+                            </div>
                         )}
+
+                        <button
+                            className="btn-primary font-bold-label"
+                            onClick={async () => {
+                            generateCaseClosureForm(newformID);
+                            }}
+                            disabled={loading}
+                        >
+                            Download Form
+                        </button>
                     </div>
                 )}
             
@@ -874,10 +885,12 @@ function CaseClosure() {
                                 
                                 {/* Cancel */}
                                 <button
-                                    onClick={() => 
-                                        setShowConfirm(false)
-                                    }
+                                    onClick={() => {
+                                        setShowConfirm(false);
+                                        setIsProcessing(false);
+                                    }}
                                     className="btn-outline font-bold-label"
+                                    disabled={loading}
                                 >
                                     Cancel
                                 </button>
@@ -894,6 +907,7 @@ function CaseClosure() {
                                             }
                                         }}
                                         className="btn-primary font-bold-label"
+                                        disabled={loading}
                                     >
                                         Confirm
                                     </button>
@@ -905,6 +919,7 @@ function CaseClosure() {
                                             navigate(`/case/${caseID}`);
                                         }}
                                         className="btn-primary font-bold-label"
+                                        disabled={loading}
                                     >
                                         Confirm
                                     </button>
