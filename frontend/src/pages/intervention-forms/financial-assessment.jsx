@@ -724,36 +724,51 @@ function FinancialAssessmentForm() {
                     )}
 
                     {/* Saved Intervention */}
-                    {showSuccessModal && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                            <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
-                                <h2 className="header-sm font-semibold mb-4">Financial Assessment #{form_num} Saved</h2>
-                                <div className="flex justify-end gap-4">
-                                    {/* Go Back to Case */}
-                                    <button
-                                        onClick={() => {
-                                            setShowSuccessModal(false);
-                                            navigate(`/case/${caseID}`);
-                                        }}
-                                        className="btn-outline font-bold-label"
-                                    >
-                                        Go Back to Case
-                                    </button>
+                    <AnimatePresence>
+                        {showSuccessModal && (
+                            <motion.div
+                                key="success-modal"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.95, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8"
+                                >
+                                    <h2 className="header-sm font-semibold mb-4">
+                                        Financial Assessment #{form_num} Saved
+                                    </h2>
+                                    <div className="flex justify-end gap-4">
+                                        <button
+                                            onClick={() => {
+                                                setShowSuccessModal(false);
+                                                navigate(`/case/${caseID}`);
+                                            }}
+                                            className="btn-outline font-bold-label"
+                                        >
+                                            Go Back to Case
+                                        </button>
 
-                                    {/* View Form */}
-                                    <button
-                                        onClick={() => {
-                                            setShowSuccessModal(false);
-                                            navigate(`/financial-assessment-form/?action=view&caseID=${caseID}&formID=${newformID}`);
-                                        }}
-                                        className="btn-primary font-bold-label"
-                                    >
-                                        View Form
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                                        <button
+                                            onClick={() => {
+                                                setShowSuccessModal(false);
+                                                navigate(`/financial-assessment-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                            }}
+                                            className="btn-primary font-bold-label"
+                                        >
+                                            View Form
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
 
                     {/* Missing / Invalid Input */}
                     {showErrorOverlay && (
