@@ -67,7 +67,7 @@ export const updateEmployeeById = async (employeeId, updatedData) => {
 
 export const fetchEmployeeByUsername = async (sdwId) => {
   try {
-    const response = await fetch(`/api/employees/by-username/${sdwId}`, {
+    const response = await fetch(`${apiUrl}/employees/by-username/${sdwId}`, {
       credentials: 'include',
     });
 
@@ -227,7 +227,7 @@ export const fetchSDWViewById = async (sdwId) => {
 
 export const terminateWorker = async (account) => {
   try {
-    const response = await fetch(`/api/delete-account/${account}`, {
+    const response = await fetch(`${apiUrl}/delete-account/${account}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

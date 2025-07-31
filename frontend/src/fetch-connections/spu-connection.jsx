@@ -1,7 +1,15 @@
+
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 // Fetch all SPUs
 export const fetchAllSpus = async () => {
     try {
-        const response = await fetch('/api/spu/getAllSpu');
+        const response = await fetch(`${apiUrl}/spu/getAllSpu`,{
+            method: 'GET',
+            credentials: 'include', 
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
         if (!response.ok) throw new Error("Failed to fetch SPUs");
         return await response.json();
     } catch (error) {
@@ -13,8 +21,9 @@ export const fetchAllSpus = async () => {
 // Create a new SPU
 export const createSpu = async (spu_name) => {
     try {
-        const response = await fetch('/api/spu/addSpu', {
+        const response = await fetch(`${apiUrl}/spu/addSpu`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ spu_name }),
         });
@@ -42,8 +51,12 @@ export const createSpu = async (spu_name) => {
 
 export const deleteSpu = async (spuId) => {
     try {
-        const res = await fetch(`/api/spu/deleteSpu/${spuId}`, {
+        const res = await fetch(`${apiUrl}/spu/deleteSpu/${spuId}`, {
             method: "DELETE",
+            credentials:'include',
+            headers: {
+           'Content-Type': 'application/json'
+        }
         });
         const data = await res.json();
 

@@ -1,4 +1,4 @@
-const apiUrl = import.meta.env.VITE_API_URL || '${apiUrl}';
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 /**
  * Fetches data for Head view, including all active sponsored members and all employees.
  * Session automatically handles authentication through cookies.
