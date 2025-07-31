@@ -524,7 +524,7 @@ function ProgressReport() {
 
     // ===== END :: Functions ===== //
 
-    if (data && !data.is_active) {
+    if (data && !data.is_active && !viewForm) {
         return (
             <div className="text-red-600 font-bold-label">
                 Case has been terminated.

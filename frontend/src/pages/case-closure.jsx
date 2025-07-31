@@ -43,6 +43,7 @@ function CaseClosure() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
+    const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
     const [data, setData] = useState({
         first_name: "",
@@ -876,7 +877,7 @@ function CaseClosure() {
                                 className="label-base btn-outline"
                                 onClick={async () => {
                                 await handleDelete();
-                                navigate(`/case/${caseID}`);
+                                    navigate(`/case/${caseID}`);
                                 }}
                                 disabled={loading}
                             >
@@ -893,6 +894,9 @@ function CaseClosure() {
                                         setShowModal(false);
                                         await handleTermination();
                                         navigate(`/case/${caseID}`);
+                                    });
+                                    setModalOnCancel(() => () => {
+                                        setShowModal(false);
                                     });
                                     setShowModal(true);
                                 }}
@@ -929,6 +933,7 @@ function CaseClosure() {
                             imageCenter={modalImageCenter}
                             confirm={modalConfirm}
                             onConfirm={modalOnConfirm}
+                            onCancel={modalOnCancel}
                         />
                     )}
 
