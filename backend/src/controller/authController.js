@@ -46,13 +46,12 @@ const loginUser = async (req, res) => {
                spu_name: active_user.spu_id?.spu_name || null
           };
 
-          req.session.user = userForSession;
-
+          console.log("session saved ",userForSession);
           if (rememberMe) {
                req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
           }
 
-          return res.status(200).json(active_user);
+          return res.status(200).json(userForSession);
      } catch (error) {
           console.error("Login error:", error);
           return res.status(500).json({ errorMsg: "An error occurred. Please refresh and try again." });
