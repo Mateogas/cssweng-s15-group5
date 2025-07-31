@@ -6,12 +6,14 @@ import { saveAs } from 'file-saver';
 function loadFile(url, callback) {
     PizZipUtils.getBinaryContent(url, callback);
 }
-
+const apiUrl = import.meta.env.VITE_API_URL || '/api';
 // Generic document generator function
 const generateDocument = async (apiEndpoint, templatePath, outputFileName, useSmNumber = false) => {
     try {
         // Fetch data from API
-        const response = await fetch(apiEndpoint);
+        const response = await fetch(apiEndpoint,{
+            credentials:'include'
+        });
         if (!response.ok) {
             throw new Error(`Failed to fetch data from ${apiEndpoint}`);
         }
@@ -54,38 +56,38 @@ const generateDocument = async (apiEndpoint, templatePath, outputFileName, useSm
 // Document configurations
 const DOCUMENT_CONFIGS = {
     caseReport: {
-        apiPath: '/api/file-generator/case-data',
+        apiPath: `${apiUrl}/file-generator/case-data`,
         templatePath: '/templates/TEMPLATE_Social-Case-Study-Report.docx',
         outputName: 'case-report.docx',
         useSmNumber: true
     },
     correspondence: {
-        apiPath: '/api/file-generator/correspondence-form',
+        apiPath: `${apiUrl}/file-generator/correspondence-form`,
         templatePath: '/templates/TEMPLATE_Correspondence-Form.docx',
         outputName: 'correspondence-form.docx'
     },
     counseling: {
-        apiPath: '/api/file-generator/counseling-form',
+        apiPath: `${apiUrl}/file-generator/counseling-form`,
         templatePath: '/templates/TEMPLATE_Counseling-Form.docx',
         outputName: 'counseling-form.docx'
     },
     financial: {
-        apiPath: '/api/file-generator/financial-assessment-form',
+        apiPath: `${apiUrl}/file-generator/financial-assessment-form`,
         templatePath: '/templates/TEMPLATE_Financial-Assessment-Form.docx',
         outputName: 'financial-assessment-form.docx'
     },
     homeVisit: {
-        apiPath: '/api/file-generator/home-visit-form',
+        apiPath: `${apiUrl}/file-generator/home-visit-form`,
         templatePath: '/templates/TEMPLATE_Home-Visit-Form.docx',
         outputName: 'home-visit-form.docx'
     },
     progressReport: {
-        apiPath: '/api/file-generator/progress-report',
+        apiPath: `${apiUrl}/file-generator/progress-report`,
         templatePath: '/templates/TEMPLATE_Progress-Report.docx',
         outputName: 'progress-report.docx'
     },
     caseClosure: {
-        apiPath: '/api/file-generator/case-closure',
+        apiPath: `${apiUrl}/file-generator/case-closure`,
         templatePath: '/templates/TEMPLATE-Case-Closure-Form.docx',
         outputName: 'case-closure.docx',
         useSmNumber: true

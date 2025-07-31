@@ -57,6 +57,7 @@ export const createCaseClosureForm = async(createdData, caseID) => {
                headers: {
                'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(createdData),
           });
           
@@ -80,11 +81,12 @@ export const createCaseClosureForm = async(createdData, caseID) => {
  */
 export const editCaseClosureForm = async(updatedData, caseID) => {
      try {
-          const response = await fetch(`/api/case-closure/edit/${caseID}`, {
+          const response = await fetch(`${apiUrl}/case-closure/edit/${caseID}`, {
                method: 'PUT',
                headers: {
                'Content-Type': 'application/json',
                },
+               credentials:'include',
                body: JSON.stringify(updatedData),
           });
           
@@ -108,11 +110,12 @@ export const editCaseClosureForm = async(updatedData, caseID) => {
  */
 export const terminateCase = async(caseID) => {
      try {
-          const response = await fetch(`/api/case-closure/terminate/${caseID}`, {
+          const response = await fetch(`${apiUrl}/case-closure/terminate/${caseID}`, {
                method: 'PUT',
                headers: {
                'Content-Type': 'application/json',
                },
+               credentials:'include',
           });
           
           if (!response.ok) 
@@ -134,11 +137,12 @@ export const terminateCase = async(caseID) => {
  */
 export const deleteCaseClosureForm = async(caseID) => {
      try {
-          const response = await fetch(`/api/case-closure/delete/${caseID}`, {
+          const response = await fetch(`${apiUrl}/case-closure/delete/${caseID}`, {
                method: 'DELETE',
                headers: {
                'Content-Type': 'application/json',
                },
+               credentials:'include',
           });
           
           if (!response.ok) 
