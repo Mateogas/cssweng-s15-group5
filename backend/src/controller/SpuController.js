@@ -3,6 +3,18 @@ const Spu = require('../model/spu');
 const createSpu = async (req, res) => {
     try {
         const { spu_name } = req.body;
+        const existingSpu = await Spu.findOne({ spu_name: { $regex: `^${spu_name}$`, $options: "i" }, is_active:false});
+        if(existingSpu){
+            existingSpu.spu_name = spu_name
+            existingSpu.is_active = true;
+            existingSpu.createdAt = new Date();
+            await existingSpu.save()
+            return res.status(200).json({
+
+                message:  "Spu reactivated and renamed",
+                spu:existingSpu}    
+            )
+        }
         const newSpu = new Spu({spu_name});
         await newSpu.save();
         res.status(201).json(newSpu);
