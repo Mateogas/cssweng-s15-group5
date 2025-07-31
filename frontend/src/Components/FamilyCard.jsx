@@ -43,6 +43,7 @@ const FamilyCard = ({
     setModalConfirm,
     setModalOnConfirm,
     editable,
+    activeMember = true
 }) => {
     const isEditing = selectedFamily === index;
 
@@ -189,7 +190,7 @@ const FamilyCard = ({
                     </h3>
                 )}
 
-                {editable == "sdw" && (
+                {activeMember && editable == "sdw" && (
                     <button
                         className={
                             isEditing
@@ -347,12 +348,17 @@ const FamilyCard = ({
                             )
                         ) : (
                             <span data-cy={`disp-family-${key}-${index}`}>
-                                {key === "status" || key === "civilStatus"
-                                    ? `: ${member[key] ? member[key][0].toUpperCase() + member[key].slice(1) : "-"}`
-                                    : key === "age"
-                                      ? `: ${member[key] === 0 ? 0 : member[key] || "-"}`
-                                      : `: ${member[key] || "-"}`}
+                                {(() => {
+                                    const value = member[key];
+                                    if (key === "age" || key === "income") {
+                                        {/* console.log("age/income", value); */}
+                                        return `: ${!value ? "0" : value || "-"}`;
+                                    } else {
+                                        return `: ${value || "-"}`;
+                                    }
+                                })()}
                             </span>
+
                         )}
                     </React.Fragment>
                 ))}
@@ -416,3 +422,11 @@ const FamilyCard = ({
 };
 
 export default FamilyCard;
+
+                            {/* <span data-cy={`disp-family-${key}-${index}`}>
+                                {key === "status" || key === "civilStatus"
+                                    ? `: ${member[key] ? member[key][0].toUpperCase() + member[key].slice(1) : "-"}`
+                                    : key === "age"
+                                      ? `: ${member[key] === 0 ? 0 : member[key] || "-"}`
+                                      : `: ${member[key] || "-"}`}
+                            </span> */}

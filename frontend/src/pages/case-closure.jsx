@@ -448,7 +448,7 @@ function CaseClosure() {
                         <div className="arrow-left-button"></div>
                         Go Back
                     </button>
-                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
+                    {/*<h4 className="header-sm self-end">Form #: {form_num}</h4>*/}
                 </div>
                 <h3 className="header-md">Case Closure Report</h3>
 
@@ -458,7 +458,7 @@ function CaseClosure() {
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">Sponsored Member</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-16">
+                        <div className="inline-flex items-start justify-center gap-16">
                             <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Last Name"
@@ -512,7 +512,7 @@ function CaseClosure() {
                         <div className="flex border-b border-[var(--border-color)]">
                             <h4 className="header-sm">General Information</h4>
                         </div>
-                        <div className="inline-flex items-center justify-center gap-16">
+                        <div className="inline-flex items-start justify-center gap-16">
                             <div className="flex flex-col gap-8">
                                 <TextInput
                                     label="Name of SPU/Cluster"
@@ -634,7 +634,7 @@ function CaseClosure() {
                         </select>
                         <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
-                                <div key={index} className="flex w-full justify-between items-center px-4 gap-6">
+                                <div key={index} className="flex w-full justify-between items-center px-15 gap-6">
                                     <TextArea
                                         label={item.service}
                                         value={item.description}
@@ -678,7 +678,7 @@ function CaseClosure() {
                 </section>
 
                 {/* Signature */}
-                <div className="flex w-full flex-col gap-16 px-16 pt-24">
+                {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                     <div className="flex w-full justify-between">
                         <Signature label="Prepared by:" signer="Social Development Worker" date={true}></Signature>
                         <Signature label="Conforme by:" signer="SM/Guardian" date={true}></Signature>
@@ -687,7 +687,7 @@ function CaseClosure() {
                     <div className="flex w-full justify-between">
                         <Signature label="Noted by:" signer="SPC Coordinator"date={true}></Signature>
                     </div>
-                </div>
+                </div>*/}
 
                 {/* Buttons */}
                 {sdw_view ? (

@@ -12,6 +12,7 @@ import {
     editHomeVis,
     deleteHomeVis,
 } from "../../fetch-connections/homeVisitation-connection";
+import { generateHomeVisitForm } from "../../generate-documents/generate-documents";
 
 
 function useQuery() {
@@ -27,8 +28,8 @@ function HomeVisitationForm() {
     const caseID = query.get('caseID') || ""; 
     const formID = query.get('formID') || "";  
 
-    console.log("Home Visit");
-    console.log("Home Visit Case ID: ", caseID);
+    // console.log("Home Visit");
+    // console.log("Home Visit Case ID: ", caseID);
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -36,6 +37,13 @@ function HomeVisitationForm() {
     const [rawMotherData, setRawMotherData] = useState(null);
     const [rawOtherFamilyData, setRawOtherFamilyData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
+
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [data, setData] = useState({
         form_num: "",
@@ -76,6 +84,10 @@ function HomeVisitationForm() {
                 setLoading(true);
 
                 const returnData = await fetchCaseData(caseID);
+                if(!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
                 const caseData = returnData.case
                 const fatherData = returnData.father
                 const motherData = returnData.mother
@@ -150,6 +162,10 @@ function HomeVisitationForm() {
                     caseID,
                     formID,
                 );
+                if (!returnFormData) {
+                    setNoFormFound(true)
+                    return
+                }
                 const caseData = returnFormData.case
                 const formData = returnFormData.form;
                 const otherFamilyData = formData.familyMembers
@@ -292,15 +308,16 @@ function HomeVisitationForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -346,9 +363,15 @@ function HomeVisitationForm() {
             observation_findings,
             interventions,
         };
-
         // console.log("Payload: ", payload);
+
         const response = await createHomeVis(payload, caseID); 
+        if (response?.form?._id) {
+            setnewformID(response.form._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -436,13 +459,7 @@ function HomeVisitationForm() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -580,6 +597,48 @@ function HomeVisitationForm() {
 
     if (!data) return <div>No data found.</div>;
 
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    Home Visitation Report
+                </h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    Home Visitation Report
+                </h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
+
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
@@ -639,7 +698,7 @@ function HomeVisitationForm() {
                                 disabled={viewForm}
                             ></TextInput>
                             <div className="flex flex-col">
-                                <div className="flex items-center gap-16">
+                                <div className="flex items-center gap-20">
                                     <p className="label-base w-64">Family Type</p>
                                     <select
                                         name="family_type"
@@ -696,7 +755,7 @@ function HomeVisitationForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <DateInput
                                 label="Date"
@@ -818,7 +877,7 @@ function HomeVisitationForm() {
                 </h3>
 
                 {familyMembers.length === 0 ? (
-                    <div className="text-muted-foreground text-sm italic">
+                    <div className="w-full text-center font-bold-label p-6 border rounded-lg">
                     No other family members registered.
                     </div>
                 ) : (
@@ -919,20 +978,15 @@ function HomeVisitationForm() {
                 </div>
             </section>
 
-            {/* Signature */}
-            <div className="flex w-full justify-between px-16 pt-24">
-                <Signature label="Visited by:"></Signature>
-                <Signature label="Attested by:"></Signature>
-            </div>
-
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
+                            type="button"
+                            className="btn-primary font-bold-label w-min"
                             onClick={() => 
-                                setShowConfirm(true)
+                                generateHomeVisitForm(formID)
                             }
                         >
                            Download Form
@@ -941,51 +995,65 @@ function HomeVisitationForm() {
                 ) : (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => navigate(`/case/${caseID}`)}
+                            className={`btn-outline font-bold-label ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => {
+                                if (!isProcessing) {
+                                    navigate(`/case/${caseID}`);
+                                }
+                            }}
+                            disabled={isProcessing}
                         >
                             Cancel
                         </button>
                         <button
-                            type="submmit"
-                            className="btn-primary font-bold-label w-min"
+                            type="submit"
+                            className={`btn-primary font-bold-label w-min ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                e.preventDefault(); 
+                                setIsProcessing(true);
+                                const success = await handleSubmit(e);
+                                if (success) {
+                                    setShowSuccessModal(true);
+                                }
+                                setIsProcessing(false);
                             }}
+                            disabled={isProcessing}
                         >
-                            Create Intervention
+                            {isProcessing ? "Creating..." : "Create Intervention"}
                         </button>
                     </>
                 )}
 
-                {/* Confirm Delete Form */}
-                {showConfirm && (
+                {/* Saved Intervention */}
+                {showSuccessModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
-                            <h2 className="header-md font-semibold mb-4">Delete Form</h2>
-                            <p className="label-base mb-6">Are you sure you want to delete this form?</p>
+                            <h2 className="header-sm font-semibold mb-4">Home Intervention #{form_num} Saved</h2>
                             <div className="flex justify-end gap-4">
-                                
-                                {/* Cancel */}
+                                {/* Go Back to Case */}
                                 <button
-                                    onClick={() => 
-                                        setShowConfirm(false)
-                                    }
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
                                     className="btn-outline font-bold-label"
                                 >
-                                    Cancel
+                                    Go Back to Case
                                 </button>
 
-                                {/* Delete Form */}
+                                {/* View Form */}
                                 <button
-                                    onClick={async () => {
-                                        await handleDelete();
-                                        setShowConfirm(false);
-                                        navigate(`/case/${caseID}`);
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/home-visitation-form/?action=view&caseID=${caseID}&formID=${newformID}`);
                                     }}
                                     className="btn-primary font-bold-label"
                                 >
-                                    Confirm
+                                    View Form
                                 </button>
                             </div>
                         </div>
@@ -1022,10 +1090,26 @@ function HomeVisitationForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

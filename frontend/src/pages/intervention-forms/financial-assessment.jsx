@@ -12,6 +12,8 @@ import  {   fetchFinInterventionData,
         }
 from '../../fetch-connections/financialForm-connection'; 
 
+import { generateFinancialAssessmentForm  } from "../../generate-documents/generate-documents";
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -31,6 +33,13 @@ function FinancialAssessmentForm() {
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
+
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [data, setData] = useState({
         form_num: "",
@@ -59,33 +68,42 @@ function FinancialAssessmentForm() {
     const [type_of_assistance, setTypeOfAssistance] = useState([]);
 
     // ===== START :: Create New Form ===== // 
+    const viewForm = action !== 'create' ? true : false;
+
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
+
+                const returnData = await fetchAutoFillFinancialData(caseID);
+                if (!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
+                const caseData = returnData.returningData;
+
+                console.log(caseData)
+
+                setRawCaseData(caseData);
+
+                setData((prev) => ({
+                    ...prev,
+                    form_num: caseData.intervention_number || "",
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    area_and_subproject: caseData.spu || "",
+                }));
+
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+    }
 
     useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-
-            const returnData = await fetchAutoFillFinancialData(caseID);
-            const caseData = returnData.returningData;
-
-            console.log(caseData)
-
-            setRawCaseData(caseData);
-
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
-                ch_number: caseData.sm_number || "",
-                area_and_subproject: caseData.spu || "",
-            }));
-
-            setLoading(false);
-        };
-        loadData();
-    }, []);
-
-    useEffect(() => {
+        setFormNum(data.form_num || "");
         setFirstName(data.first_name || "");
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
@@ -96,8 +114,6 @@ function FinancialAssessmentForm() {
     // ===== END :: Create New Form ===== // 
 
     // ===== START :: View Form ===== //
-    
-    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
@@ -107,14 +123,26 @@ function FinancialAssessmentForm() {
                 const returnFormData = await fetchFinInterventionData(
                     caseID, formID
                 );
+                if (!returnFormData) {
+                    setNoFormFound(true)
+                    return
+                }
+
                 const formData = returnFormData.form;
+                const caseData = returnFormData.sponsored_member;
 
                 console.log("form Data", formData);
-
                 setRawFormData(formData);
 
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    area_and_subproject: caseData.spu || "",
+
+                    form_num: formData.intervention_number || "",
                     date: formData.createdAt || "",
                     problem_presented: formData.problem_presented || "",
                     recommendation: formData.recommendation || "",
@@ -128,6 +156,7 @@ function FinancialAssessmentForm() {
         }, []);
 
         useEffect(() => {
+            setFormNum(data.form_num || "");
             setOtherAssistance(data.other_assistance_detail || "");
             setProblemPresented(data.problem_presented || "");
             setRecommendation(data.recommendation || "");
@@ -146,7 +175,6 @@ function FinancialAssessmentForm() {
 
     const validateForm = () => {
         const newErrors = {};
-
         const requiredFields = {
             type_of_assistance,
             problem_presented,
@@ -154,7 +182,6 @@ function FinancialAssessmentForm() {
         };
 
         Object.entries(requiredFields).forEach(([field, value]) => {
-
             if (
                 value === undefined ||               
                 value === null ||                    
@@ -168,13 +195,11 @@ function FinancialAssessmentForm() {
         if (type_of_assistance.length === 0) {
             newErrors["type_of_assistance"] = "Please select at least one type of assistance.";
         }
-        
-        if (type_of_assistance.includes("Other: Please Indicate Below")) {
+        if (type_of_assistance.includes("Other: Please Indicate Below") && other_assistance_detail == "") {
             newErrors["other_assistance_detail"] = "Please indicate the type of assistance.";
         }
 
         setErrors(newErrors);
-
         return Object.keys(newErrors).length === 0; 
     };
 
@@ -184,15 +209,16 @@ function FinancialAssessmentForm() {
 
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -205,10 +231,15 @@ function FinancialAssessmentForm() {
             problem_presented,
             recommendation
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createFinancialForm(caseID, payload); 
+        if (response?._id) {
+            setnewformID(response._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -225,7 +256,6 @@ function FinancialAssessmentForm() {
         };
 
         console.log("Payload: ", updatedPayload);
-
         const response = await editFinancialForm(formID, updatedPayload); 
     };
 
@@ -234,7 +264,6 @@ function FinancialAssessmentForm() {
     // < START :: Delete Form > //
 
     const handleDelete = async () => {
-
         const response = await deleteCorrespInterventionForm(formID); 
     };
 
@@ -275,13 +304,7 @@ function FinancialAssessmentForm() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -311,6 +334,48 @@ function FinancialAssessmentForm() {
     // ===== END :: Local Functions ===== //
 
     if (!data) return <div>No data found.</div>;
+
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    Assessment Form for Special Family Assistance
+                </h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    Assessment Form for Special Family Assistance
+                </h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
@@ -343,13 +408,14 @@ function FinancialAssessmentForm() {
                                         handleCheckboxChange(e.target.value)
                                         handleChange("Type of Assistance")(e)
                                     }}
+                                    disabled = {viewForm}
                                 />
                                 {item}
                             </label>
                         ))}
                     </div>
                     <div className="flex flex-col gap-4">
-                        {all_assistance.slice(4, 8).map((item, index) => (
+                        {all_assistance.slice(4, 8).map((item, index, arr) => (
                             <label key={`assistance_${index}`} className="body-base flex gap-4">
                                 <input
                                     type="checkbox"
@@ -359,7 +425,15 @@ function FinancialAssessmentForm() {
                                     onChange={(e) => {
                                         handleCheckboxChange(e.target.value);
                                         handleChange("Type of Assistance")(e);
+
+                                        const isLast = index === arr.length - 1;
+                                        const isChecked = e.target.checked;
+
+                                        if (isLast && !isChecked) {
+                                            setOtherAssistance("");
+                                        }
                                     }}
+                                    disabled = {viewForm}
                                 />
                                 {item}
                             </label>
@@ -375,6 +449,7 @@ function FinancialAssessmentForm() {
                             }}
                             placeholder="Form of Assistance"
                             className={`body-base text-input h-32 w-full ${errors["other_assistance_detail"] ? "text-input-error" : ""}`}
+                            disabled={!type_of_assistance.includes(all_assistance[7]) || viewForm}
                         ></textarea>
                         {errors["other_assistance_detail"] && (
                             <div className="text-red-500 text-sm self-end">
@@ -400,7 +475,7 @@ function FinancialAssessmentForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
@@ -441,6 +516,7 @@ function FinancialAssessmentForm() {
                     value={problem_presented}
                     setValue={setProblemPresented}
                     error={errors["problem_presented"]}
+                    disabled = {viewForm}
                 ></TextArea>
             </section>
 
@@ -451,11 +527,12 @@ function FinancialAssessmentForm() {
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
+                    disabled = {viewForm}
                 ></TextArea>
             </section>
 
             {/* Signature */}
-            <div className="flex w-full flex-col gap-16 px-16 pt-24">
+            {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                 <div className="flex w-full justify-between">
                     <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
                     <Signature label="Noted by:" signer="OIC-Cluster Coordinator"></Signature>
@@ -464,45 +541,53 @@ function FinancialAssessmentForm() {
                 <div className="flex w-full justify-between">
                     <Signature label="Checked and Reviewed by:" signer="Finance Staff"></Signature>
                 </div>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
+                            className="btn-primary font-bold-label w-min"
                             onClick={() => 
-                                setShowConfirm(true)
+                               generateFinancialAssessmentForm(formID)
                             }
                         >
-                            Delete Form
-                        </button>
-                        <button
-                            className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleUpdate();
-                                navigate(`/case/${caseID}`);
-                            }}
-                        >
-                            Save Changes
+                            Download Form
                         </button>
                     </>
                 ) : (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => navigate(`/case/${caseID}`)}
+                            className={`btn-outline font-bold-label ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => {
+                                if (!isProcessing) {
+                                    navigate(`/case/${caseID}`);
+                                }
+                            }}
+                            disabled={isProcessing}
                         >
                             Cancel
                         </button>
                         <button
-                            className="btn-primary font-bold-label w-min"
+                            type="submit"
+                            className={`btn-primary font-bold-label w-min ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                e.preventDefault(); 
+                                setIsProcessing(true);
+                                const success = await handleSubmit(e);
+                                if (success) {
+                                    setShowSuccessModal(true);
+                                }
+                                setIsProcessing(false);
                             }}
+                            disabled={isProcessing}
                         >
-                            Create Intervention
+                            {isProcessing ? "Creating..." : "Create Intervention"}
                         </button>
                     </>
                 )}
@@ -541,6 +626,38 @@ function FinancialAssessmentForm() {
                     </div>
                 )}
 
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Financial Assessment #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/financial-assessment-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Missing / Invalid Input */}
                 {showErrorOverlay && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -571,10 +688,26 @@ function FinancialAssessmentForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

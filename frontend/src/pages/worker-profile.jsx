@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchSDWs } from "../fetch-connections/case-connection";
-import { fetchEmployeeById, updateEmployeeById } from "../fetch-connections/account-connection";
+import { fetchEmployeeById, updateEmployeeById, terminateWorker } from "../fetch-connections/account-connection";
 import SimpleModal from "../Components/SimpleModal";
 import { fetchSDWViewById, fetchHeadViewBySupervisor, fetchHeadViewBySpu } from "../fetch-connections/account-connection";
 import WorkerEntry from "../Components/WorkerEntry";
@@ -11,6 +11,8 @@ import { logoutUser } from "../fetch-connections/account-connection";
 import ChangePassword from "../Components/ChangePassword";
 import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
 import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connections/account-connection";
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
+import NotFound from "./NotFound";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
@@ -26,21 +28,14 @@ export default function WorkerProfile() {
     const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
     const [modalOnClose, setModalOnClose] = useState(() => null);
 
+    const [showConfirmTerminate, setShowConfirmTerminate] = useState(false);
+
     const [handledClients, setHandledClients] = useState([]);
     const [handledWorkers, setHandledWorkers] = useState([]);
 
     const [user, setUser] = useState(null);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-
-    useEffect(() => {
-        const loadSession = async () => {
-            const sessionData = await fetchSession();
-            setUser(sessionData?.user || null);
-            console.log("Session:", sessionData?.user);
-        };
-
-        loadSession();
-    }, []);
+    const [loading, setLoading] = useState(true);
 
     const [data, setData] = useState({
         first_name: "",
@@ -52,8 +47,10 @@ export default function WorkerProfile() {
         // sdw_id: "",
         area: "",
         spu_id: "",
+        spu_name: "",
         role: "",
         manager: "",
+        is_active: true,
     });
 
     const [drafts, setDrafts] = useState({
@@ -66,34 +63,22 @@ export default function WorkerProfile() {
         // sdw_id: "",
         area: "",
         spu_id: "",
+        spu_name: "",
         role: "",
         manager: "",
     });
 
     const [editingField, setEditingField] = useState(null);
 
-    const projectLocation = [
-        { name: "AMP", projectCode: "AMP" },
-        { name: "FDQ", projectCode: "FDQ" },
-        { name: "MPH", projectCode: "MPH" },
-        { name: "MS", projectCode: "MS" },
-        { name: "AP", projectCode: "AP" },
-        { name: "AV", projectCode: "AV" },
-        { name: "MM", projectCode: "MM" },
-        { name: "MMP", projectCode: "MMP" },
-    ];
-
-    useEffect(() => {
-        const loadSDWs = async () => {
-            const sdws = await fetchSDWs();
-            setSocialDevelopmentWorkers(sdws);
-        };
-        loadSDWs();
-    }, []);
+    const [projectLocation, setProjectLocation] = useState([])
+    const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
         const loadWorker = async () => {
-            if (!workerId) return;
+            if (!workerId) {
+                setLoading(false);
+                return;
+            };
 
             const { ok, data: empData } = await fetchEmployeeById(workerId);
 
@@ -101,6 +86,7 @@ export default function WorkerProfile() {
                 console.log("Fetched worker:", empData);
 
                 setData({
+                    _id: empData._id,
                     first_name: empData.first_name || "",
                     middle_name: empData.middle_name || "",
                     last_name: empData.last_name || "",
@@ -108,10 +94,11 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
-                    area:  empData.area || "",
-                    spu_id: empData.spu_id || "",
+                    area: empData.area || "",
+                    spu_id: empData.spu_id.spu_name || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
+                    is_active: empData.is_active ?? true
                 });
 
                 setDrafts({
@@ -123,22 +110,58 @@ export default function WorkerProfile() {
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id || "",
+                    spu_id: empData.spu_id.spu_name || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
+                setLoading(false);
             } else {
-                console.error("Failed to fetch worker:", empData.message);
+                setNotFound(true);
+                setLoading(false);
+                return;
             }
         };
 
         loadWorker();
+        // console.log("drafts", drafts);
     }, [workerId]);
 
     useEffect(() => {
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            setUser(sessionData?.user || null);
+            console.log("Session:", sessionData?.user);
+        };
+        loadSession();
+    }, []);
+
+    useEffect(() => {
+        const loadSDWs = async () => {
+            const sdws = await fetchSDWs();
+            setSocialDevelopmentWorkers(sdws);
+        };
+        loadSDWs();
+
+        const loadSPUs = async () => {
+            const spus = await fetchAllSpus();
+
+            const filtered = spus.filter(
+                (spu) => spu.is_active === true
+            );
+
+            setProjectLocation(filtered);
+        };
+        loadSPUs();
+    }, []);
+
+    useEffect(() => {
         const filtered = socialDevelopmentWorkers.filter(
-            (w) => w.spu_id === drafts.spu_id && w.role === 'supervisor'
+            (w) =>
+                w.spu_id === drafts.spu_id &&
+                w.role === 'supervisor' &&
+                w.is_active === true
         );
+
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
 
@@ -151,31 +174,53 @@ export default function WorkerProfile() {
     useEffect(() => {
         if (!data.role || !workerId) return;
 
+        // const loadHandled = async () => {
+        //     if (data.role === "sdw") {
+        //         const res = await fetchSDWViewById(workerId);
+        //         setHandledClients(res || []);
+        //     } else if (data.role === "supervisor") {
+        //         const res = await fetchHeadViewBySupervisor(workerId);
+        //         setHandledWorkers(res || []);
+        //     } else if (data.role === "head") {
+        //         const res = await fetchHeadViewBySpu(data.spu_id);
+        //         setHandledWorkers(res.employees || []);
+        //     }
+        // };
+
         const loadHandled = async () => {
             if (data.role === "sdw") {
                 const res = await fetchSDWViewById(workerId);
-                setHandledClients(res || []);
+                const activeClients = (res || []).filter((client) => client.is_active === true);
+                setHandledClients(activeClients);
             } else if (data.role === "supervisor") {
                 const res = await fetchHeadViewBySupervisor(workerId);
-                setHandledWorkers(res || []);
+                const activeWorkers = (res || []).filter((worker) => worker.is_active === true);
+                setHandledWorkers(activeWorkers);
             } else if (data.role === "head") {
                 const res = await fetchHeadViewBySpu(data.spu_id);
-                setHandledWorkers(res.employees || []);
+                const activeEmployees = (res.employees || []).filter((emp) => emp.is_active === true);
+                setHandledWorkers(activeEmployees);
             }
         };
+
 
         loadHandled();
     }, [data.role, data.spu_id, workerId]);
 
+    const [showTerminateError, setShowTerminateError] = useState(false);
+    const [terminateErrorMessage, setTerminateErrorMessage] = useState("");
+    const handleTerminate = async () => {
+        console.log("Terminating worker...");
+        const result = await terminateWorker(workerId);
 
-    useEffect(() => {
-        console.log("handledWorkers updated:", handledWorkers);
-    }, [handledWorkers]);
-
-    useEffect(() => {
-        console.log("handledClients updated:", handledClients);
-    }, [handledClients]);
-
+        if (result.success) {
+            window.location.reload();
+        } else {
+            // alert("Failed to terminate: " + result.message);
+            setTerminateErrorMessage(result.message || "Failed to terminate account.");
+            setShowTerminateError(true);
+        }
+    };
 
     const resetFields = () => {
         setDrafts({
@@ -193,6 +238,14 @@ export default function WorkerProfile() {
         });
         setEditingField(null);
     };
+
+    function formatListWithAnd(arr) {
+        if (arr.length === 0) return "";
+        if (arr.length === 1) return arr[0];
+        if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+        const last = arr[arr.length - 1];
+        return `${arr.slice(0, -1).join(", ")}, and ${last}`;
+    }
 
     const checkEmployeeCore = async () => {
         const missing = [];
@@ -247,7 +300,7 @@ export default function WorkerProfile() {
         if (!drafts.contact_no) {
             missing.push("Contact Number");
         } else if (!/^\d{11}$/.test(drafts.contact_no)) {
-            missing.push("Contact Number must be 11 digits");
+            missing.push("Contact Number must be 11 numerical digits");
         }
 
         // if (!drafts.sdw_id) {
@@ -278,6 +331,41 @@ export default function WorkerProfile() {
             missing.push("SPU Project");
         }
 
+        const hasSPUChanged = drafts.spu_id !== data.spu_id;
+        const hasRoleChanged = drafts.role !== data.role;
+
+        if (hasSPUChanged) {
+            if (data.role === "sdw" && handledClients.length > 0) {
+                setModalTitle("SPU Change Not Allowed");
+                setModalBody("This SDW is currently assigned to clients. Please reassign all clients before changing SPU.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
+
+            if (data.role === "supervisor" && handledWorkers.length > 0) {
+                setModalTitle("SPU Change Not Allowed");
+                setModalBody("This supervisor is currently managing SDWs. Please reassign all workers before changing SPU.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
+        }
+
+        if (hasRoleChanged) {
+            if (data.role === "sdw" && handledClients.length > 0) {
+                setModalTitle("Role Change Not Allowed");
+                setModalBody("This SDW is currently assigned to clients. Please reassign all clients before changing role as they would lose access to their cases.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
+        }
+
+
         if (!drafts.role) {
             missing.push("Role");
         }
@@ -285,7 +373,7 @@ export default function WorkerProfile() {
         if (drafts.role === "sdw") {
             if (!drafts.manager || drafts.manager.trim() === "") {
                 drafts.manager = "";
-                // missing.push("Supervisor must be selected for SDW role");
+                missing.push("Supervisor must be selected for SDW role");
             } else {
                 const validSupervisorIds = socialDevelopmentWorkers
                     .filter((w) => w.spu_id === drafts.spu_id && w.role === "supervisor")
@@ -304,11 +392,17 @@ export default function WorkerProfile() {
 
         if (missing.length > 0) {
             setModalTitle("Invalid Fields");
-            setModalBody(`The following fields are missing or invalid:\n\n${missing.join("\n")}`);
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
             setModalImageCenter(<div className="warning-icon mx-auto"></div>);
             setModalConfirm(false);
             setShowModal(true);
             return false;
+        }
+
+        const isSelf = user?._id === workerId;
+        const demotion = data.role === "head" && drafts.role !== "head";
+        if (isSelf && demotion) {
+            return "demotion";
         }
 
         return true;
@@ -327,160 +421,210 @@ export default function WorkerProfile() {
         }
     };
 
+    if (loading) return null;
 
     return (
         <>
-
-            <ChangePassword
-                isOpen={isChangePasswordOpen}
-                onClose={() => setIsChangePasswordOpen(false)}
-                onSubmit={async (passwordData) => {
-                    const { ok, data } = await updateEmployeePasswordById(workerId, passwordData);
-
-                    if (ok) {
-                        setIsChangePasswordOpen(false);
-                    } else {
-                        setModalTitle("Error");
-                        setModalBody(data.message || "Failed to update password.");
-                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                        setShowModal(true);
-                    }
-                }}
-                userId={workerId}
-            />
-
-            <SimpleModal
-                isOpen={showModal}
-                onClose={() => {
-                    if (modalOnClose) modalOnClose();
-                    setShowModal(false);
-                    setModalTitle("");
-                    setModalBody("");
-                    setModalImageCenter(null);
-                    setModalConfirm(false);
-                    setModalOnConfirm(() => { });
-                    setModalOnClose(() => null);
-                }}
-                title={modalTitle}
-                bodyText={modalBody}
-                imageCenter={modalImageCenter}
-                confirm={modalConfirm}
-                onConfirm={() => {
-                    modalOnConfirm?.();
-                    setShowModal(false);
-                }}
-            />
-
-            <main className="flex flex-col gap-20 pt-15">
-                <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3 px-4">
-                    <button
-                        className="flex items-center gap-5 px-4 py-2 font-bold-label arrow-group"
-                        onClick={() => navigate("/")}
-                    >
-                        <div className="arrow-left-button"></div>
-                        Back
-                    </button>
-                </div>
-
-                <section className="flex flex-col gap-5" id="core-fields">
-                    {editingField === "core-fields" && (
-                        <div className="flex justify-between items-center">
-                            <h1 className="header-main">Worker Profile</h1>
-                            <button
-                                className="icon-button-setup x-button"
-                                onClick={resetFields}
-                            ></button>
+            {showTerminateError && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
+                                    animate-fadeIn scale-100 transform transition duration-300">
+                        <div className="flex items-center gap-4 border-b-1">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-[2.4rem] w-[2.4rem] text-red-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                                />
+                            </svg>
+                            <h2 className="header-sm font-bold text-red-600 text-center">
+                                Termination Failed
+                            </h2>
                         </div>
-                    )}
+                        <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                            {terminateErrorMessage || "An unexpected error occurred while attempting to terminate the account."}
+                        </p>
 
-                    {editingField === "core-fields" ? (
-                        <>
-                            <div className="flex gap-5 w-full">
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
-                                    <input
-                                        placeholder="First Name"
-                                        type="text"
-                                        value={drafts.first_name}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, first_name: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
+                        <button
+                            onClick={() => setShowTerminateError(false)}
+                            className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {notFound ? (
+                <NotFound message="The profile you are looking for does not exist." />
+            ) : (
+                <>
+                    <ChangePassword
+                        isOpen={isChangePasswordOpen}
+                        onClose={() => setIsChangePasswordOpen(false)}
+                        onSubmit={async (passwordData) => {
+                            const { ok, data } = await updateEmployeePasswordById(workerId, passwordData);
+
+                            if (ok) {
+                                setIsChangePasswordOpen(false);
+                            } else {
+                                setModalTitle("Error");
+                                setModalBody(data.message || "Failed to update password.");
+                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                setShowModal(true);
+                            }
+                        }}
+                        userId={workerId}
+                    />
+
+                    <SimpleModal
+                        isOpen={showModal}
+                        onClose={() => {
+                            if (modalOnClose) modalOnClose();
+                            setShowModal(false);
+                            setModalTitle("");
+                            setModalBody("");
+                            setModalImageCenter(null);
+                            setModalConfirm(false);
+                            setModalOnConfirm(() => { });
+                            setModalOnClose(() => null);
+                        }}
+                        title={modalTitle}
+                        bodyText={modalBody}
+                        imageCenter={modalImageCenter}
+                        confirm={modalConfirm}
+                        onConfirm={() => {
+                            modalOnConfirm?.();
+                            setShowModal(false);
+                        }}
+                    />
+
+                    <main className="flex flex-col gap-20 pt-15">
+                        <div className="w-full max-w-[1280px] mx-auto flex justify-between items-center bg-white py-3">
+                            <button
+                                className="flex items-center gap-5 py-2 font-bold-label arrow-group"
+                                onClick={() => navigate("/")}
+                            >
+                                <div className="arrow-left-button"></div>
+                                Back
+                            </button>
+                        </div>
+
+                        <span
+                            className={`font-bold-label w-fit rounded-full p-2 px-8 !text-white whitespace-nowrap ${data.is_active === true ? "bg-[var(--color-green)]" : "bg-[var(--accent-dark)]"
+                                } inline-block`}
+                        >
+                            {data.is_active === true ? "Active" : "Inactive"}
+                        </span>
+
+                        <section className="flex flex-col gap-5" id="core-fields">
+                            {editingField === "core-fields" && (
+                                <div className="flex justify-between items-center">
+                                    <h1 className="header-main">Worker Profile</h1>
+                                    {data.is_active === true && (
+                                        <button
+                                            className="icon-button-setup x-button"
+                                            onClick={resetFields}
+                                        ></button>
+                                    )}
                                 </div>
+                            )}
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Middle Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Middle Name"
-                                        value={drafts.middle_name}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, middle_name: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                            {editingField === "core-fields" ? (
+                                <>
+                                    <div className="flex gap-5 w-full">
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> First Name</label>
+                                            <input
+                                                placeholder="First Name"
+                                                type="text"
+                                                value={drafts.first_name}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, first_name: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Last Name"
-                                        value={drafts.last_name}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, last_name: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
-                            </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label">Middle Name</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Middle Name"
+                                                value={drafts.middle_name}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, middle_name: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                            {/* === Row 2 === */}
-                            <div className="flex gap-5 w-full mt-5">
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Username"
-                                        value={drafts.username}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, username: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Last Name</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Last Name"
+                                                value={drafts.last_name}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, last_name: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Email"
-                                        value={drafts.email}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, email: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                                    {/* === Row 2 === */}
+                                    <div className="flex gap-5 w-full mt-5">
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Username</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Username"
+                                                value={drafts.username}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, username: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Contact Number"
-                                        value={drafts.contact_no}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, contact_no: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
-                            </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Email</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Email"
+                                                value={drafts.email}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, email: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                            {/* === Row 3 === */}
-                            <div className="flex gap-5 w-full mt-5">
-                                {/* <div className="flex flex-col w-full">
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Contact Number</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Contact Number"
+                                                value={drafts.contact_no}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, contact_no: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* === Row 3 === */}
+                                    <div className="flex gap-5 w-full mt-5">
+                                        {/* <div className="flex flex-col w-full">
                                     <label className="font-bold-label"><span className='text-red-500'>*</span> SDW ID</label>
                                     <input
                                         type="text"
@@ -492,238 +636,338 @@ export default function WorkerProfile() {
                                     />
                                 </div> */}
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.spu_id}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, spu_id: e.target.value }))
-                                        }
-                                    >
-                                        <option value="">Select SPU</option>
-                                        {projectLocation.map((project) => (
-                                            <option key={project.projectCode} value={project.projectCode}>
-                                                {project.name} ({project.projectCode})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.spu_id}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, spu_id: e.target.value }))
+                                                }
+                                            >
+                                                <option value="">Select SPU</option>
+                                                {projectLocation.map((spu) => (
+                                                    <option key={spu._id} value={spu.spu_name}>
+                                                        {spu.spu_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Area of Assignment</label>
-                                    <input
-                                        type="text"
-                                        value={drafts.area}
-                                        placeholder="Area of Assignment"
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, area: e.target.value }))
-                                        }
-                                        className="text-input font-label w-full"
-                                    />
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label">Area of Assignment</label>
+                                            <input
+                                                type="text"
+                                                value={drafts.area}
+                                                placeholder="Area of Assignment"
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, area: e.target.value }))
+                                                }
+                                                className="text-input font-label w-full"
+                                            />
+                                        </div>
 
-                                <div className="flex flex-col w-full">
-                                    <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
-                                    <select
-                                        disabled={user?.role !== "head"}
-                                        className="text-input font-label"
-                                        value={drafts.role}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, role: e.target.value }))
-                                        }
-                                    >
-                                        <option value="">Select Role</option>
-                                        {user?.role == "head" && <option value="head">Head</option>}
-                                        <option value="supervisor">Supervisor</option>
-                                        <option value="sdw">Social Development Worker</option>
-                                    </select>
-                                </div>
+                                        <div className="flex flex-col w-full">
+                                            <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
+                                            <select
+                                                disabled={user?.role !== "head"}
+                                                className="text-input font-label"
+                                                value={drafts.role}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, role: e.target.value }))
+                                                }
+                                            >
+                                                <option value="">Select Role</option>
+                                                {user?.role == "head" && <option value="head">Head</option>}
+                                                <option value="supervisor">Supervisor</option>
+                                                <option value="sdw">Social Development Worker</option>
+                                            </select>
+                                        </div>
 
-                                {(drafts.role === "" || drafts.role === "sdw") && (<div className="flex flex-col w-full">
-                                    <label className="font-bold-label">Manager</label>
-                                    <select
-                                        className="text-input font-label"
-                                        value={drafts.manager}
-                                        onChange={(e) =>
-                                            setDrafts((prev) => ({ ...prev, manager: e.target.value }))
-                                        }
+                                        {(drafts.role === "" || drafts.role === "sdw") && (<div className="flex flex-col w-full">
+                                            <label className="font-bold-label">Manager</label>
+                                            <select
+                                                className="text-input font-label"
+                                                value={drafts.manager}
+                                                onChange={(e) =>
+                                                    setDrafts((prev) => ({ ...prev, manager: e.target.value }))
+                                                }
+                                            >
+                                                <option value="">Select Manager</option>
+                                                {(drafts.role === "sdw" ? supervisors : socialDevelopmentWorkers).map(
+                                                    (person) => (
+                                                        <option key={person._id || person.id} value={person._id || person.id}>
+                                                            {person.username
+                                                                ? person.username
+                                                                : `${person.first_name} ${person.middle_name || ""} ${person.last_name}`}
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>)}
+                                    </div>
+
+                                    <button
+                                        className="btn-transparent-rounded my-3 ml-auto"
+                                        onClick={async () => {
+                                            const isValid = await checkEmployeeCore();
+                                            if (isValid === false) return;
+
+                                            const payload = {
+                                                ...drafts,
+                                                manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
+                                            };
+
+
+                                            if (isValid === "demotion") {
+                                                setModalTitle("Role Demotion");
+                                                setModalBody("You are about to change your own role from Head to another role. You will lose access to employee data changing and other head-exclusive privileges. Are you sure you want to proceed?");
+                                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                setModalConfirm(true);
+
+                                                setModalOnConfirm(() => async () => {
+                                                    const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                                    if (ok) {
+                                                        setModalTitle("Success");
+                                                        setModalBody("Worker profile updated successfully!");
+                                                        setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                                        setModalConfirm(false);
+                                                        setShowModal(true);
+
+                                                        const onUpdate = () => {
+                                                            setData(result.employee);
+                                                            setEditingField(null);
+
+                                                            setTimeout(() => window.location.reload(), 500);
+                                                        };
+
+                                                        setModalOnConfirm(() => onUpdate);
+                                                        setModalOnClose(() => onUpdate);
+                                                    }
+                                                    else {
+                                                        setModalTitle("Error");
+                                                        setModalBody(result.message || "Failed to update worker.");
+                                                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                        setModalConfirm(false);
+                                                        setShowModal(true);
+                                                    }
+                                                });
+                                                setModalOnClose(() => { });
+                                                setShowModal(true);
+                                                return;
+                                            } else {
+                                                const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                                if (ok) {
+                                                    setModalTitle("Success");
+                                                    setModalBody("Worker profile updated successfully!");
+                                                    setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                                    setModalConfirm(false);
+                                                    setShowModal(true);
+
+                                                    const onUpdate = () => {
+                                                        setData(result.employee);
+                                                        setEditingField(null);
+                                                    };
+
+                                                    setModalOnConfirm(() => onUpdate);
+                                                    setModalOnClose(() => onUpdate);
+                                                }
+                                                else {
+                                                    setModalTitle("Error");
+                                                    setModalBody(result.message || "Failed to update worker.");
+                                                    setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                    setModalConfirm(false);
+                                                    setShowModal(true);
+                                                }
+                                            }
+                                        }}
                                     >
-                                        <option value="">Select Manager</option>
-                                        {(drafts.role === "sdw" ? supervisors : socialDevelopmentWorkers).map(
-                                            (person) => (
-                                                <option key={person._id || person.id} value={person._id || person.id}>
-                                                    {person.username
-                                                        ? person.username
-                                                        : `${person.first_name} ${person.middle_name || ""} ${person.last_name}`}
-                                                </option>
-                                            )
+                                        Submit Changes
+                                    </button>
+
+                                </>
+                            ) : (
+                                <>
+                                    <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
+                                    <div className="flex justify-between items-center">
+                                        <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
+                                        {((user?.role == "head" || data.manager == user?._id) && data.is_active) && (
+                                            <button
+                                                className="icon-button-setup dots-button"
+                                                onClick={() => setEditingField("core-fields")}
+                                            ></button>
                                         )}
-                                    </select>
-                                </div>)}
-                            </div>
+                                    </div>
 
-                            <button
-                                className="btn-transparent-rounded my-3 ml-auto"
-                                onClick={async () => {
-                                    const isValid = await checkEmployeeCore();
-                                    if (!isValid) return;
+                                    <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
+                                        <p><span className="font-bold-label">Username:</span> {data.username || "-"}</p>
+                                        <p><span className="font-bold-label">Email:</span> {data.email || "-"}</p>
+                                        <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
 
-                                    const payload = {
-                                        ...drafts,
-                                        manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
-                                    };
-                                    const { ok, data: result } = await updateEmployeeById(workerId, payload);
-                                    if (ok) {
-                                        setModalTitle("Success");
-                                        setModalBody("Worker profile updated successfully!");
-                                        setModalImageCenter(<div className="success-icon mx-auto"></div>);
-                                        setModalConfirm(false);
-                                        setShowModal(true);
+                                        {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
+                                        <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
+                                        <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "supervisor" ? "Supervisor" : "Social Development Worker"}</p>
 
-                                        const onUpdate = () => {
-                                            setData(result.employee);
-                                            setEditingField(null);
-                                        };
+                                        {(data.role === "" || data.role === "sdw") && (
+                                            <p className="font-label">
+                                                <span className="font-bold-label">Manager:</span>{" "}
+                                                {socialDevelopmentWorkers.find(
+                                                    (w) => w._id === data.manager || w.id === data.manager
+                                                )
+                                                    ? `${socialDevelopmentWorkers.find(
+                                                        (w) => w._id === data.manager || w.id === data.manager
+                                                    ).username}`
+                                                    : "-"}
+                                            </p>
+                                        )}
 
-                                        setModalOnConfirm(() => onUpdate);
-                                        setModalOnClose(() => onUpdate);
-                                    }
-                                    else {
-                                        setModalTitle("Error");
-                                        setModalBody(result.message || "Failed to update worker.");
-                                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-                                        setModalConfirm(false);
-                                        setShowModal(true);
-                                    }
-                                }}
-                            >
-                                Submit Changes
-                            </button>
+                                    </div>
+                                </>
+                            )}
+                        </section>
 
-                        </>
-                    ) : (
-                        <>
-                            <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
-                            <div className="flex justify-between items-center">
-                                <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                {(user?.role == "head" || data.manager == user?._id) && <button
-                                    className="icon-button-setup dots-button"
-                                    onClick={() => setEditingField("core-fields")}
-                                ></button>}
-                            </div>
+                        <section className="flex flex-col gap-5">
+                            {data.role === "sdw" && (
+                                <>
+                                    <h2 className="header-sub">Clients Assigned</h2>
 
-                            <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
-                                <p><span className="font-bold-label">Username:</span> {data.username || "-"}</p>
-                                <p><span className="font-bold-label">Email:</span> {data.email || "-"}</p>
-                                <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
+                                    <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                        <p className="font-bold-label ml-[20%]">Name</p>
+                                        <p className="font-bold-label text-center">CH Number</p>
+                                        <p className="font-bold-label text-center">SDW Assigned</p>
+                                    </div>
 
-                                {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
-                                <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
-                                <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "super" ? "Supervisor" : "Social Development Worker"}</p>
+                                    {handledClients.length === 0 ? (
+                                        <p className="font-bold-label mx-auto">No Clients Found</p>
+                                    ) : (
+                                        handledClients.map((client) => (
+                                            <ClientEntry
+                                                key={client.id}
+                                                id={client.id}
+                                                sm_number={client.sm_number}
+                                                spu={client.spu}
+                                                name={client.name}
+                                                assigned_sdw_name={client.assigned_sdw_name}
+                                            />
+                                        ))
+                                    )}
+                                </>
+                            )}
 
-                                {(data.role === "" || data.role === "sdw") && (
-                                    <p className="font-label">
-                                        <span className="font-bold-label">Manager:</span>{" "}
-                                        {socialDevelopmentWorkers.find(
-                                            (w) => w._id === data.manager || w.id === data.manager
-                                        )
-                                            ? `${socialDevelopmentWorkers.find(
-                                                (w) => w._id === data.manager || w.id === data.manager
-                                            ).username}`
-                                            : "-"}
+                            {(data.role === "supervisor" || data.role === "head") && (
+                                <>
+                                    <h2 className="header-sub">
+                                        {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
+                                    </h2>
+
+                                    <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                        <p className="font-bold-label ml-[20%]">Worker</p>
+                                        <p className="font-bold-label text-center">Type</p>
+                                        <p className="font-bold-label text-center">SPU</p>
+                                    </div>
+
+                                    {handledWorkers.length === 0 ? (
+                                        <p className="font-bold-label mx-auto">No Workers Found</p>
+                                    ) : (
+                                        handledWorkers.map((worker) => (
+                                            <WorkerEntry
+                                                key={worker.id}
+                                                id={worker.id}
+                                                // sdw_id={worker.sdw_id}
+                                                name={
+                                                    worker.name ||
+                                                    `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`
+                                                }
+                                                role={worker.role}
+                                                spu_id={worker.spu_id}
+                                            />
+                                        ))
+                                    )}
+                                </>
+                            )}
+                        </section>
+
+                        <div className="flex justify-between">
+                            {(user?._id == workerId) && (
+                                <button
+                                    className="btn-outline font-bold-label drop-shadow-base my-3 mr-20"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
+                            )}
+                            {user?.role && data?.role && data?._id && data?.is_active && (
+                                ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
+                                    data.manager === user._id) && (
+                                    <button
+                                        className="btn-outline font-bold-label drop-shadow-base my-3"
+                                        onClick={() => setIsChangePasswordOpen(true)}
+                                        disabled={isChangePasswordOpen}
+                                    >
+                                        Change Password
+                                    </button>
+                                )
+                            )}
+                            {user?.role === "head" && data?.is_active && (
+                                <button
+                                    className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
+                                    onClick={() => setShowConfirmTerminate(true)}
+                                >
+                                    Terminate Worker
+                                </button>
+                            )}
+                        </div>
+
+                        {showConfirmTerminate && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                                <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-10
+                                                animate-fadeIn scale-100 transform transition duration-300">
+                                    <div className="flex items-center gap-4 border-b-1">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-[2.4rem] w-[2.4rem] text-red-600"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                                            />
+                                        </svg>
+                                        <h2 className="header-sm font-bold text-red-600 text-center">
+                                            Confirm Termination
+                                        </h2>
+                                    </div>
+
+                                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                                        Are you sure you want to terminate this worker? This action will mark the user as <b>inactive</b> and revoke access to the system.
                                     </p>
-                                )}
 
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={() => setShowConfirmTerminate(false)}
+                                            className="bg-gray-300 text-2xl text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowConfirmTerminate(false);
+                                                handleTerminate();
+                                            }}
+                                            className="bg-red-600 text-2xl text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                                        >
+                                            OK
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </>
-                    )}
-                </section>
-
-                <section className="flex flex-col gap-5">
-                    {data.role === "sdw" && (
-                        <>
-                            <h2 className="header-sub">Clients Assigned</h2>
-
-                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                <p className="font-bold-label ml-[20%]">Name</p>
-                                <p className="font-bold-label text-center">CH Number</p>
-                                <p className="font-bold-label text-center">SDW Assigned</p>
-                            </div>
-
-                            {handledClients.length === 0 ? (
-                                <p className="font-bold-label">No Clients Found</p>
-                            ) : (
-                                handledClients.map((client) => (
-                                    <ClientEntry
-                                        key={client.id}
-                                        id={client.id}
-                                        sm_number={client.sm_number}
-                                        spu={client.spu}
-                                        name={client.name}
-                                        assigned_sdw_name={client.assigned_sdw_name}
-                                    />
-                                ))
-                            )}
-                        </>
-                    )}
-
-                    {(data.role === "supervisor" || data.role === "head") && (
-                        <>
-                            <h2 className="header-sub">
-                                {data.role === "head" ? "Workers in SPU" : "Workers Supervised"}
-                            </h2>
-
-                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                <p className="font-bold-label ml-[20%]">Worker</p>
-                                <p className="font-bold-label text-center">Type</p>
-                                <p className="font-bold-label text-center">SPU</p>
-                            </div>
-
-                            {handledWorkers.length === 0 ? (
-                                <p className="font-bold-label">No Workers Found</p>
-                            ) : (
-                                handledWorkers.map((worker) => (
-                                    <WorkerEntry
-                                        key={worker._id}
-                                        id={worker.id}
-                                        // sdw_id={worker.sdw_id}
-                                        name={
-                                            worker.name ||
-                                            `${worker.first_name} ${worker.middle_name || ""} ${worker.last_name}`
-                                        }
-                                        role={worker.role}
-                                        spu_id={worker.spu_id}
-                                    />
-                                ))
-                            )}
-                        </>
-                    )}
-                </section>
-
-                <div className="flex justify-between">
-                    {(user?._id == workerId) && (
-                        <button
-                            className="btn-outline font-bold-label drop-shadow-base my-3"
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button>
-                    )}
-
-
-                    {(user?.role == "head" || data.manager == user?._id) && <button
-                        className="btn-outline font-bold-label drop-shadow-base my-3"
-                        onClick={() => setIsChangePasswordOpen(true)}
-                    >
-                        Change Password
-                    </button>}
-
-                    {user?.role == "head" && <button className="btn-primary font-bold-label drop-shadow-base my-3">
-                        Terminate Worker
-                    </button>}
-                </div>
-            </main>
+                        )}
+                    </main>
+                </>)}
         </>
     );
 }

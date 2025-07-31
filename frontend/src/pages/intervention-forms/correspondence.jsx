@@ -12,6 +12,7 @@ import  {   fetchCorrespFormData,
             deleteCorrespInterventionForm
         }
 from '../../fetch-connections/correspFormConnection'; 
+import { generateCorrespondenceForm } from "../../generate-documents/generate-documents";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -29,6 +30,13 @@ function CorrespondenceForm() {
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
+
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    const [noFormFound, setNoFormFound] = useState(false);
+    const [noCaseFound, setNoCaseFound] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [data, setData] = useState({
         form_num: "",
@@ -52,34 +60,43 @@ function CorrespondenceForm() {
 
     // < START :: Auto-Filled Data > //
 
+    const viewForm = action !== 'create' ? true : false;
+
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
+
+                const returnData = await fetchAutoFillCorrespData(caseID);
+                if (!returnData) {
+                    setNoCaseFound(true)
+                    return
+                }
+
+                const caseData = returnData.returningData;
+                // console.log("Case Data: ", caseData)
+                setRawCaseData(caseData);
+
+                setData((prev) => ({
+                    ...prev,
+                    form_num: caseData.intervention_number || "",
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    address: caseData.address || "",
+                    subproject: caseData.spu || "",
+                }));
+
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+    }
+
     useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-
-            const returnData = await fetchAutoFillCorrespData(caseID);
-            const caseData = returnData.returningData;
-
-            console.log("Case Data: ", caseData)
-
-            setRawCaseData(caseData);
-
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
-                ch_number: caseData.sm_number || "",
-                dob: caseData.dob || "",
-                address: caseData.address || "",
-                subproject: caseData.spu || "",
-            }));
-
-            setLoading(false);
-        };
-        loadData();
-    }, []);
-
-    useEffect(() => {
+        setFormNum(data.form_num || "");
         setFirstName(data.first_name || "");
         setMiddleName(data.middle_name || "");
         setLastName(data.last_name || "");
@@ -93,8 +110,6 @@ function CorrespondenceForm() {
 
     // < START :: View Form > //
 
-    const viewForm = action !== 'create' ? true : false;
-
     if (viewForm) {
         useEffect(() => {
             const loadFormData = async () => {
@@ -103,15 +118,30 @@ function CorrespondenceForm() {
                 const returnFormData = await fetchCorrespFormData(
                     caseID, formID
                 );
+                if (!returnFormData) {
+                    setNoFormFound(true)
+                    return
+                }
+
                 const formData = returnFormData.form;
+                const caseData = returnFormData.sponsored_member
     
-                console.log("form Data", formData);
-                console.log("FORM ID: ", formID);
+                // console.log("form Data", formData);
+                // console.log("FORM ID: ", formID);
     
                 setRawFormData(formData);
     
                 setData((prev) => ({
                     ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    address: caseData.present_address || "",
+                    subproject: caseData.spu || "",
+                    
+                    form_num: formData.intervention_number || "",
                     date: formData.createdAt || "",
                     name_of_sponsor: formData.name_of_sponsor || "",
                     date_of_sponsorship: formData.date_of_sponsorship || "",
@@ -127,16 +157,17 @@ function CorrespondenceForm() {
             };
             loadFormData();
         }, []);
-
-        useEffect(() => {
-            setSponsorName(data.name_of_sponsor || "");
-            setSponsorshipDate(data.date_of_sponsorship || "");
-            setIdentifiedProblem(data.identified_problem || "");
-            setAssessment(data.assesment || "");
-            setObjective(data.objective || "");
-            setRecommendation(data.recommendation || "");
-        }, [data]);
     }
+
+    useEffect(() => {
+        setFormNum(data.form_num || "");
+        setSponsorName(data.name_of_sponsor || "");
+        setSponsorshipDate(data.date_of_sponsorship || "");
+        setIdentifiedProblem(data.identified_problem || "");
+        setAssessment(data.assesment || "");
+        setObjective(data.objective || "");
+        setRecommendation(data.recommendation || "");
+    }, [data]);
 
     // < END :: View Form > //
 
@@ -225,17 +256,20 @@ function CorrespondenceForm() {
         e?.preventDefault();
         const isValid = validateForm();
 
+        console.log(isProcessing)
+
         if (!isValid) {
             // window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
+            return false;
         };
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -250,10 +284,15 @@ function CorrespondenceForm() {
             recommendation,
             intervention_plans
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createCorrespForm(caseID, payload); 
+        if (response?._id) {
+            setnewformID(response._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -271,8 +310,7 @@ function CorrespondenceForm() {
             intervention_plans
         };
 
-        console.log("Payload: ", updatedPayload);
-
+        // console.log("Payload: ", updatedPayload);
         const response = await editCorrespForm(formID, updatedPayload); 
     };
 
@@ -327,16 +365,9 @@ function CorrespondenceForm() {
     const [sectionEdited, setSectionEdited] = useState("");
 
     const [showErrorOverlay, setShowErrorOverlay] = useState(false);
-
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -382,6 +413,48 @@ function CorrespondenceForm() {
 
     if (!data) return <div>No data found.</div>;
 
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    SMs, Families, and SHGs Intervention Plan
+                </h3>
+                <p className="text-3xl red"> No form found. </p>
+            </div>
+            </main>
+        )
+    }
+
+    if (noCaseFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                <div className="flex w-full justify-between">
+                    <button 
+                        onClick={() => navigate(`/case/${caseID}`)} 
+                        className="flex items-center gap-5 label-base arrow-group">
+                        <div className="arrow-left-button"></div>
+                        Go Back
+                    </button>
+                </div>
+                <h3 className="header-md">
+                    SMs, Families, and SHGs Intervention Plan
+                </h3>
+                <p className="text-3xl red"> No case found. </p>
+            </div>
+            </main>
+        )
+    }
+
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
@@ -403,7 +476,7 @@ function CorrespondenceForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">Sponsored Member</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Last Name"
@@ -450,7 +523,7 @@ function CorrespondenceForm() {
                     <div className="flex border-b border-[var(--border-color)]">
                         <h4 className="header-sm">General Information</h4>
                     </div>
-                    <div className="inline-flex items-center justify-center gap-16">
+                    <div className="inline-flex items-start justify-center gap-16">
                         <div className="flex flex-col gap-8">
                             <TextInput
                                 label="Name of Sponsor"
@@ -458,6 +531,7 @@ function CorrespondenceForm() {
                                 setValue={setSponsorName}
                                 handleChange={handleChange("General Information")}
                                 error={errors["name_of_sponsor"]}
+                                disabled={viewForm}
                             ></TextInput>
                             <TextInput
                                 label="Sub-Project"
@@ -474,6 +548,7 @@ function CorrespondenceForm() {
                                 setValue={setSponsorshipDate}
                                 handleChange={handleChange("General Information")}
                                 error={errors["date_of_sponsorship"]}
+                                disabled={viewForm}
                             ></DateInput>
                         </div>
                     </div>
@@ -490,6 +565,7 @@ function CorrespondenceForm() {
                     value={identified_problem}
                     setValue={setIdentifiedProblem}
                     error={errors["identified_problem"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -500,12 +576,14 @@ function CorrespondenceForm() {
                     value={assesment}
                     setValue={setAssessment}
                     error={errors["assesment"]}
+                    disabled={viewForm}
                 ></TextArea>
                 <TextArea
                     label="Objective/s"
                     value={objective}
                     setValue={setObjective}
                     error={errors["objective"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
@@ -514,7 +592,7 @@ function CorrespondenceForm() {
                 <h3 className="header-md">Intervention Plan</h3>
                 <div className="flex flex-col gap-2">
                     <div className="flex w-full flex-col gap-6 border-b border-[var(--border-color)]">
-                        <div className="flex justify-between px-4 gap-6 pr-30">
+                        <div className={`flex justify-between px-4 pr-30 ${viewForm ? 'gap-30' : 'gap-6'}`}>
                             <p className="label-base w-lg">Actions</p>
                             <p className="label-base w-sm">Time Frame</p>
                             <p className="label-base w-lg">Results</p>
@@ -542,6 +620,7 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_action`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-sm">
@@ -557,6 +636,7 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_time_frame`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
@@ -572,6 +652,7 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_results`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
                                 <div className="flex w-lg">
@@ -587,12 +668,15 @@ function CorrespondenceForm() {
                                         }}
                                         showTime={false}
                                         error={errors[`intervention_plans_${index}_person_responsible`]}
+                                        disabled={viewForm}
                                     ></TextArea>
                                 </div>
-                                <button
-                                    onClick={() => deleteIntervention(index)}
-                                    className="icon-button-setup trash-button px-10"
-                                ></button>
+                                {!viewForm && (
+                                    <button
+                                        onClick={() => deleteIntervention(index)}
+                                        className="icon-button-setup trash-button px-10"
+                                    ></button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -605,14 +689,16 @@ function CorrespondenceForm() {
                         <p className="text-sm self-end mt-2">{savedTime}</p>
                     )}
                 </div>
-                <button
-                    name="add_intervention"
-                    id="add_intervention"
-                    onClick={handleAddIntervention}
-                    className="btn-primary font-bold-label self-center"
-                >
-                    Add Intervention
-                </button>
+                {!viewForm && (
+                    <button
+                        name="add_intervention"
+                        id="add_intervention"
+                        onClick={handleAddIntervention}
+                        className="btn-primary font-bold-label self-center"
+                    >
+                        Add Intervention
+                    </button>
+                )}
             </section>
 
             {/* Recommendation */}
@@ -623,11 +709,12 @@ function CorrespondenceForm() {
                     value={recommendation}
                     setValue={setRecommendation}
                     error={errors["recommendation"]}
+                    disabled={viewForm}
                 ></TextArea>
             </section>
 
             {/* Signature */}
-            <div className="flex w-full flex-col gap-16 px-16 pt-24">
+            {/*<div className="flex w-full flex-col gap-16 px-16 pt-24">
                 <div className="flex w-full justify-between">
                     <Signature label="Prepared by:" signer="Social Development Worker"></Signature>
                     <Signature label="Attested by:" signer="SM/Parent/SHG Leader"></Signature>
@@ -636,45 +723,53 @@ function CorrespondenceForm() {
                 <div className="flex w-full justify-between">
                     <Signature label="Approved by:" signer="SPU Coordinator"></Signature>
                 </div>
-            </div>
+            </div>*/}
 
             {/* Buttons */}
             <div className="flex w-full justify-center gap-20">
                 {viewForm ? (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => 
-                                setShowConfirm(true)
-                            }
-                        >
-                            Delete Form
-                        </button>
-                        <button
                             className="btn-primary font-bold-label w-min"
-                            onClick={async () => {
-                                await handleUpdate();
-                                navigate(`/case/${caseID}`);
+                            onClick={() => {
+                                generateCorrespondenceForm(formID)
                             }}
                         >
-                            Save Changes
+                            Download Form
                         </button>
                     </>
                 ) : (
                     <>
                         <button
-                            className="btn-outline font-bold-label"
-                            onClick={() => navigate(`/case/${caseID}`)}
+                            className={`btn-outline font-bold-label ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => {
+                                if (!isProcessing) {
+                                    navigate(`/case/${caseID}`);
+                                }
+                            }}
+                            disabled={isProcessing}
                         >
                             Cancel
                         </button>
                         <button
-                            className="btn-primary font-bold-label w-min"
+                            type="submit"
+                            className={`btn-primary font-bold-label w-min ${
+                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                            }`}
                             onClick={async (e) => {
-                                await handleSubmit(e);
+                                e.preventDefault(); 
+                                setIsProcessing(true);
+                                const success = await handleSubmit(e);
+                                if (success) {
+                                    setShowSuccessModal(true);
+                                }
+                                setIsProcessing(false);
                             }}
+                            disabled={isProcessing}
                         >
-                            Create Intervention
+                            {isProcessing ? "Creating..." : "Create Intervention"}
                         </button>
                     </>
                 )}
@@ -713,6 +808,38 @@ function CorrespondenceForm() {
                     </div>
                 )}
 
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Correspondence Form #{form_num} Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/correspondence-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                    }}
+                                    className="btn-primary font-bold-label"
+                                >
+                                    View Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Missing / Invalid Input */}
                 {showErrorOverlay && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -743,10 +870,26 @@ function CorrespondenceForm() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => setShowErrorOverlay(false)}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
                 )}
             </div>
+
+            {!viewForm && (
+                <div className="-mt-8">
+                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
+                    </p>
+                </div>
+            )}
         </main>
     );
 }

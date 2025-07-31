@@ -106,19 +106,20 @@ export const TextArea = ({
             <section className="flex w-full flex-col gap-5">
                 <h4 className="header-sm">{label}</h4>
                 {sublabel ? (
-                    <p className="label-base">
-                        {sublabel}
+                    <div>
+                        <p className="label-base">{sublabel}</p>
                         {description ? (
-                            <span className="body-base ml-16">{description}</span>
+                            <p className="body-base text-muted-foreground italic">{description}</p>
                         ) : null}
-                    </p>
+                    </div>
                 ) : null}
                 <textarea
                     value={value}
                     onChange={handleChange || ((e) => setValue?.(e.target.value))}
                     className={`body-base text-area h-32 ${
                             error ? "text-area-error" : ""
-                        } ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
+                        } ${disabled ? "cursor-not-allowed bg-gray-100 text-black" : ""}`}
+                    disabled={disabled}
                 ></textarea>
                 {showTime && savedTime && (
                     <p className="text-color-muted mt-1 self-end text-sm">

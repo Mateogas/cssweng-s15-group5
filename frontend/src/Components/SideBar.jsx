@@ -23,9 +23,9 @@ export default function SideBar({ user }) {
                 />
 
                 {(user?.role == "supervisor" || user?.role == "head") && <SideItem
-                    href="/"
-                    iconClass="progress-button"
-                    label="Progress"
+                    href="/spu"
+                    iconClass="spu-button"
+                    label="SPU's"
                     isActive={false}
                 />}
 

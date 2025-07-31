@@ -4,12 +4,12 @@ import { fetchSDWs } from '../fetch-connections/case-connection';
 import SimpleModal from './SimpleModal';
 import { createAccount } from '../fetch-connections/account-connection';
 import { fetchEmployeeByUsername } from '../fetch-connections/account-connection';
+import { fetchAllSpus } from '../fetch-connections/spu-connection';
 
 export default function RegisterWorker({
   isOpen,
   onClose,
   onRegister,
-  projectLocations = [],
 }) {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -36,6 +36,18 @@ export default function RegisterWorker({
 
   const [socialDevelopmentWorkers, setSocialDevelopmentWorkers] = useState([]);
   const [supervisors, setSupervisors] = useState([]);
+  const [projectLocations, setProjectLocations] = useState([])
+
+  //   const projectLocations = [
+  //   { name: "AMP", projectCode: "AMP" },
+  //   { name: "FDQ", projectCode: "FDQ" },
+  //   { name: "MPH", projectCode: "MPH" },
+  //   { name: "MS", projectCode: "MS" },
+  //   { name: "AP", projectCode: "AP" },
+  //   { name: "AV", projectCode: "AV" },
+  //   { name: "MM", projectCode: "MM" },
+  //   { name: "MMP", projectCode: "MMP" },
+  // ];
 
   useEffect(() => {
     if (!isOpen) {
@@ -60,9 +72,26 @@ export default function RegisterWorker({
   useEffect(() => {
     const loadSDWs = async () => {
       const sdws = await fetchSDWs();
-      setSocialDevelopmentWorkers(sdws);
+
+      const filtered = sdws.filter(
+        (sdw) => sdw.is_active === true
+      );
+      console.log("Fetched employees:", sdws);
+      setSocialDevelopmentWorkers(filtered);
     };
+
     loadSDWs();
+
+    const loadSPUs = async () => {
+      const spus = await fetchAllSpus();
+      const filtered = spus.filter(
+        (spu) => spu.is_active === true
+      );
+      setProjectLocations(filtered);
+    };
+
+    loadSPUs();
+
   }, [isOpen]);
 
   const handleChange = (e) => {
@@ -113,12 +142,38 @@ export default function RegisterWorker({
     setSupervisors(filtered);
   }, [formData.spu_id, socialDevelopmentWorkers]);
 
+  function formatListWithAnd(arr) {
+    if (arr.length === 0) return "";
+    if (arr.length === 1) return arr[0];
+    if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+    const last = arr[arr.length - 1];
+    return `${arr.slice(0, -1).join(", ")}, and ${last}`;
+  }
+
   const checkRegisterWorker = async () => {
     const missing = [];
 
-    if (!formData.first_name || /\d/.test(formData.first_name)) missing.push("First Name");
-    // if (!formData.middle_name || /\d/.test(formData.middle_name)) missing.push("Middle Name");
-    if (!formData.last_name || /\d/.test(formData.last_name)) missing.push("Last Name");
+    if (!formData.first_name || formData.first_name.trim() === "") {
+      missing.push("First Name");
+    } else if (/\d/.test(formData.first_name)) {
+      missing.push("First Name must not contain numbers");
+    }
+
+    // if (!formData.middle_name || formData.middle_name.trim() === "") {
+    //     missing.push("Middle Name");
+    // } else 
+
+    if (/\d/.test(formData.middle_name)) {
+      missing.push("Middle Name must not contain numbers");
+    }
+
+    if (!formData.last_name || formData.last_name.trim() === "") {
+      missing.push("Last Name");
+    } else if (/\d/.test(formData.last_name)) {
+      missing.push("Last Name must not contain numbers");
+    }
+
+
     if (!formData.username) {
       missing.push("Username")
     } else {
@@ -160,14 +215,23 @@ export default function RegisterWorker({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) missing.push("Valid Email");
-    if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 digits)");
+    // if (!formData.contact_no || formData.contact_no.length !== 11) missing.push("Contact No. (11 numerical digits)");
+
+    if (!formData.contact_no) {
+      missing.push("Contact Number");
+    } else if (!/^\d{11}$/.test(formData.contact_no)) {
+      missing.push("Contact Number must be 11 numerical digits");
+    }
+
 
     console.log(formData.role, formData.manager)
     if (formData.role == "sdw" && formData.manager == "") missing.push("Social Development Workers must have a Supervisor");
 
+    if (formData.area.trim() == "") missing.push("Area of Assignment");
+
     if (missing.length > 0) {
       setModalTitle("Invalid Fields");
-      setModalBody(`The following fields are missing or invalid: ${missing.join(", ")}`);
+      setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
       setModalImageCenter(<div className="warning-icon mx-auto"></div>);
       setModalConfirm(false);
       setShowModal(true);
@@ -300,43 +364,43 @@ export default function RegisterWorker({
                 </div>
 
                 <div className='flex gap-3'>
-                <div className="flex flex-col gap-2 w-full">
-                  <p className="font-bold-label">Password</p>
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="text-input font-label"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 w-full">
-                  <p className="font-bold-label">Confirm Password</p>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="text-input font-label"
-                  />
-                </div>
-
-                </div>
-
-                <div className="flex flex-col gap-2 w-full">
-                    <p className="font-bold-label">Area of Assignment</p>
+                  <div className="flex flex-col gap-2 w-full">
+                    <p className="font-bold-label">Password</p>
                     <input
-                      type="text"
-                      name="area"
-                      placeholder="Area of Assignment"
-                      value={formData.area}
+                      type="password"
+                      name="password"
+                      placeholder="Password"
+                      value={formData.password}
                       onChange={handleChange}
                       className="text-input font-label"
                     />
                   </div>
+
+                  <div className="flex flex-col gap-2 w-full">
+                    <p className="font-bold-label">Confirm Password</p>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      placeholder="Confirm Password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="text-input font-label"
+                    />
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="font-bold-label">Area of Assignment</p>
+                  <input
+                    type="text"
+                    name="area"
+                    placeholder="Area of Assignment"
+                    value={formData.area}
+                    onChange={handleChange}
+                    className="text-input font-label"
+                  />
+                </div>
 
                 <div className='flex gap-3'>
                   <div className="flex flex-col gap-2 w-full">
@@ -375,8 +439,8 @@ export default function RegisterWorker({
                     >
                       <option value="">Select SPU</option>
                       {projectLocations.map((spu) => (
-                        <option key={spu.projectCode} value={spu.projectCode}>
-                          {spu.name} ({spu.projectCode})
+                        <option key={spu._id} value={spu.spu_name}>
+                          {spu.spu_name}
                         </option>
                       ))}
                     </select>

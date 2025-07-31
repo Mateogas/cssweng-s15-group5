@@ -8,6 +8,8 @@ import {
   fetchSession
 } from "../fetch-connections/account-connection";
 
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
+
 function HomeLeader() {
   const [allData, setAllData] = useState([]);
   const [currentData, setCurrentData] = useState([]);
@@ -18,17 +20,7 @@ function HomeLeader() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
 
-  const projectLocation = [
-    { name: "AMP", projectCode: "AMP" },
-    { name: "FDQ", projectCode: "FDQ" },
-    { name: "MPH", projectCode: "MPH" },
-    { name: "MS", projectCode: "MS" },
-    { name: "AP", projectCode: "AP" },
-    { name: "AV", projectCode: "AV" },
-    { name: "MM", projectCode: "MM" },
-    { name: "MMP", projectCode: "MMP" },
-  ];
-
+  const [projectLocation, setProjectLocation] = useState([])
   useEffect(() => {
     const loadUserAndEmployees = async () => {
       const sessionData = await fetchSession();
@@ -49,9 +41,22 @@ function HomeLeader() {
         employees = data || [];
       }
 
-      console.log("Fetched employees:", employees);
-      setAllData(employees);
+      const filtered = employees.filter(
+        (e) => e.is_active === true
+      );
+      console.log("Fetched employees:", filtered);
+      setAllData(filtered);
     };
+
+    const loadSPUs = async () => {
+      const spus = await fetchAllSpus();
+      const filtered = spus.filter(
+        (spu) => spu.is_active === true
+      );
+      setProjectLocation(filtered);
+    };
+
+    loadSPUs();
 
     loadUserAndEmployees();
   }, [currentSPU, isRegisterOpen]);
@@ -74,9 +79,9 @@ function HomeLeader() {
 
     if (sortBy === "name") {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (["head", "super", "sdw"].includes(sortBy)) {
+    } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
       filtered = filtered.filter((w) => w.role === sortBy)
-      .sort((a, b) => a.name.localeCompare(b.name));;
+        .sort((a, b) => a.name.localeCompare(b.name));;
     }
 
     if (sortOrder === "desc") {
@@ -94,13 +99,15 @@ function HomeLeader() {
         onRegister={(newWorker) => {
           console.log("New worker added:", newWorker);
         }}
-        projectLocations={projectLocation}
       />
 
       <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
-        <a href="/home-leader" className="main-logo main-logo-text-nav">
+        <a href="/" className="main-logo main-logo-text-nav">
           <div className="main-logo-setup folder-logo"></div>
-          SCSR
+          <div className="flex flex-col">
+            <p className="main-logo-text-nav-sub mb-[-1rem]">Unbound Manila Foundation Inc.</p>
+            <p className="main-logo-text-nav">Case Management System</p>
+          </div>
         </a>
 
         <div className="flex gap-5 items-center bg-purple-100 rounded-full px-8 py-4 w-full max-w-[40rem] font-label">
@@ -117,9 +124,8 @@ function HomeLeader() {
 
       <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
         <SideBar user={user} />
-
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">{user?.role == "super" ? user.spu_id : "Teams"} Teams</h1>
+          <h1 className="header-main">{user?.role == "supervisor" ? user.spu_name : "Teams"}</h1>
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
@@ -131,8 +137,8 @@ function HomeLeader() {
                   >
                     <option value="">Select SPU</option>
                     {projectLocation.map((spu) => (
-                      <option key={spu.projectCode} value={spu.projectCode}>
-                        {spu.name} ({spu.projectCode})
+                      <option key={spu._id} value={spu.spu_name}>
+                        {spu.spu_name}
                       </option>
                     ))}
                   </select>
@@ -146,7 +152,7 @@ function HomeLeader() {
                   <option value="">Find By</option>
                   <option value="name">Name</option>
                   <option value="head">Head</option>
-                  <option value="super">Supervisor</option>
+                  <option value="supervisor">Supervisor</option>
                   <option value="sdw">Social Development Worker</option>
                 </select>
 
@@ -164,6 +170,7 @@ function HomeLeader() {
                 <button
                   className="btn-outline font-bold-label flex gap-4 whitespace-nowrap"
                   onClick={() => setIsRegisterOpen(true)}
+                  disabled={isRegisterOpen}
                 >
                   <p>+</p>
                   <p>Add Account</p>
@@ -188,16 +195,12 @@ function HomeLeader() {
             ) : (
               currentData.map((worker) => (
                 <WorkerEntry
-                  key={worker._id}
+                  key={worker.id}
                   id={worker.id}
                   // sdw_id={worker.sdw_id}
                   name={worker.name}
                   role={worker.role}
-                  spu_id={
-                    projectLocation.find(
-                      (spu) => spu.projectCode === worker.spu_id
-                    )?.name || "Unassigned"
-                  }
+                  spu_id={worker.spu_id}
                 />
               ))
             )}

@@ -17,6 +17,7 @@ const Progress_Report = require('../model/progress_report');
 const getProgressReportById = async (req, res) => {
     try {
         const reportId = req.params.reportId;
+        const caseId = req.params.caseId
 
         // Validate progress report ID
         if (!mongoose.Types.ObjectId.isValid(reportId)) {
@@ -30,9 +31,15 @@ const getProgressReportById = async (req, res) => {
         }
 
         // Get the sponsored member associated with the report
-        const sm = await Sponsored_member.findOne({ "progress_reports.progress_report": reportId });
+        const sm = await Sponsored_member.findOne({ "progress_reports.progress_report": reportId })
+            .populate("spu")
+            .lean();
         if (!sm) {
             return res.status(404).json({ error: 'Sponsored member not found for this report' });
+        }
+
+        if (sm._id.toString() != caseId) {
+            return res.status(403).json({ error: 'Case and form mismatch' });
         }
 
         // Get report number from the sponsored member's progress reports
@@ -40,10 +47,12 @@ const getProgressReportById = async (req, res) => {
         if (!reportNumber) {
             return res.status(404).json({ error: 'Report number not found for this progress report' });
         }
-
+        
+        sm.subproject = sm.spu
         return res.status(200).json({
             progressReport,
-            reportNumber
+            reportNumber,
+            case: sm,
         });
     } catch (error) {
         console.error('Error fetching progress report:', error);
@@ -73,10 +82,14 @@ const getCaseData = async (req, res) => {
         }
 
         // Fetch the case data (assuming a Case model exists)
-        const sm_data = await Sponsored_member.findById(caseId);
+        const sm_data = await Sponsored_member.findById(caseId).populate('spu');
         if (!sm_data) {
             return res.status(404).json({ error: 'Case not found' });
         }
+
+        // Get the last progress report number
+        const lastReport = sm_data.progress_reports[sm_data.progress_reports.length - 1];
+        const lastReportNumber = lastReport ? lastReport.report_number : 0;
 
         const caseData = {
             last_name: sm_data.last_name || '',
@@ -85,6 +98,7 @@ const getCaseData = async (req, res) => {
             ch_number: sm_data.sm_number || '',
             dob: new Date(sm_data.dob).toISOString().split('T')[0] || '',
             subproject: sm_data.spu || '',
+            reportNumber: lastReportNumber + 1,
         }
 
         return res.status(200).json(caseData);
@@ -247,6 +261,7 @@ const addProgressReport = async (req, res) => {
         return res.status(201).json({
             message: 'Progress report added successfully',
             progressReport,
+            case: sm,
         });
     } catch (error) {
         console.error('Error adding progress report:', error);

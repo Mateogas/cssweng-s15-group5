@@ -14,13 +14,11 @@ const caseSchemaValidate = Joi.object({
     'string.empty': 'First name cannot be empty'
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
-  spu: Joi.string()
-    .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
-    .required()
-    .messages({
-      'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
-      'any.required': 'SPU is required'
-    }),
+
+  spu: Joi.string().pattern(/^[a-f\d]{24}$/i).required().messages({
+    'string.pattern.base': 'SPU must be a valid ObjectId',
+    'any.required': 'SPU is required'
+  }),
   is_active: Joi.boolean().required(),
 
   present_address: Joi.string().min(1).required().messages({
@@ -61,7 +59,7 @@ const caseSchemaValidate = Joi.object({
   }),
 
   contact_no: Joi.string().pattern(/^[0-9]{11}$/).messages({
-    'string.pattern.base': 'Contact number must be exactly 11 digits'
+    'string.pattern.base': 'Contact number must be exactly 11 numerical digits'
   }).empty('').optional(),
 
   relationship_to_client: Joi.string().empty('').allow(null).optional(),
@@ -77,7 +75,7 @@ const caseSchemaValidate = Joi.object({
   evaluation: Joi.string().empty('').allow(null).optional(),
   assessment: Joi.string().empty('').allow(null).optional(),
 
-  classifications: Joi.array().items(Joi.string()).allow(null).default([]).optional(),
+  classifications: Joi.string().empty('').allow(null).optional(),
 });
 /*
 //THIS IS FOR CORE ONLY
@@ -97,15 +95,12 @@ const caseCoreValidate = Joi.object({
     'string.empty': 'First name cannot be empty'
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
-  spu: Joi.string()
-    .valid('AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP')
-    .required()
-    .messages({
-      'any.only': 'SPU must be one of AMP, FDQ, MPH, MS, AP, AV, MM, or MMP',
-      'any.required': 'SPU is required'
-    }),
+  spu: Joi.string().pattern(/^[a-f\d]{24}$/i).required().messages({
+    'string.pattern.base': 'SPU must be a valid ObjectId',
+    'any.required': 'SPU is required'
+  }),
   is_active: Joi.boolean().required(),
-  classifications: Joi.array().items(Joi.string()).optional(),
+  classifications: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
     assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
     .messages({
       'string.pattern.base': 'assigned_sdw must be a valid ObjectId'
@@ -153,7 +148,7 @@ const caseIdentifyingValidate = Joi.object({
   }),
 
   contact_no: Joi.string().pattern(/^[0-9]{11}$/).messages({
-    'string.pattern.base': 'Contact number must be exactly 11 digits'
+    'string.pattern.base': 'Contact number must be exactly 11 numerical digits'
   }).empty('').optional(),
 
   relationship_to_client: Joi.string().empty('').optional()

@@ -142,14 +142,15 @@ const getCorrespondenceForm = async(req,res)=>{
         return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
     }
     try{
-        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('interventions.intervention').lean();
+        // const sponsoredData = await Sponsored_Member.findById(sponsor_id).lean();
+        const sponsoredData = await Sponsored_Member.findById(sponsor_id).populate('interventions.intervention').populate('spu').lean();
         const formData = await Intervention_Correspondence.findById(formId).lean()
 
         if (!sponsoredData || !formData) {
             return res.status(404).json({ message: 'Sponsored Member or Form not found' });
         }
         const interventionEntry = sponsoredData.interventions.find(
-            i => i.intervention && i.intervention.toString() === formId.toString() && 
+            i => i.intervention && i.intervention._id.toString() === formId.toString() && 
                 i.interventionType === 'Intervention Correspondence'
         );
 
@@ -162,9 +163,8 @@ const getCorrespondenceForm = async(req,res)=>{
                 last_name: sponsoredData.last_name,
                 sm_number: sponsoredData.sm_number,
                 dob: sponsoredData.dob,
-                spu: sponsoredData.spu,
+                spu: sponsoredData.spu.spu_name,
                 present_address: sponsoredData.present_address,
-                spu:sponsoredData.spu,
             },
             form:{...formData,
                 intervention_number
@@ -316,7 +316,7 @@ const getAutoFillData = async(req,res)=>{
         return res.status(400).json({message:'Invalid User Id'});
     }
     try{
-        const caseData = await Sponsored_Member.findById(smId).lean();
+        const caseData = await Sponsored_Member.findById(smId).populate('spu').lean();
         if(!caseData){
             return res.status(404).json({message:'Not Found'});
         }
@@ -325,10 +325,19 @@ const getAutoFillData = async(req,res)=>{
             first_name: caseData.first_name,
             middle_name: caseData.middle_name,
             sm_number:caseData.sm_number,
-            spu:caseData.spu,
+            spu:caseData.spu.spu_name,
             dob : caseData.dob,
             present_address:caseData.present_address,
         };
+
+        const interventions = caseData.interventions || [];
+        const sameTypeInterventions = interventions.filter(
+            i => i.interventionType === 'Intervention Correspondence'
+        );
+        const lastInterventionNumber = sameTypeInterventions.length > 0
+            ? sameTypeInterventions[sameTypeInterventions.length - 1].intervention_number
+            : 0;
+        returningData.intervention_number = lastInterventionNumber + 1;
 
         return res.status(200).json({message: 'Fetched Succesfully', returningData});
     }catch(error){

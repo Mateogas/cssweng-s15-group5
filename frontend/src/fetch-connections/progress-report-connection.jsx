@@ -1,7 +1,7 @@
 const apiUrl = import.meta.env.VITE_API_URL || '/api';
-export const fetchProgressReport = async (reportID) => {
+export const fetchProgressReport = async (caseID, reportID) => {
     try {
-        const response = await fetch(`${apiUrl}/progress-report/${reportID}`,{
+        const response = await fetch(`${apiUrl}/progress-report/view/${caseID}/${reportID}`,{
             method: 'GET',
             credentials: 'include',
         });
@@ -14,7 +14,8 @@ export const fetchProgressReport = async (reportID) => {
         return report;
     } catch (error) {
         console.error("Error fetching progress report:", error);
-        throw error;
+        return null;
+        // throw error;
     }
 }
 
@@ -33,7 +34,8 @@ export const fetchCaseData = async (caseID) => {
         return caseData;
     } catch (error) {
         console.error("Error fetching case data:", error);
-        throw error;
+        return null;
+        // throw error;
     }
 }
 

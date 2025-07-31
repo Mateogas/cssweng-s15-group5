@@ -43,9 +43,9 @@ const EmployeeSchema = new mongoose.Schema({
         required: false
     },
     spu_id: {
-        type: String,
-        enum: ['AMP', 'FDQ', 'MPH', 'MS', 'AP', 'AV', 'MM', 'MMP'], // Updated SPU IDs
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Spu',
+        required: true,
     },
 
       sdw_id: {
@@ -61,7 +61,12 @@ const EmployeeSchema = new mongoose.Schema({
     area: {
         type: String,
         required: false
-    }
+    },
+    is_active: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
 });
 
 const Employee = mongoose.model('Employee', EmployeeSchema);

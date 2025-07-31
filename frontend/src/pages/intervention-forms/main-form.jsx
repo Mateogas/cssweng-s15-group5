@@ -8,8 +8,6 @@ import CorrespondenceForm from "./correspondence";
 import HomeVisitationForm from "./home-visitation";
 
 function InterventionForm() {
-    /********** TEST DATA **********/
-
     const interventions = [
         {
             name: "Home Visitation",
@@ -28,8 +26,6 @@ function InterventionForm() {
             route: "correspondence-form",
         },
     ];
-
-    /********** TEST DATA **********/
 
     /********** USE STATES **********/
 
@@ -95,6 +91,12 @@ function InterventionForm() {
                     <CorrespondenceForm />
                 )}
             </section>
+
+            {intervention_selected == defaultSelection && (
+                <section className="w-full flex flex-row justify-center">
+                    <p className="text-3xl italic">Select intervention to create</p>
+                </section>
+            )}
         </main>
     );
 }

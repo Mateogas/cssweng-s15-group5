@@ -1,3 +1,5 @@
+import { generateHomeVisitForm } from "../generate-documents/generate-documents";
+
 
 const apiUrl = import.meta.env.VITE_API_URL || '/api';
 export const fetchCaseData = async (caseID) => {
@@ -105,7 +107,7 @@ export const createHomeVis = async (createdData, caseID) => {
         if (!response.ok) throw new Error("API error");
 
         const newHomeVis = await response.json();
-        console.log(newHomeVis);
+        return newHomeVis
     } catch (err) {
         console.error("Error creating form:", err);
         return null;
