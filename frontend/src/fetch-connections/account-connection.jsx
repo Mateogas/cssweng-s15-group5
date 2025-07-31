@@ -122,7 +122,7 @@ export const createAccount = async (payload) => {
     const response = await fetch(`${apiUrl}/create-account`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'includes',
+      credentials: 'include',
       body: JSON.stringify(payload),
     });
 
@@ -233,6 +233,7 @@ export const terminateWorker = async (account) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials:'include',
     });
 
     const data = await response.json();
