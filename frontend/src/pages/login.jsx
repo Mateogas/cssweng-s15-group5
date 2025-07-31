@@ -18,6 +18,11 @@ export default function Login() {
         };
     }, []);
 
+    useEffect(() => {
+    document.title = "Login";
+}, []);
+
+
 
     const handleLogin = async () => {
         const payload = {

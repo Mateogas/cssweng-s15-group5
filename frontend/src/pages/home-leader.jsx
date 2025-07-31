@@ -91,6 +91,19 @@ function HomeLeader() {
     setCurrentData(filtered);
   }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
 
+  useEffect(() => {
+      if (!user) return;
+
+      const title =
+          user.role === "supervisor"
+              ? `Coordinating Unit - ${user.spu_name}`
+              : "Coordinating Unit";
+
+      document.title = title;
+  }, [user]);
+
+
+
   return (
     <>
       <RegisterWorker

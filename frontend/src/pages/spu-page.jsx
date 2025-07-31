@@ -36,6 +36,10 @@ export default function SpuPage() {
         onConfirm: null,
     });
 
+    useEffect(() => {
+        document.title = "SPU Page";
+    }, []);
+
     const loadData = async () => {
         try {
             const sessionData = await fetchSession();

@@ -257,6 +257,14 @@ function CaseFrontend({ creating = false }) {
         setAge(calculateAge(drafts.dob));
     }, [drafts.dob]);
 
+    useEffect(() => {
+    if (data.first_name && data.last_name) {
+        document.title = `${data.first_name} ${data.last_name}'s Case`;
+    } else {
+        document.title = `Case Page`;
+    }
+    }, [data]);
+
     const [ref1, inView1] = useInView({ threshold: 0.5 });
     const [ref2, inView2] = useInView({ threshold: 0.5 });
     const [ref3, inView3] = useInView({ threshold: 0.5 });
@@ -595,7 +603,6 @@ function CaseFrontend({ creating = false }) {
 
         return true;
     }
-
 
     const handleAddFamilyMember = () => {
         const newMember = {

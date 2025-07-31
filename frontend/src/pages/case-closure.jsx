@@ -540,6 +540,15 @@ function CaseClosure() {
 
     // ===== END :: Functions ===== //
 
+    useEffect(() => {
+        if (viewForm) {
+            document.title = `View Case Closure - ${data?.last_name || "Loading..."}`;
+        } else {
+            document.title = `Create Case Closure Form`;
+        }
+    }, [viewForm, data?.last_name]);
+
+
     return (
         <>
             <main className="flex w-full justify-center p-16">

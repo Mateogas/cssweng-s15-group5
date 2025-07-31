@@ -473,6 +473,15 @@ function ProgressReport() {
         }
     }, [errors]);
 
+    useEffect(() => {
+        if (viewForm && form_num) {
+            document.title = `Progress Report #${form_num}`;
+        } else if (!viewForm) {
+            document.title = `Create Progress Report`;
+        }
+    }, [viewForm, form_num]);
+
+
     const handleChange = (section) => (e) => {
         setSectionEdited(section);
 

@@ -715,6 +715,16 @@ function HomeVisitationForm() {
 
     // ===== END :: Use States ===== //
 
+useEffect(() => {
+    if (viewForm && form_num) {
+        document.title = `Home Visitation Form #${form_num}`;
+    } else if (!viewForm) {
+        document.title = `Create Home Visitation Form`;
+    }
+
+}, [form_num]);
+
+
     if (!data) return <div>No data found.</div>;
 
     if (noFormFound) {

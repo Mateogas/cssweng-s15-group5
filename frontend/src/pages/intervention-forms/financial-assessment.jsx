@@ -463,6 +463,16 @@ function FinancialAssessmentForm() {
         )
     }
 
+useEffect(() => {
+    if (viewForm && form_num) {
+        document.title = `Financial Assessment Form #${form_num}`;
+    } else if (!viewForm) {
+        document.title = `Create Financial Assessment Form`;
+    }
+
+}, [form_num]);
+
+
     return (
         <>
             {showModal && (

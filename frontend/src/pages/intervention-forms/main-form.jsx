@@ -10,7 +10,7 @@ import HomeVisitationForm from "./home-visitation";
 import { fetchCaseData } from "../../fetch-connections/case-connection";
 
 function useQuery() {
-  return new URLSearchParams(useLocation().search);
+    return new URLSearchParams(useLocation().search);
 }
 
 function InterventionForm() {
@@ -33,17 +33,21 @@ function InterventionForm() {
         },
     ];
 
+    useEffect(() => {
+        document.title = "Create Intervention";
+
+    }, []);
+
+
     /********** USE STATES **********/
 
     const query = useQuery();
-    const caseID = query.get('caseID') || ""; 
+    const caseID = query.get('caseID') || "";
     const defaultSelection = "";
     const [intervention_selected, setInterventionSelected] = useState(defaultSelection);
 
     const [caseData, setCaseData] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    console.log(caseID)
 
     useEffect(() => {
         const loadCase = async () => {
@@ -93,7 +97,7 @@ function InterventionForm() {
                     value={intervention_selected}
                     onChange={(e) => {
                         setInterventionSelected(e.target.value);
-                        {/*handleSelectIntervention(e.target.value);*/}
+                        {/*handleSelectIntervention(e.target.value);*/ }
                     }}
                     className="label-base text-input max-w-96"
                 >

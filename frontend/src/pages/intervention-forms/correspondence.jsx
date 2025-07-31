@@ -516,6 +516,14 @@ function CorrespondenceForm() {
         )
     }
 
+    useEffect(() => {
+    if (viewForm && form_num) {
+        document.title = `Correspondence Form #${form_num}`;
+    } else if (!viewForm) {
+        document.title = `Create Correspondence Form`;
+    }
+}, [form_num]);
+
     return (
         <>
             {showModal && (

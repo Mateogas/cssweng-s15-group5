@@ -74,6 +74,15 @@ export default function WorkerProfile() {
     const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
+        if (data.first_name || data.last_name) {
+            document.title = `${data.first_name} ${data.last_name} | Worker Profile`;
+        } else {
+            document.title = "Worker Profile";
+        }
+    }, [data.first_name, data.middle_name, data.last_name]);
+
+
+    useEffect(() => {
         const loadWorker = async () => {
             if (!workerId) {
                 setLoading(false);

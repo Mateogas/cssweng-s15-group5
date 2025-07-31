@@ -202,6 +202,9 @@ function CounselingForm() {
             setIsProcessing(true);
 
             const created = await handleCreate();
+
+            console.log(created);
+
             if (created) {
                 setShowSuccessModal(true);
             } else {
@@ -376,6 +379,16 @@ function CounselingForm() {
             </main>
         )
     }
+
+
+    useEffect(() => {
+    if (viewForm && form_num) {
+        document.title = `Counselling Form #${form_num}`;
+    } else if (!viewForm) {
+        document.title = `Create Counselling Form`;
+    }
+
+}, [form_num]);
 
     return (
         <>
@@ -707,14 +720,6 @@ function CounselingForm() {
                     </div>
                 )}
             </div>
-
-            {!viewForm && (
-                <div className="-mt-8">
-                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
-                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
-                    </p>
-                </div>
-            )}
         </main>
         </>
     );
