@@ -22,7 +22,7 @@ export default function SideBar({ user }) {
                     isActive={false}
                 />
 
-                {(user?.role == "supervisor" || user?.role == "head") && <SideItem
+                {(user?.role == "head") && <SideItem
                     href="/spu"
                     iconClass="spu-button"
                     label="SPU's"
