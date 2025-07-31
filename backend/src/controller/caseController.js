@@ -157,7 +157,7 @@ const getAllCaseViable = async (req, res) => {
  *   returns name of sponsored member and id only
  */
 const getAllCasesbySDW = async (req, res) => {
-    const sdwId = req.params.sdwID;
+    const sdwId = req.params.sdwID;     
     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
         return res.status(400).json({ message: "Invalid Social Development Worker Id" });
     }
