@@ -50,7 +50,7 @@ const generateProgressReport = async (req, res) => {
         formattedData.dob = formatDate(sponsored_member.dob) || '';
         formattedData.age = calculateAge(sponsored_member.dob) || '0';
 
-        console.log('FORMATTED PROGRESS REPORT: ', formattedData);
+        // console.log('FORMATTED PROGRESS REPORT: ', formattedData);
         return res.status(200).json(formattedData);
     } catch (error) {
         console.error("Error generating progress report:", error);

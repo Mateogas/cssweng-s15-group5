@@ -25,7 +25,6 @@ function getInterventionFormNumber(sponsored_member, interventionId) {
 	const intervention = sponsored_member.interventions.find(
 		(entry) => entry.intervention.toString() === interventionId.toString()
 	);
-	console.log('getInterventionFormNumber', intervention);
 	return intervention ? intervention.intervention_number || '' : '';
 }
 
