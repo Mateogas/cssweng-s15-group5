@@ -45,8 +45,9 @@ const loginUser = async (req, res) => {
                spu_id: active_user.spu_id?._id || null,
                spu_name: active_user.spu_id?.spu_name || null
           };
-
-          console.log("session saved ",userForSession);
+          
+          req.session.user = userForSession;
+          console.log("session saved ",req.session.user);
           if (rememberMe) {
                req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
           }
