@@ -4,6 +4,9 @@ const Sponsored_Member = require('../model/sponsored_member')
 
 const deleteAccount = async (req, res) => {
      // get the account to be deleted
+     // Generate a unique suffix using timestamp
+     const timestamp = Date.now();
+     const uniqueSuffix = timestamp.toString(36);
      var account_selected
      if (mongoose.Types.ObjectId.isValid(req.params.account)) 
           account_selected = await Employee.findById(req.params.account)
@@ -73,6 +76,7 @@ const deleteAccount = async (req, res) => {
      }
 
      // Change Status
+     account_selected.username = `${account_selected.username}_inactive_${uniqueSuffix}`;
      account_selected.is_active = false;
      await account_selected.save();
 

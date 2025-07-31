@@ -85,7 +85,7 @@ function CorrespondenceForm() {
                     last_name: caseData.last_name || "",
                     ch_number: caseData.sm_number || "",
                     dob: caseData.dob || "",
-                    address: caseData.address || "",
+                    address: caseData.present_address || "",
                     subproject: caseData.spu || "",
                 }));
 
