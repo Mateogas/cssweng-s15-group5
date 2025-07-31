@@ -27,7 +27,7 @@ export const fetchCaseData = async (caseID) => {
 
 export const fetchCounselingIntervention = async (caseId, counselingId) => {
     try {
-        const response = await fetch(`${apiUrl}/counseling/intervention/${caseId}/${counselingId}`,{
+        const response = await fetch(`${apiUrl}/intervention/counseling/intervention/${caseId}/${counselingId}`,{
             method: 'GET',
             credentials: 'include',
         });

@@ -52,7 +52,7 @@ export const fetchCaseClosureData = async (caseId) => {
  */
 export const createCaseClosureForm = async(createdData, caseID) => {
      try {
-          const response = await fetch(`${apiUrl}/create/case-closure/${caseID}`, {
+          const response = await fetch(`${apiUrl}/case-closure/create/${caseID}`, {
                method: 'PUT',
                headers: {
                'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export const terminateCase = async(caseID) => {
                headers: {
                'Content-Type': 'application/json',
                },
-               credentials:'include',
+               credentials:'include', 
           });
           
           if (!response.ok) 
