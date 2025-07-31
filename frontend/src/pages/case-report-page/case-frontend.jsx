@@ -295,7 +295,7 @@ function CaseFrontend({ creating = false }) {
             const matchSPU = projectLocation.find(p => p._id === user.spu_id);
             const validSDW = socialDevelopmentWorkers.find(
                 sdw =>
-                    (sdw.id === user._id || sdw._id === user._id) && 
+                    (sdw.id === user._id || sdw._id === user._id) &&
                     sdw.spu_id === matchSPU?.spu_name &&
                     sdw.role === "sdw"
             );
@@ -320,7 +320,7 @@ function CaseFrontend({ creating = false }) {
             const matchSPU = projectLocation.find(p => p._id === user.spu_id);
             const validSDW = socialDevelopmentWorkers.find(
                 sdw =>
-                    (sdw.id === user._id || sdw._id === user._id) && 
+                    (sdw.id === user._id || sdw._id === user._id) &&
                     sdw.spu_id === matchSPU?.spu_name &&
                     sdw.role === "sdw"
             );
@@ -648,7 +648,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -684,7 +684,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -721,7 +721,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -758,7 +758,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -1074,23 +1074,23 @@ function CaseFrontend({ creating = false }) {
                         </div>
 
                         <section className="flex flex-col gap-5" id="core-fields">
-                            {!creating && 
+                            {!creating &&
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         {data.is_active === true ? (
-                                        <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
-                                            Active
-                                        </div>
+                                            <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
+                                                Active
+                                            </div>
                                         ) : (
-                                        <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
-                                            Inactive
-                                        </div>
+                                            <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
+                                                Inactive
+                                            </div>
                                         )}
 
                                         {data.pendingTermination && (
-                                        <div className="font-bold-label rounded-full bg-red-600 p-2 px-8 !text-white">
-                                            Pending Termination
-                                        </div>
+                                            <div className="font-bold-label rounded-full bg-red-600 p-2 px-8 !text-white">
+                                                Pending Termination
+                                            </div>
                                         )}
                                     </div>
 
