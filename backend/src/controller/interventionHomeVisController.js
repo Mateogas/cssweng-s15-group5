@@ -129,7 +129,7 @@ const loadAllHomeVisitationForms = async (req, res) => {
                 middle_name: sponsored_member.middle_name,
                 last_name: sponsored_member.last_name,
                 ch_number: sponsored_member.sm_number,
-                subproject: sponsored_member.spu,
+                subproject: sponsored_member.spu.spu_name,
                 address: sponsored_member.present_address,
             },
         });

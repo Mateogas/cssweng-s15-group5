@@ -24,9 +24,10 @@ export const fetchCaseData = async(caseID) => {
  *   @param {*} formId Case closure form for that case
  *   @returns case closure form object
  */
-export const fetchCaseClosureData = async (caseId, formId) => {
+export const fetchCaseClosureData = async (caseId) => {
     try {
-        const response = await fetch(`/api/case-closure/${caseId}/${formId}`);
+        const response = await fetch(`/api/case-closure/${caseId}`);
+
         if (!response.ok) throw new Error('API error');
         return await response.json();
     } catch (error) {
@@ -56,7 +57,7 @@ export const createCaseClosureForm = async(createdData, caseID) => {
                throw new Error('API error');
 
           const newCaseClose = await response.json();
-          console.log(newCaseClose)
+          return newCaseClose
      } catch (err) {
           console.error('Error creating form:', err);
           return null;
@@ -98,10 +99,10 @@ export const editCaseClosureForm = async(updatedData, caseID) => {
  *                  case -- case selected; sponsored member object
  *                  form -- form selected, case closure form object
  */
-export const terminateCase = async(caseID, formID) => {
+export const terminateCase = async(caseID) => {
      try {
-          const response = await fetch(`/api/case-closure/terminate/${caseID}/${formID}`, {
-               method: 'DELETE',
+          const response = await fetch(`/api/case-closure/terminate/${caseID}`, {
+               method: 'PUT',
                headers: {
                'Content-Type': 'application/json',
                },
@@ -124,9 +125,9 @@ export const terminateCase = async(caseID, formID) => {
  *                  message -- status message
  *                  case -- case selected; sponsored member object
  */
-export const deleteCaseClosureForm = async(caseID, formID) => {
+export const deleteCaseClosureForm = async(caseID) => {
      try {
-          const response = await fetch(`/api/case-closure/delete/${caseID}/${formID}`, {
+          const response = await fetch(`/api/case-closure/delete/${caseID}`, {
                method: 'DELETE',
                headers: {
                'Content-Type': 'application/json',
