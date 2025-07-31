@@ -5,6 +5,7 @@ const Intervention_Counseling = require('../model/intervention_counseling')
 const {
 	calculateAge,
 	formatDate,
+	getInterventionFormNumber,
 	formatCounselingData,
 } = require('./helpers')
 
@@ -62,6 +63,7 @@ const generateCounselingForm = async (req, res) => {
         formattedData.first_name = sponsored_member.first_name || '';
         formattedData.mi = sponsored_member.middle_name[0] || '';
         formattedData.sm_number = sponsored_member.sm_number || '';
+        formattedData.form_num = getInterventionFormNumber(sponsored_member, counselingId);
 
         // console.log('FORMATTED COUNSELING FORM: ', formattedData);
         // Return data
