@@ -283,6 +283,31 @@ function CaseFrontend({ creating = false }) {
             // console.log("Session:", currentUser);
         };
         loadSession();
+
+
+
+        if (
+            creating &&
+            user &&
+            projectLocation.length > 0 &&
+            socialDevelopmentWorkers.length > 0
+        ) {
+            const matchSPU = projectLocation.find(p => p._id === user.spu_id);
+            const validSDW = socialDevelopmentWorkers.find(
+                sdw =>
+                    (sdw.id === user._id || sdw._id === user._id) && 
+                    sdw.spu_id === matchSPU?.spu_name &&
+                    sdw.role === "sdw"
+            );
+
+            if (matchSPU && validSDW) {
+                setDrafts(prev => ({
+                    ...prev,
+                    spu: matchSPU._id,
+                    assigned_sdw: validSDW.id,
+                }));
+            }
+        }
     }, [creating]);
 
     useEffect(() => {
@@ -299,6 +324,8 @@ function CaseFrontend({ creating = false }) {
                     sdw.spu_id === matchSPU?.spu_name &&
                     sdw.role === "sdw"
             );
+
+            console.log("SPU", matchSPU, "SDW", socialDevelopmentWorkers);
 
             if (matchSPU && validSDW) {
                 setDrafts(prev => ({

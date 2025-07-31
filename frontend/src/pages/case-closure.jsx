@@ -867,7 +867,7 @@ function CaseClosure() {
                             ) : (
                                 <>
                                     <h2 className="header-md font-semibold mb-4">Terminate Case</h2>
-                                    <p className="text-2xl mb-6">Are you sure you want to terminate this case?</p>
+                                    <p className="text-2xl mb-6">Are you sure you want to terminate this case? Ensure that the forms have been processed and signed before confirmation.</p>
                                 </>
                             )}
                             <div className="flex justify-end gap-4">

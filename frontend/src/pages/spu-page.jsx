@@ -244,7 +244,7 @@ export default function SpuPage() {
                                                     )}
                                                 </div>
 
-                                                <mdiv>
+                                                <div>
                                                     <h3 className="font-bold-label mb-2">Cases:</h3>
                                                     {spuCases.length === 0 ? (
                                                         <p className="font-label">No cases recorded.</p>
@@ -268,7 +268,7 @@ export default function SpuPage() {
                                                             ))}
                                                         </>
                                                     )}
-                                                </mdiv>
+                                                </div>
 
                                                 <div className="flex justify-end mt-6">
                                                     <button

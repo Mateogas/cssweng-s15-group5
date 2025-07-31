@@ -502,14 +502,15 @@ const getSDWViewbyParam = async(req,res) =>{
     // if (!user || !mongoose.Types.ObjectId.isValid(sdwId)) {
     //   return res.status(401).json({ message: "Authentication Error" });
     // }
-
     try{
         let cases = []
 
-        cases = await Sponsored_Member.find({assigned_sdw: sdwId, is_active: true})
+        cases = await Sponsored_Member.find({assigned_sdw: sdwId})
         .populate('assigned_sdw')
         .populate('spu')
         .lean()
+
+        console.log("CASES FOUND", cases);
 
         const smIds = cases.map(c => c._id);
         const pendingClosures = await Case_Closure.find({

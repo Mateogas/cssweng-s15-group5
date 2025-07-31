@@ -34,6 +34,7 @@ const generateCaseClosure = async (req, res) => {
                 description: service.description || '',
             })),
         }
+        // console.log("FORMATTED SERVICES PROVIDED", formattedServicesProvided);
 
         // Generate the case closure form
         const form = {
@@ -41,16 +42,19 @@ const generateCaseClosure = async (req, res) => {
             sm_number: sponsoredMember.sm_number || '',
             sm_name: `${sponsoredMember.last_name || ''}, ${sponsoredMember.first_name || ''} ${sponsoredMember.middle_name || ''}`.trim(),
             address: sponsoredMember.present_address || '',
+            religion: sponsoredMember.religion || '',
             dob: formatDate(caseClosure.sponsorship_date) || '',
             age: calculateAge(sponsoredMember.dob) || '0',
+            closure_date: formatDate(caseClosure.closure_date) || '',
             sponsorship_date: formatDate(caseClosure.sponsorship_date) || '',
             reason_for_retirement: caseClosure.reason_for_retirement || '',
             sm_awareness: caseClosure.sm_awareness ? "Yes" : "No",
             sm_notification: caseClosure.sm_notification || '',
-            services_provided: formattedServicesProvided,
+            services_provided: formattedServicesProvided.services,
             evaluation: caseClosure.evaluation || '',
             recommendation: caseClosure.recommendation || '',
         };
+        // console.log("CASE CLOSURE FORM", form);
 
         res.status(200).json(form);
     } catch (error) {

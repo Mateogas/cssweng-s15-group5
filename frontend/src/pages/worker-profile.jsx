@@ -190,9 +190,17 @@ export default function WorkerProfile() {
         const loadHandled = async () => {
             if (data.role === "sdw") {
                 const res = await fetchSDWViewById(workerId);
-                const activeClients = (res || []).filter((client) => client.is_active === true);
-                setHandledClients(activeClients);
-            } else if (data.role === "supervisor") {
+                console.log("RES:", res);
+
+                const filteredClients = (res || []).filter((client) => {
+                    return data.is_active ? client.is_active === true : client.is_active === false;
+                });
+
+                console.log(filteredClients);
+
+                setHandledClients(filteredClients);
+            }
+            else if (data.role === "supervisor") {
                 const res = await fetchHeadViewBySupervisor(workerId);
                 const activeWorkers = (res || []).filter((worker) => worker.is_active === true);
                 setHandledWorkers(activeWorkers);
@@ -216,9 +224,11 @@ export default function WorkerProfile() {
         if (result.success) {
             window.location.reload();
         } else {
-            // alert("Failed to terminate: " + result.message);
-            setTerminateErrorMessage(result.message || "Failed to terminate account.");
-            setShowTerminateError(true);
+            setModalTitle("Termination Failed");
+            setModalBody(result.message || "An unexpected error occurred while attempting to terminate the account.");
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
         }
     };
 
@@ -421,47 +431,12 @@ export default function WorkerProfile() {
         }
     };
 
+    console.log("HANDED", handledClients);
+
     if (loading) return null;
 
     return (
         <>
-            {showTerminateError && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
-                                    animate-fadeIn scale-100 transform transition duration-300">
-                        <div className="flex items-center gap-4 border-b-1">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-[2.4rem] w-[2.4rem] text-red-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
-                                />
-                            </svg>
-                            <h2 className="header-sm font-bold text-red-600 text-center">
-                                Termination Failed
-                            </h2>
-                        </div>
-                        <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                            {terminateErrorMessage || "An unexpected error occurred while attempting to terminate the account."}
-                        </p>
-
-                        <button
-                            onClick={() => setShowTerminateError(false)}
-                            className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
-                        >
-                            OK
-                        </button>
-                    </div>
-                </div>
-            )}
-
             {notFound ? (
                 <NotFound message="The profile you are looking for does not exist." />
             ) : (
@@ -848,6 +823,8 @@ export default function WorkerProfile() {
                                                 spu={client.spu}
                                                 name={client.name}
                                                 assigned_sdw_name={client.assigned_sdw_name}
+                                                pendingTermination={client.pendingTermination}
+                                                archive={!client.is_active}
                                             />
                                         ))
                                     )}
@@ -911,7 +888,34 @@ export default function WorkerProfile() {
                             {user?.role === "head" && data?.is_active && (
                                 <button
                                     className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
-                                    onClick={() => setShowConfirmTerminate(true)}
+                                    onClick={() => {
+                                        if (data.role === "sdw" && handledClients.length > 0) {
+                                            setModalTitle("Cannot Terminate Worker");
+                                            setModalBody("This worker is currently assigned to clients. Please reassign all clients before terminating.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto" />);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+                                            return;
+                                        }
+
+                                        if ((data.role === "supervisor" || data.role === "head") && handledWorkers.length > 0) {
+                                            setModalTitle("Cannot Terminate Worker");
+                                            setModalBody("This worker is currently managing employees. Please reassign them before termination.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto" />);
+                                            setModalConfirm(false);
+                                            setShowModal(true);
+                                            return;
+                                        }
+
+                                        // Proceed with confirm modal
+                                        setModalTitle("Confirm Termination");
+                                        setModalBody("Are you sure you want to terminate this worker? This will mark them as inactive and revoke their access.");
+                                        setModalImageCenter(<div className="warning-icon mx-auto" />);
+                                        setModalConfirm(true);
+                                        setModalOnConfirm(() => handleTerminate);
+                                        setShowModal(true);
+                                    }}
+
                                 >
                                     Terminate Worker
                                 </button>
@@ -972,4 +976,4 @@ export default function WorkerProfile() {
     );
 }
 
-//
+////

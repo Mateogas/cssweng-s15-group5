@@ -42,6 +42,7 @@ function Archive() {
             setUser(sessionData.user);
 
             const cases = await fetchAllCases();
+
             setAllCases(cases);
         };
 
@@ -54,12 +55,17 @@ function Archive() {
 
         if (user) {
             if (user?.role === "supervisor") {
-                filtered = filtered.filter((client) => client.spu === user?.spu_id);
-            } else if (user?.role === "sdw") {
-                filtered = filtered.filter((client) => {
-                    return client.assigned_sdw_name?.includes(user?.first_name);
-                });
+                console.log("FITLERED", filtered);
+                filtered = filtered.filter((client) => client.spu === user?.spu_name);
             }
+
+            // SDws aren't meant to be here anyway
+
+            //  else if (user?.role === "sdw") {
+            //     filtered = filtered.filter((client) => {
+            //         return client.assigned_sdw_name?.includes(user?.first_name);
+            //     });
+            // }
         }
 
         if (currentSPU !== "") {
