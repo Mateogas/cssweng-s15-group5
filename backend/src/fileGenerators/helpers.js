@@ -21,6 +21,14 @@ function formatDate(date) {
 	return new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
 }
 
+function getInterventionFormNumber(sponsored_member, interventionId) {
+	const intervention = sponsored_member.interventions.find(
+		(entry) => entry.intervention.toString() === interventionId.toString()
+	);
+	console.log('getInterventionFormNumber', intervention);
+	return intervention ? intervention.intervention_number || '' : '';
+}
+
 /* Return format:
 {
 	name_of_sponsor: String,
@@ -313,6 +321,7 @@ function formatProgressReport(report) {
 module.exports = {
     calculateAge,
 	formatDate,
+	getInterventionFormNumber,
     formatCorrespondenceData,
     formatCounselingData,
     formatFinancialData,
