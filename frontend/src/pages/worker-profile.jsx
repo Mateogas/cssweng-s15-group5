@@ -421,6 +421,8 @@ export default function WorkerProfile() {
         }
     };
 
+    console.log("HANDED", handledClients);
+
     if (loading) return null;
 
     return (
@@ -848,6 +850,7 @@ export default function WorkerProfile() {
                                                 spu={client.spu}
                                                 name={client.name}
                                                 assigned_sdw_name={client.assigned_sdw_name}
+                                                pendingTermination={client.pendingTermination}
                                             />
                                         ))
                                     )}

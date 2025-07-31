@@ -141,9 +141,7 @@ const getAllCaseViable = async (req, res) => {
           const cases = await Sponsored_Member.find({
                assigned_sdw: userPriv,
                isActive: "true"
-          })
-
-               .lean();
+          }).lean();
 
           res.json(cases);
      } catch (error) {
@@ -159,42 +157,51 @@ const getAllCaseViable = async (req, res) => {
  *   returns name of sponsored member and id only
  */
 const getAllCasesbySDW = async (req, res) => {
-     const sdwId = req.params.sdwID;
-     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
-          return res.status(400).json({ message: "Invalid Social Development Worker Id" });
-     }
-     try {
-          const allCases = await Sponsored_Member.find({
-               is_active: true,
-               assigned_sdw: sdwId
-          })
-               .populate('assigned_sdw')
-               .populate('spu')
-               .lean()
+    const sdwId = req.params.sdwID;
+    if (!mongoose.Types.ObjectId.isValid(sdwId)) {
+        return res.status(400).json({ message: "Invalid Social Development Worker Id" });
+    }
 
-          const simplifiedCases = allCases.map(c => ({
-               id: c._id,
-               name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
-               sm_number: c.sm_number,
-               spu: c.spu.spu_name,
-               is_active: c.is_active,
-               assigned_sdw: c.assigned_sdw._id,
-               assigned_sdw_name: c.assigned_sdw
-                    ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-                    : null
-          }));
+    try {
+        const allCases = await Sponsored_Member.find({
+            assigned_sdw: sdwId
+        })
+            .populate('assigned_sdw')
+            .populate('spu')
+            .lean();
 
-          res.status(200).json(simplifiedCases);
+        const casesWithTerminationStatus = await Promise.all(
+            allCases.map(async (caseItem) => {
+                const casePending = await Case_Closure.findOne({
+                    sm: caseItem._id,
+                    status: "Pending"
+                });
 
-     } catch (error) {
-          console.error("Error fetching Cases for SDW: ", error);
-          res.status(500).json({
-               message: "Error fetching Cases for SDW",
-               error: error.message
-          })
-     }
+                return {
+                    id: caseItem._id,
+                    name: `${caseItem.first_name} ${caseItem.middle_name || ''} ${caseItem.last_name}`.trim(),
+                    sm_number: caseItem.sm_number,
+                    spu: caseItem.spu?.spu_name || null,
+                    is_active: caseItem.is_active,
+                    assigned_sdw: caseItem.assigned_sdw?._id || null,
+                    assigned_sdw_name: caseItem.assigned_sdw
+                        ? `${caseItem.assigned_sdw.first_name} ${caseItem.assigned_sdw.middle_name || ''} ${caseItem.assigned_sdw.last_name}`.trim()
+                        : null,
+                    pendingTermination: !!casePending
+                };
+            })
+        );
 
-}
+        res.status(200).json(casesWithTerminationStatus);
+    } catch (error) {
+        console.error("Error fetching Cases for SDW: ", error);
+        res.status(500).json({
+            message: "Error fetching Cases for SDW",
+            error: error.message
+        });
+    }
+};
+
 /**  
  *   Gets all cases returns name and id only
  */
