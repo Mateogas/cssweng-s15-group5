@@ -8,7 +8,7 @@ function loadFile(url, callback) {
 }
 
 // Generic document generator function
-const generateDocument = async (apiEndpoint, templatePath, outputFileName, useSmNumber = false) => {
+const generateDocument = async (apiEndpoint, templatePath, outputFileName) => {
     try {
         // Fetch data from API
         const response = await fetch(apiEndpoint);
@@ -18,11 +18,20 @@ const generateDocument = async (apiEndpoint, templatePath, outputFileName, useSm
 
         const data = await response.json();
 
-        // If using SM number, ensure it is included in the data
         let finalOutputName = outputFileName;
-        if (useSmNumber && data.sm_number) {
+
+        // If data has sm_number, include it in the output file name
+        if (data.sm_number) {
             finalOutputName = `CH${data.sm_number}-${outputFileName}`;
         }
+
+        // If data has form_num, include it in the output file name
+        if (data.form_num) {
+            finalOutputName = `${finalOutputName}-${data.form_num}`;
+        }
+
+        // Add .docx extension to the final output name
+        finalOutputName = `${finalOutputName}.docx`;
 
         // Load and process template
         loadFile(templatePath, function (error, content) {
@@ -56,39 +65,37 @@ const DOCUMENT_CONFIGS = {
     caseReport: {
         apiPath: '/api/file-generator/case-data',
         templatePath: '/templates/TEMPLATE_Social-Case-Study-Report.docx',
-        outputName: 'case-report.docx',
-        useSmNumber: true
+        outputName: 'case-report',
     },
     correspondence: {
         apiPath: '/api/file-generator/correspondence-form',
         templatePath: '/templates/TEMPLATE_Correspondence-Form.docx',
-        outputName: 'correspondence-form.docx'
+        outputName: 'correspondence-intervention'
     },
     counseling: {
         apiPath: '/api/file-generator/counseling-form',
         templatePath: '/templates/TEMPLATE_Counseling-Form.docx',
-        outputName: 'counseling-form.docx'
+        outputName: 'counseling-intervention'
     },
     financial: {
         apiPath: '/api/file-generator/financial-assessment-form',
         templatePath: '/templates/TEMPLATE_Financial-Assessment-Form.docx',
-        outputName: 'financial-assessment-form.docx'
+        outputName: 'financial-assessment-intervention'
     },
     homeVisit: {
         apiPath: '/api/file-generator/home-visit-form',
         templatePath: '/templates/TEMPLATE_Home-Visit-Form.docx',
-        outputName: 'home-visit-form.docx'
+        outputName: 'home-visit-intervention'
     },
     progressReport: {
         apiPath: '/api/file-generator/progress-report',
         templatePath: '/templates/TEMPLATE_Progress-Report.docx',
-        outputName: 'progress-report.docx'
+        outputName: 'progress-report'
     },
     caseClosure: {
         apiPath: '/api/file-generator/case-closure',
         templatePath: '/templates/TEMPLATE-Case-Closure-Form.docx',
-        outputName: 'case-closure.docx',
-        useSmNumber: true
+        outputName: 'case-closure',
     }
 };
 
@@ -103,7 +110,6 @@ const generateDocumentByType = async (documentType, id) => {
         `${config.apiPath}/${id}`,
         config.templatePath,
         config.outputName,
-        config.useSmNumber
     );
 };
 

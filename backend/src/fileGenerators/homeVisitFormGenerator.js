@@ -5,6 +5,7 @@ const Intervention_Home_Visit = require('../model/intervention_homevisit')
 const {
 	calculateAge,
 	formatDate,
+    getInterventionFormNumber,
     formatHomeVisitData
 } = require('./helpers')
 
@@ -41,6 +42,7 @@ const generateHomeVisitForm = async (req, res) => {
         formattedData.first_name = sponsored_member.first_name || '';
         formattedData.middle_name = sponsored_member.middle_name || '';
         formattedData.sm_number = sponsored_member.sm_number || '';
+        formattedData.form_num = getInterventionFormNumber(sponsored_member, formSelected._id);
 
         //console.log('FORMATTED HOME VISIT FORM: ', formattedData);
         return res.status(200).json(formattedData)

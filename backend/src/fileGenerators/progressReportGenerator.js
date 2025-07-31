@@ -37,6 +37,10 @@ const generateProgressReport = async (req, res) => {
 
         const formattedData = formatProgressReport(reportSelected);
 
+        // Get progress report number
+        const sm_report = sponsored_member.progress_reports.find(report => report.progress_report.toString() === reportSelected._id.toString());
+        formattedData.form_num = sm_report ? sm_report.report_number : '';
+
         // additional fields
         formattedData.last_name = sponsored_member.last_name || '';
         formattedData.first_name = sponsored_member.first_name || '';
@@ -46,7 +50,7 @@ const generateProgressReport = async (req, res) => {
         formattedData.dob = formatDate(sponsored_member.dob) || '';
         formattedData.age = calculateAge(sponsored_member.dob) || '0';
 
-        //console.log('FORMATTED PROGRESS REPORT: ', formattedData);
+        console.log('FORMATTED PROGRESS REPORT: ', formattedData);
         return res.status(200).json(formattedData);
     } catch (error) {
         console.error("Error generating progress report:", error);

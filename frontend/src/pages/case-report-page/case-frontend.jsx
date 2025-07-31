@@ -111,6 +111,9 @@ function CaseFrontend({ creating = false }) {
                 return;
             }
 
+            if (!fetchedData.pendingTermination && !fetchedData.is_active)
+                setIsTerminated(true)
+
             setData({
                 ...fetchedData,
                 assigned_sdw: fetchedData.assigned_sdw?._id || ""

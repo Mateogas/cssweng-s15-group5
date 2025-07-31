@@ -136,7 +136,7 @@ function CaseClosure() {
                 setnewformID(formData._id)
                 setData((prev) => ({
                     ...prev,
-                    irst_name: caseData.first_name || "",
+                    first_name: caseData.first_name || "",
                     middle_name: caseData.middle_name || "",
                     last_name: caseData.last_name || "",
 
@@ -341,7 +341,7 @@ function CaseClosure() {
         const response = await createCaseClosureForm(payload, caseID);
         console.log("RESPONSE", response);
         if (response?._id) {
-            setnewformID(response.form?._id);
+            setnewformID(response?._id);
             return true;
         } else {
             return false;
@@ -679,7 +679,7 @@ function CaseClosure() {
                                                 type="checkbox"
                                                 name="sm_awareness"
                                                 value="yes"
-                                                checked={sm_awareness === "yes" || sm_awareness === true}
+                                                checked={sm_awareness}
                                                 onChange={(e) =>
                                                     handleCheckboxChange(e.target.value)
                                                 }
@@ -692,7 +692,7 @@ function CaseClosure() {
                                                 type="checkbox"
                                                 name="sm_awareness"
                                                 value="no"
-                                                checked={sm_awareness === "no" || sm_awareness === false}
+                                                checked={!sm_awareness}
                                                 onChange={(e) =>
                                                     handleCheckboxChange(e.target.value)
                                                 }
@@ -814,99 +814,107 @@ function CaseClosure() {
                     </div>
                 </div>*/}
 
-                    {/* Buttons */}
-                    {sdw_view ? (
-                        <div className="flex w-full justify-center gap-20">
-                            {viewForm ? (
-                                <>
-                                    {!isTerminated && (
-                                        <button
-                                            className="btn-outline font-bold-label"
-                                            onClick={async () => {
-                                                await handleDelete();
-                                                navigate(`/case/${caseID}`);
-                                            }}
-                                        >
-                                            Delete Request
-                                        </button>
-
-                                    )}
-                                    <button
-                                        className="btn-primary font-bold-label"
-                                        onClick={async () => {
-                                            generateCaseClosureForm(newformID)
-                                        }}
-                                    >
-                                        Download Form
-                                    </button>
-                                </>
-                            ) : (
-                                <>
+                {/* Buttons */}
+                {sdw_view ? (
+                    <div className="flex w-full justify-center gap-20">
+                        {viewForm ? (
+                            <>
+                                {!isTerminated && (
                                     <button
                                         className="btn-outline font-bold-label"
-                                        onClick={() => navigate(`/case/${caseID}`)}
+                                        onClick={async () => {
+                                            await handleDelete();
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        disabled={loading}
                                     >
-                                        Cancel
+                                        Delete Request
                                     </button>
-                                    <button
-                                        type="submit"
-                                        className={`btn-primary font-bold-label w-min ${isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
-                                            }`}
-                                        onClick={handleSubmit}
-
-
-                                        disabled={isProcessing}
-                                    >
-                                        {isProcessing ? "Creating..." : "Create Request"}
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex w-full justify-center items-center gap-20">
-                            {isTerminated ? (
+                                    
+                                )}
                                 <button
                                     className="btn-primary font-bold-label"
                                     onClick={async () => {
                                         generateCaseClosureForm(newformID)
                                     }}
+                                    disabled={loading}
                                 >
                                     Download Form
                                 </button>
-                            ) : (
-                                <>
-                                    <button
-                                        className="label-base btn-outline"
-                                        onClick={async () => {
-                                            await handleDelete();
-                                            navigate(`/case/${caseID}`);
-                                        }}
-                                    >
-                                        Reject Termination
-                                    </button>
-                                    <button
-                                        className="label-base btn-primary"
-                                        onClick={() => {
-                                            setModalTitle("Terminate Case");
-                                            setModalBody("Are you sure you want to terminate this case? Ensure that the forms have been processed and signed before confirmation.");
-                                            setModalImageCenter(<div className="warning-icon mx-auto" />);
-                                            setModalConfirm(true);
-                                            setModalOnConfirm(() => async () => {
-                                                setShowModal(false);
-                                                await handleTermination();
-                                                navigate(`/case/${caseID}`);
-                                            });
-                                            setShowModal(true);
-                                        }}
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    className="btn-outline font-bold-label"
+                                    onClick={() => navigate(`/case/${caseID}`)}
+                                    disabled={loading}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className={`btn-primary font-bold-label w-min ${
+                                        isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                    }`}
+                                    onClick={handleSubmit}
+                                    disabled={isProcessing || loading || showSuccessModal}
+                                >
+                                    {showSuccessModal
+                                    ? "Request Created"
+                                    : isProcessing
+                                        ? "Creating..."
+                                        : "Create Request"}
+                                </button>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <div className={`flex w-full items-center ${isTerminated ? 'justify-center' : 'justify-between'}`}>
+                        {!isTerminated && (
+                            <div className="flex gap-4">
+                            <button
+                                className="label-base btn-outline"
+                                onClick={async () => {
+                                await handleDelete();
+                                navigate(`/case/${caseID}`);
+                                }}
+                                disabled={loading}
+                            >
+                                Reject Termination
+                            </button>
+                            <button
+                                className="label-base btn-primary"
+                                onClick={() => {
+                                    setModalTitle("Terminate Case");
+                                    setModalBody("Are you sure you want to terminate this case? Ensure that the forms have been processed and signed before confirmation.");
+                                    setModalImageCenter(<div className="warning-icon mx-auto" />);
+                                    setModalConfirm(true);
+                                    setModalOnConfirm(() => async () => {
+                                        setShowModal(false);
+                                        await handleTermination();
+                                        navigate(`/case/${caseID}`);
+                                    });
+                                    setShowModal(true);
+                                }}
 
-                                    >
-                                        Approve Termination
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    )}
+                            >
+                                Approve Termination
+                            </button>
+                            </div>
+                        )}
 
+                        <button
+                            className="btn-primary font-bold-label"
+                            onClick={async () => {
+                            generateCaseClosureForm(newformID);
+                            }}
+                            disabled={loading}
+                        >
+                            Download Form
+                        </button>
+                    </div>
+                )}
+            
 
                     {/* Confirm Close Case */}
                     {showModal && (
