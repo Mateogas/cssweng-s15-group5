@@ -113,7 +113,7 @@ const FamilyCard = ({
             const incomeStr = editingFamilyValue.income.toString().trim();
             const validNumber = /^\d+(\.\d+)?$/.test(incomeStr);
 
-            if (!validNumber) {
+            if (!validNumber && incomeStr != "") {
                 missing.push(
                     "Income must be a valid number with no spaces or extra characters",
                 );
@@ -123,6 +123,7 @@ const FamilyCard = ({
         }
 
         if (missing.length > 0) {
+            console.log(missing)
             setModalTitle("Invalid Fields");
             setModalBody(
                 `The following fields are missing or invalid: ${formatListWithAnd(missing)}`,
