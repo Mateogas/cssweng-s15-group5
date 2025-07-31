@@ -4,7 +4,7 @@ import { useInView } from "react-intersection-observer";
 import { useParams } from "react-router-dom";
 import FamilyCard from "../../Components/FamilyCard";
 import SimpleModal from '../../Components/SimpleModal';
-import NavLabelButton from '../../components/NavLabelButton';
+import NavLabelButton from '../../Components/NavLabelButton';
 
 import { fetchSession } from "../../fetch-connections/account-connection";
 import { createNewCase } from "../../fetch-connections/case-connection";
