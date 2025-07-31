@@ -43,6 +43,7 @@ const FamilyCard = ({
     setModalConfirm,
     setModalOnConfirm,
     editable,
+    terminated,
     activeMember = true
 }) => {
     const isEditing = selectedFamily === index;
@@ -190,7 +191,7 @@ const FamilyCard = ({
                     </h3>
                 )}
 
-                {activeMember && editable == "sdw" && (
+                {activeMember && editable == "sdw" && !terminated && (
                     <button
                         className={
                             isEditing

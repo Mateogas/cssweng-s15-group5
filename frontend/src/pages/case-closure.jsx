@@ -2,11 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea, DateInput } from "../Components/TextField";
 import Signature from "../Components/Signature";
+import { generateCaseClosureForm } from "../generate-documents/generate-documents";
 
 // API Import
 import  {   fetchCaseData,
             fetchCaseClosureData, 
-            createCaseClosureForm
+            createCaseClosureForm,
+            terminateCase,
+            deleteCaseClosureForm
         }
 from '../fetch-connections/caseClosure-connection'; 
 
@@ -15,9 +18,6 @@ function useQuery() {
 }
 
 function CaseClosure() {
-
-    // --- Temporary data --- //
-    const sdw_view = true;
 
     // ===== START :: Setting Data ===== // 
 
@@ -29,9 +29,12 @@ function CaseClosure() {
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
     const [rawFormData, setRawFormData] = useState(null);
+    const [isTerminated, setIsTerminated] = useState(false);
+    const [newformID, setnewformID] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [data, setData] = useState({
-        form_num: "",
         first_name: "",
         middle_name: "",
         last_name: "",
@@ -47,67 +50,93 @@ function CaseClosure() {
         sm_notification: "",
         evaluation: "",
         recommendation: "",
+        is_active: ""
     });
 
     // < START :: Create New Form > //
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
+    const viewForm = action !== 'create' ? true : false;
+    const [sdw_view, setSDWView] = useState(true);
 
-            const returnData = await fetchCaseData(caseID);
-            const caseData = returnData
+    if (!viewForm) {
+        useEffect(() => {
+            const loadData = async () => {
+                setLoading(true);
 
-            setRawCaseData(caseData);
-            setData((prev) => ({
-                ...prev,
-                first_name: caseData.first_name || "",
-                middle_name: caseData.middle_name || "",
-                last_name: caseData.last_name || "",
+                const returnData = await fetchCaseData(caseID);
+                const caseData = returnData.case || returnData
+                
+                if (returnData?.form)
+                    navigate(`/case-closure/?action=view&caseID=${caseID}`);
 
-                ch_number: caseData.sm_number || "",
-                dob: caseData.dob || "",
-                religion: caseData.religion || "",
-                address: caseData.present_address || "",
-                spu: caseData.spu || "",
-            }));
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+                setRawCaseData(caseData);
+                setData((prev) => ({
+                    ...prev,
+                    first_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
 
-    useEffect(() => {
-        setLastName(data.last_name || "");
-        setMiddleName(data.middle_name || "");
-        setFirstName(data.first_name || "");
-        setCHNumber(data.ch_number || "");
-        setDOB("");
-        setAge("");
-        setReligion(data.religion || "");
-        setAddress(data.address || "");
-        setSPU(data.spu || "");
-    }, [data]);
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    religion: caseData.religion || "",
+                    address: caseData.present_address || "",
+                    spu: caseData.spu || "",
+                    is_active: caseData.is_active || true,
+                }));
+                setLoading(false);
+            };
+            loadData();
+        }, []);
+
+        useEffect(() => {
+            setLastName(data.last_name || "");
+            setMiddleName(data.middle_name || "");
+            setFirstName(data.first_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB("");
+            setAge("");
+            setReligion(data.religion || "");
+            setAddress(data.address || "");
+            setSPU(data.spu || "");
+        }, [data]);
+    }
 
     // < END :: Create New Form > //
 
     // < START :: View Form > //
-    
-    const viewForm = action !== 'create' ? true : false;
 
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
                 setLoading(true);
     
-                const returnData = await fetchCaseClosureData(caseID, formID);
+                const returnData = await fetchCaseClosureData(caseID);
                 const formData = returnData.form
+                const caseData = returnData.case
     
-                console.log("Form Data", formData)
+                // console.log("Form Data", formData)
     
                 setRawFormData(formData);
+                const user_sdw = returnData.active_user_role === "sdw" ? true : false;
+                setSDWView(user_sdw);
+
+                if (formData.status == "Accepted" && !data.is_active)
+                    setIsTerminated(true)
     
+                setnewformID(formData._id)
                 setData((prev) => ({
                     ...prev,
+                    irst_name: caseData.first_name || "",
+                    middle_name: caseData.middle_name || "",
+                    last_name: caseData.last_name || "",
+
+                    ch_number: caseData.sm_number || "",
+                    dob: caseData.dob || "",
+                    religion: caseData.religion || "",
+                    address: caseData.present_address || "",
+                    spu: caseData.spu || "",
+                    is_active: caseData.is_active || true,
+
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     reason_for_retirement: formData.reason_for_retirement || "",
@@ -124,6 +153,16 @@ function CaseClosure() {
         }, []);
     
         useEffect(() => {
+            setLastName(data.last_name || "");
+            setMiddleName(data.middle_name || "");
+            setFirstName(data.first_name || "");
+            setCHNumber(data.ch_number || "");
+            setDOB("");
+            setAge("");
+            setReligion(data.religion || "");
+            setAddress(data.address || "");
+            setSPU(data.spu || "");
+
             setClosureDate(data.closure_date || "");
             setSponsorshipDate(data.closure_date || "");
             setReasonForRetirement(data.reason_for_retirement || "");
@@ -132,7 +171,6 @@ function CaseClosure() {
             setEvaluation(data.evaluation || "");
             setRecommendation(data.recommendation || "");
         }, [data]);
-    
     }
 
     // < END :: View Form > //
@@ -196,36 +234,42 @@ function CaseClosure() {
             sponsorship_date,
             reason_for_retirement,
             sm_awareness,
-            sm_notification,
-            services_provided,
             evaluation,
             recommendation
         };
 
         Object.entries(requiredFields).forEach(([field, value]) => {
-
             if (
                 value === undefined ||               
                 value === null ||                    
                 value === "" ||                    
                 (typeof value === "string" && !value.trim())
             ) {
-            newErrors[field] = "Missing input";
+                newErrors[field] = "Missing input";
             }
         });
 
-        services_provided.forEach((item, index) => {
+        if (
+            sm_awareness?.toLowerCase?.() === "yes" &&
+            (sm_notification === undefined ||
+            sm_notification === null ||
+            sm_notification === "" ||
+            (typeof sm_notification === "string" && !sm_notification.trim()))
+        ) {
+            newErrors.sm_notification = "Missing input";
+        }
+
+        services_provided.forEach((item) => {
             if (!item.description || item.description.trim() === "") {
                 newErrors[item.service] = "Missing input";
             }
-
-            console.log(item.service);
-        })
+        });
 
         setErrors(newErrors);
 
-        return Object.keys(newErrors).length === 0; 
+        return Object.keys(newErrors).length === 0;
     };
+
 
     const handleSubmit = async (e) => {
         e?.preventDefault();
@@ -238,10 +282,11 @@ function CaseClosure() {
 
         try {
             console.log("Form Submitted");
-            await handleCreate();
-            navigate(`/case/${caseID}`);
+            const created = await handleCreate();
+            return created;
         } catch (err) {
             console.error("Submission failed:", err);
+            return false;
         }
 
     };
@@ -257,10 +302,16 @@ function CaseClosure() {
             evaluation,
             recommendation
         };
-
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createCaseClosureForm(payload, caseID); 
+        console.log(response)
+        if (response?.form?._id) {
+            setnewformID(response.form?._id);
+            return true;
+        } else {
+            return false;
+        }
     };
 
     // < END :: Create Form > //
@@ -286,7 +337,31 @@ function CaseClosure() {
     };
     */
 
-    // < END :: Create Form > //
+    // < END :: Edit Form > //
+
+    // < START :: Delete Form > //
+
+    const handleDelete = async () => {
+        try {
+            const response = await deleteCaseClosureForm(caseID); 
+        } catch (err) {
+            console.error("Failed to delete case:", err);
+        }
+    };
+
+    // < END :: Delete Form > //
+
+    // < START :: Terminate Case > //
+
+    const handleTermination = async () => {
+        try {
+            const response = await terminateCase(caseID); 
+        } catch (err) {
+            console.error("Failed to terminate case:", err);
+        }
+    };
+
+    // < END :: Terminate Case > //
 
     // ===== END :: Backend Connection ===== //
 
@@ -322,7 +397,6 @@ function CaseClosure() {
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
     const [first_name, setFirstName] = useState(data?.first_name || "");
     const [ch_number, setCHNumber] = useState(data?.ch_number || "");
-    const [form_num, setFormNum] = useState(data?.form_num || "");
     const [dob, setDOB] = useState("");
     const [age, setAge] = useState("");
     const [religion, setReligion] = useState(data?.religion || "");
@@ -372,13 +446,7 @@ function CaseClosure() {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-        setShowErrorOverlay(true);
-
-        const timer = setTimeout(() => {
-            setShowErrorOverlay(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+            setShowErrorOverlay(true);
         }
     }, [errors]);
 
@@ -448,8 +516,8 @@ function CaseClosure() {
                         <div className="arrow-left-button"></div>
                         Go Back
                     </button>
-                    {/*<h4 className="header-sm self-end">Form #: {form_num}</h4>*/}
                 </div>
+                {/*<h4 className="header-sm self-end">Form #: {form_num}</h4>*/}
                 <h3 className="header-md">Case Closure Report</h3>
 
                 {/* Sponsored Member and General Info */}
@@ -526,6 +594,7 @@ function CaseClosure() {
                                     value={closure_date}
                                     setValue={setClosureDate}
                                     handleChange={handleChange("General Information")}
+                                    disabled={viewForm}
                                     error={errors["closure_date"]}
                                 ></DateInput>
                                 <DateInput
@@ -533,6 +602,7 @@ function CaseClosure() {
                                     value={sponsorship_date}
                                     setValue={setSponsorshipDate}
                                     handleChange={handleChange("General Information")}
+                                    disabled={viewForm}
                                     error={errors["sponsorship_date"]}
                                 ></DateInput>
                             </div>
@@ -550,6 +620,7 @@ function CaseClosure() {
                         sublabel="Indicate reason based on the result of the case conference"
                         value={reason_for_retirement}
                         setValue={setReasonForRetirement}
+                        disabled={viewForm}
                         error={errors["reason_for_retirement"]}
                     ></TextArea>
                     <div className="flex w-full items-center gap-12">
@@ -564,10 +635,11 @@ function CaseClosure() {
                                             type="checkbox"
                                             name="sm_awareness"
                                             value="yes"
-                                            checked={sm_awareness === "yes"}
+                                            checked={sm_awareness === "yes"  || sm_awareness === true}
                                             onChange={(e) =>
                                                 handleCheckboxChange(e.target.value)
                                             }
+                                            disabled={viewForm}
                                         />
                                         Yes
                                     </label>
@@ -576,10 +648,11 @@ function CaseClosure() {
                                             type="checkbox"
                                             name="sm_awareness"
                                             value="no"
-                                            checked={sm_awareness === "no"}
+                                            checked={sm_awareness === "no" || sm_awareness === false}
                                             onChange={(e) =>
                                                 handleCheckboxChange(e.target.value)
                                             }
+                                            disabled={viewForm}
                                         />
                                         No
                                     </label>
@@ -595,7 +668,8 @@ function CaseClosure() {
                             sublabel="If yes, how was the client notified"
                             value={sm_notification}
                             setValue={setSMNotification}
-                            error={errors["sm_notification"]}
+                            disabled={viewForm}
+                            error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
                         ></TextArea>
                     </div>
                 </section>
@@ -612,7 +686,8 @@ function CaseClosure() {
                             development to each sponsored member through its
                             program?
                         </h4>
-                        <select
+                        {viewForm ? ("") : 
+                        (<select
                             name="services"
                             id="services"
                             value={service_selected}
@@ -631,24 +706,28 @@ function CaseClosure() {
                                     {service}
                                 </option>
                             ))}
-                        </select>
+                        </select>)
+                        }
                         <div className="flex flex-wrap gap-16">
                             {services_provided.map((item, index) => (
-                                <div key={index} className="flex w-full justify-between items-center px-15 gap-6">
+                                <div key={index} className="flex w-full justify-between items-center gap-6">
                                     <TextArea
                                         label={item.service}
                                         value={item.description}
                                         handleChange={(e) =>
                                             updateDescription(index, e.target.value)
                                         }
+                                        disabled={viewForm}
                                         error={errors[item.service]}
                                     ></TextArea>
-                                    {(index !== 0 && index !== 1) && (
-                                        <button
-                                            onClick={() => deleteService(index)}
-                                            className="icon-button-setup trash-button px-10"
-                                        ></button>
-                                    )}
+                                    {viewForm ? ("") : 
+                                        (index !== 0 && index !== 1) && (
+                                            <button
+                                                onClick={() => deleteService(index)}
+                                                className="icon-button-setup trash-button px-10"
+                                            ></button>
+                                        )
+                                    }
                                 </div>
                             ))}
                         </div>
@@ -662,6 +741,7 @@ function CaseClosure() {
                         sublabel="Based on the intervention plans including Case Management Results"
                         value={evaluation}
                         setValue={setEvaluation}
+                        disabled={viewForm}
                         error={errors["evaluation"]}
                     ></TextArea>
                 </section>
@@ -673,6 +753,7 @@ function CaseClosure() {
                         sublabel="Retirement, Transfer to another project, and/or to Virtual Subproject"
                         value={recommendation}
                         setValue={setRecommendation}
+                        disabled={viewForm}
                         error={errors["recommendation"]}
                     ></TextArea>
                 </section>
@@ -694,21 +775,25 @@ function CaseClosure() {
                     <div className="flex w-full justify-center gap-20">
                         {viewForm ? (
                             <>
+                                {!isTerminated && (
+                                    <button
+                                        className="btn-outline font-bold-label"
+                                        onClick={async () => {
+                                            await handleDelete();
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                    >
+                                        Delete Request
+                                    </button>
+                                    
+                                )}
                                 <button
-                                    className="btn-outline font-bold-label"
-                                    onClick={() => 
-                                        navigate(`/case/${caseID}`) /* Replace with Delete */
-                                    }
-                                >
-                                    Delete Request
-                                </button>
-                                <button
-                                    className="btn-primary font-bold-label w-min"
-                                    onClick={() => {
-                                        navigate(`/case/${caseID}`); /* Replace with Update */
+                                    className="btn-primary font-bold-label"
+                                    onClick={async () => {
+                                        generateCaseClosureForm(newformID)
                                     }}
                                 >
-                                    Save Changes
+                                    Download Form
                                 </button>
                             </>
                         ) : (
@@ -720,30 +805,52 @@ function CaseClosure() {
                                     Cancel
                                 </button>
                                 <button
-                                    className="btn-primary font-bold-label w-min"
+                                    type="submit"
+                                    className={`btn-primary font-bold-label w-min ${
+                                        isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                    }`}
                                     onClick={async (e) => {
-                                        await handleSubmit(e);
+                                        e.preventDefault(); 
+                                        setIsProcessing(true);
+                                        setShowConfirm(true)
                                     }}
+                                    disabled={isProcessing}
                                 >
-                                    Create Request
+                                    {isProcessing ? "Creating..." : "Create Request"}
                                 </button>
                             </>
                         )}
                     </div>
                 ) : (
-                    <div className="flex w-full justify-center gap-20">
-                        <button
-                            className="label-base btn-outline-rounded"
-                            onClick={() => navigate(`/case/${caseID}`)} /* Replace with Delete */
-                        >
-                            Reject Termination
-                        </button>
-                        <button
-                            className="label-base btn-primary"
-                            onClick={() => setShowConfirm(true)}
-                        >
-                            Approve Termination
-                        </button>
+                    <div className="flex w-full justify-center items-center gap-20">
+                        {isTerminated ? (
+                            <button
+                                className="btn-primary font-bold-label"
+                                onClick={async () => {
+                                    generateCaseClosureForm(newformID)
+                                }}
+                            >
+                                Download Form
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    className="label-base btn-outline"
+                                    onClick={async () => {
+                                        await handleDelete();
+                                        navigate(`/case/${caseID}`);
+                                    }}
+                                >
+                                    Reject Termination
+                                </button>
+                                <button
+                                    className="label-base btn-primary"
+                                    onClick={() => setShowConfirm(true)}
+                                >
+                                    Approve Termination
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             
@@ -752,8 +859,17 @@ function CaseClosure() {
                 {showConfirm && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
-                            <h2 className="header-md font-semibold mb-4">Close Case</h2>
-                            <p className="label-base mb-6">Are you sure you want to close this case?</p>
+                            {sdw_view ? (
+                                <>
+                                    <h2 className="header-md font-semibold mb-4">Close Case</h2>
+                                    <p className="text-2xl mb-6">You are submitting a request for case termination, which will be subject to approval. Please confirm to proceed.</p>
+                                </>
+                            ) : (
+                                <>
+                                    <h2 className="header-md font-semibold mb-4">Terminate Case</h2>
+                                    <p className="text-2xl mb-6">Are you sure you want to terminate this case?</p>
+                                </>
+                            )}
                             <div className="flex justify-end gap-4">
                                 
                                 {/* Cancel */}
@@ -767,15 +883,65 @@ function CaseClosure() {
                                 </button>
 
                                 {/* Close Case */}
+                                {sdw_view ? (
+                                    <button
+                                        onClick={async (e) => {
+                                            await handleSubmit(e);
+                                            setShowConfirm(false);
+                                            const success = await handleSubmit(e);
+                                            if (success) {
+                                                setShowSuccessModal(true);
+                                            }
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        Confirm
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={async () => {
+                                            await handleTermination();
+                                            setShowConfirm(false);
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        Confirm
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Saved Intervention */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
+                            <h2 className="header-sm font-semibold mb-4">Case Closure Request Saved</h2>
+                            <div className="flex justify-end gap-4">
+                                {/* Go Back to Case */}
                                 <button
-                                    onClick={async () => {
-                                        await handleCreate();
-                                        setShowConfirm(false);
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
                                         navigate(`/case/${caseID}`);
+                                        setShowConfirm(false);
+                                    }}
+                                    className="btn-outline font-bold-label"
+                                >
+                                    Go Back to Case
+                                </button>
+
+                                {/* View Form */}
+                                <button
+                                    onClick={() => {
+                                        setShowSuccessModal(false);
+                                        navigate(`/case-closure/?action=view&caseID=${caseID}`);
+                                        setIsProcessing(false)
                                     }}
                                     className="btn-primary font-bold-label"
                                 >
-                                    Confirm
+                                    View Form
                                 </button>
                             </div>
                         </div>
@@ -812,8 +978,27 @@ function CaseClosure() {
                     <p className="body-base text-[var(--text-color)] text-center max-w-xl">
                         Write N/A if necessary.
                     </p>
+
+                    {/* OK Button */}
+                    <button
+                        onClick={() => {
+                            setShowErrorOverlay(false)
+                            setIsProcessing(false);
+                        }}
+                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                        OK
+                    </button>
                     </div>
                 </div>
+                )}
+
+                {!viewForm && (
+                    <div className="-mt-8">
+                        <p className="text-2xl text-red-600 font-semibold text-center mt-2">
+                            ⚠️ Warning: This form cannot be edited after saving. Make sure your inputs are correct. ⚠️
+                        </p>
+                    </div>
                 )}
             </div>
         </main>

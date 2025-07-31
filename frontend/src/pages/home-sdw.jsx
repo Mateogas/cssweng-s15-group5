@@ -116,6 +116,10 @@ function HomeSDW() {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === "sm_number") {
       filtered.sort((a, b) => a.sm_number - b.sm_number);
+    } else if (sortBy === "pend_term") {
+        filtered.sort((a, b) => {
+          return (b.pendingTermination === false) - (a.pendingTermination === false);
+      });
     }
 
     if (sortOrder === "desc") {
@@ -187,6 +191,7 @@ function HomeSDW() {
                   <option value="">Sort By</option>
                   <option value="name">Name</option>
                   <option value="sm_number">CH Number</option>
+                  <option value="pend_term">Pending Termination</option>
                 </select>
 
                 <button
@@ -233,6 +238,7 @@ function HomeSDW() {
                   spu={client.spu}
                   name={client.name}
                   assigned_sdw_name={client.assigned_sdw_name}
+                  pendingTermination={client.pendingTermination ?? false}
                 />
               ))
             )}

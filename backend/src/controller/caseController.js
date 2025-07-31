@@ -9,6 +9,7 @@ const Sponsored_Member = require('../model/sponsored_member')
 const Family_Member = require('../model/family_member')
 const Employee = require('../model/employee');
 const Spu = require('../model/spu')
+const Case_Closure = require('../model/case_closure')
 const [caseSchemaValidate, caseCoreValidate, caseIdentifyingValidate] = require('./validators/caseValidator')
 
 // ================================================== //
@@ -66,6 +67,10 @@ const getCaseById = async (req, res) => {
           const caseItem = await Sponsored_Member.findById(id).lean().populate(
                'assigned_sdw'
           );
+
+          const casePending = await Case_Closure.findOne({ sm: caseItem._id, status: "Pending" })
+          caseItem.pendingTermination = casePending ? true : false;
+
           res.json(caseItem);
      } catch (error) {
 
@@ -199,6 +204,15 @@ const getAllCases = async (req, res) => {
                .populate('assigned_sdw', 'first_name middle_name last_name') // name for assigned SDW
                .populate('spu', 'spu_name') 
 
+          const smIds = cases.map(c => c._id);
+          const pendingClosures = await Case_Closure.find({
+               sm: { $in: smIds },
+               status: "Pending",
+          }).select("sm").lean();
+          const pendingIds = pendingClosures.map(pc => pc.sm.toString());
+          // console.log("PEND", pendingIds)
+          // console.log("SM", smIds)
+
           const simplifiedCases = cases.map(c => ({
                id: c._id,
                name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`,
@@ -209,8 +223,8 @@ const getAllCases = async (req, res) => {
                assigned_sdw: c.assigned_sdw?._id || null,
                assigned_sdw_name: c.assigned_sdw
                ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
-               : null
-
+               : null,
+               pendingTermination: pendingIds.includes(c._id.toString()) ?? false,
           }));
           
           res.json(simplifiedCases);

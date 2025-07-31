@@ -263,6 +263,7 @@ export default function SpuPage() {
                                                                     spu={client.spu}
                                                                     name={client.name}
                                                                     assigned_sdw_name={client.assigned_sdw_name}
+                                                                    pendingTermination={client.pendingTermination ?? false}
                                                                 />
                                                             ))}
                                                         </>

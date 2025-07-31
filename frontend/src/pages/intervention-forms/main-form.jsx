@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { TextInput, TextArea } from "../../Components/TextField";
 
 import FinancialAssessmentForm from "./financial-assessment";
 import CounselingForm from "./counseling";
 import CorrespondenceForm from "./correspondence";
 import HomeVisitationForm from "./home-visitation";
+
+import { fetchCaseData } from "../../fetch-connections/case-connection";
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 function InterventionForm() {
     const interventions = [
@@ -29,15 +35,32 @@ function InterventionForm() {
 
     /********** USE STATES **********/
 
-    const { caseID } = useParams();
+    const query = useQuery();
+    const caseID = query.get('caseID') || ""; 
     const defaultSelection = "";
-    const [intervention_selected, setInterventionSelected] =
-        useState(defaultSelection);
+    const [intervention_selected, setInterventionSelected] = useState(defaultSelection);
 
-    console.log("Case ID: ", caseID);
+    const [caseData, setCaseData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    console.log(caseID)
+
+    useEffect(() => {
+        const loadCase = async () => {
+            try {
+                const data = await fetchCaseData(caseID);
+                setCaseData(data);
+                console.log(caseData)
+            } catch (error) {
+                console.error("Failed to fetch case data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadCase();
+    }, [caseID]);
 
     const navigate = useNavigate();
-
     const handleSelectIntervention = (interventionName) => {
         const selected = interventions.find(
             (intervention) => intervention.name === interventionName
@@ -47,6 +70,16 @@ function InterventionForm() {
     };
 
     /********** USE STATES **********/
+
+    if (loading) return <div>Loading...</div>;
+
+    if (caseData && caseData.is_active === false) {
+        return (
+            <div className="text-red-600 font-bold-label">
+                Case has been terminated.
+            </div>
+        );
+    }
 
     return (
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg p-16">
