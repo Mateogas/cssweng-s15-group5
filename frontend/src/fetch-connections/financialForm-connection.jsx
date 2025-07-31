@@ -45,7 +45,7 @@ export const fetchFinInterventionData = async (caseId, formId) => {
     try {
         const response = await fetch(`${apiUrl}/interventions/financial/viewform/${caseId}/${formId}`,{
             method: 'GET',
-            credentials: 'includee',
+            credentials: 'include',
         });
         if (!response.ok) throw new Error('API error');
         return await response.json();

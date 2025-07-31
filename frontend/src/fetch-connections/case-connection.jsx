@@ -251,12 +251,11 @@ export const updateIdentifyingCaseData = async (updatedData, caseID) => {
 
 export const fetchSDWs = async () => {
      try {
-          const response = await fetch(`${apiUrl}/cases/getsdw`
-          );
-          if (!response.ok) throw new Error('Failed to fetch SDWs',{
+          const response = await fetch(`${apiUrl}/cases/getsdw`,{
             method: 'GET',
             credentials: 'include',
         });
+          if (!response.ok) throw new Error('Failed to fetch SDWs');
           const data = await response.json();
           // Map to expected format
 

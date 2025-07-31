@@ -122,6 +122,7 @@ export const createAccount = async (payload) => {
     const response = await fetch(`${apiUrl}/create-account`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'includes',
       body: JSON.stringify(payload),
     });
 
