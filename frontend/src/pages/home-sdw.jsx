@@ -163,7 +163,7 @@ function HomeSDW() {
         <SideBar user={user} />
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">{user?.role == "head" ? "Sponsored Member Cases" : user?.spu_name}</h1>
+          <h1 className="header-main">{user?.role == "head" ? "Sponsored Member Cases" :  `Sponsored Member Cases - ${user?.spu_name}`}</h1>
 
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">

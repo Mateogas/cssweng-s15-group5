@@ -125,7 +125,7 @@ function HomeLeader() {
       <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
         <SideBar user={user} />
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">{user?.role == "supervisor" ? user.spu_name : "Coordinating Unit"}</h1>
+          <h1 className="header-main">{user?.role == "supervisor" ? `Coordinating Unit - ${user?.spu_name}` : "Coordinating Unit"}</h1>
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">
               <div className="flex gap-5 w-full">
