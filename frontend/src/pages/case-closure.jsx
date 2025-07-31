@@ -670,7 +670,7 @@ function CaseClosure() {
                                                 type="checkbox"
                                                 name="sm_awareness"
                                                 value="yes"
-                                                checked={sm_awareness === "yes" || sm_awareness === true}
+                                                checked={sm_awareness}
                                                 onChange={(e) =>
                                                     handleCheckboxChange(e.target.value)
                                                 }
@@ -683,7 +683,7 @@ function CaseClosure() {
                                                 type="checkbox"
                                                 name="sm_awareness"
                                                 value="no"
-                                                checked={sm_awareness === "no" || sm_awareness === false}
+                                                checked={!sm_awareness}
                                                 onChange={(e) =>
                                                     handleCheckboxChange(e.target.value)
                                                 }
