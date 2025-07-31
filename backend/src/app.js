@@ -100,6 +100,14 @@ app.get("/test-session", (req, res) => {
 app.put('/api/login', authController.loginUser)
 app.put('/api/logout', authController.logoutUser)
 
+app.get('/api/session', (req, res) => {
+  if (req.session && req.session.user) {
+    res.status(200).json({ user: req.session.user });
+  } else {
+    res.status(200).json({ user: null });
+  }
+});
+
 // ALL ROUTES AFTER THIS ARE NOW GETTING AUTHENTICATED
 app.use(isAuthenticated);
 // All case routes
@@ -128,20 +136,11 @@ app.delete('/api/case-closure/delete/:caseID/:formID', caseClosureController.del
 // Delete Accoute routes
 app.delete('/api/delete-account/:account', deleteAccountController.deleteAccount);
 
-// Log in and log out route
-app.put('/api/login', authController.loginUser);
-app.put('/api/logout', authController.logoutUser);
 
 // File Generator routes
 app.use('/api/file-generator', fileGenerator);
 
-app.get('/api/session', (req, res) => {
-  if (req.session && req.session.user) {
-    res.status(200).json({ user: req.session.user });
-  } else {
-    res.status(200).json({ user: null });
-  }
-});
+
 
 // 404 Route
 app.use((req, res) => {
