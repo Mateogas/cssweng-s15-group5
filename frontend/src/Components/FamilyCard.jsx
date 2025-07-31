@@ -79,7 +79,6 @@ const FamilyCard = ({
             { key: "relationship", label: "Relationship to Client" },
             { key: "civilStatus", label: "Civil Status" },
             { key: "status", label: "Living Status" },
-            { key: "relationship", label: "Relationship to Client" },
         ];
 
         function formatListWithAnd(arr) {
@@ -187,7 +186,7 @@ const FamilyCard = ({
                 ) : (
                     <h3 className="header-sub">
                         {member.last || "-"}, {member.first || "-"}{" "}
-                        {member.middle || "-"}
+                        {member.middle || ""}
                     </h3>
                 )}
 

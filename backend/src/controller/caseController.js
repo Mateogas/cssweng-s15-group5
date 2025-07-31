@@ -612,22 +612,31 @@ const addFamilyMember = async (req, res) => {
           else if (parseInt(updateDetails.age) < 0)
                updateDetails.age = 0
 
-          // Occupation and Education fix
-          const occupation = (updateDetails.occupation || "")
-               .trim()
+          // Occupation
+          let occupation = (updateDetails.occupation || "").trim();
+          if (["na", "n/a"].includes(occupation.toLowerCase())) {
+               occupation = "N/A";
+          } else {
+               occupation = occupation
                .toLowerCase()
                .split(' ')
                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                .join(' ');
-          updateDetails.occupation = occupation
+          }
+          updateDetails.occupation = occupation;
 
-          const edu_attainment = (updateDetails.education || "")
-               .trim()
+          // Education
+          let education = (updateDetails.education || "").trim();
+          if (["na", "n/a"].includes(education.toLowerCase())) {
+               education = "N/A";
+          } else {
+               education = education
                .toLowerCase()
                .split(' ')
                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                .join(' ');
-          updateDetails.education = edu_attainment
+          }
+          updateDetails.education = education;
 
           const newMember = new Family_Member({
                first_name: updateDetails.first,
@@ -782,22 +791,31 @@ const editFamilyMember = async (req, res) => {
                updateDetails.relationship = relationship
           }
 
-          // Occupation and Education fix
-          const occupation = (updateDetails.occupation || "")
-               .trim()
+          // Occupation
+          let occupation = (updateDetails.occupation || "").trim();
+          if (["na", "n/a"].includes(occupation.toLowerCase())) {
+               occupation = "N/A";
+          } else {
+               occupation = occupation
                .toLowerCase()
                .split(' ')
                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                .join(' ');
-          updateDetails.occupation = occupation
+          }
+          updateDetails.occupation = occupation;
 
-          const edu_attainment = (updateDetails.education || "")
-               .trim()
+          // Education
+          let education = (updateDetails.education || "").trim();
+          if (["na", "n/a"].includes(education.toLowerCase())) {
+               education = "N/A";
+          } else {
+               education = education
                .toLowerCase()
                .split(' ')
                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                .join(' ');
-          updateDetails.education = edu_attainment
+          }
+          updateDetails.education = education;
 
           /**
            *   Updating part
