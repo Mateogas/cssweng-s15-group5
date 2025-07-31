@@ -341,7 +341,7 @@ function CaseClosure() {
         const response = await createCaseClosureForm(payload, caseID);
         console.log("RESPONSE", response);
         if (response?._id) {
-            setnewformID(response.form?._id);
+            setnewformID(response?._id);
             return true;
         } else {
             return false;
