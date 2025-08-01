@@ -359,7 +359,7 @@ export default function WorkerProfile() {
 
         const hasSPUChanged = drafts.spu_id !== data.spu_id;
         const hasRoleChanged = drafts.role !== data.role;
-        const isSupervisor = data.manager === session._id;
+        const isSupervisor = data.manager === user._id;
 
         if (hasSPUChanged) {
             if (data.role === "sdw" && handledClients.length > 0) {
