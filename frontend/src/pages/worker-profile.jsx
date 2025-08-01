@@ -148,6 +148,9 @@ export default function WorkerProfile() {
     useEffect(() => {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
+
+            console.log("SDWS FOUND", sdws);
+
             setSocialDevelopmentWorkers(sdws);
         };
         loadSDWs();
@@ -165,13 +168,17 @@ export default function WorkerProfile() {
     }, []);
 
     useEffect(() => {
+        const selectedSPU = projectLocation.find(spu => spu._id === drafts.spu_id)?.spu_name;
+
         const filtered = socialDevelopmentWorkers.filter(
             (w) =>
-                w.spu_id === drafts.spu_id &&
+                w.spu_id === selectedSPU &&
                 w.id !== workerId &&
                 w.role === 'supervisor' &&
                 w.is_active === true
         );
+
+        console.log("AVAILABLE SUPERVISORS", socialDevelopmentWorkers);
 
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
@@ -394,13 +401,20 @@ export default function WorkerProfile() {
                 drafts.manager = "";
                 missing.push("Supervisor must be selected for SDW role");
             } else {
-                const validSupervisorIds = socialDevelopmentWorkers
-                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "supervisor")
-                    .map((w) => w._id || w.id);
+            const selectedSPU = projectLocation.find(spu => spu._id === drafts.spu_id)?.spu_name;
 
-                if (!validSupervisorIds.includes(drafts.manager)) {
-                    missing.push("Supervisor is not valid for the selected SPU");
-                }
+            const validSupervisorIds = socialDevelopmentWorkers
+                .filter(
+                    (w) =>
+                        w.spu_id === selectedSPU &&
+                        w.role === "supervisor"
+                )
+                .map((w) => w._id || w.id);
+
+            if (!validSupervisorIds.includes(drafts.manager)) {
+                missing.push("Supervisor is not valid for the selected SPU");
+            }
+
             }
         }
 
