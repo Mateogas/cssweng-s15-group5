@@ -48,7 +48,7 @@ function CorrespondenceForm() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
-
+    const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
     const [data, setData] = useState({
         form_num: "",
@@ -309,7 +309,13 @@ function CorrespondenceForm() {
         e?.preventDefault();
 
         const isValid = validateForm();
-        if (!isValid) return;
+        if (!isValid) {
+            setModalOnConfirm(() => () => { });
+            setModalOnCancel(() => () => { });
+            setModalConfirm(false);
+            setIsProcessing(false);
+            return false
+        };
 
         setModalTitle("Confirm Creation");
         setModalBody("Are you sure you want to save this Correspondence Form? This cannot be edited or deleted after creation.");
@@ -331,6 +337,9 @@ function CorrespondenceForm() {
             }
 
             setIsProcessing(false);
+        });
+        setModalOnCancel(() => () => {
+            setShowModal(false);
         });
         setShowModal(true);
     };
@@ -535,6 +544,7 @@ function CorrespondenceForm() {
                     imageCenter={modalImageCenter}
                     confirm={modalConfirm}
                     onConfirm={modalOnConfirm}
+                    onCancel={modalOnCancel}
                 />
 
             )}
