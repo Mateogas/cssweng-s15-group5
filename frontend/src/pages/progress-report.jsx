@@ -93,7 +93,7 @@ function ProgressReport() {
                     last_name: caseData.last_name || "",
                     ch_number: caseData.ch_number || "",
                     dob: caseData.dob || "",
-                    subproject: caseData.subproject.spu_name || "",
+                    subproject: caseData.subproject || "",
                     form_num: caseData.reportNumber || "",
                     is_active: caseData.is_active ?? true
                 }));

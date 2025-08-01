@@ -92,7 +92,7 @@ function CounselingForm() {
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");
-                setSubproject(fetchedData.subproject.spu_name || "");
+                setSubproject(fetchedData.subproject || "");
                 setAreaSelfHelp(fetchedData.area_self_help || "");
                 setCounselingDate(fetchedData.counseling_date || "");
                 setReasonForCounseling(fetchedData.reason_for_counseling || "");
