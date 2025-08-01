@@ -404,7 +404,13 @@ function HomeVisitationForm() {
         e?.preventDefault();
 
         const isValid = validateForm();
-        if (!isValid) return false;
+        if (!isValid) {
+            setModalOnConfirm(() => () => { });
+            setModalOnCancel(() => () => { });
+            setModalConfirm(false);
+            setIsProcessing(false);
+            return false
+        };
 
         setModalTitle("Confirm Creation");
         setModalBody("Are you sure you want to save this Home Visitation Form? This cannot be edited or deleted after creation.");
@@ -415,6 +421,7 @@ function HomeVisitationForm() {
             setIsProcessing(true);
 
             try {
+                if (!isValid) return;
                 const created = await handleCreate();
 
                 if (created) {
@@ -436,6 +443,9 @@ function HomeVisitationForm() {
             } finally {
                 setIsProcessing(false);
             }
+        });
+        setModalOnCancel(() => () => {
+            setShowModal(false);
         });
         setShowModal(true);
     };
@@ -563,6 +573,7 @@ function HomeVisitationForm() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
+    const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
 
     // ===== END :: Modals ===== //
@@ -715,14 +726,14 @@ function HomeVisitationForm() {
 
     // ===== END :: Use States ===== //
 
-useEffect(() => {
-    if (viewForm && form_num) {
-        document.title = `Home Visitation Form #${form_num}`;
-    } else if (!viewForm) {
-        document.title = `Create Home Visitation Form`;
-    }
+    useEffect(() => {
+        if (viewForm && form_num) {
+            document.title = `Home Visitation Form #${form_num}`;
+        } else if (!viewForm) {
+            document.title = `Create Home Visitation Form`;
+        }
 
-}, [form_num]);
+    }, [form_num]);
 
 
     if (!data) return <div>No data found.</div>;
@@ -780,6 +791,7 @@ useEffect(() => {
                     imageCenter={modalImageCenter}
                     confirm={modalConfirm}
                     onConfirm={modalOnConfirm}
+                    onCancel={modalOnCancel}
                 />
             )}
             <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">

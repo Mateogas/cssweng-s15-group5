@@ -274,7 +274,13 @@ function FinancialAssessmentForm() {
         e?.preventDefault();
 
         const isValid = validateForm();
-        if (!isValid) return;
+        if (!isValid) {
+            setModalOnConfirm(() => () => { });
+            setModalOnCancel(() => () => { });
+            setModalConfirm(false);
+            setIsProcessing(false);
+            return false
+        };
 
         // Show confirmation modal
         setModalTitle("Confirm Creation");
@@ -297,6 +303,9 @@ function FinancialAssessmentForm() {
             }
 
             setIsProcessing(false);
+        });
+        setModalOnCancel(() => () => {
+            setShowModal(false);
         });
         setShowModal(true);
     };
@@ -358,6 +367,7 @@ function FinancialAssessmentForm() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
+    const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
     const [last_name, setLastName] = useState(data?.last_name || "");
     const [middle_name, setMiddleName] = useState(data?.middle_name || "");
@@ -484,6 +494,7 @@ useEffect(() => {
                     imageCenter={modalImageCenter}
                     confirm={modalConfirm}
                     onConfirm={modalOnConfirm}
+                    onCancel={modalOnCancel}
                 />
             )}
 

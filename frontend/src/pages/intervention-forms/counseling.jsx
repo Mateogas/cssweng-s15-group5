@@ -60,7 +60,7 @@ function CounselingForm() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
-    const [modalOnClose, setModalOnClose] = useState(() => null);
+    const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
     /********** TEST DATA **********/
 
@@ -92,7 +92,7 @@ function CounselingForm() {
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");
-                setSubproject(fetchedData.subproject.spu_name || "");
+                setSubproject(fetchedData.subproject || "");
                 setAreaSelfHelp(fetchedData.area_self_help || "");
                 setCounselingDate(fetchedData.counseling_date || "");
                 setReasonForCounseling(fetchedData.reason_for_counseling || "");
@@ -191,7 +191,13 @@ function CounselingForm() {
         e?.preventDefault();
 
         const isValid = validateForm();
-        if (!isValid) return;
+        if (!isValid) {
+            setModalOnConfirm(() => () => { });
+            setModalOnCancel(() => () => { });
+            setModalConfirm(false);
+            setIsProcessing(false);
+            return false
+        };
 
         setModalTitle("Confirm Creation");
         setModalBody("Are you sure you want to save this Counselling Form? This cannot be edited or deleted after creation.");
@@ -216,6 +222,9 @@ function CounselingForm() {
             }
 
             setIsProcessing(false);
+        });
+        setModalOnCancel(() => () => {
+            setShowModal(false);
         });
         setShowModal(true);
     };
@@ -401,6 +410,7 @@ function CounselingForm() {
                 imageCenter={modalImageCenter}
                 confirm={modalConfirm}
                 onConfirm={modalOnConfirm}
+                onCancel={modalOnCancel}
             />
         )}
 
