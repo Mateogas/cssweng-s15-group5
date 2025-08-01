@@ -24,6 +24,11 @@ function Archive() {
 
     const [viewMode, setViewMode] = useState("cases");
 
+useEffect(() => {
+        document.title = `Archive`;
+}, []);
+
+
     const projectLocation = [
         { name: "AMP", projectCode: "AMP" },
         { name: "FDQ", projectCode: "FDQ" },

@@ -4,6 +4,7 @@ const Intervention_Correspondence = require('../model/intervention_correspondenc
 
 const {
 	formatDate,
+    getInterventionFormNumber,
 	formatCorrespondenceData,
 } = require('./helpers')
 
@@ -63,6 +64,7 @@ const generateCorrespondenceForm = async (req, res) => {
         formattedData.dob = formatDate(sponsored_member.dob) || '';
         formattedData.present_address = sponsored_member.present_address || '';
         formattedData.spu = sponsored_member.spu.spu_name || '';
+        formattedData.form_num = getInterventionFormNumber(sponsored_member, correspondenceId);
 
         // console.log('FORMATTED CORRESPONDENCE FORM: ', formattedData);
         // Return data

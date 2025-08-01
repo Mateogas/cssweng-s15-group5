@@ -117,8 +117,8 @@ function HomeSDW() {
     } else if (sortBy === "sm_number") {
       filtered.sort((a, b) => a.sm_number - b.sm_number);
     } else if (sortBy === "pend_term") {
-        filtered.sort((a, b) => {
-          return (b.pendingTermination === false) - (a.pendingTermination === false);
+      filtered.sort((a, b) => {
+        return (b.pendingTermination === false) - (a.pendingTermination === false);
       });
     }
 
@@ -135,6 +135,19 @@ function HomeSDW() {
   };
 
   const finalClients = getFilteredClients();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const title =
+      user.role === "head"
+        ? "Sponsored Member Cases"
+        : `Sponsored Member Cases - ${user.spu_name}`;
+
+    document.title = title;
+  }, [user]);
+
+
 
   return (
     <>
@@ -163,7 +176,7 @@ function HomeSDW() {
         <SideBar user={user} />
 
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
-          <h1 className="header-main">Sponsored Member Cases</h1>
+          <h1 className="header-main">{user?.role == "head" ? "Sponsored Member Cases" : `Sponsored Member Cases - ${user?.spu_name}`}</h1>
 
           <div className="flex justify-between gap-10">
             <div className="flex gap-5 justify-between items-center w-full">

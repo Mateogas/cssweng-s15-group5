@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { TextInput, TextArea, DateInput } from "../../Components/TextField";
 import Signature from "../../Components/Signature";
+import SimpleModal from "../../Components/SimpleModal";
 
 // API Imports
 import {
@@ -15,7 +17,7 @@ import { editAssessment } from "../../fetch-connections/case-connection";
 import { generateCounselingForm } from "../../generate-documents/generate-documents";
 
 function useQuery() {
-  return new URLSearchParams(useLocation().search);
+    return new URLSearchParams(useLocation().search);
 }
 
 function CounselingForm() {
@@ -23,9 +25,9 @@ function CounselingForm() {
     // ===== START :: Setting Data ===== //
 
     const query = useQuery();
-    const action = query.get('action') || ""; 
-    const caseID = query.get('caseID') || ""; 
-    const formID = query.get('formID') || ""; 
+    const action = query.get('action') || "";
+    const caseID = query.get('caseID') || "";
+    const formID = query.get('formID') || "";
 
     const [data, setData] = useState({
         form_num: "",
@@ -51,6 +53,14 @@ function CounselingForm() {
     const [noFormFound, setNoFormFound] = useState(false);
     const [noCaseFound, setNoCaseFound] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    const [showModal, setShowModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalBody, setModalBody] = useState("");
+    const [modalImageCenter, setModalImageCenter] = useState(null);
+    const [modalConfirm, setModalConfirm] = useState(false);
+    const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+    const [modalOnClose, setModalOnClose] = useState(() => null);
 
     /********** TEST DATA **********/
 
@@ -90,7 +100,7 @@ function CounselingForm() {
                 setRecommendation(fetchedData.recommendation || "");
                 setSMComments(fetchedData.sm_comments || "");
             };
-            
+
             loadData();
         }, []);
     }
@@ -122,7 +132,7 @@ function CounselingForm() {
                 setGradeYearLevel(fetchedData.grade_year_level || "");
                 setSchool(fetchedData.school || "");
                 setAddress(fetchedData.address || "");
-                setSubproject(fetchedData.subproject|| "");
+                setSubproject(fetchedData.subproject || "");
                 setAreaSelfHelp(fetchedData.area_self_help || "");
                 setCounselingDate(fetchedData.counseling_date || "");
                 setReasonForCounseling(fetchedData.reason_for_counseling || "");
@@ -130,7 +140,7 @@ function CounselingForm() {
                 setRecommendation(fetchedData.recommendation || "");
                 setSMComments(fetchedData.sm_comments || "");
             };
-            
+
             loadData();
         }, []);
     }
@@ -140,60 +150,74 @@ function CounselingForm() {
     // ===== END :: Setting Data ===== //
 
     // ===== START :: Backend Connection ===== //
-    
+
     // < START :: Create Form > //
 
     const [errors, setErrors] = useState({});
 
+    function formatListWithAnd(arr) {
+        if (arr.length === 0) return "";
+        if (arr.length === 1) return arr[0];
+        if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+        const last = arr[arr.length - 1];
+        return `${arr.slice(0, -1).join(", ")}, and ${last}`;
+    }
+
     const validateForm = () => {
-        const newErrors = {};
+        const missing = [];
 
-        const requiredFields = {
-            grade_year_level,
-            school,
-            area_self_help,
-            counseling_date,
-            reason_for_counseling,
-            corrective_action,
-            recommendation,
-            sm_comments
-        };
+        if (!grade_year_level || grade_year_level.trim() === "") missing.push("Grade/Year Level");
+        if (!school || school.trim() === "") missing.push("School");
+        if (!area_self_help || area_self_help.trim() === "") missing.push("Area of Self-Help");
+        if (!counseling_date || counseling_date.trim() === "") missing.push("Date of Counseling");
+        if (!reason_for_counseling || reason_for_counseling.trim() === "") missing.push("Reason for Counseling");
+        if (!corrective_action || corrective_action.trim() === "") missing.push("Corrective Action");
+        if (!recommendation || recommendation.trim() === "") missing.push("Recommendation");
+        if (!sm_comments || sm_comments.trim() === "") missing.push("Sponsored Member's Comments");
 
-        Object.entries(requiredFields).forEach(([field, value]) => {
+        if (missing.length > 0) {
+            setModalTitle("Missing / Invalid Fields");
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
 
-            if (
-                value === undefined ||               
-                value === null ||                    
-                value === "" ||                    
-                (typeof value === "string" && !value.trim())
-            ) {
-            newErrors[field] = "Missing input";
-            }
-        });
-
-        setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0; 
+        return true;
     };
 
     const handleSubmit = async (e) => {
         e?.preventDefault();
+
         const isValid = validateForm();
+        if (!isValid) return;
 
-        if (!isValid) {
-            // window.scrollTo({ top: 0, behavior: "smooth" });
-            return false;
-        };
+        setModalTitle("Confirm Creation");
+        setModalBody("Are you sure you want to save this Counselling Form? This cannot be edited or deleted after creation.");
+        setModalImageCenter(<div className="info-icon mx-auto" />);
+        setModalConfirm(true);
+        setModalOnConfirm(() => async () => {
+            setShowModal(false);
+            setIsProcessing(true);
 
-        try {
-            console.log("Form Submitted");
             const created = await handleCreate();
-            return created;
-        } catch (err) {
-            console.error("Submission failed:", err);
-            return true;
-        }
 
+            console.log(created);
+
+            if (created) {
+                setShowSuccessModal(true);
+            } else {
+                setModalTitle("Error");
+                setModalBody("An error occurred while saving. Please try again.");
+                setModalImageCenter(<div className="warning-icon mx-auto" />);
+                setModalConfirm(false);
+                setShowModal(true);
+            }
+
+            setIsProcessing(false);
+        });
+        setShowModal(true);
     };
 
     const handleCreate = async () => {
@@ -209,7 +233,7 @@ function CounselingForm() {
         };
         // console.log("Payload: ", payload);
 
-        const response = await addCounselingIntervention(payload, caseID); 
+        const response = await addCounselingIntervention(payload, caseID);
         if (response?.intervention?._id) {
             setnewformID(response.intervention._id);
             return true;
@@ -235,7 +259,7 @@ function CounselingForm() {
         };
 
         // console.log("Payload: ", updatedPayload);
-        const response = await editCounselingIntervention(updatedPayload, formID); 
+        const response = await editCounselingIntervention(updatedPayload, formID);
     };
 
     // < END :: Edit Form > //
@@ -243,7 +267,7 @@ function CounselingForm() {
     // < START :: Delete Form > //
 
     const handleDelete = async () => {
-        const response = await deleteCounselingIntervention(formID); 
+        const response = await deleteCounselingIntervention(formID);
     };
 
     // < END :: Delete Form > //
@@ -307,32 +331,32 @@ function CounselingForm() {
         setSavedTime(`Saved at ${timeString}`);
 
         if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+            clearTimeout(timeoutRef.current);
         }
         timeoutRef.current = setTimeout(() => {
-        setSavedTime(null);
+            setSavedTime(null);
         }, 3000);
     };
 
     // ===== END :: Local Functions  ===== //
 
-    if (!data) return <div>No data found.</div>;
+    if (!data) return <div className="font-label">No data found.</div>;
 
     if (noFormFound) {
         return (
             <main className="flex justify-center w-full p-16">
-            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-                <div className="flex w-full justify-between">
-                    <button 
-                        onClick={() => navigate(`/case/${caseID}`)} 
-                        className="flex items-center gap-5 label-base arrow-group">
-                        <div className="arrow-left-button"></div>
-                        Go Back
-                    </button>
+                <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                    <div className="flex w-full justify-between">
+                        <button
+                            onClick={() => navigate(`/case/${caseID}`)}
+                            className="flex items-center gap-5 label-base arrow-group">
+                            <div className="arrow-left-button"></div>
+                            Go Back
+                        </button>
+                    </div>
+                    <h3 className="header-md">Counselling Form</h3>
+                    <p className="text-3xl red"> No form found. </p>
                 </div>
-                <h3 className="header-md">Counselling Form</h3>
-                <p className="text-3xl red"> No form found. </p>
-            </div>
             </main>
         )
     }
@@ -340,33 +364,57 @@ function CounselingForm() {
     if (noCaseFound) {
         return (
             <main className="flex justify-center w-full p-16">
-            <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
-                <div className="flex w-full justify-between">
-                    <button 
-                        onClick={() => navigate(`/case/${caseID}`)} 
-                        className="flex items-center gap-5 label-base arrow-group">
-                        <div className="arrow-left-button"></div>
-                        Go Back
-                    </button>
+                <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                    <div className="flex w-full justify-between">
+                        <button
+                            onClick={() => navigate(`/case/${caseID}`)}
+                            className="flex items-center gap-5 label-base arrow-group">
+                            <div className="arrow-left-button"></div>
+                            Go Back
+                        </button>
+                    </div>
+                    <h3 className="header-md">Counselling Form</h3>
+                    <p className="text-3xl red"> No case found. </p>
                 </div>
-                <h3 className="header-md">Counselling Form</h3>
-                <p className="text-3xl red"> No case found. </p>
-            </div>
             </main>
         )
     }
 
+
+    useEffect(() => {
+    if (viewForm && form_num) {
+        document.title = `Counselling Form #${form_num}`;
+    } else if (!viewForm) {
+        document.title = `Create Counselling Form`;
+    }
+
+}, [form_num]);
+
     return (
+        <>
+        {showModal && (
+            <SimpleModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                title={modalTitle}
+                bodyText={modalBody}
+                imageCenter={modalImageCenter}
+                confirm={modalConfirm}
+                onConfirm={modalOnConfirm}
+            />
+        )}
+
+
         <main className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
             <div className="flex w-full justify-between">
-                    <button 
-                        onClick={() => navigate(`/case/${caseID}`)} 
-                        className="flex items-center gap-5 label-base arrow-group">
-                        <div className="arrow-left-button"></div>
-                        Go Back
-                    </button>
-                    <h4 className="header-sm self-end">Form #: {form_num}</h4>
-                </div>
+                <button
+                    onClick={() => navigate(`/case/${caseID}`)}
+                    className="flex items-center gap-5 label-base arrow-group">
+                    <div className="arrow-left-button"></div>
+                    Go Back
+                </button>
+                <h4 className="header-sm self-end">Form #: {form_num}</h4>
+            </div>
             <h3 className="header-md">Counselling Form</h3>
 
             {/* Sponsored Member and General Info */}
@@ -520,9 +568,8 @@ function CounselingForm() {
                 ) : (
                     <>
                         <button
-                            className={`btn-outline font-bold-label ${
-                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
-                            }`}
+                            className={`btn-outline font-bold-label ${isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                }`}
                             onClick={() => {
                                 if (!isProcessing) {
                                     navigate(`/case/${caseID}`);
@@ -534,11 +581,10 @@ function CounselingForm() {
                         </button>
                         <button
                             type="submit"
-                            className={`btn-primary font-bold-label w-min ${
-                                isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
-                            }`}
+                            className={`btn-primary font-bold-label w-min ${isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                }`}
                             onClick={async (e) => {
-                                e.preventDefault(); 
+                                e.preventDefault();
                                 setIsProcessing(true);
                                 const success = await handleSubmit(e);
                                 if (success) {
@@ -554,36 +600,49 @@ function CounselingForm() {
                 )}
 
                 {/* Saved Intervention */}
-                {showSuccessModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                        <div className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8">
-                            <h2 className="header-sm font-semibold mb-4">Counseling Form #{form_num} Saved</h2>
-                            <div className="flex justify-end gap-4">
-                                {/* Go Back to Case */}
-                                <button
-                                    onClick={() => {
-                                        setShowSuccessModal(false);
-                                        navigate(`/case/${caseID}`);
-                                    }}
-                                    className="btn-outline font-bold-label"
-                                >
-                                    Go Back to Case
-                                </button>
+                <AnimatePresence>
+                    {showSuccessModal && (
+                        <motion.div
+                            key="success-modal"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.95, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex flex-col bg-white p-16 rounded-lg shadow-xl w-full max-w-3xl mx-4 gap-8"
+                            >
+                                <h2 className="header-sm font-semibold mb-4">Counseling Form #{form_num} Saved</h2>
+                                <div className="flex justify-end gap-4">
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            navigate(`/case/${caseID}`);
+                                        }}
+                                        className="btn-outline font-bold-label"
+                                    >
+                                        Go Back to Case
+                                    </button>
 
-                                {/* View Form */}
-                                <button
-                                    onClick={() => {
-                                        setShowSuccessModal(false);
-                                        navigate(`/counselling-form/?action=view&caseID=${caseID}&formID=${newformID}`);
-                                    }}
-                                    className="btn-primary font-bold-label"
-                                >
-                                    View Form
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            navigate(`/counselling-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                        }}
+                                        className="btn-primary font-bold-label"
+                                    >
+                                        View Form
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
 
                 {/* Confirm Delete Form */}
                 {showConfirm && (
@@ -592,10 +651,10 @@ function CounselingForm() {
                             <h2 className="header-md font-semibold mb-4">Delete Form</h2>
                             <p className="label-base mb-6">Are you sure you want to delete this form?</p>
                             <div className="flex justify-end gap-4">
-                                
+
                                 {/* Cancel */}
                                 <button
-                                    onClick={() => 
+                                    onClick={() =>
                                         setShowConfirm(false)
                                     }
                                     className="btn-outline font-bold-label"
@@ -622,54 +681,47 @@ function CounselingForm() {
                 {/* Missing / Invalid Input */}
                 {showErrorOverlay && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
+                        <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                     animate-fadeIn scale-100 transform transition duration-300">
-                    <div className="flex items-center gap-4 border-b-1 ]">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-[2.4rem] w-[2.4rem] text-red-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                        >
-                            <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
-                            />
-                        </svg>
-                        <h2 className="header-sm font-bold text-red-600 text-center">
-                            Missing / Invalid Input Detected
-                        </h2>
-                    </div>
-                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                        Please fill out all required fields before submitting the form.
-                    </p>
-                    <p className="body-base text-[var(--text-color)] text-center max-w-xl">
-                        Write N/A if necessary.
-                    </p>
+                            <div className="flex items-center gap-4 border-b-1 ]">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-[2.4rem] w-[2.4rem] text-red-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 9v2m0 4h.01M4.93 19h14.14a2 2 0 001.84-2.75L13.41 4.58a2 2 0 00-3.41 0L3.09 16.25A2 2 0 004.93 19z"
+                                    />
+                                </svg>
+                                <h2 className="header-sm font-bold text-red-600 text-center">
+                                    Missing / Invalid Input Detected
+                                </h2>
+                            </div>
+                            <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                                Please fill out all required fields before submitting the form.
+                            </p>
+                            <p className="body-base text-[var(--text-color)] text-center max-w-xl">
+                                Write N/A if necessary.
+                            </p>
 
-                    {/* OK Button */}
-                    <button
-                        onClick={() => setShowErrorOverlay(false)}
-                        className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
-                    >
-                        OK
-                    </button>
+                            {/* OK Button */}
+                            <button
+                                onClick={() => setShowErrorOverlay(false)}
+                                className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                            >
+                                OK
+                            </button>
+                        </div>
                     </div>
-                </div>
                 )}
             </div>
-
-            {!viewForm && (
-                <div className="-mt-8">
-                    <p className="text-2xl text-red-600 font-semibold text-center mt-2">
-                        ⚠️ Warning: This form cannot be edited or deleted after saving. Make sure your inputs are correct. ⚠️
-                    </p>
-                </div>
-            )}
         </main>
+        </>
     );
 }
 export default CounselingForm;

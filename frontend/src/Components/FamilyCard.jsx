@@ -79,7 +79,6 @@ const FamilyCard = ({
             { key: "relationship", label: "Relationship to Client" },
             { key: "civilStatus", label: "Civil Status" },
             { key: "status", label: "Living Status" },
-            { key: "relationship", label: "Relationship to Client" },
         ];
 
         function formatListWithAnd(arr) {
@@ -114,7 +113,7 @@ const FamilyCard = ({
             const incomeStr = editingFamilyValue.income.toString().trim();
             const validNumber = /^\d+(\.\d+)?$/.test(incomeStr);
 
-            if (!validNumber) {
+            if (!validNumber && incomeStr != "") {
                 missing.push(
                     "Income must be a valid number with no spaces or extra characters",
                 );
@@ -124,6 +123,7 @@ const FamilyCard = ({
         }
 
         if (missing.length > 0) {
+            console.log(missing)
             setModalTitle("Invalid Fields");
             setModalBody(
                 `The following fields are missing or invalid: ${formatListWithAnd(missing)}`,
@@ -187,7 +187,7 @@ const FamilyCard = ({
                 ) : (
                     <h3 className="header-sub">
                         {member.last || "-"}, {member.first || "-"}{" "}
-                        {member.middle || "-"}
+                        {member.middle || ""}
                     </h3>
                 )}
 

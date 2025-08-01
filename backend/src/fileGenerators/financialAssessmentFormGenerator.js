@@ -3,6 +3,7 @@ const Sponsored_Member = require('../model/sponsored_member')
 const Intervention_Financial_Assessment = require('../model/intervention_financial')
 
 const {
+    getInterventionFormNumber,
     formatFinancialData,
 } = require('./helpers')
 
@@ -51,6 +52,7 @@ const generateFinancialAssessmentForm = async (req, res) => {
         formattedData.middle_name = sponsored_member.middle_name || '';
         formattedData.sm_number = sponsored_member.sm_number || '';
         formattedData.spu = sponsored_member.spu.spu_name || '';
+        formattedData.form_num = getInterventionFormNumber(sponsored_member, financialId);
 
         // console.log('FORMATTED FINANCIAL ASSESSMENT FORM: ', formattedData);
         // Return data

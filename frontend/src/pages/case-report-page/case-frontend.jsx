@@ -111,6 +111,9 @@ function CaseFrontend({ creating = false }) {
                 return;
             }
 
+            if (!fetchedData.pendingTermination && !fetchedData.is_active)
+                setIsTerminated(true)
+
             setData({
                 ...fetchedData,
                 assigned_sdw: fetchedData.assigned_sdw?._id || ""
@@ -257,6 +260,14 @@ function CaseFrontend({ creating = false }) {
         setAge(calculateAge(drafts.dob));
     }, [drafts.dob]);
 
+    useEffect(() => {
+    if (data.first_name && data.last_name) {
+        document.title = `${data.first_name} ${data.last_name}'s Case`;
+    } else {
+        document.title = `Case Page`;
+    }
+    }, [data]);
+
     const [ref1, inView1] = useInView({ threshold: 0.5 });
     const [ref2, inView2] = useInView({ threshold: 0.5 });
     const [ref3, inView3] = useInView({ threshold: 0.5 });
@@ -295,7 +306,7 @@ function CaseFrontend({ creating = false }) {
             const matchSPU = projectLocation.find(p => p._id === user.spu_id);
             const validSDW = socialDevelopmentWorkers.find(
                 sdw =>
-                    (sdw.id === user._id || sdw._id === user._id) && 
+                    (sdw.id === user._id || sdw._id === user._id) &&
                     sdw.spu_id === matchSPU?.spu_name &&
                     sdw.role === "sdw"
             );
@@ -320,7 +331,7 @@ function CaseFrontend({ creating = false }) {
             const matchSPU = projectLocation.find(p => p._id === user.spu_id);
             const validSDW = socialDevelopmentWorkers.find(
                 sdw =>
-                    (sdw.id === user._id || sdw._id === user._id) && 
+                    (sdw.id === user._id || sdw._id === user._id) &&
                     sdw.spu_id === matchSPU?.spu_name &&
                     sdw.role === "sdw"
             );
@@ -596,7 +607,6 @@ function CaseFrontend({ creating = false }) {
         return true;
     }
 
-
     const handleAddFamilyMember = () => {
         const newMember = {
             first: "",
@@ -648,7 +658,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -684,7 +694,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -721,7 +731,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -758,7 +768,7 @@ function CaseFrontend({ creating = false }) {
                 if (createdAt) {
                     const date = new Date(createdAt);
                     if (!isNaN(date)) {
-                    dateLabel = formatter.format(date);
+                        dateLabel = formatter.format(date);
                     }
                 }
 
@@ -1074,23 +1084,23 @@ function CaseFrontend({ creating = false }) {
                         </div>
 
                         <section className="flex flex-col gap-5" id="core-fields">
-                            {!creating && 
+                            {!creating &&
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         {data.is_active === true ? (
-                                        <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
-                                            Active
-                                        </div>
+                                            <div className="font-bold-label rounded-full bg-[var(--color-green)] p-2 px-8 !text-white">
+                                                Active
+                                            </div>
                                         ) : (
-                                        <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
-                                            Inactive
-                                        </div>
+                                            <div className="font-bold-label rounded-full bg-[var(--accent-dark)] p-2 px-8 !text-white">
+                                                Inactive
+                                            </div>
                                         )}
 
                                         {data.pendingTermination && (
-                                        <div className="font-bold-label rounded-full bg-red-600 p-2 px-8 !text-white">
-                                            Pending Termination
-                                        </div>
+                                            <div className="font-bold-label rounded-full bg-red-600 p-2 px-8 !text-white">
+                                                Pending Termination
+                                            </div>
                                         )}
                                     </div>
 

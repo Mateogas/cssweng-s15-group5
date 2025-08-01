@@ -510,7 +510,7 @@ const getSDWViewbyParam = async(req,res) =>{
         .populate('spu')
         .lean()
 
-        console.log("CASES FOUND", cases);
+        // console.log("CASES FOUND", cases);
 
         const smIds = cases.map(c => c._id);
         const pendingClosures = await Case_Closure.find({
@@ -518,8 +518,8 @@ const getSDWViewbyParam = async(req,res) =>{
           status: "Pending",
         }).select("sm").lean();
         const pendingIds = pendingClosures.map(pc => pc.sm.toString());
-        console.log("PEND", pendingIds)
-        console.log("SM", smIds)
+        // console.log("PEND", pendingIds)
+        // console.log("SM", smIds)
 
         const simplifiedCases = cases.map(c => ({
             id: c._id,
