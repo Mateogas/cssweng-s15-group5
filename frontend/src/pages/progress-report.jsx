@@ -46,7 +46,7 @@ function ProgressReport() {
     const [modalImageCenter, setModalImageCenter] = useState(null);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
-
+    const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
     const [data, setData] = useState({
         form_num: "",
@@ -355,7 +355,13 @@ function ProgressReport() {
         e?.preventDefault();
 
         const isValid = validateForm();
-        if (!isValid) return false;
+        if (!isValid) {
+            setModalOnConfirm(() => () => { });
+            setModalOnCancel(() => () => { });
+            setModalConfirm(false);
+            setIsProcessing(false);
+            return false
+        };
 
         setModalTitle("Confirm Creation");
         setModalBody("Are you sure you want to save this Progress Report? This cannot be edited or deleted after creation.");
@@ -377,6 +383,9 @@ function ProgressReport() {
             }
 
             setIsProcessing(false);
+        });
+        setModalOnCancel(() => () => {
+            setShowModal(false);
         });
         setShowModal(true);
 
@@ -601,6 +610,7 @@ function ProgressReport() {
                         imageCenter={modalImageCenter}
                         confirm={modalConfirm}
                         onConfirm={modalOnConfirm}
+                        onCancel={modalOnCancel}
                     />
                 )}
             </AnimatePresence>
