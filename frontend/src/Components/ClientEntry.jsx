@@ -50,12 +50,12 @@ export default function ClientEntry({
   }
 
   return (
-    <a
-      href={`/case/${id}`}
-      className={`client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 rounded-lg font-bold-label transition-colors ${
-        pendingTermination ? "bg-red-100" : "bg-white"
-      }`}
-    >
+<a
+  href={`/case/${id}`}
+  className={`client-entry grid grid-cols-[2fr_1fr_2fr] items-center p-5 mb-2 rounded-lg font-bold-label transition-colors 
+    ${pendingTermination ? "bg-white border border-red-500" : "bg-white border border-transparent"}`}
+>
+
       <div className="flex items-center gap-6">
         <div
           className="rounded-full h-[4.5rem] min-w-[4.5rem] flex justify-center items-center header-sub"
@@ -70,7 +70,7 @@ export default function ClientEntry({
 
       {pendingTermination && (
         <div className="col-span-3 text-left mt-4">
-          <p className="text-xl text-red-600 font-medium">
+          <p className="font-label">
             Termination Request Found
           </p>
         </div>

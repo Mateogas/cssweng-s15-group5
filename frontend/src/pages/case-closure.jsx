@@ -865,8 +865,8 @@ function CaseClosure() {
                         <div className={`flex w-full items-center ${isTerminated ? 'justify-center' : 'justify-between'}`}>
                             {!isTerminated && (
                                 <div className="flex gap-4">
-                                    className="label-base btn-outline"
                                     <button
+                                        className="label-base btn-outline"
                                         onClick={async () => {
                                             await handleDelete();
                                             navigate(`/case/${caseID}`);
