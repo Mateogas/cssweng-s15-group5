@@ -244,6 +244,7 @@ function CaseClosure() {
 
 
     const validateForm = () => {
+        console.log("VALIDATING...");
         const missing = [];
 
         if (!closure_date || !closure_date.trim()) {
@@ -298,31 +299,38 @@ function CaseClosure() {
         e?.preventDefault();
         const isValid = validateForm();
 
+        console.log("ISVALID", isValid);
+
         if (!isValid) {
+            setModalOnConfirm(() => () => {});
+            setModalOnCancel(() => () => {});
+            setModalConfirm(false);
             return;
-        }
+        } else {
+            setModalTitle("Are you sure?");
+            setModalBody("Once submitted, this case closure request cannot be edited. Please confirm to proceed.");
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(true);
+            setModalOnConfirm(() => async () => {
+                setShowModal(false);
+                setIsProcessing(true);
 
-        setModalTitle("Are you sure?");
-        setModalBody("Once submitted, this case closure request cannot be edited. Please confirm to proceed.");
-        setModalImageCenter(<div className="warning-icon mx-auto" />);
-        setModalConfirm(true);
-        setModalOnConfirm(() => async () => {
-            setShowModal(false);
-            setIsProcessing(true);
-
-            try {
-                const created = await handleCreate();
-                console.log("CREATED", created);
-                if (created) {
-                    setShowSuccessModal(true);
+                try {
+                    console.log("VALIDCHECK", isValid);
+                    if (!isValid) return;
+                    const created = await handleCreate();
+                    console.log("CREATED", created);
+                    if (created) {
+                        setShowSuccessModal(true);
+                    }
+                } catch (err) {
+                    console.error("Submission failed:", err);
+                } finally {
+                    setIsProcessing(false);
                 }
-            } catch (err) {
-                console.error("Submission failed:", err);
-            } finally {
-                setIsProcessing(false);
-            }
-        });
-        setShowModal(true);
+            });
+            setShowModal(true);
+        }
     };
 
 
@@ -444,9 +452,8 @@ function CaseClosure() {
     const [reason_for_retirement, setReasonForRetirement] = useState(
         data?.reason_for_retirement || "",
     );
-    const [sm_awareness, setSMAwareness] = useState(
-        data?.sm_notification || "",
-    );
+    const [sm_awareness, setSMAwareness] = useState(data?.sm_awareness || "");
+
     const [sm_notification, setSMNotification] = useState(
         data?.sm_notification || "",
     );
@@ -668,55 +675,41 @@ function CaseClosure() {
                             disabled={viewForm}
                             error={errors["reason_for_retirement"]}
                         ></TextArea>
-                        <div className="flex w-full items-center gap-12">
-                            <div className="flex flex-col">
-                                <div className={`flex min-w-lg flex-col gap-8 ${errors["sm_awareness"] ? "p-12 border rounded-xl border-red-500" : ""}`}>
-                                    <p className="body-base">
-                                        Is the client or SM aware of case closure?
-                                    </p>
-                                    <div className="flex gap-12">
-                                        <label className="flex items-center body-base gap-4">
-                                            <input
-                                                type="checkbox"
-                                                name="sm_awareness"
-                                                value="yes"
-                                                checked={sm_awareness}
-                                                onChange={(e) =>
-                                                    handleCheckboxChange(e.target.value)
-                                                }
-                                                disabled={viewForm}
-                                            />
-                                            Yes
-                                        </label>
-                                        <label className="flex items-center body-base gap-4">
-                                            <input
-                                                type="checkbox"
-                                                name="sm_awareness"
-                                                value="no"
-                                                checked={!sm_awareness}
-                                                onChange={(e) =>
-                                                    handleCheckboxChange(e.target.value)
-                                                }
-                                                disabled={viewForm}
-                                            />
-                                            No
-                                        </label>
-                                    </div>
-                                </div>
-                                {errors["sm_awareness"] && (
-                                    <div className="text-red-500 text-sm self-end">
-                                        {errors["sm_awareness"]}
-                                    </div>
-                                )}
+                        <div className={`flex min-w-lg flex-col gap-8 ${errors["sm_awareness"] ? "p-12 border rounded-xl border-red-500" : ""}`}>
+                            <p className="body-base">Is the client or SM aware of case closure?</p>
+                            <div className="flex gap-12">
+                                <label className="flex items-center body-base gap-4">
+                                    <input
+                                        type="radio"
+                                        name="sm_awareness"
+                                        value="yes"
+                                        checked={sm_awareness === "yes"}
+                                        onChange={(e) => setSMAwareness(e.target.value)}
+                                        disabled={viewForm}
+                                    />
+                                    Yes
+                                </label>
+                                <label className="flex items-center body-base gap-4">
+                                    <input
+                                        type="radio"
+                                        name="sm_awareness"
+                                        value="no"
+                                        checked={sm_awareness === "no"}
+                                        onChange={(e) => setSMAwareness(e.target.value)}
+                                        disabled={viewForm}
+                                    />
+                                    No
+                                </label>
+                                <TextArea
+                                    sublabel="If yes, how was the client notified"
+                                    value={sm_notification}
+                                    setValue={setSMNotification}
+                                  disabled={viewForm || sm_awareness === "no"}
+                                    error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
+                                ></TextArea>
                             </div>
-                            <TextArea
-                                sublabel="If yes, how was the client notified"
-                                value={sm_notification}
-                                setValue={setSMNotification}
-                                disabled={viewForm}
-                                error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
-                            ></TextArea>
                         </div>
+
                     </section>
 
                     {/* Services Provided */}
@@ -815,110 +808,109 @@ function CaseClosure() {
                     </div>
                 </div>*/}
 
-                {/* Buttons */}
-                {sdw_view ? (
-                    <div className="flex w-full justify-center gap-20">
-                        {viewForm ? (
-                            <>
-                                {!isTerminated && (
+                    {/* Buttons */}
+                    {sdw_view ? (
+                        <div className="flex w-full justify-center gap-20">
+                            {viewForm ? (
+                                <>
+                                    {!isTerminated && (
+                                        <button
+                                            className="btn-outline font-bold-label"
+                                            onClick={async () => {
+                                                await handleDelete();
+                                                navigate(`/case/${caseID}`);
+                                            }}
+                                            disabled={loading}
+                                        >
+                                            Delete Request
+                                        </button>
+
+                                    )}
+                                    <button
+                                        className="btn-primary font-bold-label"
+                                        onClick={async () => {
+                                            generateCaseClosureForm(newformID)
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        Download Form
+                                    </button>
+                                </>
+                            ) : (
+                                <>
                                     <button
                                         className="btn-outline font-bold-label"
+                                        onClick={() => navigate(`/case/${caseID}`)}
+                                        disabled={loading}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className={`btn-primary font-bold-label w-min ${isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
+                                            }`}
+                                        onClick={handleSubmit}
+                                        disabled={isProcessing || loading || showSuccessModal}
+                                    >
+                                        {showSuccessModal
+                                            ? "Request Created"
+                                            : isProcessing
+                                                ? "Creating..."
+                                                : "Create Request"}
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        <div className={`flex w-full items-center ${isTerminated ? 'justify-center' : 'justify-between'}`}>
+                            {!isTerminated && (
+                                <div className="flex gap-4">
+                                    className="label-base btn-outline"
+                                    <button
                                         onClick={async () => {
                                             await handleDelete();
                                             navigate(`/case/${caseID}`);
                                         }}
                                         disabled={loading}
                                     >
-                                        Delete Request
+                                        Reject Termination
                                     </button>
-                                    
-                                )}
-                                <button
-                                    className="btn-primary font-bold-label"
-                                    onClick={async () => {
-                                        generateCaseClosureForm(newformID)
-                                    }}
-                                    disabled={loading}
-                                >
-                                    Download Form
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    className="btn-outline font-bold-label"
-                                    onClick={() => navigate(`/case/${caseID}`)}
-                                    disabled={loading}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className={`btn-primary font-bold-label w-min ${
-                                        isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
-                                    }`}
-                                    onClick={handleSubmit}
-                                    disabled={isProcessing || loading || showSuccessModal}
-                                >
-                                    {showSuccessModal
-                                    ? "Request Created"
-                                    : isProcessing
-                                        ? "Creating..."
-                                        : "Create Request"}
-                                </button>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div className={`flex w-full items-center ${isTerminated ? 'justify-center' : 'justify-between'}`}>
-                        {!isTerminated && (
-                            <div className="flex gap-4">
+                                    <button
+                                        className="label-base btn-primary"
+                                        onClick={() => {
+                                            setModalTitle("Terminate Case");
+                                            setModalBody("Are you sure you want to terminate this case? Ensure that the forms have been processed and signed before confirmation.");
+                                            setModalImageCenter(<div className="warning-icon mx-auto" />);
+                                            setModalConfirm(true);
+                                            setModalOnConfirm(() => async () => {
+                                                setShowModal(false);
+                                                await handleTermination();
+                                                navigate(`/case/${caseID}`);
+                                            });
+                                            setModalOnCancel(() => () => {
+                                                setShowModal(false);
+                                            });
+                                            setShowModal(true);
+                                        }}
+
+                                    >
+                                        Approve Termination
+                                    </button>
+                                </div>
+                            )}
+
                             <button
-                                className="label-base btn-outline"
+                                className="btn-primary font-bold-label"
                                 onClick={async () => {
-                                await handleDelete();
-                                    navigate(`/case/${caseID}`);
+                                    generateCaseClosureForm(newformID);
                                 }}
                                 disabled={loading}
                             >
-                                Reject Termination
+                                Download Form
                             </button>
-                            <button
-                                className="label-base btn-primary"
-                                onClick={() => {
-                                    setModalTitle("Terminate Case");
-                                    setModalBody("Are you sure you want to terminate this case? Ensure that the forms have been processed and signed before confirmation.");
-                                    setModalImageCenter(<div className="warning-icon mx-auto" />);
-                                    setModalConfirm(true);
-                                    setModalOnConfirm(() => async () => {
-                                        setShowModal(false);
-                                        await handleTermination();
-                                        navigate(`/case/${caseID}`);
-                                    });
-                                    setModalOnCancel(() => () => {
-                                        setShowModal(false);
-                                    });
-                                    setShowModal(true);
-                                }}
+                        </div>
+                    )}
 
-                            >
-                                Approve Termination
-                            </button>
-                            </div>
-                        )}
-
-                        <button
-                            className="btn-primary font-bold-label"
-                            onClick={async () => {
-                            generateCaseClosureForm(newformID);
-                            }}
-                            disabled={loading}
-                        >
-                            Download Form
-                        </button>
-                    </div>
-                )}
-            
 
                     {/* Confirm Close Case */}
                     {showModal && (
@@ -1017,13 +1009,6 @@ function CaseClosure() {
                         </div>
                     )}
 
-                    {!viewForm && (
-                        <div className="-mt-8">
-                            <p className="text-2xl text-red-600 font-semibold text-center mt-2">
-                                ⚠️ Warning: This form cannot be edited after saving. Make sure your inputs are correct. ⚠️
-                            </p>
-                        </div>
-                    )}
                 </div>
             </main>
         </>

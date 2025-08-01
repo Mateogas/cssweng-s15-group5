@@ -104,7 +104,8 @@ export default function WorkerProfile() {
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id.spu_name || "",
+                    spu_id: empData.spu_id._id || "",
+
                     role: empData.role || "",
                     manager: empData.manager || "",
                     is_active: empData.is_active ?? true
@@ -119,7 +120,7 @@ export default function WorkerProfile() {
                     contact_no: empData.contact_no || "",
                     // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id.spu_name || "",
+                    spu_id: empData.spu_id._id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
@@ -167,6 +168,7 @@ export default function WorkerProfile() {
         const filtered = socialDevelopmentWorkers.filter(
             (w) =>
                 w.spu_id === drafts.spu_id &&
+                w.id !== workerId &&
                 w.role === 'supervisor' &&
                 w.is_active === true
         );
@@ -199,13 +201,10 @@ export default function WorkerProfile() {
         const loadHandled = async () => {
             if (data.role === "sdw") {
                 const res = await fetchSDWViewById(workerId);
-                console.log("RES:", res);
 
                 const filteredClients = (res || []).filter((client) => {
                     return data.is_active ? client.is_active === true : client.is_active === false;
                 });
-
-                console.log(filteredClients);
 
                 setHandledClients(filteredClients);
             }
@@ -242,6 +241,7 @@ export default function WorkerProfile() {
     };
 
     const resetFields = () => {
+        console.log("RESETTING", data);
         setDrafts({
             first_name: data.first_name || "",
             middle_name: data.middle_name || "",
@@ -440,7 +440,7 @@ export default function WorkerProfile() {
         }
     };
 
-    console.log("HANDED", handledClients);
+    console.log("current data", data);
 
     if (loading) return null;
 
@@ -631,7 +631,7 @@ export default function WorkerProfile() {
                                             >
                                                 <option value="">Select SPU</option>
                                                 {projectLocation.map((spu) => (
-                                                    <option key={spu._id} value={spu.spu_name}>
+                                                    <option key={spu._id} value={spu._id}>
                                                         {spu.spu_name}
                                                     </option>
                                                 ))}
@@ -700,6 +700,7 @@ export default function WorkerProfile() {
                                             const payload = {
                                                 ...drafts,
                                                 manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
+                                                spu_id: projectLocation.find(spu => spu._id === drafts.spu_id)?.spu_name || null,
                                             };
 
 
@@ -789,7 +790,10 @@ export default function WorkerProfile() {
                                         <p><span className="font-bold-label">Contact No.:</span> {data.contact_no || "-"}</p>
 
                                         {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
-                                        <p><span className="font-bold-label">SPU Project:</span> {data.spu_id || "-"}</p>
+                                        <p>
+                                        <span className="font-bold-label">SPU Project:</span>{" "}
+                                        {projectLocation.find((spu) => spu._id === data.spu_id)?.spu_name || "-"}
+                                        </p>
                                         <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "supervisor" ? "Supervisor" : "Social Development Worker"}</p>
 
                                         {(data.role === "" || data.role === "sdw") && (
