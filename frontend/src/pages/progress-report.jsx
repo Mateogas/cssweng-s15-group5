@@ -83,7 +83,7 @@ function ProgressReport() {
                     return
                 }
                 const caseData = returnData
-                console.log(caseData)
+                console.log("CASE DATA", caseData);
 
                 setRawCaseData(caseData);
                 setData((prev) => ({
@@ -102,6 +102,8 @@ function ProgressReport() {
             };
             loadData();
         }, []);
+
+        console.log("report data", data);
 
         useEffect(() => {
             setFirstName(data.first_name || "");
@@ -130,6 +132,8 @@ function ProgressReport() {
                     setNoFormFound(true)
                     return
                 }
+
+                console.log("RETURN DATA", returnData);
 
                 const formData = returnData.progressReport
                 const caseData = returnData.case
@@ -312,11 +316,26 @@ function ProgressReport() {
             missing.push("Sponsor Relationship Section");
         }
 
-        const dateError =
-            sponsorship_date > date_accomplished || new Date(date_accomplished) > new Date();
-        if (dateError) {
-            missing.push("Invalid Date Order (Check Sponsorship and Accomplishment Dates)");
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        const sponsorDate = new Date(sponsorship_date);
+        const accomplishedDate = new Date(date_accomplished);
+        sponsorDate.setHours(0, 0, 0, 0);
+        accomplishedDate.setHours(0, 0, 0, 0);
+
+        if (sponsorDate > accomplishedDate) {
+            missing.push("Sponsorship Date must not be later than Accomplishment Date");
         }
+
+
+        if (sponsorship_date > now) {
+            missing.push("Sponsorship Date must not be in the future");
+        }
+        if (accomplishedDate > now) {
+            missing.push("Accomplishment Date must not be in the future");
+        }
+
 
         if (missing.length > 0) {
             setModalTitle("Missing / Invalid Fields");
