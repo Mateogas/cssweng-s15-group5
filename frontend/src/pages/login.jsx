@@ -22,8 +22,6 @@ export default function Login() {
     document.title = "Login";
 }, []);
 
-
-
     const handleLogin = async () => {
         const payload = {
             username: username,

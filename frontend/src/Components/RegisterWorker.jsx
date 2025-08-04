@@ -17,6 +17,7 @@ export default function RegisterWorker({
   const [modalImageCenter, setModalImageCenter] = useState(null);
   const [modalConfirm, setModalConfirm] = useState(false);
   const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     // sdw_id: '',
@@ -100,8 +101,14 @@ export default function RegisterWorker({
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
     const isValid = await checkRegisterWorker();
-    if (!isValid) return;
+    if (!isValid) {
+      setIsSubmitting(false);
+      return
+    };
 
     const payload = {
       ...formData,
@@ -133,6 +140,7 @@ export default function RegisterWorker({
       setShowModal(true);
     }
 
+    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -468,8 +476,8 @@ export default function RegisterWorker({
                   <button className="btn-outline font-bold-label" onClick={onClose}>
                     Cancel
                   </button>
-                  <button className="btn-primary font-bold-label" onClick={handleSubmit}>
-                    Register
+                  <button className="btn-primary font-bold-label" onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? "Registering..." : "Register"}
                   </button>
                 </div>
               </div>

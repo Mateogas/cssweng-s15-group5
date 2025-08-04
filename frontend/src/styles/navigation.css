@@ -46,6 +46,11 @@
   -webkit-mask-image: url("/folder-logo.svg");
 }
 
+.unauthorized-logo {
+  mask-image: url("/unauthorized.svg");
+  -webkit-mask-image: url("/unauthorized.svg");
+}
+
 .nav-search {
   width: 2rem;
   height: 2rem;

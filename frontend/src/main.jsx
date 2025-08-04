@@ -6,7 +6,6 @@ import App from "./App.jsx";
 import Authorization from "./Components/Authorization.jsx";
 
 import Login from "./pages/login.jsx";
-import Case from "./pages/case-report-page/case.jsx";
 import CaseFrontend from "./pages/case-report-page/case-frontend.jsx";
 import HomeSDW from "./pages/home-sdw.jsx";
 import HomeLeader from "./pages/home-leader.jsx";
@@ -21,17 +20,21 @@ import "./index.css";
 
 import SpuPage from "./pages/spu-page.jsx";
 
-import NotFound from "./pages/NotFound.jsx";
+import NotFound from "./pages/not-found.jsx";
+import Loading from "./pages/loading.jsx";
+import Unauthorized from "./pages/unauthorized.jsx";
+
 
 //we need to add routes pa here for going to other pages so the actual routes are here we add the module Case to load that page
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
         <BrowserRouter>
             <Routes>
+                <Route path="/loading" element={<Loading />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
+
                 <Route path="/" element={<App />} />
                 <Route path="/login" element={<Login />} />
-
-                <Route path="/testcase" element={<Case />} />
 
                 <Route path="/case-frontend" element={<CaseFrontend />} />
                 <Route path="/case/:clientId" element={<CaseFrontend />} />

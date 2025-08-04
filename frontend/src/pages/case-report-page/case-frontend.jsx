@@ -10,7 +10,7 @@ import { fetchSession } from "../../fetch-connections/account-connection";
 import { createNewCase } from "../../fetch-connections/case-connection";
 
 import { fetchAllSpus } from "../../fetch-connections/spu-connection";
-import NotFound from "../NotFound";
+import NotFound from "../not-found";
 
 // API Imports
 import {
@@ -294,8 +294,6 @@ function CaseFrontend({ creating = false }) {
             // console.log("Session:", currentUser);
         };
         loadSession();
-
-
 
         if (
             creating &&

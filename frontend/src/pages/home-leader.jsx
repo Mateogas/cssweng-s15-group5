@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import SideBar from "../Components/SideBar";
 import WorkerEntry from "../Components/WorkerEntry";
 import RegisterWorker from "../Components/RegisterWorker";
+import Loading from "./loading";
+
 import {
   fetchHeadViewBySpu,
   fetchHeadViewBySupervisor,
@@ -11,6 +14,8 @@ import {
 import { fetchAllSpus } from "../fetch-connections/spu-connection";
 
 function HomeLeader() {
+  const navigate = useNavigate();
+
   const [allData, setAllData] = useState([]);
   const [currentData, setCurrentData] = useState([]);
   const [currentSPU, setCurrentSPU] = useState("");
@@ -19,46 +24,53 @@ function HomeLeader() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [projectLocation, setProjectLocation] = useState([]);
 
-  const [projectLocation, setProjectLocation] = useState([])
+  const [loadingStage, setLoadingStage] = useState(0); // 0 = red, 1 = blue, 2 = green
+  const [loadingComplete, setLoadingComplete] = useState(false);
+
   useEffect(() => {
-    const loadUserAndEmployees = async () => {
-      const sessionData = await fetchSession();
-      console.log("Session:", sessionData);
-      setUser(sessionData.user);
-
-      let employees = [];
-
-      if (sessionData.user?.role === "head") {
-        const spuToUse = currentSPU;
-        console.log("Head view SPU:", spuToUse);
-        if (spuToUse) {
-          const data = await fetchHeadViewBySpu(spuToUse);
-          employees = data.employees || [];
+    const loadData = async () => {
+      try {
+        setLoadingStage(0); // Start: red
+        const sessionData = await fetchSession();
+        setUser(sessionData.user);
+        if (!sessionData.user || !["head", "supervisor"].includes(sessionData.user.role)) {
+          navigate("/unauthorized");
+          return;
         }
-      } else if (sessionData.user?.role === "supervisor") {
-        const data = await fetchHeadViewBySupervisor(sessionData.user._id);
-        employees = data || [];
+
+        setLoadingStage(1); // Mid: blue
+
+        let employees = [];
+
+        if (sessionData.user.role === "head") {
+          const data = currentSPU
+            ? await fetchHeadViewBySpu(currentSPU)
+            : { employees: [] };
+          employees = data.employees || [];
+        } else if (sessionData.user.role === "supervisor") {
+          const data = await fetchHeadViewBySupervisor(sessionData.user._id);
+          employees = data || [];
+        }
+
+        const filtered = employees.filter(e => e.is_active === true);
+        setAllData(filtered);
+
+        const spus = await fetchAllSpus();
+        const activeSpus = spus.filter(spu => spu.is_active === true);
+        setProjectLocation(activeSpus);
+
+        setLoadingStage(2); // Final: green
+
+        setTimeout(() => setLoadingComplete(true), 300); // small delay for smooth transition
+      } catch (err) {
+        console.error("Error during data load", err);
+        navigate("/unauthorized");
       }
-
-      const filtered = employees.filter(
-        (e) => e.is_active === true
-      );
-      console.log("Fetched employees:", filtered);
-      setAllData(filtered);
     };
 
-    const loadSPUs = async () => {
-      const spus = await fetchAllSpus();
-      const filtered = spus.filter(
-        (spu) => spu.is_active === true
-      );
-      setProjectLocation(filtered);
-    };
-
-    loadSPUs();
-
-    loadUserAndEmployees();
+    loadData();
   }, [currentSPU, isRegisterOpen]);
 
   useEffect(() => {
@@ -81,7 +93,7 @@ function HomeLeader() {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
     } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
       filtered = filtered.filter((w) => w.role === sortBy)
-        .sort((a, b) => a.name.localeCompare(b.name));;
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     if (sortOrder === "desc") {
@@ -92,18 +104,22 @@ function HomeLeader() {
   }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
 
   useEffect(() => {
-      if (!user) return;
+    if (!user) return;
 
-      const title =
-          user.role === "supervisor"
-              ? `Coordinating Unit - ${user.spu_name}`
-              : "Coordinating Unit";
+    const title =
+      user.role === "supervisor"
+        ? `Coordinating Unit - ${user.spu_name}`
+        : "Coordinating Unit";
 
-      document.title = title;
+    document.title = title;
   }, [user]);
 
+  // Determine color for Loading component
+  const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
 
-
+  if (!loadingComplete) {
+    return <Loading color={loadingColor} />;
+  }
   return (
     <>
       <RegisterWorker
@@ -139,11 +155,11 @@ function HomeLeader() {
         <SideBar user={user} />
         <div className="flex flex-col w-full gap-15 ml-[15rem]">
 
-<h1 className="header-main">
-  {user?.role === "head"
-    ? "Coordinating Unit"
-    : `Coordinating Unit${user?.spu_name ? ` - ${user.spu_name}` : ""}`}
-</h1>
+          <h1 className="header-main">
+            {user?.role === "head"
+              ? "Coordinating Unit"
+              : `Coordinating Unit${user?.spu_name ? ` - ${user.spu_name}` : ""}`}
+          </h1>
 
 
           <div className="flex justify-between gap-10">

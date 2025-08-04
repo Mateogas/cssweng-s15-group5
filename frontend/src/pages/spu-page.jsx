@@ -14,6 +14,7 @@ import { fetchAllSpus } from "../fetch-connections/spu-connection";
 import { deleteSpu } from "../fetch-connections/spu-connection";
 
 import RegisterSpu from "../Components/RegisterSpu";
+import Loading from "./loading";
 
 export default function SpuPage() {
     const navigate = useNavigate();
@@ -22,10 +23,12 @@ export default function SpuPage() {
     const [sdws, setSdws] = useState([]);
     const [cases, setCases] = useState([]);
     const [spus, setSpus] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     const [collapsedSpus, setCollapsedSpus] = useState({});
     const [addOpen, setAddOpen] = useState(false);
+
+    const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [deleteModalData, setDeleteModalData] = useState({
         isOpen: false,
@@ -40,37 +43,51 @@ export default function SpuPage() {
         document.title = "SPU Page";
     }, []);
 
-    const loadData = async () => {
-        try {
-            const sessionData = await fetchSession();
-            setUser(sessionData?.user || null);
-
-            const [allSpus, allSdws, allCases] = await Promise.all([
-                fetchAllSpus(),
-                fetchAllSDWs(),
-                fetchAllCases(),
-            ]);
-
-            const activeSpus = (allSpus || []).filter(spu => spu.is_active);
-            setSpus(activeSpus || []);
-            const activeSdws = (allSdws || []).filter(sdw => sdw.is_active);
-            setSdws(activeSdws || []);
-            const activeCases = (allCases || []).filter(c => c.is_active);
-            setCases(activeCases);
-
-            const initialCollapseState = {};
-            (allSpus || []).forEach(spu => {
-                initialCollapseState[spu._id] = true;
-            });
-            setCollapsedSpus(initialCollapseState);
-        } catch (err) {
-            console.error("Error loading SPU data page:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const loadData = async () => {
+            try {
+                setLoadingStage(0); // red
+
+                const sessionData = await fetchSession();
+                const currentUser = sessionData?.user;
+                setUser(currentUser);
+
+                if (!currentUser || currentUser.role !== "head") {
+                    navigate("/unauthorized");
+                    return;
+                }
+
+                setLoadingStage(1); // blue
+
+                const [allSpus, allSdws, allCases] = await Promise.all([
+                    fetchAllSpus(),
+                    fetchAllSDWs(),
+                    fetchAllCases(),
+                ]);
+
+                const activeSpus = (allSpus || []).filter(spu => spu.is_active);
+                setSpus(activeSpus);
+
+                const activeSdws = (allSdws || []).filter(sdw => sdw.is_active);
+                setSdws(activeSdws);
+
+                const activeCases = (allCases || []).filter(c => c.is_active);
+                setCases(activeCases);
+
+                const initialCollapseState = {};
+                activeSpus.forEach(spu => {
+                    initialCollapseState[spu._id] = true;
+                });
+                setCollapsedSpus(initialCollapseState);
+
+                setLoadingStage(2); // green
+                setTimeout(() => setLoadingComplete(true), 300); // smooth transition
+            } catch (err) {
+                console.error("Error loading SPU data page:", err);
+                navigate("/unauthorized");
+            }
+        };
+
         loadData();
     }, []);
 
@@ -105,10 +122,8 @@ export default function SpuPage() {
             confirm: true,
             onConfirm: async () => {
                 const res = await deleteSpu(spu._id);
-
                 if (res?.ok) {
                     await loadData();
-
                     setDeleteModalData({
                         isOpen: true,
                         title: "SPU Deleted",
@@ -128,11 +143,11 @@ export default function SpuPage() {
                     });
                 }
             }
-
-
-
         });
     };
+
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete) return <Loading color={loadingColor} />;
 
     return (
         <>
@@ -185,9 +200,7 @@ export default function SpuPage() {
                         </button>
                     </div>
 
-                    {loading ? (
-                        <p className="font-label">Loading SPU data...</p>
-                    ) : (
+                    {
                         spus.map((spu) => {
                             const isCollapsed = collapsedSpus[spu._id] ?? true;
                             const spuWorkers = sdws.filter((worker) => worker.spu_id === spu.spu_name);
@@ -290,7 +303,7 @@ export default function SpuPage() {
                                 </div>
                             );
                         })
-                    )}
+                    }
                 </div>
             </main>
         </>

@@ -10,6 +10,7 @@ export default function ChangePassword({ isOpen, onClose, onChanged, userId }) {
   const [modalImageCenter, setModalImageCenter] = useState(null);
   const [modalConfirm, setModalConfirm] = useState(false);
   const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+  const [submitting, setSubmitting] = useState(false);
 
   // console.log("USERID", userId);
 
@@ -58,29 +59,33 @@ export default function ChangePassword({ isOpen, onClose, onChanged, userId }) {
     const isValid = checkPasswordValid();
     if (!isValid) return;
 
-    // Example: adjust this to your API call for updating the password
-    const res = await updateEmployeePasswordById(userId, { password: formData.password });
+    setSubmitting(true);
+    try {
+      const res = await updateEmployeePasswordById(userId, { password: formData.password });
 
-    if (res.ok) {
-      setModalTitle("Success");
-      setModalBody("Password changed successfully.");
-      setModalImageCenter(<div className="success-icon mx-auto"></div>);
-      setModalConfirm(false);
-      setShowModal(true);
+      if (res.ok) {
+        setModalTitle("Success");
+        setModalBody("Password changed successfully.");
+        setModalImageCenter(<div className="success-icon mx-auto"></div>);
+        setModalConfirm(false);
+        setShowModal(true);
 
-      setModalOnConfirm(() => () => {
-        onChanged?.();
-        onClose?.();
-      });
-
-    } else {
-      setModalTitle("Error");
-      setModalBody(res.data?.message || "Failed to change password.");
-      setModalImageCenter(<div className="warning-icon mx-auto"></div>);
-      setModalConfirm(false);
-      setShowModal(true);
+        setModalOnConfirm(() => () => {
+          onChanged?.();
+          onClose?.();
+        });
+      } else {
+        setModalTitle("Error");
+        setModalBody(res.data?.message || "Failed to change password.");
+        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+        setModalConfirm(false);
+        setShowModal(true);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   const handleModalClose = () => {
     modalOnConfirm?.();
@@ -148,8 +153,12 @@ export default function ChangePassword({ isOpen, onClose, onChanged, userId }) {
                   <button className="btn-outline font-bold-label" onClick={onClose}>
                     Cancel
                   </button>
-                  <button className="btn-primary font-bold-label" onClick={handleSubmit}>
-                    Change Password
+                  <button
+                    className="btn-primary font-bold-label"
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                  >
+                    {submitting ? "Changing..." : "Change Password"}
                   </button>
                 </div>
               </div>
