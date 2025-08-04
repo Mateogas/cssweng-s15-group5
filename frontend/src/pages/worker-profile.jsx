@@ -157,7 +157,7 @@ export default function WorkerProfile() {
             }
 
             setLoadingStage(2); // green
-            setTimeout(() => setLoadingComplete(true), 300);
+            setTimeout(() => setLoadingComplete(true), 100);
         };
 
         loadSessionAndWorker();
