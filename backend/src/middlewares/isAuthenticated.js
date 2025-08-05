@@ -21,3 +21,4 @@ const isAuthenticated = (req, res, next) => {
          res.status(401).send('<h1>Not Authorized</h1><p>Please login to continue.</p><a href="https://unboundgroup.vercel.app//login">Go to Login</a>');// change href to actual deployed page
     }
 };
+module.exports = isAuthenticated;
