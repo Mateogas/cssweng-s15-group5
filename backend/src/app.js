@@ -70,7 +70,6 @@ const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 const spuRoutes = require('./route/spuRoutes');
 const isAuthenticated = require('./middlewares/isAuthenticated.js')
-const { requireRole } = require('../middlewares/roleMiddleware');
 const createAccountController = require('./controller/createAccountController');
 const deleteAccountController = require('./controller/deleteAccountController.js')
 const profileRoute = require('../src/route/employeeRoute.js');
