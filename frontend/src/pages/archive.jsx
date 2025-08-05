@@ -59,10 +59,10 @@ function Archive() {
                 const cases = await fetchAllCases();
                 setAllCases(cases);
 
-                if (currentUser.role === "supervisor") {
+                /*if (currentUser.role === "supervisor") {
                     const employees = await fetchSupervisorView();
                     setAllEmployees(employees.employees);
-                }
+                }*/
 
                 setLoadingStage(2); // green
                 setLoadingComplete(true);
@@ -79,13 +79,14 @@ function Archive() {
         let filtered = [...allCases].filter((client) => !client.is_active);
 
         if (user?.role === "supervisor") {
-            filtered = filtered.filter((client) => {
+            /*filtered = filtered.filter((client) => {
                 const isSameSPU = client.spu === user.spu_name;
                 const assignedSDWExists = allEmployees.some(
                     (employee) => employee.id === client.assigned_sdw 
                 );
                 return isSameSPU && assignedSDWExists;
-            });
+            });*/
+            filtered = filtered.filter((client) => client.spu === user.spu_name);
         }
 
         if (currentSPU !== "") {
