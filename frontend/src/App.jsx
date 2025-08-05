@@ -15,7 +15,6 @@ function App() {
       try {
         const res = await fetchSession();
         console.log("Session:", res);
-
         if (res.user) {
           setUser(res.user);
         } else {
@@ -30,6 +29,9 @@ function App() {
     };
 
     checkSession();
+    // Add periodic session check every 30 seconds
+    const intervalId = setInterval(checkSession, 30000);
+    return () => clearInterval(intervalId);
   }, []);
 
   if (loading) return <div></div>;
