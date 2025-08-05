@@ -11,7 +11,7 @@ export default function NotFound({ message = "The page you're looking for does n
     useEffect(() => {
         const loadSession = async () => {
             const sessionData = await fetchSession();
-            console.log("Session:", sessionData?.user);
+            // console.log("Session:", sessionData?.user);
             setUser(sessionData?.user || null);
         };
         loadSession();

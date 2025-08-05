@@ -31,13 +31,13 @@ const populateInterventions = async () => {
         }
     ]
     const inserted = await Intervention.insertMany(interventions);
-    console.log("Successfully added Interventions.");
+    // console.log("Successfully added Interventions.");
 
     // Update spon_mem
     spon_mem1.interventions.push(...inserted.map(i => i._id));
     await spon_mem1.save();
-    console.log(`Updated ${spon_mem1.sm_number}`);
-    console.log(spon_mem1);
+    // console.log(`Updated ${spon_mem1.sm_number}`);
+    // console.log(spon_mem1);
 
     mongoose.connection.close();
 }

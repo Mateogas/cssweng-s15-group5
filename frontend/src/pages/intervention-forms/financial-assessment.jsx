@@ -33,8 +33,8 @@ function FinancialAssessmentForm() {
     const caseID = query.get('caseID') || "";
     const formID = query.get('formID') || "";
 
-    console.log("Case ID: ", caseID);
-    console.log("Form ID: ", formID);
+    // console.log("Case ID: ", caseID);
+    // console.log("Form ID: ", formID);
 
     const [loading, setLoading] = useState(true);
     const [rawCaseData, setRawCaseData] = useState(null);
@@ -110,7 +110,7 @@ function FinancialAssessmentForm() {
                 }
                 const caseData = returnData.returningData;
 
-                console.log(caseData)
+                // console.log(caseData)
 
                 setRawCaseData(caseData);
 
@@ -161,7 +161,7 @@ function FinancialAssessmentForm() {
                 const formData = returnFormData.form;
                 const caseData = returnFormData.sponsored_member;
 
-                console.log("form Data", formData);
+                // console.log("form Data", formData);
                 setRawFormData(formData);
 
                 setData((prev) => ({
@@ -372,7 +372,7 @@ function FinancialAssessmentForm() {
             recommendation
         };
 
-        console.log("Payload: ", updatedPayload);
+        // console.log("Payload: ", updatedPayload);
         const response = await editFinancialForm(formID, updatedPayload);
     };
 
@@ -464,11 +464,11 @@ function FinancialAssessmentForm() {
 
             const returnData = await fetchCaseOriginal(caseID);
 
-            console.log("RETURN DATA: ", returnData);
+            // console.log("RETURN DATA: ", returnData);
 
             const assignedSDWId = returnData.assigned_sdw._id;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -487,7 +487,7 @@ function FinancialAssessmentForm() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return

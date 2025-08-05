@@ -154,7 +154,7 @@ function CounselingForm() {
                 setData(fetchedData);
                 // setLoading(false);
 
-                console.log("Fetched Counselling Form: ", fetchedData);
+                // console.log("Fetched Counselling Form: ", fetchedData);
 
                 setLastName(fetchedData.last_name || "");
                 setMiddleName(fetchedData.middle_name || "");
@@ -244,7 +244,7 @@ function CounselingForm() {
 
             const created = await handleCreate();
 
-            console.log(created);
+            // console.log(created);
 
             if (created) {
                 setShowSuccessModal(true);
@@ -388,11 +388,11 @@ function CounselingForm() {
 
             const returnData = await fetchCaseOriginal(caseID);
 
-            console.log("RETURN DATA: ", returnData);
+            // console.log("RETURN DATA: ", returnData);
 
             const assignedSDWId = returnData.assigned_sdw._id;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -411,7 +411,7 @@ function CounselingForm() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return

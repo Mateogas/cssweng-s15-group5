@@ -14,7 +14,7 @@ const populateEmployee = async () => {
 
     // Please make sure to populate department first.
     const deptID = await Departments.findOne({ department_name: "department1" });
-    console.log(deptID._id);
+    // console.log(deptID._id);
 
     // Head
     const head = new Employee({
@@ -31,7 +31,7 @@ const populateEmployee = async () => {
         department: null
     })
     await head.save()
-    console.log("Successfully added Head.");
+    // console.log("Successfully added Head.");
 
     const headID = await Employee.findOne({ username: "MainAdmin" });
 
@@ -65,7 +65,7 @@ const populateEmployee = async () => {
         },
     ]
     await Employee.insertMany(supervisors);
-    console.log("Successfully added Supervisors.");
+    // console.log("Successfully added Supervisors.");
 
     // SDWs
     const sv1 = await Employee.findOne({ username: "Supervisor1" });
@@ -99,7 +99,7 @@ const populateEmployee = async () => {
         },
     ]
     await Employee.insertMany(sdws);
-    console.log("Successfully added SDWs.");
+    // console.log("Successfully added SDWs.");
 
     mongoose.connection.close();
 }

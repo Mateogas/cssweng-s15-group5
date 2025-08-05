@@ -77,7 +77,7 @@ export default function RegisterWorker({
       const filtered = sdws.filter(
         (sdw) => sdw.is_active === true
       );
-      console.log("Fetched employees:", sdws);
+      // console.log("Fetched employees:", sdws);
       setSocialDevelopmentWorkers(filtered);
     };
 
@@ -189,13 +189,13 @@ export default function RegisterWorker({
         missing.push("Username");
       } else {
         const check = await fetchEmployeeByUsername(formData.username);
-        console.log("Fetched employee by Username:", check);
+        // console.log("Fetched employee by Username:", check);
 
         if (check.ok && check.data) {
-          console.log(
-            "Comparing found username:", check.data.username,
-            "vs current employee username:", formData.username
-          );
+          // console.log(
+          //   "Comparing found username:", check.data.username,
+          //   "vs current employee username:", formData.username
+          // );
 
           if (check.data.username.trim() === formData.username.trim()) {
             missing.push(`Username already exists and belongs to another employee`);
@@ -232,7 +232,7 @@ export default function RegisterWorker({
     }
 
 
-    console.log(formData.role, formData.manager)
+    // console.log(formData.role, formData.manager)
     if (formData.role == "sdw" && formData.manager == "") missing.push("Social Development Workers must have a Supervisor");
 
     if (formData.area.trim() == "") missing.push("Area of Assignment");

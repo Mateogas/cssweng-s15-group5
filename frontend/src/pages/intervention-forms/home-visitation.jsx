@@ -769,7 +769,7 @@ function HomeVisitationForm() {
 
             const assignedSDWId = returnData.case.assigned_sdw;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -788,7 +788,7 @@ function HomeVisitationForm() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return

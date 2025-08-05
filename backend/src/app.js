@@ -67,7 +67,7 @@ const fileGenerator = require('./route/fileGeneratorRoutes.js');
 
 // Log requests
 app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
+  // console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
   next();
 });
 

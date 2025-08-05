@@ -222,7 +222,7 @@ const createHomVis = async (req, res) => {
             (field) => !formData[field]
         );
         if (missingFields.length > 0) {
-            console.log("Missing field/s found.", missingFields);
+            // console.log("Missing field/s found.", missingFields);
             return res.status(400).json({
                 message: `Missing required fields: ${missingFields.join(", ")}`,
             });
@@ -235,10 +235,10 @@ const createHomVis = async (req, res) => {
                 formData.rawFatherData || null,
                 formData.rawOtherFamilyData || null
             );
-        console.log(formData.rawMotherData,
-                formData.rawFatherData,
-                formData.rawOtherFamilyData)
-        console.log("OUT: ", mother, father, otherFam)
+        // console.log(formData.rawMotherData,
+        //         formData.rawFatherData,
+        //         formData.rawOtherFamilyData)
+        // console.log("OUT: ", mother, father, otherFam)
 
         // Creating new intervention
         const newForm = new InterventionHomeVisit({
@@ -261,7 +261,7 @@ const createHomVis = async (req, res) => {
             observation_findings: formData.observation_findings,
             interventions: formData.interventions,
         });
-        console.log("NEW FORM: ", newForm);
+        // console.log("NEW FORM: ", newForm);
 
         await newForm.validate();
         await newForm.save();

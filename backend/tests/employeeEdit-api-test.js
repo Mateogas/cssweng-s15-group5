@@ -50,7 +50,7 @@ const setupAuthHeader = (userId, role = 'SDW') => {
 // Test functions
 async function testValidProfileUpdate() {
   try {
-    console.log('\n--- Testing VALID Profile Update ---');
+    // console.log('\n--- Testing VALID Profile Update ---');
     
     // Use a Head role for this test to ensure permissions
     const response = await axios.put(
@@ -59,9 +59,9 @@ async function testValidProfileUpdate() {
       setupAuthHeader(HEAD_USER_ID, 'Head')
     );
     
-    console.log('✅ Profile updated successfully!');
-    console.log('Status:', response.status);
-    console.log('Response:', response.data);
+    // console.log('✅ Profile updated successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Response:', response.data);
     
     return true;
   } catch (error) {
@@ -72,7 +72,7 @@ async function testValidProfileUpdate() {
 
 async function testSelfProfileUpdate() {
   try {
-    console.log('\n--- Testing Self Profile Update ---');
+    // console.log('\n--- Testing Self Profile Update ---');
     
     // User is updating their own profile
     const response = await axios.put(
@@ -81,9 +81,9 @@ async function testSelfProfileUpdate() {
       setupAuthHeader(EXISTING_EMPLOYEE_ID, 'SDW')
     );
     
-    console.log('✅ Self profile updated successfully!');
-    console.log('Status:', response.status);
-    console.log('Response:', response.data);
+    // console.log('✅ Self profile updated successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Response:', response.data);
     
     return true;
   } catch (error) {
@@ -94,7 +94,7 @@ async function testSelfProfileUpdate() {
 
 async function testUnauthorizedProfileUpdate() {
   try {
-    console.log('\n--- Testing UNAUTHORIZED Profile Update ---');
+    // console.log('\n--- Testing UNAUTHORIZED Profile Update ---');
     
     // SDW trying to update someone else's profile
     const OTHER_USER_ID = '777777777777'; // Different from EXISTING_EMPLOYEE_ID
@@ -105,13 +105,13 @@ async function testUnauthorizedProfileUpdate() {
       setupAuthHeader(OTHER_USER_ID, 'SDW')
     );
     
-    console.log('❌ Test failed! Unauthorized update should be rejected');
+    // console.log('❌ Test failed! Unauthorized update should be rejected');
     return false;
   } catch (error) {
     if (error.response?.status === 403) {
-      console.log('✅ Unauthorized update correctly rejected!');
-      console.log('Status:', error.response.status);
-      console.log('Response:', error.response.data);
+      // console.log('✅ Unauthorized update correctly rejected!');
+      // console.log('Status:', error.response.status);
+      // console.log('Response:', error.response.data);
       return true;
     } else {
       console.error('❌ Unexpected error:', error.response?.data || error.message);
@@ -122,7 +122,7 @@ async function testUnauthorizedProfileUpdate() {
 
 async function testInvalidDataProfileUpdate() {
   try {
-    console.log('\n--- Testing INVALID DATA Profile Update ---');
+    // console.log('\n--- Testing INVALID DATA Profile Update ---');
     
     const response = await axios.put(
       `${BASE_URL}/profile/edit/${EXISTING_EMPLOYEE_ID}`,
@@ -130,13 +130,13 @@ async function testInvalidDataProfileUpdate() {
       setupAuthHeader(HEAD_USER_ID, 'Head')
     );
     
-    console.log('❌ Test failed! Invalid data should be rejected');
+    // console.log('❌ Test failed! Invalid data should be rejected');
     return false;
   } catch (error) {
     if (error.response?.status === 400) {
-      console.log('✅ Invalid data correctly rejected!');
-      console.log('Status:', error.response.status);
-      console.log('Response:', error.response.data);
+      // console.log('✅ Invalid data correctly rejected!');
+      // console.log('Status:', error.response.status);
+      // console.log('Response:', error.response.data);
       return true;
     } else {
       console.error('❌ Unexpected error:', error.response?.data || error.message);
@@ -147,7 +147,7 @@ async function testInvalidDataProfileUpdate() {
 
 async function testInvalidSPUProfileUpdate() {
   try {
-    console.log('\n--- Testing INVALID SPU Profile Update ---');
+    // console.log('\n--- Testing INVALID SPU Profile Update ---');
     
     const response = await axios.put(
       `${BASE_URL}/profile/edit/${EXISTING_EMPLOYEE_ID}`,
@@ -155,13 +155,13 @@ async function testInvalidSPUProfileUpdate() {
       setupAuthHeader(HEAD_USER_ID, 'Head')
     );
     
-    console.log('❌ Test failed! Invalid SPU should be rejected');
+    // console.log('❌ Test failed! Invalid SPU should be rejected');
     return false;
   } catch (error) {
     if (error.response?.status === 400) {
-      console.log('✅ Invalid SPU correctly rejected!');
-      console.log('Status:', error.response.status);
-      console.log('Response:', error.response.data);
+      // console.log('✅ Invalid SPU correctly rejected!');
+      // console.log('Status:', error.response.status);
+      // console.log('Response:', error.response.data);
       return true;
     } else {
       console.error('❌ Unexpected error:', error.response?.data || error.message);
@@ -172,7 +172,7 @@ async function testInvalidSPUProfileUpdate() {
 
 async function testPasswordUpdateProfile() {
   try {
-    console.log('\n--- Testing Password Update ---');
+    // console.log('\n--- Testing Password Update ---');
     
     const response = await axios.put(
       `${BASE_URL}/profile/edit/${EXISTING_EMPLOYEE_ID}`,
@@ -180,9 +180,9 @@ async function testPasswordUpdateProfile() {
       setupAuthHeader(EXISTING_EMPLOYEE_ID, 'SDW') // Self update with password
     );
     
-    console.log('✅ Password updated successfully!');
-    console.log('Status:', response.status);
-    console.log('Response:', response.data);
+    // console.log('✅ Password updated successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Response:', response.data);
     
     return true;
   } catch (error) {
@@ -204,7 +204,7 @@ async function testPasswordUpdateProfile() {
 
 async function verifyProfileUpdate() {
   try {
-    console.log('\n--- Verifying Profile Update ---');
+    // console.log('\n--- Verifying Profile Update ---');
     
     // You need to implement a GET profile endpoint first
     const response = await axios.get(
@@ -212,8 +212,8 @@ async function verifyProfileUpdate() {
       setupAuthHeader(HEAD_USER_ID, 'Head')
     );
     
-    console.log('✅ Profile data retrieved!');
-    console.log('Data:', response.data);
+    // console.log('✅ Profile data retrieved!');
+    // console.log('Data:', response.data);
     
     return true;
   } catch (error) {
@@ -224,7 +224,7 @@ async function verifyProfileUpdate() {
 
 // Run the tests
 async function runTests() {
-  console.log('=== STARTING EMPLOYEE PROFILE API TESTS ===');
+  // console.log('=== STARTING EMPLOYEE PROFILE API TESTS ===');
   
   let testResults = [];
   
@@ -250,14 +250,14 @@ async function runTests() {
   // testResults.push({ name: 'Verification', success: await verifyProfileUpdate() });
   
   // Report results
-  console.log('\n=== TEST RESULTS ===');
+  // console.log('\n=== TEST RESULTS ===');
   testResults.forEach(test => {
-    console.log(`${test.success ? '✅' : '❌'} ${test.name}`);
+    // console.log(`${test.success ? '✅' : '❌'} ${test.name}`);
   });
   
   const successRate = testResults.filter(t => t.success).length / testResults.length * 100;
-  console.log(`\nSuccess Rate: ${successRate.toFixed(2)}%`);
-  console.log('\n=== TESTS COMPLETED ===');
+  // console.log(`\nSuccess Rate: ${successRate.toFixed(2)}%`);
+  // console.log('\n=== TESTS COMPLETED ===');
 }
 
 runTests();

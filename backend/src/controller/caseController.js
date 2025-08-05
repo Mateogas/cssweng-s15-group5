@@ -85,14 +85,14 @@ const getCaseById = async (req, res) => {
 const getCaseBySMNumber = async (req, res) => {
      const smNumber = req.params.sm_number;
 
-     console.log('[getCaseBySMNumber] Called with CH Number:', smNumber);
+     // console.log('[getCaseBySMNumber] Called with CH Number:', smNumber);
 
      try {
           const caseItem = await Sponsored_Member.findOne({ sm_number: smNumber })
                .populate('assigned_sdw')
                .lean();
 
-          console.log('[getCaseBySMNumber] Found:', caseItem);
+          // console.log('[getCaseBySMNumber] Found:', caseItem);
 
           if (!caseItem) {
                return res.status(200).json({
@@ -325,11 +325,11 @@ const addNewCase = async (req, res) => {
      const spu_id = sessionUser?.spu_id;
 
      // Add these logs:
-     console.log("=== [addNewCase] Debug ===");
-     console.log("Session user:", sessionUser);
-     console.log("sdwId:", sdwId);
-     console.log("spu_id:", spu_id);
-     console.log("newCaseData:", newCaseData);
+     // console.log("=== [addNewCase] Debug ===");
+     // console.log("Session user:", sessionUser);
+     // console.log("sdwId:", sdwId);
+     // console.log("spu_id:", spu_id);
+     // console.log("newCaseData:", newCaseData);
 
      if (!newCaseData) {
           return res.status(400).json({ message: 'Invalid case' });
@@ -345,7 +345,7 @@ const addNewCase = async (req, res) => {
                assigned_sdw: sdwId,
                spu: spu_id
           };
-          console.log("beforeValidation");
+          // console.log("beforeValidation");
           // Validate BEFORE creating the Mongoose model
           const { error } = caseSchemaValidate.validate(dataToValidate);
           if (error) {
@@ -354,7 +354,7 @@ const addNewCase = async (req, res) => {
                     details: error.details.map(detail => detail.message)
                });
           }
-          console.log("survived validation");
+          // console.log("survived validation");
           // Only create the Mongoose model after validation passes
           const caseToSave = {
                ...dataToValidate,
@@ -362,7 +362,7 @@ const addNewCase = async (req, res) => {
 
           const newCase = new Sponsored_Member(caseToSave);
           const savedCase = await newCase.save();
-          console.log(savedCase);
+          // console.log(savedCase);
           res.status(201).json({
                message: 'New case created successfully',
                case: savedCase
@@ -597,7 +597,7 @@ const addFamilyMember = async (req, res) => {
                if (key === "middle" || key === "income" || key === "name" || key === "id") continue;
 
                if (value === null || value === undefined || value === "") {
-                    console.log("Empty field found.")
+                    // console.log("Empty field found.")
                     return res.status(200).json("Empty field found.");
                }
           }

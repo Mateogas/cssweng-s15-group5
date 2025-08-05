@@ -89,7 +89,7 @@ function ProgressReport() {
             setUser(currentUser);
 
             if (!currentUser) {
-                console.error("No user session found");
+                // console.error("No user session found");
                 navigate("/unauthorized");
                 return;
             }
@@ -108,7 +108,7 @@ function ProgressReport() {
                     return
                 }
                 const caseData = returnData
-                console.log("CASE DATA", caseData);
+                // console.log("CASE DATA", caseData);
 
                 setRawCaseData(caseData);
                 setData((prev) => ({
@@ -130,7 +130,7 @@ function ProgressReport() {
             setLoadingComplete(true);
         }, []);
 
-        console.log("report data", data);
+        // console.log("report data", data);
 
         useEffect(() => {
             setFirstName(data.first_name || "");
@@ -160,14 +160,14 @@ function ProgressReport() {
                     return
                 }
 
-                console.log("RETURN DATA", returnData);
+                // console.log("RETURN DATA", returnData);
 
                 const formData = returnData.progressReport
                 const caseData = returnData.case
                 const report_number = returnData.reportNumber
 
-                console.log(formData)
-                console.log(returnData);
+                // console.log(formData)
+                // console.log(returnData);
 
                 setRawFormData(formData);
 
@@ -433,7 +433,7 @@ function ProgressReport() {
             participation,
             relation_to_sponsor
         };
-        // console.log("Payload: ", payload);
+        // // console.log("Payload: ", payload);
 
         const response = await addProgressReport(payload, caseID);
         if (response?.progressReport?._id) {
@@ -461,7 +461,7 @@ function ProgressReport() {
             relation_to_sponsor
         };
 
-        console.log("Payload: ", updatedPayload);
+        // console.log("Payload: ", updatedPayload);
         const response = await editProgressReport(formID, updatedPayload);
     };
 
@@ -595,11 +595,11 @@ function ProgressReport() {
 
             const returnData = await fetchCaseOriginal(caseID);
 
-            console.log("RETURN DATA: ", returnData);
+            // console.log("RETURN DATA: ", returnData);
 
             const assignedSDWId = returnData.assigned_sdw._id;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -618,7 +618,7 @@ function ProgressReport() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return
@@ -626,7 +626,7 @@ function ProgressReport() {
                         navigate("/unauthorized");
                     }
                 } catch (err) {
-                    console.error("Supervisor access check failed:", err);
+                    // console.error("Supervisor access check failed:", err);
                     navigate("/unauthorized");
                 }
                 return;

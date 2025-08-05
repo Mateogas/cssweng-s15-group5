@@ -151,7 +151,7 @@ const createCaseClosureForm = async(req, res) => {
           ];
           const missingFields = requiredFields.filter(field => formData[field] === undefined || formData[field] === null || formData[field] === "");
           if (missingFields.length > 0) {
-               console.log("Missing field/s found.")
+               // console.log("Missing field/s found.")
                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` });
           }
 
@@ -159,7 +159,7 @@ const createCaseClosureForm = async(req, res) => {
                formData.sm_awareness = true
 
                if (!formData.sm_notification || formData.sm_notification === "") {
-                    console.log("Missing field/s found.")
+                    // console.log("Missing field/s found.")
                     return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` });
                }
           }
@@ -279,7 +279,7 @@ const editCaseClosureForm = async (req, res) => {
                     formData.sm_awareness = true
 
                if (!formData.sm_notification || formData.sm_notification === "") {
-                    console.log("Missing field/s found.")
+                    // console.log("Missing field/s found.")
                     return res.status(400).json({ message: `Missing field found.` });
                }
           }
@@ -297,7 +297,7 @@ const editCaseClosureForm = async (req, res) => {
                evaluation: formData.evaluation || formSelected.evaluation,
                recommendation: formData.recommendation || formSelected.recommendation
           }
-          console.log(updatedFormData)
+          // console.log(updatedFormData)
 
           // update
           Object.assign(formSelected, updatedFormData);
@@ -380,7 +380,7 @@ const deleteCaseClosureForm = async (req, res) => {
  */
 const confirmCaseTermination = async (req, res) => {
      try {
-            console.log("Confirm Termination Enter");
+          //   console.log("Confirm Termination Enter");
           const caseSelected = await Sponsored_Member.findById(req.params.caseID)
           if (!caseSelected)
                return res.status(404).json({ message: "Case not found." })

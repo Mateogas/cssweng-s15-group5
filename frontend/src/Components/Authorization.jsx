@@ -12,7 +12,7 @@ export default function Authorization({ allowedRoles, children }) {
         const check = async () => {
             const res = await fetchSession();
 
-            console.log(res);
+            // console.log(res);
 
             if (!res.user) {
                 navigate('/login');

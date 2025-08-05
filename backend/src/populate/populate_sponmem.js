@@ -148,7 +148,7 @@ const populateSponMembers = async () => {
         }
     ]
     await Sponsored_Member.insertMany(spon_members);
-    console.log("Successfully added Sponsored Members.");
+    // console.log("Successfully added Sponsored Members.");
 
     mongoose.connection.close();
 }

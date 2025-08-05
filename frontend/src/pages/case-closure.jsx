@@ -152,7 +152,7 @@ function CaseClosure() {
                 const formData = returnData.form
                 const caseData = returnData.case
 
-                // console.log("Form Data", formData)
+                // // console.log("Form Data", formData)
 
                 setRawFormData(formData);
                 const user_sdw = returnData.active_user_role === "sdw" ? true : false;
@@ -273,7 +273,7 @@ function CaseClosure() {
 
 
     const validateForm = () => {
-        console.log("VALIDATING...");
+        // console.log("VALIDATING...", sm_awareness);
         const missing = [];
 
         if (!closure_date || !closure_date.trim()) {
@@ -288,12 +288,8 @@ function CaseClosure() {
             missing.push("Reason for Retirement");
         }
 
-        if (!sm_awareness || !sm_awareness.trim()) {
+        if (sm_awareness !== true && sm_awareness !== false) {
             missing.push("Client SM Awareness");
-        }
-
-        if (sm_awareness?.toLowerCase() === "yes" && (!sm_notification || !sm_notification.trim())) {
-            missing.push("Client Notification");
         }
 
         services_provided.forEach((item) => {
@@ -328,7 +324,7 @@ function CaseClosure() {
         e?.preventDefault();
         const isValid = validateForm();
 
-        console.log("ISVALID", isValid);
+        // console.log("ISVALID", isValid);
 
         if (!isValid) {
             setModalOnConfirm(() => () => { });
@@ -345,10 +341,10 @@ function CaseClosure() {
                 setIsProcessing(true);
 
                 try {
-                    console.log("VALIDCHECK", isValid);
+                    // console.log("VALIDCHECK", isValid);
                     if (!isValid) return;
                     const created = await handleCreate();
-                    console.log("CREATED", created);
+                    // console.log("CREATED", created);
                     if (created) {
                         setShowSuccessModal(true);
                     }
@@ -374,10 +370,10 @@ function CaseClosure() {
             evaluation,
             recommendation
         };
-        // console.log("Payload: ", payload);
+        // // console.log("Payload: ", payload);
 
         const response = await createCaseClosureForm(payload, caseID);
-        console.log("RESPONSE", response);
+        // console.log("RESPONSE", response);
         if (response?._id) {
             setnewformID(response?._id);
             return true;
@@ -403,7 +399,7 @@ function CaseClosure() {
             recommendation
         };
 
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createCaseClosureForm(payload, caseID); 
     };
@@ -591,11 +587,11 @@ function CaseClosure() {
 
             const returnData = await fetchCaseOriginal(caseID);
 
-            console.log("RETURN DATA: ", returnData);
+            // console.log("RETURN DATA: ", returnData);
 
             const assignedSDWId = returnData.assigned_sdw._id;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -614,7 +610,7 @@ function CaseClosure() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return

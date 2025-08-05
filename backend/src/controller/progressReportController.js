@@ -249,7 +249,7 @@ const addProgressReport = async (req, res) => {
 
         const progressReport = new Progress_Report(progressReportData);
         await progressReport.save();
-        console.log('Progress report created:', progressReport);
+        // console.log('Progress report created:', progressReport);
 
         // Add the progress report to the sponsored member's progress_reports array
         sm.progress_reports.push({
@@ -257,7 +257,7 @@ const addProgressReport = async (req, res) => {
             report_number: sm.progress_reports.length + 1
         });
         await sm.save();
-        console.log('Progress report added to sponsored member');
+        // console.log('Progress report added to sponsored member');
 
         return res.status(201).json({
             message: 'Progress report added successfully',
@@ -307,11 +307,11 @@ const deleteProgressReport = async (req, res) => {
         if (!sm) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         }
-        console.log('Progress report removed from sponsored member:', sm._id);
+        // console.log('Progress report removed from sponsored member:', sm._id);
 
         // Delete the progress report
         await Progress_Report.findByIdAndDelete(reportId);
-        console.log('Progress report deleted:', reportId);
+        // console.log('Progress report deleted:', reportId);
 
         return res.status(200).json({ message: 'Progress report deleted successfully' });
     } catch (error) {
@@ -409,7 +409,7 @@ const editProgressReport = async (req, res) => {
             personalized_letter: req.body.relation_to_sponsor.personalized_letter,
         };
         await progressReport.save();
-        console.log('Progress report updated:', progressReport);
+        // console.log('Progress report updated:', progressReport);
 
         return res.status(200).json({
             message: 'Progress report updated successfully',

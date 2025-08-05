@@ -33,7 +33,7 @@ export default function Login() {
 
         if (res.ok && !res.data.errorMsg) {
             if (res.data.is_active) {
-                console.log('Login success:', res.data);
+                // console.log('Login success:', res.data);
                 setErrorMessage('');
                 window.location.href = '/';
             } else {

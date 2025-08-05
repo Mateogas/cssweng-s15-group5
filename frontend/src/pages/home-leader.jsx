@@ -126,7 +126,7 @@ function HomeLeader() {
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         onRegister={(newWorker) => {
-          console.log("New worker added:", newWorker);
+          // console.log("New worker added:", newWorker);
         }}
       />
 
