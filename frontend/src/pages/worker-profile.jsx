@@ -264,7 +264,16 @@ export default function WorkerProfile() {
         const result = await terminateWorker(workerId);
 
         if (result.success) {
-            window.location.reload();
+            setModalTitle("Success");
+            setModalBody("Worker successfully terminated.");
+            setModalImageCenter(<div className="success-icon mx-auto"></div>);
+            setModalConfirm(false);
+            setShowModal(true);
+
+            setModalOnConfirm(() => () => {
+                window.location.reload();
+            });
+
         } else {
             setModalTitle("Termination Failed");
             setModalBody(result.message || "An unexpected error occurred while attempting to terminate the account.");
