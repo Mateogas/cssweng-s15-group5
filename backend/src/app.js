@@ -47,7 +47,7 @@ app.use(
             collectionName: "sessions",
         }),
         cookie: {
-            maxAge: 1000 * 60 * 60 * 24, 
+            maxAge: 1000 * 60 * 60 * 12, 
             httpOnly: true, 
           secure: process.env.NODE_ENV === 'production', // Only secure in production
           sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
@@ -70,6 +70,7 @@ const interventCorrespRoutes = require('./route/interventCorrespForm.js');
 const homeVisRoutes = require('./route/interventHomeVisitRoutes.js');
 const spuRoutes = require('./route/spuRoutes');
 const isAuthenticated = require('./middlewares/isAuthenticated.js')
+const { requireRole } = require('../middlewares/roleMiddleware');
 const createAccountController = require('./controller/createAccountController');
 const deleteAccountController = require('./controller/deleteAccountController.js')
 const profileRoute = require('../src/route/employeeRoute.js');
@@ -103,7 +104,11 @@ app.put('/api/logout', authController.logoutUser)
 
 app.get('/api/session', (req, res) => {
   if (req.session && req.session.user) {
-    res.status(200).json({ user: req.session.user });
+    if(req.session.user.is_active === true)
+      res.status(200).json({ user: req.session.user });
+    else{
+      res.status(200).json({ user: null });
+    }
   } else {
     res.status(200).json({ user: null });
   }
@@ -112,6 +117,7 @@ app.get('/api/session', (req, res) => {
 // ALL ROUTES AFTER THIS ARE NOW GETTING AUTHENTICATED
 app.use(isAuthenticated);
 // All case routes
+
 app.use('/api/cases', caseRoutes);
 // All account routes
 app.use('/api', accountRoutes);
@@ -125,6 +131,7 @@ app.use('/api/spu',spuRoutes);
 // Progress Report routes
 app.use('/api/progress-report', progressReportRoutes);
 // Case Closure routes
+
 app.get('/api/case-closure/:caseID', caseClosureController.loadCaseClosureForm);
 app.put('/api/case-closure/create/:caseID', caseClosureController.createCaseClosureForm);
 app.put('/api/case-closure/edit/:caseID', caseClosureController.editCaseClosureForm);

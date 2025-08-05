@@ -80,6 +80,16 @@ const deleteAccount = async (req, res) => {
      account_selected.is_active = false;
      await account_selected.save();
 
+     try {
+     const sessionCollection = mongoose.connection.collection('sessions');
+     await sessionCollection.deleteMany({
+     "session.user._id": account_selected._id.toString()
+     });
+     console.log(`Sessions deleted for user ${account_selected._id}`);
+     } catch (error) {
+     console.error("Error deleting sessions:", error);
+     }
+
      // Query all employees again for return; must be updated
      const active_employees = await Employee.find({ is_active: true });
      const inactive_employees = await Employee.find({ is_active: false });
