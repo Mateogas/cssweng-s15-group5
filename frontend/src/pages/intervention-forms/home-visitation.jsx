@@ -5,7 +5,9 @@ import Signature from "../../Components/Signature"
 import FamilyCard from "../../Components/FamilyCard";
 import SimpleModal from "../../Components/SimpleModal";
 import { AnimatePresence, motion } from "framer-motion";
-
+import Loading from "../loading";
+import { fetchSession } from "../../fetch-connections/account-connection";
+import { fetchEmployeeById } from "../../fetch-connections/account-connection";
 
 // API Import
 import {
@@ -48,6 +50,12 @@ function HomeVisitationForm() {
     const [noCaseFound, setNoCaseFound] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
+    const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
+    const [user, setUser] = useState(null);
+
+    const [authorized, setAuthorized] = useState(false);
+
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -81,10 +89,27 @@ function HomeVisitationForm() {
 
     const viewForm = action !== 'create' ? true : false;
 
+
+    useEffect(() => {
+        setLoadingStage(0);
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            const currentUser = sessionData?.user;
+            setUser(currentUser);
+
+            if (!currentUser) {
+                console.error("No user session found");
+                navigate("/unauthorized");
+                return;
+            }
+        };
+        loadSession();
+    }, []);
+
     if (!viewForm) {
         useEffect(() => {
             const loadData = async () => {
-                setLoading(true);
+                setLoadingStage(1);
 
                 const returnData = await fetchCaseData(caseID);
                 if (!returnData) {
@@ -126,7 +151,6 @@ function HomeVisitationForm() {
                     setFamilyMembers(returnData.transformedFamily);
                 else
                     setFamilyMembers(otherFamilyData);
-                setLoading(false);
             };
             loadData();
         }, []);
@@ -150,6 +174,9 @@ function HomeVisitationForm() {
         setMotherIncome(data.mother_income ?? "");
 
         setFormNum(data.form_num)
+
+        setLoadingStage(2);
+        setLoadingComplete(true);
     }, [data]);
 
     // < END :: Auto-Filled Data > //
@@ -159,8 +186,6 @@ function HomeVisitationForm() {
     if (viewForm) {
         useEffect(() => {
             const loadFormData = async () => {
-                setLoading(true);
-
                 const returnFormData = await fetchFormData(
                     caseID,
                     formID,
@@ -215,7 +240,8 @@ function HomeVisitationForm() {
                     setFamilyMembers(returnFormData.transformedFamily);
                 else
                     setFamilyMembers(otherFamilyData);
-                setLoading(false);
+                setLoadingStage(2);
+                setLoadingComplete(true);
             };
             loadFormData();
         }, []);
@@ -735,6 +761,53 @@ function HomeVisitationForm() {
 
     }, [form_num]);
 
+    useEffect(() => {
+        const authorizeAccess = async () => {
+            if (!user || !data) return;
+
+            const returnData = await fetchCaseData(caseID);
+
+            const assignedSDWId = returnData.case.assigned_sdw;
+
+            console.log("RAW DATA: ", assignedSDWId);
+
+            if (user?.role === "head") {
+                setAuthorized(true);
+                return;
+            }
+
+            if (user?.role === "sdw") {
+                if (assignedSDWId === user._id) {
+                    setAuthorized(true);
+                } else {
+                    navigate("/unauthorized");
+                }
+                return;
+            }
+
+            if (user?.role === "supervisor") {
+                try {
+                    const res = await fetchEmployeeById(assignedSDWId);
+                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    if (res.ok && res.data.manager === user._id) {
+                        setAuthorized(true);
+                        return
+                    } else {
+                        navigate("/unauthorized");
+                    }
+                } catch (err) {
+                    console.error("Supervisor access check failed:", err);
+                    navigate("/unauthorized");
+                }
+                return;
+            }
+
+            navigate("/unauthorized");
+        };
+
+        authorizeAccess();
+    }, [data, user]);
+
 
     if (!data) return <div>No data found.</div>;
 
@@ -779,6 +852,9 @@ function HomeVisitationForm() {
             </main>
         )
     }
+
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete || !authorized) return <Loading color={loadingColor} />;
 
     return (
         <>
@@ -1138,7 +1214,7 @@ function HomeVisitationForm() {
                         <>
                             <button
                                 type="button"
-                                className="btn-primary font-bold-label w-min"
+                                className="btn-blue font-bold-label w-min"
                                 onClick={() =>
                                     generateHomeVisitForm(formID)
                                 }

@@ -81,7 +81,7 @@ export default function SpuPage() {
                 setCollapsedSpus(initialCollapseState);
 
                 setLoadingStage(2); // green
-                setTimeout(() => setLoadingComplete(true), 100); // smooth transition
+                setLoadingComplete(true); // smooth transition
             } catch (err) {
                 console.error("Error loading SPU data page:", err);
                 navigate("/unauthorized");

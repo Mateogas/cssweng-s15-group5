@@ -134,30 +134,30 @@ export default function WorkerProfile() {
                     manager: empData.manager || "",
                 });
 
-            if (currentUser.role === "sdw" && currentUser._id !== empData._id) {
-                setLoadingComplete(true);
-                navigate("/unauthorized");
-                return;
-            }
+                if (currentUser.role === "sdw" && currentUser._id !== empData._id) {
+                    setLoadingComplete(true);
+                    navigate("/unauthorized");
+                    return;
+                }
 
-            if (
-                currentUser.role === "supervisor" &&
-                !(
-                    empData._id === currentUser._id ||
-                    (empData.role === "sdw" && empData.manager === currentUser._id)
-                )
-            ) {
-                setLoadingComplete(true);
-                navigate("/unauthorized");
-                return;
-            }
+                if (
+                    currentUser.role === "supervisor" &&
+                    !(
+                        empData._id === currentUser._id ||
+                        (empData.role === "sdw" && empData.manager === currentUser._id)
+                    )
+                ) {
+                    setLoadingComplete(true);
+                    navigate("/unauthorized");
+                    return;
+                }
 
             } else {
                 setNotFound(true);
             }
 
             setLoadingStage(2); // green
-            setTimeout(() => setLoadingComplete(true), 100);
+            setLoadingComplete(true);
         };
 
         loadSessionAndWorker();

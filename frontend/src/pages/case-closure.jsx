@@ -6,6 +6,11 @@ import { generateCaseClosureForm } from "../generate-documents/generate-document
 import { AnimatePresence, motion } from "framer-motion";
 import SimpleModal from "../Components/SimpleModal";
 
+import { fetchSession, fetchEmployeeById } from "../fetch-connections/account-connection";
+import Loading from "./loading";
+
+import { fetchCaseData as fetchCaseOriginal } from '../fetch-connections/case-connection';
+
 // API Import
 import {
     fetchCaseData,
@@ -45,6 +50,11 @@ function CaseClosure() {
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
     const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
+        const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
+    const [user, setUser] = useState(null);
+    const [authorized, setAuthorized] = useState(false);
+
     const [data, setData] = useState({
         first_name: "",
         middle_name: "",
@@ -69,10 +79,26 @@ function CaseClosure() {
     const viewForm = action !== 'create' ? true : false;
     const [sdw_view, setSDWView] = useState(true);
 
+    useEffect(() => {
+        setLoadingStage(0);
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            const currentUser = sessionData?.user;
+            setUser(currentUser);
+
+            if (!currentUser) {
+                console.error("No user session found");
+                navigate("/unauthorized");
+                return;
+            }
+        };
+        loadSession();
+    }, []);
+
     if (!viewForm) {
         useEffect(() => {
             const loadData = async () => {
-                setLoading(true);
+                setLoadingStage(1);
 
                 const returnData = await fetchCaseData(caseID);
                 const caseData = returnData.case || returnData
@@ -94,8 +120,9 @@ function CaseClosure() {
                     spu: caseData.spu || "",
                     is_active: caseData.is_active || true,
                 }));
-                setLoading(false);
             };
+            setLoadingStage(2);
+            setLoadingComplete(true);
             loadData();
         }, []);
 
@@ -119,7 +146,7 @@ function CaseClosure() {
     if (viewForm) {
         useEffect(() => {
             const loadData = async () => {
-                setLoading(true);
+                setLoadingStage(1);
 
                 const returnData = await fetchCaseClosureData(caseID);
                 const formData = returnData.form
@@ -158,9 +185,11 @@ function CaseClosure() {
                 }));
 
                 setServicesProvided(formData.services_provided || []);
-                setLoading(false);
-            };
+                    };
             loadData();
+
+            setLoadingStage(2);
+            setLoadingComplete(true);
         }, []);
 
         useEffect(() => {
@@ -302,8 +331,8 @@ function CaseClosure() {
         console.log("ISVALID", isValid);
 
         if (!isValid) {
-            setModalOnConfirm(() => () => {});
-            setModalOnCancel(() => () => {});
+            setModalOnConfirm(() => () => { });
+            setModalOnCancel(() => () => { });
             setModalConfirm(false);
             return;
         } else {
@@ -547,6 +576,65 @@ function CaseClosure() {
     }
 
     // ===== END :: Functions ===== //
+    useEffect(() => {
+        if (!user) return;
+
+        if (!viewForm && user.role !== "sdw") {
+            navigate("/unauthorized");
+        }
+    }, [user, viewForm]);
+
+
+    useEffect(() => {
+        const authorizeAccess = async () => {
+            if (!user || !data) return;
+
+            const returnData = await fetchCaseOriginal(caseID);
+
+            console.log("RETURN DATA: ", returnData);
+
+            const assignedSDWId = returnData.assigned_sdw._id;
+
+            console.log("RAW DATA: ", assignedSDWId);
+
+            if (user?.role === "head") {
+                setAuthorized(true);
+                return;
+            }
+
+            if (user?.role === "sdw") {
+                if (assignedSDWId === user._id) {
+                    setAuthorized(true);
+                } else {
+                    navigate("/unauthorized");
+                }
+                return;
+            }
+
+            if (user?.role === "supervisor") {
+                try {
+                    const res = await fetchEmployeeById(assignedSDWId);
+                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    if (res.ok && res.data.manager === user._id) {
+                        setAuthorized(true);
+                        return
+                    } else {
+                        navigate("/unauthorized");
+                    }
+                } catch (err) {
+                    console.error("Supervisor access check failed:", err);
+                    navigate("/unauthorized");
+                }
+                return;
+            }
+
+            navigate("/unauthorized");
+        };
+
+        authorizeAccess();
+    }, [data, user]);
+
+
 
     useEffect(() => {
         if (viewForm) {
@@ -556,6 +644,8 @@ function CaseClosure() {
         }
     }, [viewForm, data?.last_name]);
 
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete || !authorized) return <Loading color={loadingColor} />;
 
     return (
         <>
@@ -704,7 +794,7 @@ function CaseClosure() {
                                     sublabel="If yes, how was the client notified"
                                     value={sm_notification}
                                     setValue={setSMNotification}
-                                  disabled={viewForm || sm_awareness === "no"}
+                                    disabled={viewForm || sm_awareness === "no"}
                                     error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
                                 ></TextArea>
                             </div>
@@ -820,18 +910,16 @@ function CaseClosure() {
                                                 await handleDelete();
                                                 navigate(`/case/${caseID}`);
                                             }}
-                                            disabled={loading}
                                         >
                                             Delete Request
                                         </button>
 
                                     )}
                                     <button
-                                        className="btn-primary font-bold-label"
+                                        className="btn-blue font-bold-label"
                                         onClick={async () => {
                                             generateCaseClosureForm(newformID)
                                         }}
-                                        disabled={loading}
                                     >
                                         Download Form
                                     </button>
@@ -841,7 +929,6 @@ function CaseClosure() {
                                     <button
                                         className="btn-outline font-bold-label"
                                         onClick={() => navigate(`/case/${caseID}`)}
-                                        disabled={loading}
                                     >
                                         Cancel
                                     </button>
@@ -850,7 +937,7 @@ function CaseClosure() {
                                         className={`btn-primary font-bold-label w-min ${isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : ''
                                             }`}
                                         onClick={handleSubmit}
-                                        disabled={isProcessing || loading || showSuccessModal}
+                                        disabled={isProcessing || showSuccessModal}
                                     >
                                         {showSuccessModal
                                             ? "Request Created"
@@ -871,7 +958,6 @@ function CaseClosure() {
                                             await handleDelete();
                                             navigate(`/case/${caseID}`);
                                         }}
-                                        disabled={loading}
                                     >
                                         Reject Termination
                                     </button>
@@ -900,11 +986,10 @@ function CaseClosure() {
                             )}
 
                             <button
-                                className="btn-primary font-bold-label"
+                                className="btn-blue font-bold-label"
                                 onClick={async () => {
                                     generateCaseClosureForm(newformID);
                                 }}
-                                disabled={loading}
                             >
                                 Download Form
                             </button>

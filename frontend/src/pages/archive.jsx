@@ -60,7 +60,7 @@ function Archive() {
                 setAllCases(cases);
 
                 setLoadingStage(2); // green
-                setTimeout(() => setLoadingComplete(true), 100); // smooth transition
+                setLoadingComplete(true);
             } catch (err) {
                 console.error("Error loading archive page:", err);
                 navigate("/unauthorized");

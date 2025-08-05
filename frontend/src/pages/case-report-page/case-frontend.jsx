@@ -65,7 +65,7 @@ function CaseFrontend({ creating = false }) {
     const navigate = useNavigate();
     const { clientId } = useParams();
     const [user, setUser] = useState(null);
-    const [loadingStage, setLoadingStage] = useState(0); // 0: session, 1: case, 2: SDWs, 3: done
+    const [loadingStage, setLoadingStage] = useState(0);
     const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [data, setData] = useState({
@@ -150,7 +150,9 @@ function CaseFrontend({ creating = false }) {
             });
 
             setAge(calculateAge(fetchedData.dob));
-            setLoading(false);
+            if (!creating && fetchedData && fetchedData.sm_number !== "") {
+                setLoadingStage(1); // case data successfully fetched
+            }
         };
 
         const loadFamilyData = async () => {
@@ -319,6 +321,11 @@ function CaseFrontend({ creating = false }) {
                     assigned_sdw: validSDW.id,
                 }));
             }
+        }
+
+        if (creating) {
+            setLoadingStage(2);
+            setLoadingComplete(true);
         }
     }, [creating]);
 
@@ -1031,11 +1038,17 @@ function CaseFrontend({ creating = false }) {
         if (!(isHead || isAssignedSDW || managesAssignedSDW)) {
             setUnauthorized(true);
         }
+        setLoadingStage(2);
+        setLoadingComplete(true);
     }, [user, data.assigned_sdw, creating, socialDevelopmentWorkers]);
 
-
-
-    if (loading) return null;
+    if (!loadingComplete) {
+        return (
+            <div className="w-full h-screen flex justify-center items-center">
+                <div className="loader-conic"></div>
+            </div>
+        );
+    }
 
 
     if (unauthorized) {
@@ -1718,7 +1731,7 @@ function CaseFrontend({ creating = false }) {
                                                     setModalImageCenter={setModalImageCenter}
                                                     setModalConfirm={setModalConfirm}
                                                     setModalOnConfirm={setModalOnConfirm}
-                                                    editable={user.role}
+                                                    editable={user?.role}
                                                     terminated={isTerminated}
                                                     activeMember={data.is_active}
                                                 />
@@ -2202,7 +2215,8 @@ function CaseFrontend({ creating = false }) {
 
                         {creating && <button className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
                             onClick={submitNewCase}
-                            data-cy='create-case'>
+                            data-cy='create-case'
+                            disabled={modalConfirm}>
                             Create Case
                         </button>}
 

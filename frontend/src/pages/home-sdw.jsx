@@ -70,7 +70,7 @@ function HomeSDW() {
         setClients(clientData);
 
         setLoadingStage(2); // Green
-        setTimeout(() => setLoadingComplete(true), 100); // smooth transition
+        setLoadingComplete(true); // smooth transition
       } catch (err) {
         console.error("Error loading page:", err);
         navigate("/unauthorized");

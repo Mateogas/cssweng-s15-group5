@@ -8,6 +8,9 @@ import CorrespondenceForm from "./correspondence";
 import HomeVisitationForm from "./home-visitation";
 
 import { fetchCaseData } from "../../fetch-connections/case-connection";
+import Loading from "../loading";
+
+import { fetchSession } from "../../fetch-connections/account-connection";
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -45,26 +48,43 @@ function InterventionForm() {
     const caseID = query.get('caseID') || "";
     const defaultSelection = "";
     const [intervention_selected, setInterventionSelected] = useState(defaultSelection);
+    const [loadingStage, setLoadingStage] = useState(0); // 0 = red, 1 = blue, 2 = green
+    const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [caseData, setCaseData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const loadCase = async () => {
+        const loadSessionAndCase = async () => {
             try {
-                const data = await fetchCaseData(caseID);
-                setCaseData(data);
-                console.log(caseData)
-            } catch (error) {
-                console.error("Failed to fetch case data:", error);
-            } finally {
-                setLoading(false);
+                setLoadingStage(0); // red
+                const session = await fetchSession();
+                const currentUser = session?.user;
+
+                if (!currentUser || currentUser.role !== "sdw") {
+                    navigate("/unauthorized");
+                    return;
+                }
+
+                setUser(currentUser);
+                setLoadingStage(1); // blue
+
+                const caseInfo = await fetchCaseData(caseID);
+                setCaseData(caseInfo);
+
+                setLoadingStage(2); // green
+                setLoadingComplete(true);
+            } catch (err) {
+                console.error("Error loading intervention form:", err);
+                navigate("/unauthorized");
             }
         };
-        loadCase();
-    }, [caseID]);
 
-    const navigate = useNavigate();
+        loadSessionAndCase();
+    }, [caseID, navigate]);
+
     const handleSelectIntervention = (interventionName) => {
         const selected = interventions.find(
             (intervention) => intervention.name === interventionName
@@ -75,7 +95,8 @@ function InterventionForm() {
 
     /********** USE STATES **********/
 
-    if (loading) return <div>Loading...</div>;
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete) return <Loading color={loadingColor} />;
 
     if (caseData && caseData.is_active === false) {
         return (

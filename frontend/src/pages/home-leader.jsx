@@ -63,7 +63,7 @@ function HomeLeader() {
 
         setLoadingStage(2); // Final: green
 
-        setTimeout(() => setLoadingComplete(true), 100); // small delay for smooth transition
+        setLoadingComplete(true);
       } catch (err) {
         console.error("Error during data load", err);
         navigate("/unauthorized");
