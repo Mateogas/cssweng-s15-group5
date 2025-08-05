@@ -271,59 +271,6 @@ function CaseClosure() {
         return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
     };
 
-
-    const validateForm = () => {
-        // console.log("VALIDATING...", sm_awareness);
-        const missing = [];
-
-        if (!closure_date || !closure_date.trim()) {
-            missing.push("Date of Closure");
-        }
-
-        if (!sponsorship_date || !sponsorship_date.trim()) {
-            missing.push("Date Sponsored");
-        }
-
-        if (!reason_for_retirement || !reason_for_retirement.trim()) {
-            missing.push("Reason for Retirement");
-        }
-
-        if (sm_awareness !== true && sm_awareness !== false) {
-            missing.push("Client SM Awareness");
-        }
-
-        if (sm_awareness && (!sm_notification || !sm_notification.trim())) {
-            missing.push("Client Notification");
-        }
-
-        services_provided.forEach((item) => {
-            if (!item.description || !item.description.trim()) {
-                missing.push(`Description for ${item.service}`);
-            }
-        });
-
-        if (!evaluation || !evaluation.trim()) {
-            missing.push("Evaluation");
-        }
-
-        if (!recommendation || !recommendation.trim()) {
-            missing.push("Recommendation");
-        }
-
-        if (missing.length > 0) {
-            setModalTitle("Missing / Invalid Fields");
-            setModalBody(
-                `The following fields are missing or invalid: ${formatListWithAnd(missing)}`
-            );
-            setModalImageCenter(<div className="warning-icon mx-auto" />);
-            setModalConfirm(false);
-            setShowModal(true);
-            return false;
-        }
-
-        return true;
-    };*/
-
     const validateForm = () => {
         const fieldErrors = {};
 
