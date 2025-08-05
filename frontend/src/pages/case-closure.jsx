@@ -67,7 +67,7 @@ function CaseClosure() {
         closure_date: "",
         sponsorship_date: "",
         reason_for_retirement: "",
-        sm_awareness: "",
+        sm_awareness: null,
         sm_notification: "",
         evaluation: "",
         recommendation: "",
@@ -178,7 +178,7 @@ function CaseClosure() {
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     reason_for_retirement: formData.reason_for_retirement || "",
-                    sm_awareness: formData.sm_awareness || "",
+                    sm_awareness: formData.sm_awareness || null,
                     sm_notification: formData.sm_notification || "",
                     evaluation: formData.evaluation || "",
                     recommendation: formData.recommendation || "",
@@ -206,7 +206,7 @@ function CaseClosure() {
             setClosureDate(data.closure_date || "");
             setSponsorshipDate(data.closure_date || "");
             setReasonForRetirement(data.reason_for_retirement || "");
-            setSMAwareness(data.sm_awareness || "");
+            setSMAwareness(data.sm_awareness || null);
             setSMNotification(data.sm_notification || "");
             setEvaluation(data.evaluation || "");
             setRecommendation(data.recommendation || "");
@@ -481,7 +481,7 @@ function CaseClosure() {
     const [reason_for_retirement, setReasonForRetirement] = useState(
         data?.reason_for_retirement || "",
     );
-    const [sm_awareness, setSMAwareness] = useState(data?.sm_awareness || "");
+    const [sm_awareness, setSMAwareness] = useState(data?.sm_awareness || null);
 
     const [sm_notification, setSMNotification] = useState(
         data?.sm_notification || "",
@@ -773,8 +773,8 @@ function CaseClosure() {
                                         type="radio"
                                         name="sm_awareness"
                                         value="yes"
-                                        checked={sm_awareness === "yes"}
-                                        onChange={(e) => setSMAwareness(e.target.value)}
+                                        checked={sm_awareness === true}
+                                        onChange={() => setSMAwareness(true)}
                                         disabled={viewForm}
                                     />
                                     Yes
@@ -784,8 +784,8 @@ function CaseClosure() {
                                         type="radio"
                                         name="sm_awareness"
                                         value="no"
-                                        checked={sm_awareness === "no"}
-                                        onChange={(e) => setSMAwareness(e.target.value)}
+                                        checked={sm_awareness === false}
+                                        onChange={(e) => setSMAwareness(false)}
                                         disabled={viewForm}
                                     />
                                     No
@@ -794,8 +794,8 @@ function CaseClosure() {
                                     sublabel="If yes, how was the client notified"
                                     value={sm_notification}
                                     setValue={setSMNotification}
-                                    disabled={viewForm || sm_awareness === "no"}
-                                    error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
+                                    disabled={viewForm || sm_awareness === false}
+                                    error={sm_awareness === true ? errors["sm_notification"] : undefined}
                                 ></TextArea>
                             </div>
                         </div>
