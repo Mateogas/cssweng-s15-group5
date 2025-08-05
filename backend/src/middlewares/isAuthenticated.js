@@ -1,5 +1,5 @@
 const isAuthenticated = (req, res, next) => {
-    if (req.session.user) {
+    if (req.session.user && req.session.user.is_active === true) {
         next();
     } else {
         if (req.session.user && !req.session.user.is_active) {
