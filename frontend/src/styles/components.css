@@ -34,7 +34,7 @@
     inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.btn-primary:disabled {
+.btn-primary:disabled, .btn-blue:disabled {
   background-color: #d1d5db;
   color: #6b7280;
   cursor: not-allowed;
@@ -160,4 +160,30 @@
 
 .client-entry:hover {
   filter: brightness(0.9);
+}
+
+.loader-conic {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: conic-gradient(var(--color-primary) 0deg 270deg, transparent 270deg 360deg);
+  animation: spin 1s linear infinite;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.loader-conic::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 44px;
+  height: 44px;
+  background-color: var(--color-white);
+  border-radius: 50%;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

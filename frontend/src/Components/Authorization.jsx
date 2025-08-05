@@ -7,7 +7,6 @@ export default function Authorization({ allowedRoles, children }) {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    console.log("HELLO");
 
     useEffect(() => {
         const check = async () => {
@@ -15,13 +14,13 @@ export default function Authorization({ allowedRoles, children }) {
 
             console.log(res);
 
-            // if (!res.user) {
-            //     navigate('/login');
-            // } else if (!allowedRoles.includes(res.user.role)) {
-            //     navigate('/login');
-            // } else {
-            //     setUser(res.user);
-            // }
+            if (!res.user) {
+                navigate('/login');
+            } else if (!allowedRoles.includes(res.user.role)) {
+                navigate('/login');
+            } else {
+                setUser(res.user);
+            }
             setLoading(false);
         };
         check();

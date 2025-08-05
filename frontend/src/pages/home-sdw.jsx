@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import SideBar from "../Components/SideBar";
 import ClientEntry from "../Components/ClientEntry";
+import Loading from "./loading";
+
 import {
   fetchSession,
   fetchSDWViewById,
@@ -17,93 +19,80 @@ import { useNavigate } from "react-router-dom";
 function HomeSDW() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-
   const [employees, setEmployees] = useState([]);
-
   const [clients, setClients] = useState([]);
   const [currentSPU, setCurrentSPU] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
-  const [projectLocation, setProjectLocation] = useState([])
+  const [projectLocation, setProjectLocation] = useState([]);
+
+  const [loadingStage, setLoadingStage] = useState(0);
+  const [loadingComplete, setLoadingComplete] = useState(false);
 
   useEffect(() => {
-    const loadSession = async () => {
-      const sessionData = await fetchSession();
-      console.log("Session:", sessionData?.user);
-      setUser(sessionData?.user || null);
+    const loadAll = async () => {
+      try {
+        setLoadingStage(0); // Red
+
+        const sessionData = await fetchSession();
+        if (!sessionData.user || !["sdw", "supervisor", "head"].includes(sessionData.user.role)) {
+          navigate("/unauthorized");
+          return;
+        }
+        setUser(sessionData.user);
+
+        setLoadingStage(1); // Blue
+
+        const spus = await fetchAllSpus();
+        setProjectLocation(spus.filter((spu) => spu.is_active));
+
+        let empData = [];
+        if (sessionData.user.role === "supervisor") {
+          const data = await fetchHeadViewBySupervisor(sessionData.user._id);
+          empData = data || [];
+        }
+        setEmployees(empData);
+
+        let clientData = [];
+        if (sessionData.user.role === "sdw") {
+          const res = await fetchSDWViewById(sessionData.user._id);
+          clientData = res || [];
+        } else if (sessionData.user.role === "supervisor") {
+          const res = await fetchSupervisorView();
+          clientData = res.cases || [];
+        } else if (sessionData.user.role === "head") {
+          if (currentSPU) {
+            const res = await fetchHeadViewBySpu(currentSPU);
+            clientData = res.cases || [];
+          }
+        }
+        setClients(clientData);
+
+        setLoadingStage(2); // Green
+        setLoadingComplete(true); // smooth transition
+      } catch (err) {
+        console.error("Error loading page:", err);
+        navigate("/unauthorized");
+      }
     };
-    loadSession();
 
-    const loadSPUs = async () => {
-      const spus = await fetchAllSpus();
-      const filtered = spus.filter(
-        (spu) => spu.is_active === true
-      );
-      setProjectLocation(filtered);
-    };
-
-    loadSPUs();
-
-  }, []);
+    loadAll();
+  }, [currentSPU]);
 
   useEffect(() => {
     if (!user) return;
-
-    const loadClients = async () => {
-      let data = [];
-      if (user.role === "sdw") {
-        const res = await fetchSDWViewById(user._id);
-        console.log("SDW view:", res);
-        data = res || [];
-      } else if (user.role === "supervisor") {
-        const res = await fetchSupervisorView();
-        console.log("Supervisor view:", res);
-        data = res.cases || [];
-      } else if (user.role === "head") {
-        if (currentSPU) {
-          const res = await fetchHeadViewBySpu(currentSPU);
-          console.log("Head view by SPU:", res);
-          data = res.cases || [];
-        } else {
-          // Head role with no SPU selected → show none
-          data = [];
-        }
-      }
-      console.log("Clients loaded:", data);
-      setClients(data);
-    };
-
-    loadClients();
-  }, [user, currentSPU]);
-
-  useEffect(() => {
-    const loadUserAndEmployees = async () => {
-      const sessionData = await fetchSession();
-      console.log("Session:", sessionData);
-      setUser(sessionData.user);
-
-      let employees = [];
-      if (sessionData.user?.role === "supervisor") {
-        const data = await fetchHeadViewBySupervisor(sessionData.user._id);
-        employees = data || [];
-      }
-
-      console.log("Fetched employees:", employees);
-      setEmployees(employees);
-    };
-
-    loadUserAndEmployees();
-
-    console.log(employees);
-  }, []);
+    const title =
+      user.role === "head"
+        ? "Sponsored Member Cases"
+        : `Sponsored Member Cases - ${user.spu_name}`;
+    document.title = title;
+  }, [user]);
 
   const getFilteredClients = () => {
-    let filtered = [...clients];
+    let filtered = [...clients].filter((c) => c.is_active);
 
-    filtered = filtered.filter((c) => c.is_active);
-
-    if (searchQuery.trim() !== "") {
+    if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((c) => {
         const fullName = c.name?.toLowerCase() || "";
@@ -117,9 +106,7 @@ function HomeSDW() {
     } else if (sortBy === "sm_number") {
       filtered.sort((a, b) => a.sm_number - b.sm_number);
     } else if (sortBy === "pend_term") {
-      filtered.sort((a, b) => {
-        return (b.pendingTermination === false) - (a.pendingTermination === false);
-      });
+      filtered.sort((a, b) => (b.pendingTermination === false) - (a.pendingTermination === false));
     }
 
     if (sortOrder === "desc") {
@@ -127,8 +114,8 @@ function HomeSDW() {
     }
 
     if (user?.role === "supervisor") {
-      const allowedIds = employees.map(e => e.id);
-      filtered = filtered.filter(c => allowedIds.includes(c.assigned_sdw));
+      const allowedIds = employees.map((e) => e.id);
+      filtered = filtered.filter((c) => allowedIds.includes(c.assigned_sdw));
     }
 
     return filtered;
@@ -136,18 +123,8 @@ function HomeSDW() {
 
   const finalClients = getFilteredClients();
 
-  useEffect(() => {
-    if (!user) return;
-
-    const title =
-      user.role === "head"
-        ? "Sponsored Member Cases"
-        : `Sponsored Member Cases - ${user.spu_name}`;
-
-    document.title = title;
-  }, [user]);
-
-
+  const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+  if (!loadingComplete) return <Loading color={loadingColor} />;
 
   return (
     <>

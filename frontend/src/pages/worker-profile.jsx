@@ -12,7 +12,8 @@ import ChangePassword from "../Components/ChangePassword";
 import { updateEmployeePasswordById } from "../fetch-connections/account-connection";
 import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connections/account-connection";
 import { fetchAllSpus } from "../fetch-connections/spu-connection";
-import NotFound from "./NotFound";
+import NotFound from "./not-found";
+import Loading from "./loading";
 
 export default function WorkerProfile() {
     const navigate = useNavigate();
@@ -35,7 +36,8 @@ export default function WorkerProfile() {
 
     const [user, setUser] = useState(null);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [data, setData] = useState({
         first_name: "",
@@ -83,17 +85,28 @@ export default function WorkerProfile() {
 
 
     useEffect(() => {
-        const loadWorker = async () => {
-            if (!workerId) {
-                setLoading(false);
+        const loadSessionAndWorker = async () => {
+            setLoadingStage(0); // red
+            const sessionData = await fetchSession();
+            const currentUser = sessionData?.user;
+            setUser(currentUser);
+
+            if (!currentUser) {
+                navigate("/unauthorized");
                 return;
-            };
+            }
+
+            setLoadingStage(1); // blue
+
+            if (!workerId) {
+                setLoadingComplete(true);
+                return;
+            }
 
             const { ok, data: empData } = await fetchEmployeeById(workerId);
 
             if (ok) {
-                console.log("Fetched worker:", empData);
-
+                // ...setData, setDrafts, etc...
                 setData({
                     _id: empData._id,
                     first_name: empData.first_name || "",
@@ -102,15 +115,12 @@ export default function WorkerProfile() {
                     username: empData.username || "",
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
-                    // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
                     spu_id: empData.spu_id._id || "",
-
                     role: empData.role || "",
                     manager: empData.manager || "",
                     is_active: empData.is_active ?? true
                 });
-
                 setDrafts({
                     first_name: empData.first_name || "",
                     middle_name: empData.middle_name || "",
@@ -118,22 +128,39 @@ export default function WorkerProfile() {
                     username: empData.username || "",
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
-                    // sdw_id: empData.sdw_id || "",
                     area: empData.area || "",
                     spu_id: empData.spu_id._id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
-                setLoading(false);
+
+                if (currentUser.role === "sdw" && currentUser._id !== empData._id) {
+                    setLoadingComplete(true);
+                    navigate("/unauthorized");
+                    return;
+                }
+
+                if (
+                    currentUser.role === "supervisor" &&
+                    !(
+                        empData._id === currentUser._id ||
+                        (empData.role === "sdw" && empData.manager === currentUser._id)
+                    )
+                ) {
+                    setLoadingComplete(true);
+                    navigate("/unauthorized");
+                    return;
+                }
+
             } else {
                 setNotFound(true);
-                setLoading(false);
-                return;
             }
+
+            setLoadingStage(2); // green
+            setLoadingComplete(true);
         };
 
-        loadWorker();
-        // console.log("drafts", drafts);
+        loadSessionAndWorker();
     }, [workerId]);
 
     useEffect(() => {
@@ -148,6 +175,9 @@ export default function WorkerProfile() {
     useEffect(() => {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
+
+            console.log("SDWS FOUND", sdws);
+
             setSocialDevelopmentWorkers(sdws);
         };
         loadSDWs();
@@ -165,13 +195,17 @@ export default function WorkerProfile() {
     }, []);
 
     useEffect(() => {
+        const selectedSPU = projectLocation.find(spu => spu._id === drafts.spu_id)?.spu_name;
+
         const filtered = socialDevelopmentWorkers.filter(
             (w) =>
-                w.spu_id === drafts.spu_id &&
+                w.spu_id === selectedSPU &&
                 w.id !== workerId &&
                 w.role === 'supervisor' &&
                 w.is_active === true
         );
+
+        console.log("AVAILABLE SUPERVISORS", socialDevelopmentWorkers);
 
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
@@ -352,6 +386,7 @@ export default function WorkerProfile() {
 
         const hasSPUChanged = drafts.spu_id !== data.spu_id;
         const hasRoleChanged = drafts.role !== data.role;
+        const isSupervisor = data.manager === user._id;
 
         if (hasSPUChanged) {
             if (data.role === "sdw" && handledClients.length > 0) {
@@ -394,13 +429,20 @@ export default function WorkerProfile() {
                 drafts.manager = "";
                 missing.push("Supervisor must be selected for SDW role");
             } else {
+                const selectedSPU = projectLocation.find(spu => spu._id === drafts.spu_id)?.spu_name;
+
                 const validSupervisorIds = socialDevelopmentWorkers
-                    .filter((w) => w.spu_id === drafts.spu_id && w.role === "supervisor")
+                    .filter(
+                        (w) =>
+                            w.spu_id === selectedSPU &&
+                            w.role === "supervisor"
+                    )
                     .map((w) => w._id || w.id);
 
                 if (!validSupervisorIds.includes(drafts.manager)) {
                     missing.push("Supervisor is not valid for the selected SPU");
                 }
+
             }
         }
 
@@ -442,7 +484,8 @@ export default function WorkerProfile() {
 
     console.log("current data", data);
 
-    if (loading) return null;
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete) return <Loading color={loadingColor} />;
 
     return (
         <>
@@ -791,8 +834,8 @@ export default function WorkerProfile() {
 
                                         {/* <p><span className="font-bold-label">SDW ID:</span> {data.sdw_id || "-"}</p> */}
                                         <p>
-                                        <span className="font-bold-label">SPU Project:</span>{" "}
-                                        {projectLocation.find((spu) => spu._id === data.spu_id)?.spu_name || "-"}
+                                            <span className="font-bold-label">SPU Project:</span>{" "}
+                                            {projectLocation.find((spu) => spu._id === data.spu_id)?.spu_name || "-"}
                                         </p>
                                         <p><span className="font-bold-label">Role:</span> {data.role == "head" ? "Head" : data.role == "supervisor" ? "Supervisor" : "Social Development Worker"}</p>
 

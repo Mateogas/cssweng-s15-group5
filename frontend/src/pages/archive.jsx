@@ -6,28 +6,29 @@ import SideBar from "../Components/SideBar";
 import { fetchAllCases } from "../fetch-connections/case-connection";
 import { fetchHeadView, fetchSession, fetchSupervisorView } from "../fetch-connections/account-connection";
 import { useNavigate } from "react-router-dom";
+import Loading from "./loading";
 
 function Archive() {
     const navigate = useNavigate();
+
     const [allCases, setAllCases] = useState([]);
     const [allEmployees, setAllEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
-
+    const [archiveEmp, setArchiveEmp] = useState([]);
+    const [currentData, setCurrentData] = useState([]);
     const [user, setUser] = useState(null);
 
     const [currentSPU, setCurrentSPU] = useState("");
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("desc");
     const [searchQuery, setSearchQuery] = useState("");
-    const [currentData, setCurrentData] = useState([]);
-    const [archiveEmp, setArchiveEmp] = useState([])
-
     const [viewMode, setViewMode] = useState("cases");
 
-useEffect(() => {
-        document.title = `Archive`;
-}, []);
+    const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
 
+    useEffect(() => {
+        document.title = `Archive`;
+    }, []);
 
     const projectLocation = [
         { name: "AMP", projectCode: "AMP" },
@@ -42,35 +43,38 @@ useEffect(() => {
 
     useEffect(() => {
         const loadSessionAndCases = async () => {
-            const sessionData = await fetchSession();
-            console.log('Session:', sessionData);
-            setUser(sessionData.user);
+            try {
+                setLoadingStage(0); // red
+                const sessionData = await fetchSession();
+                const currentUser = sessionData.user;
+                setUser(currentUser);
 
-            const cases = await fetchAllCases();
+                if (!currentUser || !["head", "supervisor"].includes(currentUser.role)) {
+                    navigate("/unauthorized");
+                    return;
+                }
 
-            setAllCases(cases);
+                setLoadingStage(1); // blue
+
+                const cases = await fetchAllCases();
+                setAllCases(cases);
+
+                setLoadingStage(2); // green
+                setLoadingComplete(true);
+            } catch (err) {
+                console.error("Error loading archive page:", err);
+                navigate("/unauthorized");
+            }
         };
 
         loadSessionAndCases();
     }, []);
 
     useEffect(() => {
-        let filtered = [...allCases];
-        filtered = filtered.filter((client) => !client.is_active);
+        let filtered = [...allCases].filter((client) => !client.is_active);
 
-        if (user) {
-            if (user?.role === "supervisor") {
-                console.log("FITLERED", filtered);
-                filtered = filtered.filter((client) => client.spu === user?.spu_name);
-            }
-
-            // SDws aren't meant to be here anyway
-
-            //  else if (user?.role === "sdw") {
-            //     filtered = filtered.filter((client) => {
-            //         return client.assigned_sdw_name?.includes(user?.first_name);
-            //     });
-            // }
+        if (user?.role === "supervisor") {
+            filtered = filtered.filter((client) => client.spu === user.spu_name);
         }
 
         if (currentSPU !== "") {
@@ -81,7 +85,7 @@ useEffect(() => {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter((client) => {
                 const fullName = client.name.toLowerCase();
-                const chNumberStr = client.sm_number?.toString() || '';
+                const chNumberStr = client.sm_number?.toString() || "";
                 return fullName.includes(query) || chNumberStr.includes(query);
             });
         }
@@ -97,51 +101,53 @@ useEffect(() => {
         }
 
         setCurrentData(filtered);
-        console.log(currentData);
     }, [allCases, currentSPU, sortBy, sortOrder, searchQuery]);
 
     useEffect(() => {
         const fetchEmployees = async () => {
-            if (viewMode === "employees") {
-                try {
-                    var response = null;
-                    if (user?.role == "head") {
-                        response = await fetchHeadView();
-                    }
-                    else if (user?.role == "supervisor") {
-                        response = await fetchSupervisorView();
-                    }
-                    let filtered = response.employees.filter(emp => emp.is_active === false);
+            if (viewMode !== "employees") return;
 
-                    // Filter by SPU if set
-                    if (currentSPU !== "") {
-                        filtered = filtered.filter(emp => emp.spu === currentSPU);
-                    }
+            try {
+                let response = null;
 
-                    // Sort
-                    if (sortBy === "name") {
-                        filtered.sort((a, b) =>
-                            `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)
-                        );
-                    }
-
-                    // Apply sort order
-                    if (sortOrder === "desc") {
-                        filtered.reverse();
-                    }
-
-                    setAllEmployees(response);
-                    setArchiveEmp(filtered)
-                } catch (error) {
-                    console.error("Failed to fetch employees:", error);
+                if (user?.role === "head") {
+                    response = await fetchHeadView();
+                } else if (user?.role === "supervisor") {
+                    response = await fetchSupervisorView();
                 }
+
+                if (!response || !response.employees) return;
+
+                let filtered = response.employees.filter(emp => emp.is_active === false);
+
+                if (currentSPU !== "") {
+                    filtered = filtered.filter(emp => emp.spu === currentSPU);
+                }
+
+                if (sortBy === "name") {
+                    filtered.sort((a, b) =>
+                        `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)
+                    );
+                }
+
+                if (sortOrder === "desc") {
+                    filtered.reverse();
+                }
+
+                setAllEmployees(response.employees);
+                setArchiveEmp(filtered);
+            } catch (error) {
+                console.error("Failed to fetch employees:", error);
             }
         };
 
         fetchEmployees();
     }, [viewMode, currentSPU, sortBy, sortOrder]);
 
-    
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete) return <Loading color={loadingColor} />;
+
+
     return (
         <>
             <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
@@ -177,7 +183,7 @@ useEffect(() => {
                                     value={viewMode}
                                     id="view-toggle"
                                     onChange={(e) => setViewMode(e.target.value)}
-                                    >
+                                >
                                     <option value="cases">Cases</option>
                                     <option value="employees">Employees</option>
                                 </select>
@@ -232,53 +238,53 @@ useEffect(() => {
                     </div>
 
                     <div className="flex flex-col w-full gap-3">
-                    {viewMode === "cases" ? (
-                        <>
-                        <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                            <p className="font-bold-label ml-[20%]">Name</p>
-                            <p className="font-bold-label text-center">CH Number</p>
-                            <p className="font-bold-label text-center">SDW Assigned</p>
-                        </div>
+                        {viewMode === "cases" ? (
+                            <>
+                                <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                    <p className="font-bold-label ml-[20%]">Name</p>
+                                    <p className="font-bold-label text-center">CH Number</p>
+                                    <p className="font-bold-label text-center">SDW Assigned</p>
+                                </div>
 
-                        {currentData.length === 0 ? (
-                            <p className="font-bold-label mx-auto">No Clients Found</p>
-                            ) : (
-                                currentData.map((client) => (
-                                    <ClientEntry
-                                        key={client.id}
-                                        id={client.id}
-                                        sm_number={client.sm_number}
-                                        spu={client.spu}
-                                        name={client.name}
-                                        assigned_sdw_name={client.assigned_sdw_name}
-                                        archive={true}
-                                    />
-                                ))
-                            )}
+                                {currentData.length === 0 ? (
+                                    <p className="font-bold-label mx-auto">No Clients Found</p>
+                                ) : (
+                                    currentData.map((client) => (
+                                        <ClientEntry
+                                            key={client.id}
+                                            id={client.id}
+                                            sm_number={client.sm_number}
+                                            spu={client.spu}
+                                            name={client.name}
+                                            assigned_sdw_name={client.assigned_sdw_name}
+                                            archive={true}
+                                        />
+                                    ))
+                                )}
                             </>
                         ) : (
                             <>
-                            <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                <p className="font-bold-label ml-[20%]">Worker</p>
-                                <p className="font-bold-label text-center">Type</p>
-                                <p className="font-bold-label text-center">SPU</p>
-                            </div>
+                                <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                                    <p className="font-bold-label ml-[20%]">Worker</p>
+                                    <p className="font-bold-label text-center">Type</p>
+                                    <p className="font-bold-label text-center">SPU</p>
+                                </div>
 
-                            {archiveEmp.length === 0 ? (
-                                <p className="font-bold-label mx-auto">No Employees Found</p>
-                            ) : (
-                                archiveEmp.map((worker, index) => (
-                                    <WorkerEntry
-                                        key={`${worker._id}-${index}`}
-                                        id={worker.id}
-                                        // sdw_id={worker.sdw_id}
-                                        name={worker.name}
-                                        role={worker.role}
-                                        spu_id={worker.spu}
-                                        archive={true}
-                                    />
-                                ))
-                            )}
+                                {archiveEmp.length === 0 ? (
+                                    <p className="font-bold-label mx-auto">No Employees Found</p>
+                                ) : (
+                                    archiveEmp.map((worker, index) => (
+                                        <WorkerEntry
+                                            key={`${worker._id}-${index}`}
+                                            id={worker.id}
+                                            // sdw_id={worker.sdw_id}
+                                            name={worker.name}
+                                            role={worker.role}
+                                            spu_id={worker.spu}
+                                            archive={true}
+                                        />
+                                    ))
+                                )}
                             </>
                         )}
                     </div>

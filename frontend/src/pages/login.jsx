@@ -19,10 +19,8 @@ export default function Login() {
     }, []);
 
     useEffect(() => {
-    document.title = "Login";
-}, []);
-
-
+        document.title = "Login";
+    }, []);
 
     const handleLogin = async () => {
         const payload = {
@@ -34,7 +32,7 @@ export default function Login() {
         const res = await loginUser(payload);
 
         if (res.ok && !res.data.errorMsg) {
-            if (res.data.is_active){
+            if (res.data.is_active) {
                 console.log('Login success:', res.data);
                 setErrorMessage('');
                 window.location.href = '/';

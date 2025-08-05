@@ -4,6 +4,9 @@ import { TextInput, TextArea } from "../../Components/TextField";
 import Signature from "../../Components/Signature";
 import { AnimatePresence, motion } from "framer-motion";
 import SimpleModal from "../../Components/SimpleModal";
+import { fetchSession, fetchEmployeeById } from "../../fetch-connections/account-connection";
+import Loading from "../loading";
+import { fetchCaseData as fetchCaseOriginal } from '../../fetch-connections/case-connection';
 
 // API Import
 import {
@@ -44,6 +47,11 @@ function FinancialAssessmentForm() {
     const [noCaseFound, setNoCaseFound] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
+    const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
+    const [user, setUser] = useState(null);
+    const [authorized, setAuthorized] = useState(false);
+
     const [data, setData] = useState({
         form_num: "",
         first_name: "",
@@ -73,8 +81,25 @@ function FinancialAssessmentForm() {
     // ===== START :: Create New Form ===== // 
     const viewForm = action !== 'create' ? true : false;
 
+    useEffect(() => {
+        setLoadingStage(0);
+        const loadSession = async () => {
+            const sessionData = await fetchSession();
+            const currentUser = sessionData?.user;
+            setUser(currentUser);
+
+            if (!currentUser) {
+                console.error("No user session found");
+                navigate("/unauthorized");
+                return;
+            }
+        };
+        loadSession();
+    }, []);
+
     if (!viewForm) {
         useEffect(() => {
+            setLoadingStage(1);
             const loadData = async () => {
                 setLoading(true);
 
@@ -102,6 +127,8 @@ function FinancialAssessmentForm() {
                 setLoading(false);
             };
             loadData();
+            setLoadingStage(2);
+            setLoadingComplete(true);
         }, []);
     }
 
@@ -156,6 +183,8 @@ function FinancialAssessmentForm() {
                 setLoading(false);
             };
             loadFormData();
+            setLoadingStage(2);
+            setLoadingComplete(true);
         }, []);
 
         useEffect(() => {
@@ -429,6 +458,55 @@ function FinancialAssessmentForm() {
 
     // ===== END :: Local Functions ===== //
 
+    useEffect(() => {
+        const authorizeAccess = async () => {
+            if (!user || !data) return;
+
+            const returnData = await fetchCaseOriginal(caseID);
+
+            console.log("RETURN DATA: ", returnData);
+
+            const assignedSDWId = returnData.assigned_sdw._id;
+
+            console.log("RAW DATA: ", assignedSDWId);
+
+            if (user?.role === "head") {
+                setAuthorized(true);
+                return;
+            }
+
+            if (user?.role === "sdw") {
+                if (assignedSDWId === user._id) {
+                    setAuthorized(true);
+                } else {
+                    navigate("/unauthorized");
+                }
+                return;
+            }
+
+            if (user?.role === "supervisor") {
+                try {
+                    const res = await fetchEmployeeById(assignedSDWId);
+                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    if (res.ok && res.data.manager === user._id) {
+                        setAuthorized(true);
+                        return
+                    } else {
+                        navigate("/unauthorized");
+                    }
+                } catch (err) {
+                    console.error("Supervisor access check failed:", err);
+                    navigate("/unauthorized");
+                }
+                return;
+            }
+
+            navigate("/unauthorized");
+        };
+
+        authorizeAccess();
+    }, [data, user]);
+
     if (!data) return <div>No data found.</div>;
 
     if (noFormFound) {
@@ -473,15 +551,17 @@ function FinancialAssessmentForm() {
         )
     }
 
-useEffect(() => {
-    if (viewForm && form_num) {
-        document.title = `Financial Assessment Form #${form_num}`;
-    } else if (!viewForm) {
-        document.title = `Create Financial Assessment Form`;
-    }
+    useEffect(() => {
+        if (viewForm && form_num) {
+            document.title = `Financial Assessment Form #${form_num}`;
+        } else if (!viewForm) {
+            document.title = `Create Financial Assessment Form`;
+        }
 
-}, [form_num]);
+    }, [form_num]);
 
+    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+    if (!loadingComplete || !authorized) return <Loading color={loadingColor} />;
 
     return (
         <>
@@ -668,7 +748,7 @@ useEffect(() => {
                     {viewForm ? (
                         <>
                             <button
-                                className="btn-primary font-bold-label w-min"
+                                className="btn-blue font-bold-label w-min"
                                 onClick={() =>
                                     generateFinancialAssessmentForm(formID)
                                 }

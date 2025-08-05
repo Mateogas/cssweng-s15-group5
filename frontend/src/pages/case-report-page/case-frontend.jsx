@@ -10,7 +10,8 @@ import { fetchSession } from "../../fetch-connections/account-connection";
 import { createNewCase } from "../../fetch-connections/case-connection";
 
 import { fetchAllSpus } from "../../fetch-connections/spu-connection";
-import NotFound from "../NotFound";
+import NotFound from "../not-found";
+import Loading from "../loading";
 
 // API Imports
 import {
@@ -64,6 +65,8 @@ function CaseFrontend({ creating = false }) {
     const navigate = useNavigate();
     const { clientId } = useParams();
     const [user, setUser] = useState(null);
+    const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [data, setData] = useState({
         first_name: "",
@@ -147,7 +150,9 @@ function CaseFrontend({ creating = false }) {
             });
 
             setAge(calculateAge(fetchedData.dob));
-            setLoading(false);
+            if (!creating && fetchedData && fetchedData.sm_number !== "") {
+                setLoadingStage(1); // case data successfully fetched
+            }
         };
 
         const loadFamilyData = async () => {
@@ -261,11 +266,11 @@ function CaseFrontend({ creating = false }) {
     }, [drafts.dob]);
 
     useEffect(() => {
-    if (data.first_name && data.last_name) {
-        document.title = `${data.first_name} ${data.last_name}'s Case`;
-    } else {
-        document.title = `Case Page`;
-    }
+        if (data.first_name && data.last_name) {
+            document.title = `${data.first_name} ${data.last_name}'s Case`;
+        } else {
+            document.title = `Case Page`;
+        }
     }, [data]);
 
     const [ref1, inView1] = useInView({ threshold: 0.5 });
@@ -295,8 +300,6 @@ function CaseFrontend({ creating = false }) {
         };
         loadSession();
 
-
-
         if (
             creating &&
             user &&
@@ -318,6 +321,11 @@ function CaseFrontend({ creating = false }) {
                     assigned_sdw: validSDW.id,
                 }));
             }
+        }
+
+        if (creating) {
+            setLoadingStage(2);
+            setLoadingComplete(true);
         }
     }, [creating]);
 
@@ -991,7 +999,77 @@ function CaseFrontend({ creating = false }) {
         }
     };
 
-    if (loading) return null;
+
+    const [unauthorized, setUnauthorized] = useState(false);
+    useEffect(() => {
+        // Wait for all needed data to load
+        if (!user || (!creating && !data.assigned_sdw) || socialDevelopmentWorkers.length === 0) return;
+
+        const isHead = user.role === "head";
+        const isSDW = user.role === "sdw";
+        const isSupervisor = user.role === "supervisor";
+
+        console.log("Auth workers", data, socialDevelopmentWorkers);
+
+        if (creating) {
+            // Only SDWs can create
+            if (!isSDW) {
+                setUnauthorized(true);
+            }
+            return;
+        }
+
+        const assignedSDWId = data.assigned_sdw;
+
+        console.log("found assigned SDW", assignedSDWId);
+
+        const isAssignedSDW = user._id === assignedSDWId;
+
+        console.log(isAssignedSDW);
+
+        const managesAssignedSDW = socialDevelopmentWorkers.some(
+            (w) =>
+                (w._id === assignedSDWId || w.id === assignedSDWId) &&
+                w.manager === user._id
+        );
+
+        console.log(managesAssignedSDW);
+
+        if (!(isHead || isAssignedSDW || managesAssignedSDW)) {
+            setUnauthorized(true);
+        }
+        setLoadingStage(2);
+        setLoadingComplete(true);
+    }, [user, data.assigned_sdw, creating, socialDevelopmentWorkers]);
+
+    if (!loadingComplete) {
+        return (
+            <div className="w-full h-screen flex justify-center items-center">
+                <div className="loader-conic"></div>
+            </div>
+        );
+    }
+
+
+    if (unauthorized) {
+        return (
+            <div className="flex flex-col w-full gap-15 justify-center items-center transform -translate-y-[-20vh]">
+
+                <div className="flex gap-10 items-center justify-center">
+                    <div className="main-logo-setup unauthorized-logo !w-[6rem] !h-[8rem]"></div>
+                    <h1 className="main-logo-text-nav !text-[4rem]">Unauthorized</h1>
+                </div>
+                <p className="font-label">You do not have permission to access this page.</p>
+                <button
+                    onClick={() => navigate("/")}
+                    className="btn-primary font-bold-label"
+                >
+                    Go Home
+                </button>
+            </div>
+        );
+    }
+
 
     return (
         <>
@@ -1653,7 +1731,7 @@ function CaseFrontend({ creating = false }) {
                                                     setModalImageCenter={setModalImageCenter}
                                                     setModalConfirm={setModalConfirm}
                                                     setModalOnConfirm={setModalOnConfirm}
-                                                    editable={user.role}
+                                                    editable={user?.role}
                                                     terminated={isTerminated}
                                                     activeMember={data.is_active}
                                                 />
@@ -2137,7 +2215,8 @@ function CaseFrontend({ creating = false }) {
 
                         {creating && <button className="btn-blue header-sub drop-shadow-base my-3 mb-20 mx-auto"
                             onClick={submitNewCase}
-                            data-cy='create-case'>
+                            data-cy='create-case'
+                            disabled={modalConfirm}>
                             Create Case
                         </button>}
 

@@ -12,6 +12,7 @@ export default function RegisterSpu({ isOpen, onClose, existingSpus = [], onRegi
   const [modalImageCenter, setModalImageCenter] = useState(null);
   const [modalConfirm, setModalConfirm] = useState(false);
   const [modalOnConfirm, setModalOnConfirm] = useState(() => { });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -20,29 +21,42 @@ export default function RegisterSpu({ isOpen, onClose, existingSpus = [], onRegi
   }, [isOpen]);
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     const trimmedName = spuName.trim();
     if (!trimmedName) {
       triggerModal("Missing Field", "SPU name is required.");
+      setIsSubmitting(false);
       return;
     }
 
     const exists = existingSpus.some(spu => spu.spu_name.toLowerCase() === trimmedName.toLowerCase());
     if (exists) {
       triggerModal("Duplicate", `The SPU name "${trimmedName}" already exists.`);
+      setIsSubmitting(false);
       return;
     }
 
     const result = await createSpu(trimmedName);
     if (result) {
-      triggerModal("Success", "SPU created successfully.", <div className="success-icon mx-auto"></div>, () => {
-        onRegister?.(result);
-        onClose?.();
-        setShowModal(false);
-      });
+      triggerModal(
+        "Success",
+        "SPU created successfully.",
+        <div className="success-icon mx-auto"></div>,
+        () => {
+          onRegister?.(result);
+          onClose?.();
+          setShowModal(false);
+          setIsSubmitting(false);
+        }
+      );
     } else {
       triggerModal("Error", "Failed to create SPU.", <div className="warning-icon mx-auto"></div>);
+      setIsSubmitting(false);
     }
   };
+
 
   const triggerModal = (title, body, icon = <div className="warning-icon mx-auto"></div>, onConfirm = null) => {
     setModalTitle(title);
@@ -100,9 +114,14 @@ export default function RegisterSpu({ isOpen, onClose, existingSpus = [], onRegi
                   <button className="btn-outline font-bold-label" onClick={onClose}>
                     Cancel
                   </button>
-                  <button className="btn-primary font-bold-label" onClick={handleSubmit}>
-                    Register
-                  </button>
+                <button
+                  className="btn-primary font-bold-label"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Registering..." : "Register"}
+                </button>
+
                 </div>
               </div>
             </div>
