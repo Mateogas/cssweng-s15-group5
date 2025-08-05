@@ -15,10 +15,7 @@ const caseSchemaValidate = Joi.object({
   }),
   middle_name: Joi.string().empty('').pattern(/^[^0-9]*$/).allow(null).optional(),
 
-  spu: Joi.string().pattern(/^[a-f\d]{24}$/i).required().messages({
-    'string.pattern.base': 'SPU must be a valid ObjectId',
-    'any.required': 'SPU is required'
-  }),
+
   is_active: Joi.boolean().required(),
 
   present_address: Joi.string().min(1).required().messages({
@@ -37,10 +34,6 @@ const caseSchemaValidate = Joi.object({
     'any.required': 'Place of birth is required'
   }),
 
-  assigned_sdw: Joi.string().pattern(/^[a-f\d]{24}$/i).required()
-    .messages({
-      'string.pattern.base': 'assigned_sdw must be a valid ObjectId'
-    }),
 
   civil_status: Joi.string().valid('Single', 'Married', 'Divorced', 'Widowed', 'Separated').required().messages({
     'any.only': 'Civil status must be one of Single, Married, Divorced, Widowed, or Separated',

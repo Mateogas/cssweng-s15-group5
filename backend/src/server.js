@@ -12,11 +12,11 @@ const MONGODB_URI = process.env.MONGODB_URI;
 mongoose
   .connect(MONGODB_URI, { })
   .then(() => {
-    // console.log('MongoDB connected')
+    //console.log('MongoDB connected')
 
     //Starts the Server when mongodb is connected
     app.listen(PORT, () => {
-      // console.log(`Server running on http://localhost:${PORT}`);
+       //console.log(`Server running on http://localhost:${PORT}`);
     });
 
   })

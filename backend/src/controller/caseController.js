@@ -334,30 +334,33 @@ const addNewCase = async (req, res) => {
      if (!newCaseData) {
           return res.status(400).json({ message: 'Invalid case' });
      }
-     if (!mongoose.Types.ObjectId.isValid(sdwId)) {
-          return res.status(400).json({ message: 'Invalid SDW' });
+     if (!mongoose.Types.ObjectId.isValid(sdwId) || !mongoose.Types.ObjectId.isValid(spu_id)) {
+          return res.status(400).json({ message: 'Invalid SPU or SDW ID' });
      }
 
      try {
           // First validate the raw data with our assigned_sdw
+          const { spu, assigned_sdw, ...rest } = newCaseData;
           const dataToValidate = {
-               ...newCaseData,// Convert ObjectId to string for validation
-               assigned_sdw: sdwId,
-               spu: spu_id
+          ...rest,
+          sm_number: Number(newCaseData.sm_number),
           };
-          // console.log("beforeValidation");
+          //console.log("beforeValidation", dataToValidate);
           // Validate BEFORE creating the Mongoose model
           const { error } = caseSchemaValidate.validate(dataToValidate);
+          //console.log(error);
           if (error) {
                return res.status(400).json({
                     message: 'Validation error',
                     details: error.details.map(detail => detail.message)
                });
           }
-          // console.log("survived validation");
+          console.log("survived validation");
           // Only create the Mongoose model after validation passes
           const caseToSave = {
                ...dataToValidate,
+               assigned_sdw: sdwId,
+               spu: spu_id
           };
 
           const newCase = new Sponsored_Member(caseToSave);
