@@ -44,7 +44,7 @@ const editAccount = async (req, res) => {
         } = req.body;
         const loggedInUser = req.session?.user || req.user;
         
-        if (loggedInUser.role !== "Head" && loggedInUser._id !== id) {
+        if (loggedInUser.role !== "head" && loggedInUser._id !== id) {
             return res.status(403).json({ message: "You don't have permission to edit this account." });
         }
     

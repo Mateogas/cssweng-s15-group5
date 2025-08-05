@@ -226,14 +226,13 @@ const getHeadView = async (req, res) => {
     }));
 
     // Simplify Employees
-    const simplifiedEmployees = employee.map(e => ({
-      id: e._id,
-      name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
-      // sdw_id: e.sdw_id,
-      spu: e.spu_id.spu_name,
-      role: e.role,
-      is_active: e.is_active ?? true
-    }));
+  const simplifiedEmployees = employee.map(e => ({
+    id: e._id,
+    name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
+    spu: e.spu_id?.spu_name || "", 
+    role: e.role,
+    is_active: e.is_active ?? true
+  }));
 
     return res.status(200).json({
       cases: simplifiedCases,
