@@ -123,7 +123,7 @@ function CaseClosure() {
                     religion: caseData.religion || "",
                     address: caseData.present_address || "",
                     spu: caseData.spu || "",
-                    is_active: caseData.is_active || true,
+                    is_active: caseData.is_active ?? true,
                 }));
             };
             setLoadingStage(2);
@@ -182,7 +182,7 @@ function CaseClosure() {
                     religion: caseData.religion || "",
                     address: caseData.present_address || "",
                     spu: caseData.spu || "",
-                    is_active: caseData.is_active || true,
+                    is_active: caseData.is_active ?? true,
 
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
