@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
         ? 'https://unboundgroup.vercel.app'  // Just one production origin
-        : 'https://unboundgroup-git-vercel-frontend-kmdcs-projects.vercel.app/',           // Development origin
+        : 'https://unboundgroup-git-vercel-frontend-kmdcs-projects.vercel.app',           // Development origin
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
