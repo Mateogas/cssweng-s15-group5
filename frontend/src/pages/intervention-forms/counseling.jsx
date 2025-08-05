@@ -198,7 +198,7 @@ function CounselingForm() {
         return `${arr.slice(0, -1).join(", ")}, and ${last}`;
     }
 
-    const validateForm = () => {
+    /*const validateForm = () => {
         const missing = [];
 
         if (!grade_year_level || grade_year_level.trim() === "") missing.push("Grade/Year Level");
@@ -219,6 +219,52 @@ function CounselingForm() {
             return false;
         }
 
+        return true;
+    };*/
+
+    const validateForm = () => {
+        const fieldErrors = {};
+
+        if (!grade_year_level || grade_year_level.trim() === "") { fieldErrors.grade_year_level = "Grade/Year Level is required."; }
+        if (!school || school.trim() === "") { fieldErrors.school = "School is required."; }
+        if (!area_self_help || area_self_help.trim() === "") { fieldErrors.area_self_help = "Area of Self-Help is required."; }
+        if (!counseling_date || counseling_date.trim() === "") { fieldErrors.counseling_date = "Date of Counseling is required."; }
+        if (!reason_for_counseling || reason_for_counseling.trim() === "") { fieldErrors.reason_for_counseling = "Reason for Counseling is required."; }
+        if (!corrective_action || corrective_action.trim() === "") { fieldErrors.corrective_action = "Corrective Action is required."; }
+        if (!recommendation || recommendation.trim() === "") { fieldErrors.recommendation = "Recommendation is required."; }
+        if (!sm_comments || sm_comments.trim() === "") { fieldErrors.sm_comments = "Sponsored Member's Comments are required."; }
+
+        if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+
+            const fieldNames = Object.values(fieldErrors);
+            setModalTitle("Missing / Invalid Fields");
+            // setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(fieldNames)}`);
+            setModalBody(
+                <>
+                    <p className="font-medium text-gray-700 mb-2">
+                        Please correct the following errors before submitting:
+                    </p>
+                    <p className="body-sm text-gray-700 mb-2">
+                        (Write N/A if necessary)
+                    </p>
+                    <br />
+                    <div className="flex justify-center">
+                        <ul className="list-disc list-inside mt-2 text-left">
+                            {fieldNames.map((msg, index) => (
+                                <li key={index}>{msg}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
+            );
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        setErrors({});
         return true;
     };
 
@@ -776,7 +822,7 @@ function CounselingForm() {
                     )}
 
                     {/* Missing / Invalid Input */}
-                    {showErrorOverlay && (
+                    {/*showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                             <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                     animate-fadeIn scale-100 transform transition duration-300">
@@ -806,7 +852,7 @@ function CounselingForm() {
                                     Write N/A if necessary.
                                 </p>
 
-                                {/* OK Button */}
+                                {/* OK Button }
                                 <button
                                     onClick={() => setShowErrorOverlay(false)}
                                     className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
@@ -815,7 +861,7 @@ function CounselingForm() {
                                 </button>
                             </div>
                         </div>
-                    )}
+                    )*/}
                 </div>
             </main>
         </>

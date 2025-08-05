@@ -272,7 +272,7 @@ function CaseClosure() {
     };
 
 
-    const validateForm = () => {
+    /*const validateForm = () => {
         console.log("VALIDATING...");
         const missing = [];
 
@@ -321,6 +321,57 @@ function CaseClosure() {
             return false;
         }
 
+        return true;
+    };*/
+
+    const validateForm = () => {
+        const fieldErrors = {};
+
+        if (!closure_date || !closure_date.trim()) { fieldErrors.closure_date = "Date of Closure is required."; }
+        if (!sponsorship_date || !sponsorship_date.trim()) { fieldErrors.sponsorship_date = "Date of Sponsorship is required."; }
+        if (!reason_for_retirement || !reason_for_retirement.trim()) { fieldErrors.reason_for_retirement = "Reason for Retirement is required."; }
+        if (sm_awareness !== true && sm_awareness !== false) { fieldErrors.sm_awareness = "Client SM Awareness must be selected."; }
+        if (sm_awareness && (!sm_notification || !sm_notification.trim())) { fieldErrors.sm_notification = "Client Notification is required if SM is aware."; }
+        if (!evaluation || !evaluation.trim()) { fieldErrors.evaluation = "Evaluation is required.";}
+        if (!recommendation || !recommendation.trim()) { fieldErrors.recommendation = "Recommendation is required."; }
+
+        services_provided.forEach((item, index) => {
+            if (!item.description || !item.description.trim()) {
+                fieldErrors[item.service] = `${item.service} is required.`;
+            }
+        });
+
+        if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+
+            const fieldNames = Object.values(fieldErrors);
+            setModalTitle("Missing / Invalid Fields");
+            // setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(fieldNames)}`);
+            setModalBody(
+                <>
+                    <p className="font-medium text-gray-700 mb-2">
+                        Please correct the following errors before submitting:
+                    </p>
+                    <p className="body-sm text-gray-700 mb-2">
+                        (Write N/A if necessary)
+                    </p>
+                    <br />
+                    <div className="flex justify-center">
+                        <ul className="list-disc list-inside mt-2 text-left">
+                            {fieldNames.map((msg, index) => (
+                                <li key={index}>{msg}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
+            );
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        setErrors({});
         return true;
     };
 
@@ -1050,7 +1101,7 @@ function CaseClosure() {
                     )}
 
                     {/* Missing / Invalid Input */}
-                    {showErrorOverlay && (
+                    {/*showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                             <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                     animate-fadeIn scale-100 transform transition duration-300">
@@ -1080,7 +1131,7 @@ function CaseClosure() {
                                     Write N/A if necessary.
                                 </p>
 
-                                {/* OK Button */}
+                                {/* OK Button }
                                 <button
                                     onClick={() => {
                                         setShowErrorOverlay(false)
@@ -1092,7 +1143,7 @@ function CaseClosure() {
                                 </button>
                             </div>
                         </div>
-                    )}
+                    )*/}
 
                 </div>
             </main>
