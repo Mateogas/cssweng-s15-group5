@@ -338,7 +338,7 @@ function HomeVisitationForm() {
     };
 
 
-    const validateForm = () => {
+    /*const validateForm = () => {
         const missing = [];
 
         if (!grade_year_course || grade_year_course.trim() === "") missing.push("Grade/Year Course");
@@ -368,8 +368,58 @@ function HomeVisitationForm() {
         }
 
         return true;
-    };
+    };*/
 
+    const validateForm = () => {
+        const fieldErrors = {};
+
+        if (!grade_year_course || grade_year_course.trim() === "") fieldErrors.grade_year_course = "Grade/Year Course is required.";
+        if (!years_in_program || years_in_program.trim() === "") fieldErrors.years_in_program = "Year/s in the Program is required.";
+        if (isNaN(Number(years_in_program))) fieldErrors.years_in_program = "Year/s in the Program must be a number.";
+        if (!date || date.trim() === "") fieldErrors.date = "Date is required.";
+        if (!community || community.trim() === "") fieldErrors.community = "Community is required.";
+        if (!sponsor_name || sponsor_name.trim() === "") fieldErrors.sponsor_name = "Sponsor Name is required.";
+        if (!family_type || family_type.trim() === "") fieldErrors.family_type = "Family Type is required.";
+        if (!sm_progress || sm_progress.trim() === "") fieldErrors.sm_progress = "SM Progress is required.";
+        if (!family_progress || family_progress.trim() === "") fieldErrors.family_progress = "Family Progress is required.";
+        if (!observation_findings || observation_findings.trim() === "") fieldErrors.observation_findings = "Observation/Findings is required.";
+        if (!interventions || interventions.trim() === "") fieldErrors.interventions = "Interventions Made is required.";
+        if (!recommendations || recommendations.trim() === "") fieldErrors.recommendations = "Recommendations is required.";
+        if (!agreement || agreement.trim() === "") fieldErrors.agreement = "Agreement is required.";
+
+        if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+
+            const fieldNames = Object.values(fieldErrors);
+            setModalTitle("Missing / Invalid Fields");
+            // setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(fieldNames)}`);
+            setModalBody(
+                <>
+                    <p className="font-medium text-gray-700 mb-2">
+                        Please correct the following errors before submitting:
+                    </p>
+                    <p className="body-sm text-gray-700 mb-2">
+                        (Write N/A if necessary)
+                    </p>
+                    <br />
+                    <div className="flex justify-center">
+                        <ul className="list-disc list-inside mt-2 text-left">
+                            {fieldNames.map((msg, index) => (
+                                <li key={index}>{msg}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
+            );
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        setErrors({});
+        return true;
+    };
 
     // const handleSubmit = async (e) => {
     //     e?.preventDefault();
@@ -430,6 +480,7 @@ function HomeVisitationForm() {
         e?.preventDefault();
 
         const isValid = validateForm();
+
         if (!isValid) {
             setModalOnConfirm(() => () => { });
             setModalOnCancel(() => () => { });
@@ -769,7 +820,7 @@ function HomeVisitationForm() {
 
             const assignedSDWId = returnData.case.assigned_sdw;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -788,7 +839,7 @@ function HomeVisitationForm() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return
@@ -1304,7 +1355,7 @@ function HomeVisitationForm() {
 
 
                     {/* Missing / Invalid Input */}
-                    {showErrorOverlay && (
+                    {/*showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                             <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                     animate-fadeIn scale-100 transform transition duration-300">
@@ -1334,7 +1385,7 @@ function HomeVisitationForm() {
                                     Write N/A if necessary.
                                 </p>
 
-                                {/* OK Button */}
+                                {/* OK Button }
                                 <button
                                     onClick={() => setShowErrorOverlay(false)}
                                     className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
@@ -1343,7 +1394,7 @@ function HomeVisitationForm() {
                                 </button>
                             </div>
                         </div>
-                    )}
+                    )*/}
                 </div>
             </main>
         </>

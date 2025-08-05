@@ -344,7 +344,7 @@ function CaseFrontend({ creating = false }) {
                     sdw.role === "sdw"
             );
 
-            console.log("SPU", matchSPU, "SDW", socialDevelopmentWorkers);
+            // console.log("SPU", matchSPU, "SDW", socialDevelopmentWorkers);
 
             if (matchSPU && validSDW) {
                 setDrafts(prev => ({
@@ -1009,7 +1009,7 @@ function CaseFrontend({ creating = false }) {
         const isSDW = user.role === "sdw";
         const isSupervisor = user.role === "supervisor";
 
-        console.log("Auth workers", data, socialDevelopmentWorkers);
+        // console.log("Auth workers", data, socialDevelopmentWorkers);
 
         if (creating) {
             // Only SDWs can create
@@ -1021,11 +1021,11 @@ function CaseFrontend({ creating = false }) {
 
         const assignedSDWId = data.assigned_sdw;
 
-        console.log("found assigned SDW", assignedSDWId);
+        // console.log("found assigned SDW", assignedSDWId);
 
         const isAssignedSDW = user._id === assignedSDWId;
 
-        console.log(isAssignedSDW);
+        // console.log(isAssignedSDW);
 
         const managesAssignedSDW = socialDevelopmentWorkers.some(
             (w) =>
@@ -1033,7 +1033,7 @@ function CaseFrontend({ creating = false }) {
                 w.manager === user._id
         );
 
-        console.log(managesAssignedSDW);
+        // console.log(managesAssignedSDW);
 
         if (!(isHead || isAssignedSDW || managesAssignedSDW)) {
             setUnauthorized(true);

@@ -14,7 +14,7 @@ function App() {
     const checkSession = async () => {
       try {
         const res = await fetchSession();
-        console.log("Session:", res);
+        // console.log("Session:", res);
 
         if (res.user) {
           setUser(res.user);

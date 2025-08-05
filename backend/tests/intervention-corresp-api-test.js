@@ -43,14 +43,14 @@ const testUpdateData = {
 
 async function testCreateForm() {
   try {
-    console.log('\n--- Testing CREATE Correspondence Intervention Form ---');
+    // console.log('\n--- Testing CREATE Correspondence Intervention Form ---');
     const response = await axios.post(
       `${BASE_URL}/create-form/${STATIC_SPONSORED_MEMBER_ID}`,
       testCorrespData
     );
-    console.log('✅ Form created successfully!');
-    console.log('Status:', response.status);
-    console.log('Created Form ID:', response.data._id);
+    // console.log('✅ Form created successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Created Form ID:', response.data._id);
     return response.data._id;
   } catch (error) {
     console.error('❌ Error creating form:', error.response?.data || error.message);
@@ -60,20 +60,20 @@ async function testCreateForm() {
 
 async function testGetForm(formId) {
   try {
-    console.log('\n--- Testing GET Correspondence Intervention Form ---');
+    // console.log('\n--- Testing GET Correspondence Intervention Form ---');
     if (!formId) {
-      console.log('⚠️ No form ID available. Skipping test.');
+      // console.log('⚠️ No form ID available. Skipping test.');
       return;
     }
     const response = await axios.get(
       `${BASE_URL}/viewform/${STATIC_SPONSORED_MEMBER_ID}/${formId}`
     );
-    console.log('✅ Form retrieved successfully!');
-    console.log('Status:', response.status);
-    console.log('Form Data:', JSON.stringify(response.data, null, 2));
+    // console.log('✅ Form retrieved successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Form Data:', JSON.stringify(response.data, null, 2));
     // Log intervention_plans array
     if (response.data.form && response.data.form.intervention_plans) {
-      console.log('Intervention Plans:', JSON.stringify(response.data.form.intervention_plans, null, 2));
+      // console.log('Intervention Plans:', JSON.stringify(response.data.form.intervention_plans, null, 2));
     }
   } catch (error) {
     console.error('❌ Error retrieving form:', error.response?.data || error.message);
@@ -82,29 +82,29 @@ async function testGetForm(formId) {
 
 async function testEditForm(formId) {
   try {
-    console.log('\n--- Testing EDIT Correspondence Intervention Form ---');
+    // console.log('\n--- Testing EDIT Correspondence Intervention Form ---');
     if (!formId) {
-      console.log('⚠️ No form ID available. Skipping test.');
+      // console.log('⚠️ No form ID available. Skipping test.');
       return;
     }
     const response = await axios.put(
       `${BASE_URL}/edit-form/${formId}`,
       testUpdateData
     );
-    console.log('✅ Form updated successfully!');
-    console.log('Status:', response.status);
-    console.log('Update Response:', JSON.stringify(response.data, null, 2));
+    // console.log('✅ Form updated successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Update Response:', JSON.stringify(response.data, null, 2));
 
     // Verify the changes were applied by getting the form again
-    console.log('\n--- Verifying Form Update ---');
+    // console.log('\n--- Verifying Form Update ---');
     const verifyResponse = await axios.get(
       `${BASE_URL}/viewform/${STATIC_SPONSORED_MEMBER_ID}/${formId}`
     );
-    console.log('✅ Updated form retrieved!');
-    console.log('Updated Form Data:', JSON.stringify(verifyResponse.data.form, null, 2));
+    // console.log('✅ Updated form retrieved!');
+    // console.log('Updated Form Data:', JSON.stringify(verifyResponse.data.form, null, 2));
     // Log intervention_plans array
     if (verifyResponse.data.form && verifyResponse.data.form.intervention_plans) {
-      console.log('Intervention Plans:', JSON.stringify(verifyResponse.data.form.intervention_plans, null, 2));
+      // console.log('Intervention Plans:', JSON.stringify(verifyResponse.data.form.intervention_plans, null, 2));
     }
 
     // Check if the update was applied correctly
@@ -113,9 +113,9 @@ async function testEditForm(formId) {
       updatedForm.name_of_sponsor === testUpdateData.name_of_sponsor &&
       updatedForm.identified_problem === testUpdateData.identified_problem;
     if (updateSuccessful) {
-      console.log('✅ Update verification successful! Form data matches the update.');
+      // console.log('✅ Update verification successful! Form data matches the update.');
     } else {
-      console.log('❌ Update verification failed! Form data does not match the update.');
+      // console.log('❌ Update verification failed! Form data does not match the update.');
     }
   } catch (error) {
     console.error('❌ Error updating form:', error.response?.data || error.message);
@@ -123,19 +123,19 @@ async function testEditForm(formId) {
 }
 async function testDeleteInterventionPlan(formId, planId) {
   try {
-    console.log('\n--- Testing DELETE Intervention Plan ---');
+    // console.log('\n--- Testing DELETE Intervention Plan ---');
     if (!formId || !planId) {
-      console.log('⚠️ No form ID or plan ID available. Skipping test.');
+      // console.log('⚠️ No form ID or plan ID available. Skipping test.');
       return;
     }
     const response = await axios.delete(
       `${BASE_URL}/delete-plan/${formId}/${planId}`
     );
-    console.log('✅ Intervention plan deleted successfully!');
-    console.log('Status:', response.status);
+    // console.log('✅ Intervention plan deleted successfully!');
+    // console.log('Status:', response.status);
     // Log updated intervention_plans
     if (response.data.form && response.data.form.intervention_plans) {
-      console.log('Updated Intervention Plans:', JSON.stringify(response.data.form.intervention_plans, null, 2));
+      // console.log('Updated Intervention Plans:', JSON.stringify(response.data.form.intervention_plans, null, 2));
     }
   } catch (error) {
     console.error('❌ Error deleting intervention plan:', error.response?.data || error.message);
@@ -143,14 +143,14 @@ async function testDeleteInterventionPlan(formId, planId) {
 }
 async function testGetAllForms() {
   try {
-    console.log('\n--- Testing GET ALL Correspondence Intervention Forms ---');
+    // console.log('\n--- Testing GET ALL Correspondence Intervention Forms ---');
     const response = await axios.get(
       `${BASE_URL}/getAllForms/${STATIC_SPONSORED_MEMBER_ID}`
     );
-    console.log('✅ All forms retrieved successfully!');
-    console.log('Status:', response.status);
-    console.log('Number of Forms:', response.data.length);
-    console.log('Forms:', response.data);
+    // console.log('✅ All forms retrieved successfully!');
+    // console.log('Status:', response.status);
+    // console.log('Number of Forms:', response.data.length);
+    // console.log('Forms:', response.data);
   } catch (error) {
     console.error('❌ Error retrieving all forms:', error.response?.data || error.message);
   }
@@ -158,8 +158,8 @@ async function testGetAllForms() {
 
 // Run the tests
 async function runTests() {
-  console.log('=== STARTING CORRESPONDENCE API TESTS ===');
-  console.log(`Using Sponsored Member ID: ${STATIC_SPONSORED_MEMBER_ID}`);
+  // console.log('=== STARTING CORRESPONDENCE API TESTS ===');
+  // console.log(`Using Sponsored Member ID: ${STATIC_SPONSORED_MEMBER_ID}`);
 
   // 1. Create a form
   const formId = await testCreateForm();
@@ -172,7 +172,7 @@ async function runTests() {
     );
     if (response.data.form && response.data.form.intervention_plans && response.data.form.intervention_plans.length > 0) {
       firstPlanId = response.data.form.intervention_plans[0]._id;
-      console.log('First Intervention Plan ID:', firstPlanId);
+      // console.log('First Intervention Plan ID:', firstPlanId);
     }
   } catch (error) {
     console.error('❌ Error retrieving form for plan ID extraction:', error.response?.data || error.message);
@@ -182,7 +182,7 @@ async function runTests() {
   if (firstPlanId) {
     await testDeleteInterventionPlan(formId, firstPlanId);
   } else {
-    console.log('⚠️ No intervention plan found to delete.');
+    // console.log('⚠️ No intervention plan found to delete.');
   }
 
   // 4. Test editing the form
@@ -191,7 +191,7 @@ async function runTests() {
   // 5. Get all forms
   await testGetAllForms();
 
-  console.log('\n=== TESTS COMPLETED ===');
+  // console.log('\n=== TESTS COMPLETED ===');
 }
 
 runTests();

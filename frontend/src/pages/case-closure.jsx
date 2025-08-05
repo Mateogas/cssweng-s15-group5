@@ -67,7 +67,7 @@ function CaseClosure() {
         closure_date: "",
         sponsorship_date: "",
         reason_for_retirement: "",
-        sm_awareness: "",
+        sm_awareness: null,
         sm_notification: "",
         evaluation: "",
         recommendation: "",
@@ -152,7 +152,7 @@ function CaseClosure() {
                 const formData = returnData.form
                 const caseData = returnData.case
 
-                // console.log("Form Data", formData)
+                // // console.log("Form Data", formData)
 
                 setRawFormData(formData);
                 const user_sdw = returnData.active_user_role === "sdw" ? true : false;
@@ -178,7 +178,7 @@ function CaseClosure() {
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     reason_for_retirement: formData.reason_for_retirement || "",
-                    sm_awareness: formData.sm_awareness || "",
+                    sm_awareness: formData.sm_awareness ?? null,
                     sm_notification: formData.sm_notification || "",
                     evaluation: formData.evaluation || "",
                     recommendation: formData.recommendation || "",
@@ -206,7 +206,7 @@ function CaseClosure() {
             setClosureDate(data.closure_date || "");
             setSponsorshipDate(data.closure_date || "");
             setReasonForRetirement(data.reason_for_retirement || "");
-            setSMAwareness(data.sm_awareness || "");
+            setSMAwareness(data.sm_awareness ?? null);
             setSMNotification(data.sm_notification || "");
             setEvaluation(data.evaluation || "");
             setRecommendation(data.recommendation || "");
@@ -271,49 +271,46 @@ function CaseClosure() {
         return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
     };
 
-
     const validateForm = () => {
-        console.log("VALIDATING...");
-        const missing = [];
+        const fieldErrors = {};
 
-        if (!closure_date || !closure_date.trim()) {
-            missing.push("Date of Closure");
-        }
+        if (!closure_date || !closure_date.trim()) { fieldErrors.closure_date = "Date of Closure is required."; }
+        if (!sponsorship_date || !sponsorship_date.trim()) { fieldErrors.sponsorship_date = "Date of Sponsorship is required."; }
+        if (!reason_for_retirement || !reason_for_retirement.trim()) { fieldErrors.reason_for_retirement = "Reason for Retirement is required."; }
+        if (sm_awareness !== true && sm_awareness !== false) { fieldErrors.sm_awareness = "Client SM Awareness must be selected."; }
+        if (sm_awareness && (!sm_notification || !sm_notification.trim())) { fieldErrors.sm_notification = "Client Notification is required if SM is aware."; }
+        if (!evaluation || !evaluation.trim()) { fieldErrors.evaluation = "Evaluation is required.";}
+        if (!recommendation || !recommendation.trim()) { fieldErrors.recommendation = "Recommendation is required."; }
 
-        if (!sponsorship_date || !sponsorship_date.trim()) {
-            missing.push("Date Sponsored");
-        }
-
-        if (!reason_for_retirement || !reason_for_retirement.trim()) {
-            missing.push("Reason for Retirement");
-        }
-
-        if (!sm_awareness || !sm_awareness.trim()) {
-            missing.push("Client SM Awareness");
-        }
-
-        if (sm_awareness?.toLowerCase() === "yes" && (!sm_notification || !sm_notification.trim())) {
-            missing.push("Client Notification");
-        }
-
-        services_provided.forEach((item) => {
+        services_provided.forEach((item, index) => {
             if (!item.description || !item.description.trim()) {
-                missing.push(`Description for ${item.service}`);
+                fieldErrors[item.service] = `${item.service} is required.`;
             }
         });
 
-        if (!evaluation || !evaluation.trim()) {
-            missing.push("Evaluation");
-        }
+        if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
 
-        if (!recommendation || !recommendation.trim()) {
-            missing.push("Recommendation");
-        }
-
-        if (missing.length > 0) {
+            const fieldNames = Object.values(fieldErrors);
             setModalTitle("Missing / Invalid Fields");
+            // setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(fieldNames)}`);
             setModalBody(
-                `The following fields are missing or invalid: ${formatListWithAnd(missing)}`
+                <>
+                    <p className="font-medium text-gray-700 mb-2">
+                        Please correct the following errors before submitting:
+                    </p>
+                    <p className="body-sm text-gray-700 mb-2">
+                        (Write N/A if necessary)
+                    </p>
+                    <br />
+                    <div className="flex justify-center">
+                        <ul className="list-disc list-inside mt-2 text-left">
+                            {fieldNames.map((msg, index) => (
+                                <li key={index}>{msg}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
             );
             setModalImageCenter(<div className="warning-icon mx-auto" />);
             setModalConfirm(false);
@@ -321,6 +318,7 @@ function CaseClosure() {
             return false;
         }
 
+        setErrors({});
         return true;
     };
 
@@ -328,7 +326,7 @@ function CaseClosure() {
         e?.preventDefault();
         const isValid = validateForm();
 
-        console.log("ISVALID", isValid);
+        // console.log("ISVALID", isValid);
 
         if (!isValid) {
             setModalOnConfirm(() => () => { });
@@ -345,10 +343,10 @@ function CaseClosure() {
                 setIsProcessing(true);
 
                 try {
-                    console.log("VALIDCHECK", isValid);
+                    // console.log("VALIDCHECK", isValid);
                     if (!isValid) return;
                     const created = await handleCreate();
-                    console.log("CREATED", created);
+                    // console.log("CREATED", created);
                     if (created) {
                         setShowSuccessModal(true);
                     }
@@ -374,10 +372,10 @@ function CaseClosure() {
             evaluation,
             recommendation
         };
-        // console.log("Payload: ", payload);
+        // // console.log("Payload: ", payload);
 
         const response = await createCaseClosureForm(payload, caseID);
-        console.log("RESPONSE", response);
+        // console.log("RESPONSE", response);
         if (response?._id) {
             setnewformID(response?._id);
             return true;
@@ -403,7 +401,7 @@ function CaseClosure() {
             recommendation
         };
 
-        console.log("Payload: ", payload);
+        // console.log("Payload: ", payload);
 
         const response = await createCaseClosureForm(payload, caseID); 
     };
@@ -481,7 +479,7 @@ function CaseClosure() {
     const [reason_for_retirement, setReasonForRetirement] = useState(
         data?.reason_for_retirement || "",
     );
-    const [sm_awareness, setSMAwareness] = useState(data?.sm_awareness || "");
+    const [sm_awareness, setSMAwareness] = useState(data?.sm_awareness || null);
 
     const [sm_notification, setSMNotification] = useState(
         data?.sm_notification || "",
@@ -591,11 +589,11 @@ function CaseClosure() {
 
             const returnData = await fetchCaseOriginal(caseID);
 
-            console.log("RETURN DATA: ", returnData);
+            // console.log("RETURN DATA: ", returnData);
 
             const assignedSDWId = returnData.assigned_sdw._id;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -614,7 +612,7 @@ function CaseClosure() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return
@@ -773,8 +771,8 @@ function CaseClosure() {
                                         type="radio"
                                         name="sm_awareness"
                                         value="yes"
-                                        checked={sm_awareness === "yes"}
-                                        onChange={(e) => setSMAwareness(e.target.value)}
+                                        checked={sm_awareness === true || data.sm_awareness === true}
+                                        onChange={() => setSMAwareness(true)}
                                         disabled={viewForm}
                                     />
                                     Yes
@@ -784,8 +782,8 @@ function CaseClosure() {
                                         type="radio"
                                         name="sm_awareness"
                                         value="no"
-                                        checked={sm_awareness === "no"}
-                                        onChange={(e) => setSMAwareness(e.target.value)}
+                                        checked={sm_awareness === false || data.sm_awareness === false}
+                                        onChange={(e) => setSMAwareness(false)}
                                         disabled={viewForm}
                                     />
                                     No
@@ -794,8 +792,8 @@ function CaseClosure() {
                                     sublabel="If yes, how was the client notified"
                                     value={sm_notification}
                                     setValue={setSMNotification}
-                                    disabled={viewForm || sm_awareness === "no"}
-                                    error={sm_awareness === "yes" ? errors["sm_notification"] : undefined}
+                                    disabled={viewForm || sm_awareness === false}
+                                    error={sm_awareness === true ? errors["sm_notification"] : undefined}
                                 ></TextArea>
                             </div>
                         </div>
@@ -1050,7 +1048,7 @@ function CaseClosure() {
                     )}
 
                     {/* Missing / Invalid Input */}
-                    {showErrorOverlay && (
+                    {/*showErrorOverlay && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                             <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                     animate-fadeIn scale-100 transform transition duration-300">
@@ -1080,7 +1078,7 @@ function CaseClosure() {
                                     Write N/A if necessary.
                                 </p>
 
-                                {/* OK Button */}
+                                {/* OK Button }
                                 <button
                                     onClick={() => {
                                         setShowErrorOverlay(false)
@@ -1092,7 +1090,7 @@ function CaseClosure() {
                                 </button>
                             </div>
                         </div>
-                    )}
+                    )*/}
 
                 </div>
             </main>

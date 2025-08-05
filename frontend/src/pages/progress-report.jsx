@@ -89,7 +89,7 @@ function ProgressReport() {
             setUser(currentUser);
 
             if (!currentUser) {
-                console.error("No user session found");
+                // console.error("No user session found");
                 navigate("/unauthorized");
                 return;
             }
@@ -108,7 +108,7 @@ function ProgressReport() {
                     return
                 }
                 const caseData = returnData
-                console.log("CASE DATA", caseData);
+                // console.log("CASE DATA", caseData);
 
                 setRawCaseData(caseData);
                 setData((prev) => ({
@@ -130,7 +130,7 @@ function ProgressReport() {
             setLoadingComplete(true);
         }, []);
 
-        console.log("report data", data);
+        // console.log("report data", data);
 
         useEffect(() => {
             setFirstName(data.first_name || "");
@@ -160,14 +160,14 @@ function ProgressReport() {
                     return
                 }
 
-                console.log("RETURN DATA", returnData);
+                // console.log("RETURN DATA", returnData);
 
                 const formData = returnData.progressReport
                 const caseData = returnData.case
                 const report_number = returnData.reportNumber
 
-                console.log(formData)
-                console.log(returnData);
+                // console.log(formData)
+                // console.log(returnData);
 
                 setRawFormData(formData);
 
@@ -324,7 +324,7 @@ function ProgressReport() {
     // };
 
 
-    const validateForm = () => {
+    /*const validateForm = () => {
         const missing = [];
 
         if (!sponsor_name || !sponsor_name.trim()) missing.push("Name of Sponsor");
@@ -376,6 +376,80 @@ function ProgressReport() {
             return false;
         }
 
+        return true;
+    };*/
+
+    const validateForm = () => {
+        const fieldErrors = {};
+
+        if (!sponsor_name || !sponsor_name.trim()) { fieldErrors.sponsor_name = "Name of Sponsor is required."; }
+        if (!sponsorship_date) { fieldErrors.sponsorship_date = "Sponsorship Begin Date is required."; }
+        if (!date_accomplished) { fieldErrors.date_accomplished = "Date Accomplished is required."; }
+        if (!period_covered || !period_covered.trim()) { fieldErrors.period_covered = "Period Covered is required."; }
+        if (!sm_update || !sm_update.trim()) { fieldErrors.sm_update = "Sponsored Member Update is required."; }
+        if (!family_update || !family_update.trim()) { fieldErrors.family_update = "Family Update is required."; }
+        if (!services_to_family || !services_to_family.trim()) { fieldErrors.services_to_family = "Services to Family is required."; }
+        if (!participation || !participation.trim()) { fieldErrors.participation = "Participation in the Community is required."; }
+
+        if (
+            !relation_to_sponsor.know_sponsor_name ||
+            !relation_to_sponsor.cooperative ||
+            !relation_to_sponsor.personalized_letter
+        ) {
+            fieldErrors.relation_to_sponsor = "Sponsor Relationship is required";
+        }
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        const sponsorDate = new Date(sponsorship_date);
+        const accomplishedDate = new Date(date_accomplished);
+        sponsorDate.setHours(0, 0, 0, 0);
+        accomplishedDate.setHours(0, 0, 0, 0);
+
+        if (sponsorDate > accomplishedDate) {
+            fieldErrors.date_comparison = "Sponsorship Date must not be later than Accomplishment Date.";
+        }
+
+        if (sponsorship_date > now) {
+            fieldErrors.sponsorship_date = "Sponsorship Date must not be in the future.";
+        }
+
+        if (accomplishedDate > now) {
+            fieldErrors.accomplished_date = "Accomplishment Date must not be in the future.";
+        }
+
+        if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+
+            const fieldNames = Object.values(fieldErrors);
+            setModalTitle("Missing / Invalid Fields");
+            // setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(fieldNames)}`);
+            setModalBody(
+                <>
+                    <p className="font-medium text-gray-700 mb-2">
+                        Please correct the following errors before submitting:
+                    </p>
+                    <p className="body-sm text-gray-700 mb-2">
+                        (Write N/A if necessary)
+                    </p>
+                    <br />
+                    <div className="flex justify-center">
+                        <ul className="list-disc list-inside mt-2 text-left">
+                            {fieldNames.map((msg, index) => (
+                                <li key={index}>{msg}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
+            );
+            setModalImageCenter(<div className="warning-icon mx-auto" />);
+            setModalConfirm(false);
+            setShowModal(true);
+            return false;
+        }
+
+        setErrors({});
         return true;
     };
 
@@ -433,7 +507,7 @@ function ProgressReport() {
             participation,
             relation_to_sponsor
         };
-        // console.log("Payload: ", payload);
+        // // console.log("Payload: ", payload);
 
         const response = await addProgressReport(payload, caseID);
         if (response?.progressReport?._id) {
@@ -461,7 +535,7 @@ function ProgressReport() {
             relation_to_sponsor
         };
 
-        console.log("Payload: ", updatedPayload);
+        // console.log("Payload: ", updatedPayload);
         const response = await editProgressReport(formID, updatedPayload);
     };
 
@@ -595,11 +669,11 @@ function ProgressReport() {
 
             const returnData = await fetchCaseOriginal(caseID);
 
-            console.log("RETURN DATA: ", returnData);
+            // console.log("RETURN DATA: ", returnData);
 
             const assignedSDWId = returnData.assigned_sdw._id;
 
-            console.log("RAW DATA: ", assignedSDWId);
+            // console.log("RAW DATA: ", assignedSDWId);
 
             if (user?.role === "head") {
                 setAuthorized(true);
@@ -618,7 +692,7 @@ function ProgressReport() {
             if (user?.role === "supervisor") {
                 try {
                     const res = await fetchEmployeeById(assignedSDWId);
-                    console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
+                    // console.log("FETCHING EMPLOYEE", res.data.manager, user._id);
                     if (res.ok && res.data.manager === user._id) {
                         setAuthorized(true);
                         return
@@ -626,7 +700,7 @@ function ProgressReport() {
                         navigate("/unauthorized");
                     }
                 } catch (err) {
-                    console.error("Supervisor access check failed:", err);
+                    // console.error("Supervisor access check failed:", err);
                     navigate("/unauthorized");
                 }
                 return;
@@ -1036,7 +1110,7 @@ function ProgressReport() {
                         </AnimatePresence>
 
                         {/* Missing / Invalid Input */}
-                        {showErrorOverlay && (
+                        {/*showErrorOverlay && (
                             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                                 <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 p-8 flex flex-col items-center gap-12
                                         animate-fadeIn scale-100 transform transition duration-1000">
@@ -1068,7 +1142,7 @@ function ProgressReport() {
                                         </p>
                                     )}
 
-                                    {/* OK Button */}
+                                    {/* OK Button }
                                     <button
                                         onClick={() => setShowErrorOverlay(false)}
                                         className="bg-red-600 text-white text-2xl px-6 py-2 rounded-lg hover:bg-red-700 transition"
@@ -1077,7 +1151,7 @@ function ProgressReport() {
                                     </button>
                                 </div>
                             </div>
-                        )}
+                        )*/}
                     </div>
                 </div>
             </main>

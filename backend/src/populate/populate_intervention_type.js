@@ -24,7 +24,7 @@ const populateDB = async () => {
 
         await Intervention_Type.insertMany(intervention_data);
 
-        console.log("Successfully added interventions");
+        // console.log("Successfully added interventions");
         
     } catch (error) {
         console.error("Error populating database:", error);

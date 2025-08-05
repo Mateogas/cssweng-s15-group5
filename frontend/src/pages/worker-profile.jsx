@@ -116,7 +116,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id._id || "",
+                    spu_id: empData.spu_id?._id || empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                     is_active: empData.is_active ?? true
@@ -129,7 +129,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id._id || "",
+                    spu_id: empData.spu_id?._id || empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
@@ -167,7 +167,7 @@ export default function WorkerProfile() {
         const loadSession = async () => {
             const sessionData = await fetchSession();
             setUser(sessionData?.user || null);
-            console.log("Session:", sessionData?.user);
+            // console.log("Session:", sessionData?.user);
         };
         loadSession();
     }, []);
@@ -176,7 +176,7 @@ export default function WorkerProfile() {
         const loadSDWs = async () => {
             const sdws = await fetchSDWs();
 
-            console.log("SDWS FOUND", sdws);
+            // console.log("SDWS FOUND", sdws);
 
             setSocialDevelopmentWorkers(sdws);
         };
@@ -205,7 +205,7 @@ export default function WorkerProfile() {
                 w.is_active === true
         );
 
-        console.log("AVAILABLE SUPERVISORS", socialDevelopmentWorkers);
+        // console.log("AVAILABLE SUPERVISORS", socialDevelopmentWorkers);
 
         setSupervisors(filtered);
     }, [drafts.spu_id, drafts.role, socialDevelopmentWorkers]);
@@ -260,7 +260,7 @@ export default function WorkerProfile() {
     const [showTerminateError, setShowTerminateError] = useState(false);
     const [terminateErrorMessage, setTerminateErrorMessage] = useState("");
     const handleTerminate = async () => {
-        console.log("Terminating worker...");
+        // console.log("Terminating worker...");
         const result = await terminateWorker(workerId);
 
         if (result.success) {
@@ -284,7 +284,7 @@ export default function WorkerProfile() {
     };
 
     const resetFields = () => {
-        console.log("RESETTING", data);
+        // console.log("RESETTING", data);
         setDrafts({
             first_name: data.first_name || "",
             middle_name: data.middle_name || "",
@@ -336,13 +336,13 @@ export default function WorkerProfile() {
             missing.push("Username");
         } else {
             const check = await fetchEmployeeByUsername(drafts.username);
-            console.log("Fetched employee by Username:", check);
+            // console.log("Fetched employee by Username:", check);
 
             if (check.ok && check.data) {
-                console.log(
-                    "Comparing found username:", check.data.username,
-                    "vs current employee username:", data.username
-                );
+                // console.log(
+                //     "Comparing found username:", check.data.username,
+                //     "vs current employee username:", data.username
+                // );
 
                 if (check.data.username.trim() !== data.username.trim()) {
                     missing.push(`Username already exists and belongs to another employee`);
@@ -374,10 +374,10 @@ export default function WorkerProfile() {
         // } else {
         //     // Check uniqueness
         //     const check = await fetchEmployeeBySDWId(Number(drafts.sdw_id));
-        //     console.log("Fetched employee by SDW ID:", check);
+        //     // console.log("Fetched employee by SDW ID:", check);
 
         //     if (check.ok && check.data) {
-        //         console.log(
+        //         // console.log(
         //             "Comparing found SDW ID:", String(check.data.sdw_id),
         //             "vs current employee SDW ID:", String(data.sdw_id)
         //         );
@@ -491,7 +491,7 @@ export default function WorkerProfile() {
         }
     };
 
-    console.log("current data", data);
+    // console.log("current data", data);
 
     const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
     if (!loadingComplete) return <Loading color={loadingColor} />;
@@ -827,14 +827,20 @@ export default function WorkerProfile() {
                                 <>
                                     <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
                                     <div className="flex justify-between items-center">
-                                        <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                        {((user?.role == "head" || data.manager == user?._id) && data.is_active) && (
-                                            <button
-                                                className="icon-button-setup dots-button"
-                                                onClick={() => setEditingField("core-fields")}
-                                            ></button>
-                                        )}
+                                        <h1 className="header-main">
+                                            {data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}
+                                        </h1>
+
+                                        {(user?.username !== "MasterAccount" &&
+                                            (user?.role === "head" || data.manager === user?._id) &&
+                                            data.is_active) && (
+                                                <button
+                                                    className="icon-button-setup dots-button"
+                                                    onClick={() => setEditingField("core-fields")}
+                                                ></button>
+                                            )}
                                     </div>
+
 
                                     <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
                                         <p><span className="font-bold-label">Username:</span> {data.username || "-"}</p>
@@ -939,8 +945,12 @@ export default function WorkerProfile() {
                                 </button>
                             )}
                             {user?.role && data?.role && data?._id && data?.is_active && (
-                                ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
-                                    data.manager === user._id) && (
+                                (
+                                    user.username === "MasterAccount" ? true : (
+                                        (user.role === "head" && (data._id === user._id || data.role !== "head")) ||
+                                        data.manager === user._id
+                                    )
+                                ) && (
                                     <button
                                         className="btn-outline font-bold-label drop-shadow-base my-3"
                                         onClick={() => setIsChangePasswordOpen(true)}
@@ -950,7 +960,9 @@ export default function WorkerProfile() {
                                     </button>
                                 )
                             )}
-                            {user?.role === "head" && data?.is_active && (
+
+
+                            {user?.role === "head" && data?.is_active && data?.role !== "head" && (
                                 <button
                                     className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
                                     onClick={() => {

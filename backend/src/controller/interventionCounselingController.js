@@ -74,7 +74,7 @@ const getCounselingInterventionById = async (req, res) => {
         // Find the counseling intervention by ID
         const intervention = await Intervention_Counseling.findById(counselingId);
         if (!intervention) {
-            console.log('Intervention not found');
+            // console.log('Intervention not found');
             return res.status(404).json({ error: 'Counseling intervention not found' });
         }
 
@@ -192,7 +192,7 @@ const addCounselingIntervention = async (req, res) => {
         if (!sponsored_member) {
             return res.status(404).json({ error: 'Sponsored member not found' });
         };
-        console.log('found sm');
+        // console.log('found sm');
 
         // Validate the required fields
         const requiredFields = [
@@ -204,19 +204,19 @@ const addCounselingIntervention = async (req, res) => {
             'corrective_action',
             'recommendation'
         ];
-        console.log('checking required fields');
+        // console.log('checking required fields');
 
         // Check for missing fields
         const missingFields = requiredFields.filter(field => !req.body[field]);
 
-        console.log('missing fields:', missingFields);
+        // console.log('missing fields:', missingFields);
         if (missingFields.length > 0) {
             return res.status(400).json({ 
                 error: 'Missing required fields', 
                 missingFields 
             });
         }
-        console.log('all fields are present');
+        // console.log('all fields are present');
 
         // Check if counseling date is valid
         const counselingDate = new Date(req.body.counseling_date).setHours(0, 0, 0, 0);
@@ -240,13 +240,13 @@ const addCounselingIntervention = async (req, res) => {
             progress_reports: [],
         }
 
-        console.log('creating intervention');
+        // console.log('creating intervention');
         // Create new counseling intervention
         const intervention = new Intervention_Counseling({
             ...interventionData,
         })
         await intervention.save();
-        console.log('intervention saved');
+        // console.log('intervention saved');
 
         // Add the intervention ID to the sponsored member's interventions array
         if (!sponsored_member.interventions) {
@@ -257,7 +257,7 @@ const addCounselingIntervention = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(intervention._id)) {
             return res.status(500).json({ error: 'Invalid intervention ID' });
         }
-        console.log('intervention ID is valid');
+        // console.log('intervention ID is valid');
 
         const interventions = sponsored_member.interventions || [];
         // Filter through the same type of intervention in the sponsored member
@@ -272,7 +272,7 @@ const addCounselingIntervention = async (req, res) => {
             intervention_number: sameTypeInterventions.length + 1
         });
         await sponsored_member.save();
-        console.log('sponsored member updated with intervention');
+        // console.log('sponsored member updated with intervention');
 
         return res.status(200).json({
             message: 'Counseling intervention added successfully',
