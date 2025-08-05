@@ -29,6 +29,8 @@ function HomeSDW() {
 
   const [loadingStage, setLoadingStage] = useState(0);
   const [loadingComplete, setLoadingComplete] = useState(false);
+  const [pendingOnly, setPendingOnly] = useState(false);
+
 
   useEffect(() => {
     const loadAll = async () => {
@@ -92,6 +94,10 @@ function HomeSDW() {
   const getFilteredClients = () => {
     let filtered = [...clients].filter((c) => c.is_active);
 
+    if (sortBy === "pend_term") {
+      filtered = filtered.filter((c) => c.pendingTermination === true);
+    }
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((c) => {
@@ -106,7 +112,7 @@ function HomeSDW() {
     } else if (sortBy === "sm_number") {
       filtered.sort((a, b) => a.sm_number - b.sm_number);
     } else if (sortBy === "pend_term") {
-      filtered.sort((a, b) => (b.pendingTermination === false) - (a.pendingTermination === false));
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
 
     if (sortOrder === "desc") {
@@ -120,6 +126,8 @@ function HomeSDW() {
 
     return filtered;
   };
+
+
 
   const finalClients = getFilteredClients();
 
