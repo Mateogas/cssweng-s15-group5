@@ -116,7 +116,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id._id || "",
+                    spu_id: empData.spu_id?._id || empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                     is_active: empData.is_active ?? true
@@ -129,7 +129,7 @@ export default function WorkerProfile() {
                     email: empData.email || "",
                     contact_no: empData.contact_no || "",
                     area: empData.area || "",
-                    spu_id: empData.spu_id._id || "",
+                    spu_id: empData.spu_id?._id || empData.spu_id || "",
                     role: empData.role || "",
                     manager: empData.manager || "",
                 });
@@ -827,14 +827,20 @@ export default function WorkerProfile() {
                                 <>
                                     <p className="font-label mt-[-1rem] mb-[-1rem]">{data.area || "-"}</p>
                                     <div className="flex justify-between items-center">
-                                        <h1 className="header-main">{data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}</h1>
-                                        {((user?.role == "head" || data.manager == user?._id) && data.is_active) && (
-                                            <button
-                                                className="icon-button-setup dots-button"
-                                                onClick={() => setEditingField("core-fields")}
-                                            ></button>
-                                        )}
+                                        <h1 className="header-main">
+                                            {data.first_name || "-"} {data.middle_name || "-"}, {data.last_name || "-"}
+                                        </h1>
+
+                                        {(user?.username !== "MasterAccount" &&
+                                            (user?.role === "head" || data.manager === user?._id) &&
+                                            data.is_active) && (
+                                                <button
+                                                    className="icon-button-setup dots-button"
+                                                    onClick={() => setEditingField("core-fields")}
+                                                ></button>
+                                            )}
                                     </div>
+
 
                                     <div className="font-label grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
                                         <p><span className="font-bold-label">Username:</span> {data.username || "-"}</p>
@@ -939,8 +945,12 @@ export default function WorkerProfile() {
                                 </button>
                             )}
                             {user?.role && data?.role && data?._id && data?.is_active && (
-                                ((user.role === "head" && (data._id === user._id || data.role !== "head")) ||
-                                    data.manager === user._id) && (
+                                (
+                                    user.username === "MasterAccount" ? true : (
+                                        (user.role === "head" && (data._id === user._id || data.role !== "head")) ||
+                                        data.manager === user._id
+                                    )
+                                ) && (
                                     <button
                                         className="btn-outline font-bold-label drop-shadow-base my-3"
                                         onClick={() => setIsChangePasswordOpen(true)}
@@ -950,6 +960,8 @@ export default function WorkerProfile() {
                                     </button>
                                 )
                             )}
+
+
                             {user?.role === "head" && data?.is_active && data?.role !== "head" && (
                                 <button
                                     className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
