@@ -201,7 +201,7 @@ const generateCaseData = async (req, res) => {
 			religion: sponsoredMember.religion || '',
 			occupation: sponsoredMember.occupation || '',
 			contact_no: sponsoredMember.contact_no || '',
-			classification: sponsoredMember.classification || '',
+			classification: sponsoredMember.classifications || '',
 			family_members: formattedFamilyMembers,
 			problem_presented: sponsoredMember.problem_presented || '',
 			history_problem: sponsoredMember.history_problem || '',
