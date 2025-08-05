@@ -123,7 +123,7 @@ const FamilyCard = ({
         }
 
         if (missing.length > 0) {
-            console.log(missing)
+            // console.log(missing)
             setModalTitle("Invalid Fields");
             setModalBody(
                 `The following fields are missing or invalid: ${formatListWithAnd(missing)}`,

@@ -40,7 +40,7 @@ const populateDB = async () => {
 
         await Family_Member.insertMany(family_member_data);
 
-        console.log("Successfully added family members");
+        // console.log("Successfully added family members");
         
     } catch (error) {
         console.error("Error populating database:", error);

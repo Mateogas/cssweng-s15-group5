@@ -131,7 +131,7 @@ export const editHomeVis = async (updatedData, caseID, formID) => {
         if (!response.ok) throw new Error("API error");
 
         const editedHomeVis = await response.json();
-        console.log(editedHomeVis);
+        // console.log(editedHomeVis);
     } catch (err) {
         console.error("Error editing form:", err);
         return null;

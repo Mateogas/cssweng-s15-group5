@@ -11,7 +11,7 @@ export default function Unauthorized({ message = "You do not have permission to 
     useEffect(() => {
         const loadSession = async () => {
             const sessionData = await fetchSession();
-            console.log("Session:", sessionData?.user);
+            // console.log("Session:", sessionData?.user);
             setUser(sessionData?.user || null);
         };
         loadSession();
