@@ -37,7 +37,8 @@ function Archive() {
         // Fetch all SPUs (including inactive) 
         const loadSpus = async () => {
             const spus = await fetchAllSpus();
-            setProjectLocation(spus);
+            const activeSpus = Array.isArray(spus) ? spus.filter(spu => spu.is_active) : [];
+            setProjectLocation(activeSpus);
         };
         loadSpus();
     }, []);

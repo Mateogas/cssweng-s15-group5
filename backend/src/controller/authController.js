@@ -49,9 +49,8 @@ const loginUser = async (req, res) => {
           req.session.user = userForSession;
           console.log("session saved ",req.session.user);
           if (rememberMe) {
-               req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
-          }
-
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+          } 
           return res.status(200).json(userForSession);
      } catch (error) {
           console.error("Login error:", error);
@@ -76,21 +75,3 @@ module.exports = {
      logoutUser,
 };
 
-/**
- *   Handle sign up account feature
- *        > only ADMIN has access
- *        > assigns password and username to other employees
- * 
- *   SUGGESTION:
- *        > randomly generate password
- */
-const signUpUser = async (req, res) => {
-     // code here
-}
-
-module.exports = {
-     loginUser,
-     logoutUser
-}
-
-///
