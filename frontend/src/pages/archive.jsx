@@ -5,6 +5,7 @@ import WorkerEntry from "../Components/WorkerEntry";
 import SideBar from "../Components/SideBar";
 import { fetchAllCases } from "../fetch-connections/case-connection";
 import { fetchHeadView, fetchSession, fetchSupervisorView } from "../fetch-connections/account-connection";
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading";
 
@@ -30,16 +31,16 @@ function Archive() {
         document.title = `Archive`;
     }, []);
 
-    const projectLocation = [
-        { name: "AMP", projectCode: "AMP" },
-        { name: "FDQ", projectCode: "FDQ" },
-        { name: "MPH", projectCode: "MPH" },
-        { name: "MS", projectCode: "MS" },
-        { name: "AP", projectCode: "AP" },
-        { name: "AV", projectCode: "AV" },
-        { name: "MM", projectCode: "MM" },
-        { name: "MMP", projectCode: "MMP" },
-    ];
+    const [projectLocation, setProjectLocation] = useState([]);
+
+    useEffect(() => {
+        // Fetch all SPUs (including inactive) 
+        const loadSpus = async () => {
+            const spus = await fetchAllSpus();
+            setProjectLocation(spus);
+        };
+        loadSpus();
+    }, []);
 
     useEffect(() => {
         const loadSessionAndCases = async () => {
@@ -197,10 +198,10 @@ function Archive() {
                                     <option value="">All SPUs</option>
                                     {projectLocation.map((project) => (
                                         <option
-                                            key={project.projectCode}
-                                            value={project.projectCode}
+                                            key={project._id || project.spu_name || project.projectCode}
+                                            value={project.spu_name}
                                         >
-                                            {project.name} ({project.projectCode})
+                                            {project.spu_name} {project.spu_code ? `(${project.spu_code})` : project.projectCode ? `(${project.projectCode})` : ''}
                                         </option>
                                     ))}
                                 </select>}
