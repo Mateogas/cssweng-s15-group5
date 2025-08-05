@@ -74,11 +74,15 @@ function Archive() {
 
     useEffect(() => {
         let filtered = [...allCases].filter((client) => !client.is_active);
-
+       
         if (user?.role === "supervisor") {
-            filtered = filtered.filter((client) => client.spu === user.spu_name);
+            filtered = filtered.filter((client) => {
+                console.log(client.spu); 
+            return client.spu === user.spu_name || 
+               client.spu_name === user.spu_name ||
+               client.spu === user.spu;
+            });
         }
-
         if (currentSPU !== "") {
             filtered = filtered.filter((client) => client.spu === currentSPU);
         }
