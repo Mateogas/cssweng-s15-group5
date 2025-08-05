@@ -950,7 +950,7 @@ export default function WorkerProfile() {
                                     </button>
                                 )
                             )}
-                            {user?.role === "head" && data?.is_active && (
+                            {user?.role === "head" && data?.is_active && data?.role !== "head" && (
                                 <button
                                     className="ml-auto btn-primary font-bold-label drop-shadow-base my-3"
                                     onClick={() => {
