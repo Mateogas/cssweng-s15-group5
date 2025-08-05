@@ -29,9 +29,6 @@ function App() {
     };
 
     checkSession();
-    // Add periodic session check every 30 seconds
-    const intervalId = setInterval(checkSession, 30000);
-    return () => clearInterval(intervalId);
   }, []);
 
   if (loading) return <div></div>;
