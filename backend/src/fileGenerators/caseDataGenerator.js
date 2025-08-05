@@ -106,7 +106,7 @@ const generateCaseData = async (req, res) => {
 			middle_name: member.middle_name || "",
 			last_name: member.last_name || "",
 			age: member.age || "0",
-			income: member.income || "",
+			income: member.income || "0",
 			civil_status: member.civil_status || "",
 			occupation: member.occupation || "",
 			edu_attainment: member.edu_attainment || "",
