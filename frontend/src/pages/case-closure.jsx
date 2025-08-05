@@ -178,7 +178,7 @@ function CaseClosure() {
                     closure_date: formData.closure_date || "",
                     sponsorship_date: formData.sponsorship_date || "",
                     reason_for_retirement: formData.reason_for_retirement || "",
-                    sm_awareness: formData.sm_awareness || null,
+                    sm_awareness: formData.sm_awareness ?? null,
                     sm_notification: formData.sm_notification || "",
                     evaluation: formData.evaluation || "",
                     recommendation: formData.recommendation || "",
@@ -206,7 +206,7 @@ function CaseClosure() {
             setClosureDate(data.closure_date || "");
             setSponsorshipDate(data.closure_date || "");
             setReasonForRetirement(data.reason_for_retirement || "");
-            setSMAwareness(data.sm_awareness || null);
+            setSMAwareness(data.sm_awareness ?? null);
             setSMNotification(data.sm_notification || "");
             setEvaluation(data.evaluation || "");
             setRecommendation(data.recommendation || "");
@@ -290,6 +290,10 @@ function CaseClosure() {
 
         if (sm_awareness !== true && sm_awareness !== false) {
             missing.push("Client SM Awareness");
+        }
+
+        if (sm_awareness && (!sm_notification || !sm_notification.trim())) {
+            missing.push("Client Notification");
         }
 
         services_provided.forEach((item) => {
@@ -769,7 +773,7 @@ function CaseClosure() {
                                         type="radio"
                                         name="sm_awareness"
                                         value="yes"
-                                        checked={sm_awareness === true}
+                                        checked={sm_awareness === true || data.sm_awareness === true}
                                         onChange={() => setSMAwareness(true)}
                                         disabled={viewForm}
                                     />
@@ -780,7 +784,7 @@ function CaseClosure() {
                                         type="radio"
                                         name="sm_awareness"
                                         value="no"
-                                        checked={sm_awareness === false}
+                                        checked={sm_awareness === false || data.sm_awareness === false}
                                         onChange={(e) => setSMAwareness(false)}
                                         disabled={viewForm}
                                     />
