@@ -140,7 +140,9 @@ const getCounselingInterventionById = async (req, res) => {
 const getAllCounselingInterventionsByMemberId = async (req, res) => {
     try {
         const memberID = req.params.memberID;
-
+        if (!mongoose.Types.ObjectId.isValid(memberID)) {
+        return res.status(400).json({ error: 'Invalid Sponsored Member ID' });
+        }
         // Find the sponsored member by ID
         const sponsored_member = await Sponsored_Member.findById(memberID).populate('interventions.intervention').populate('spu');
         if (!sponsored_member) {
