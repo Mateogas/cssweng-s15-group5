@@ -27,14 +27,15 @@ app.use(cookieParser());
 //Cors is used for cross origin communication between servers 
 app.use(cors({
     origin: (origin, callback) => {
-        const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
-
+        const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173'];
+        
+        // Allow requests with no origin (like mobile apps, curl requests)
         if (!origin) return callback(null, true);
-
-        if (allowedOrigins.includes(origin)) {
-            return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
         } else {
-            return callback(new Error('Not allowed by CORS'));
+            callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
