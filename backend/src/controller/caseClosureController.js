@@ -126,6 +126,9 @@ const createCaseClosureForm = async(req, res) => {
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
 
+          if (!caseSelected.is_active)
+               return res.status(400).json({ message: "The case has already been closed." })
+
           // if a form is found, load the form immediately
           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
           if (formSelected)
@@ -333,6 +336,9 @@ const deleteCaseClosureForm = async (req, res) => {
 
           if (!caseSelected._id.equals(formSelected.sm))
                return res.status(400).json({ message: "Case selected does not match the form." })
+
+          if (!caseSelected.is_active)
+               return res.status(400).json({ message: "The case has already been closed." })
 
           // Uses sessions already, please comment out if needed or force assign an employee
           const active_user = req.session.user

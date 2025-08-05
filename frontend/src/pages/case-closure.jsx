@@ -50,10 +50,11 @@ function CaseClosure() {
     const [modalOnConfirm, setModalOnConfirm] = useState(() => () => { });
     const [modalOnCancel, setModalOnCancel] = useState(undefined);
 
-        const [loadingStage, setLoadingStage] = useState(0);
+    const [loadingStage, setLoadingStage] = useState(0);
     const [loadingComplete, setLoadingComplete] = useState(false);
     const [user, setUser] = useState(null);
     const [authorized, setAuthorized] = useState(false);
+    const [noFormFound, setNoFormFound] = useState(false);
 
     const [data, setData] = useState({
         first_name: "",
@@ -153,6 +154,10 @@ function CaseClosure() {
                 const caseData = returnData.case
 
                 // // console.log("Form Data", formData)
+                if (!formData) {
+                    setNoFormFound(true)
+                    return
+                }
 
                 setRawFormData(formData);
                 const user_sdw = returnData.active_user_role === "sdw" ? true : false;
@@ -644,6 +649,27 @@ function CaseClosure() {
 
     const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
     if (!loadingComplete || !authorized) return <Loading color={loadingColor} />;
+
+    if (noFormFound) {
+        return (
+            <main className="flex justify-center w-full p-16">
+                <div className="flex w-full flex-col items-center justify-center gap-16 rounded-lg border border-[var(--border-color)] p-16">
+                    <div className="flex w-full justify-between">
+                        <button
+                            onClick={() => navigate(`/case/${caseID}`)}
+                            className="flex items-center gap-5 label-base arrow-group">
+                            <div className="arrow-left-button"></div>
+                            Go Back
+                        </button>
+                    </div>
+                    <h3 className="header-md">
+                        Case Closure Report
+                    </h3>
+                    <p className="text-3xl red"> No form found. </p>
+                </div>
+            </main>
+        )
+    }
 
     return (
         <>
