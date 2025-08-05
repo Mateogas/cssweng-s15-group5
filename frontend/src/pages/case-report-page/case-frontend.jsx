@@ -32,12 +32,12 @@ import {
     fetchAllFinInterventions
 } from "../../fetch-connections/financialForm-connection";
 
-// Counselling Intervention API Imports
+// Counseling Intervention API Imports
 import {
     fetchAllCounselingInterventionsByMemberId
 } from "../../fetch-connections/intervention-connection";
 
-// Counselling Intervention API Imports
+// Counseling Intervention API Imports
 import {
     fetchAllCorrespInterventions
 } from "../../fetch-connections/correspFormConnection";
@@ -683,11 +683,11 @@ function CaseFrontend({ creating = false }) {
         loadData();
     }, []);
 
-    const [counsellings, setCounsellings] = useState([]);
+    const [counselings, setCounselings] = useState([]);
     useEffect(() => {
         const loadData = async () => {
-            const fetchedCounsellingData = await fetchAllCounselingInterventionsByMemberId(clientId);
-            //console.log("Fetched Counselling: ", fetchedCounsellingData);
+            const fetchedCounselingData = await fetchAllCounselingInterventionsByMemberId(clientId);
+            //console.log("Fetched Counseling: ", fetchedCounselingData);
 
             const formatter = new Intl.DateTimeFormat('en-CA', {
                 year: 'numeric',
@@ -695,7 +695,7 @@ function CaseFrontend({ creating = false }) {
                 day: '2-digit',
             });
 
-            const counsellingInterventions = fetchedCounsellingData.interventions.map(item => {
+            const counselingInterventions = fetchedCounselingData.interventions.map(item => {
                 const createdAt = item.intervention?.createdAt;
                 let dateLabel = "No Date Available";
 
@@ -708,14 +708,14 @@ function CaseFrontend({ creating = false }) {
 
                 return {
                     formID: item.intervention._id,
-                    route: "counselling-form",
+                    route: "counseling-form",
                     intervention: item.interventionType,
                     date: dateLabel,
                 };
             });
 
-            //console.log("Counselling Data: ", counsellingInterventions);
-            setCounsellings(counsellingInterventions);
+            //console.log("Counseling Data: ", counselingInterventions);
+            setCounselings(counselingInterventions);
         };
         loadData();
     }, []);
@@ -796,7 +796,7 @@ function CaseFrontend({ creating = false }) {
 
     const interventions = {
         "Home Visitation": home_visitations,
-        "Counselling": counsellings,
+        "Counseling": counselings,
         "Financial Assistance": financial_assistances,
         "Correspondences": correspondences,
     };
