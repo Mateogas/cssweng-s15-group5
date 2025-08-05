@@ -104,8 +104,12 @@ function CaseClosure() {
                 const returnData = await fetchCaseData(caseID);
                 const caseData = returnData.case || returnData
 
-                if (returnData?.form)
+                if (returnData?.form) {
+                    const formData = returnData.form
+                    if (formData.status == "Accepted" && !caseData.is_active)
+                        setIsTerminated(true)
                     navigate(`/case-closure/?action=view&caseID=${caseID}`);
+                }
 
                 setRawCaseData(caseData);
                 setData((prev) => ({
@@ -163,7 +167,7 @@ function CaseClosure() {
                 const user_sdw = returnData.active_user_role === "sdw" ? true : false;
                 setSDWView(user_sdw);
 
-                if (formData.status == "Accepted" && !data.is_active)
+                if (formData.status == "Accepted" && !caseData.is_active)
                     setIsTerminated(true)
 
                 setnewformID(formData._id)
