@@ -1037,7 +1037,11 @@ function CaseFrontend({ creating = false }) {
 
         if (!(isHead || isAssignedSDW || managesAssignedSDW)) {
             setUnauthorized(true);
+
+            if (!data.is_active && (data.spu === user.spu_id))
+                setUnauthorized(false)
         }
+
         setLoadingStage(2);
         setLoadingComplete(true);
     }, [user, data.assigned_sdw, creating, socialDevelopmentWorkers]);

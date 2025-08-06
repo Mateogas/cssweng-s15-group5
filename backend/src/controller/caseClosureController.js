@@ -38,17 +38,12 @@ const loadCaseClosureForm = async(req, res) => {
                // no restrictions
           }
           else if (active_user.role == "super" || active_user.role == "supervisor") {
-               if (caseSelected.spu!== active_user.spu_name)
-                    return res.status(403).json({ message: "Unauthorized access." });
+               /*if (caseSelected.spu!== active_user.spu_name)
+                    return res.status(403).json({ message: "Unauthorized access." });*/
 
-               /*if (handler.role === "sdw") {
+               if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
-                         return res.status(403).json({ message: "Unauthorized access." });
-                    }
-
-                    if (!(handler.spu_id.toString()).equals(caseSelected.spu_id)) {
-                         console.log("flag")
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
                } else if (handler.role === "super" || handler.role === "supervisor") {
@@ -59,7 +54,7 @@ const loadCaseClosureForm = async(req, res) => {
                     if (!active_user.manager || !active_user.manager.equals(handler._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
-               }*/
+               }
           } 
           else if (active_user.role === "sdw") {
                if (!handler._id.equals(active_user._id)) {
@@ -183,23 +178,23 @@ const loadExistingCaseClosureForm = async (req, res) => {
                // no restrictions
           }
           else if (active_user.role == "super" || active_user.role == "supervisor") {
-               if (caseSelected.spu.toString() !== active_user.spu_id.toString())
-                    return res.status(403).json({ message: "Unauthorized access." });
+               /*if (caseSelected.spu.toString() !== active_user.spu_id.toString())
+                    return res.status(403).json({ message: "Unauthorized access." });*/
 
-               /*if (handler.role === "sdw") {
+               if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
                } else if (handler.role === "super" || handler.role === "supervisor") {
-                    if (!handler.spu_name === active_user.spu_name) {
+                    if (!handler._id.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
                } else if (handler.role === "head") {
                     if (!active_user.manager || !active_user.manager.equals(handler._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
-               }*/
+               }
           } 
           else if (active_user.role === "sdw") {
                if (!handler._id.equals(active_user._id)) {
@@ -317,10 +312,10 @@ const deleteCaseClosureForm = async (req, res) => {
                // no restrictions
           }
           else if (active_user.role == "super" || active_user.role == "supervisor") {
-               if (caseSelected.spu.toString() !== active_user.spu_id.toString())
-                    return res.status(403).json({ message: "Unauthorized access." });
+               /*if (caseSelected.spu.toString() !== active_user.spu_id.toString())
+                    return res.status(403).json({ message: "Unauthorized access." });*/
 
-               /*if (handler.role === "sdw") {
+               if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
@@ -333,7 +328,7 @@ const deleteCaseClosureForm = async (req, res) => {
                     if (!active_user.manager || !active_user.manager.equals(handler._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
-               }*/
+               }
           } 
           else if (active_user.role === "sdw") {
                if (!handler._id.equals(active_user._id)) {
@@ -345,6 +340,7 @@ const deleteCaseClosureForm = async (req, res) => {
           }
 
           // delete
+          // console.log("passed")
           await formSelected.deleteOne();
           return res.status(200).json({ message: "Case closure form deleted successfully.", case: caseSelected });
      } catch (error) {
@@ -384,10 +380,10 @@ const confirmCaseTermination = async (req, res) => {
           const handler = await Employee.findById(caseSelected.assigned_sdw)
           var supervisor
           if (active_user.role == "super" || active_user.role == "supervisor") {
-               if (caseSelected.spu.toString() !== active_user.spu_id.toString())
-                    return res.status(403).json({ message: "Unauthorized access." });
+               /*if (caseSelected.spu.toString() !== active_user.spu_id.toString())
+                    return res.status(403).json({ message: "Unauthorized access." });*/
 
-               /*if (handler.role === "sdw") {
+               if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
                         return res.status(403).json({ message: "Unauthorized access." });
@@ -400,7 +396,7 @@ const confirmCaseTermination = async (req, res) => {
                    if (!active_user.manager || !active_user.manager.equals(handler._id)) {
                          return res.status(403).json({ message: "Unauthorized access." });
                     }
-               }*/
+               }
           } 
           else if (active_user.role == "head") {
                // no further checks needed
@@ -408,6 +404,8 @@ const confirmCaseTermination = async (req, res) => {
           else {
                return res.status(403).json({ message: "Unauthorized access." })
           }
+
+          // console.log("passed")
 
           // security checks passed, proceed to deactivation
           caseSelected.is_active = false;
