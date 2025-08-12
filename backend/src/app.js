@@ -25,14 +25,27 @@ const MongoStore = require("connect-mongo");
 
 app.use(cookieParser());
 //Cors is used for cross origin communication between servers 
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? 'https://unboundgroup.vercel.app'  // Just one production origin
-        : 'https://unboundgroup-git-vercel-frontend-kmdcs-projects.vercel.app',           // Development origin
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Replace your existing CORS setup with this:
+
+let corsOptions;
+
+if (process.env.NODE_ENV === 'production') {
+    corsOptions = {
+        origin: process.env.PROD_ORIGIN || 'https://unboundgroup.vercel.app',
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+    };
+} else {
+    corsOptions = {
+        origin: process.env.DEV_ORIGIN || 'https://unboundgroup-git-vercel-frontend-kmdcs-projects.vercel.app',
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+    };
+}
+
+app.use(cors(corsOptions));
 app.set('trust proxy', 1);
 app.use(
     session({
