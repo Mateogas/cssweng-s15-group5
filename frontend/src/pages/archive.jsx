@@ -32,8 +32,6 @@ function Archive() {
     document.title = `Archive`;
   }, []);
 
-    const [projectLocation, setProjectLocation] = useState([]);
-
     useEffect(() => {
         // Fetch all SPUs (including inactive) 
         const loadSpus = async () => {
@@ -68,7 +66,10 @@ function Archive() {
                 console.error("Error loading archive page:", err);
                 navigate("/unauthorized");
             }
+            
         };
+        loadSessionAndCases();
+      }, []);
   // ===== Single initial fetch (session, SPUs, cases, employees) =====
   useEffect(() => {
     const loadAll = async () => {
