@@ -296,7 +296,12 @@ function CaseFrontend({ creating = false }) {
             const sessionData = await fetchSession();
             const currentUser = sessionData?.user || null;
             setUser(currentUser);
-            // console.log("Session:", currentUser);
+            
+            // Immediately set unauthorized if no user is found
+            if (!currentUser) {
+                setUnauthorized(true);
+                setLoadingComplete(true); // Complete loading to show unauthorized page
+            }
         };
         loadSession();
 
@@ -465,9 +470,14 @@ function CaseFrontend({ creating = false }) {
             missing.push("valid Social Development Worker for selected SPU");
         }
 
-        if (missing.length > 0) {
+        const missingFields = missing.filter(field => {
+            // Exclude fields that are already filled
+            return !drafts[field.replace(/ /g, "_").toLowerCase()];
+        });
+
+        if (missingFields.length > 0) {
             setModalTitle("Invalid Fields");
-            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missing)}`);
+            setModalBody(`The following fields are missing or invalid: ${formatListWithAnd(missingFields)}`);
             setModalImageCenter(<div className="warning-icon mx-auto" />);
             setModalConfirm(false);
             setShowModal(true);
@@ -1009,8 +1019,6 @@ function CaseFrontend({ creating = false }) {
         const isSDW = user.role === "sdw";
         const isSupervisor = user.role === "supervisor";
 
-        // console.log("Auth workers", data, socialDevelopmentWorkers);
-
         if (creating) {
             // Only SDWs can create
             if (!isSDW) {
@@ -1020,32 +1028,63 @@ function CaseFrontend({ creating = false }) {
         }
 
         const assignedSDWId = data.assigned_sdw;
-
-        // console.log("found assigned SDW", assignedSDWId);
-
         const isAssignedSDW = user._id === assignedSDWId;
 
-        // console.log(isAssignedSDW);
+        // Supervisor authorization for archived cases
+        let canViewArchivedInSPU = false;
+        if (isSupervisor && !data.is_active) {
+            // Find the SDW assigned to this case
+            const assignedSDW = socialDevelopmentWorkers.find(
+                w => w._id === assignedSDWId || w.id === assignedSDWId
+            );
+                        
+            // Allow access if supervisor's SPU matches case's SPU
+            console.log("SUPERVISOR CHECK", user.spu_id, data.spu);
+            if (user.spu_id === data.spu) {
+                console.log("Supervisor can view archived case in their SPU");
+                canViewArchivedInSPU = true;
+            }
+        }
 
-        const managesAssignedSDW = socialDevelopmentWorkers.some(
-            (w) =>
-                (w._id === assignedSDWId || w.id === assignedSDWId) &&
-                w.manager === user._id
+        // Check if supervisor manages this SDW
+        let managesAssignedSDW = isSupervisor && socialDevelopmentWorkers.some(
+            w => (w._id === assignedSDWId || w.id === assignedSDWId) && w.manager === user._id
         );
 
-        // console.log(managesAssignedSDW);
-
-        if (!(isHead || isAssignedSDW || managesAssignedSDW)) {
+        if (!(isHead || isAssignedSDW || managesAssignedSDW || canViewArchivedInSPU)) {
             setUnauthorized(true);
         }
         setLoadingStage(2);
         setLoadingComplete(true);
-    }, [user, data.assigned_sdw, creating, socialDevelopmentWorkers]);
+    }, [user, data.assigned_sdw, data.is_active, data.spu, creating, socialDevelopmentWorkers, projectLocation]);
+
+    // Move these hooks to the top level, outside of any conditionals
+    const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+    useEffect(() => {
+        if (!loadingComplete) {
+            const timer = setTimeout(() => setShowTimeoutWarning(true), 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [loadingComplete]);
 
     if (!loadingComplete) {
         return (
-            <div className="w-full h-screen flex justify-center items-center">
-                <div className="loader-conic"></div>
+            <div className="w-full h-screen flex flex-col items-center justify-center">
+              <div className="flex items-center gap-10">
+            <p style={{ color: "var(--color-black)" }} className="header-main">
+                Loading...
+            </p>
+            <div
+                className="loader-conic"
+            ></div>
+        </div>
+                {/* --- Timeout warning message --- */}
+                {showTimeoutWarning && (
+                    <div className="mt-8 text-center font-label">
+                        The page appears to be taking too long to load.<br />
+                        Please refresh the page or try again later.
+                    </div>
+                )}
             </div>
         );
     }
@@ -2114,6 +2153,7 @@ function CaseFrontend({ creating = false }) {
                                     Evaluation and Recommendation
                                 </h1>
                                 {/* {!creating && user?.role == "sdw" && <button
+                           
                             className={
                                 editingField === "evaluation-fields"
                                     ? "icon-button-setup x-button"
