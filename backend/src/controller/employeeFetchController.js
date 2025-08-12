@@ -198,7 +198,6 @@ const getHeadView = async (req, res) => {
     if (!rawUser) return res.status(401).json({ message: "Authentication Error" });
 
     const role = String(rawUser.role || '').trim().toLowerCase();
-    console.log('HEAD VIEW user:', { id: rawUser._id, role });
     if (role !== 'head') {
       return res.status(403).json({ message: "Permission Error: Head access required" });
     }

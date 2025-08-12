@@ -106,34 +106,42 @@ function Archive() {
   }, [allCases, currentSPU, sortBy, sortOrder, searchQuery, user]);
 
   // ===== EMPLOYEES: client-side filtering/sorting only =====
-  useEffect(() => {
-    if (viewMode !== "employees") return;
+useEffect(() => {
+  if (viewMode !== "employees") return;
 
-    let filtered = allEmployees.filter((w) => w.is_active === false);
+  let filtered = allEmployees.filter((w) => w.is_active === false);
 
-    if (currentSPU) filtered = filtered.filter((w) => w.spu_id === currentSPU);
+  // SPU filter (by id)
+  if (currentSPU) {
+    filtered = filtered.filter((w) => w.spu_id === currentSPU);
+  }
 
-    if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((w) => {
-        const name = (w.name || "").toLowerCase();
-        const idStr = w.id?.toString() || "";
-        return name.includes(q) || idStr.includes(q);
-      });
-    }
+  // Search filter
+  if (searchQuery.trim() !== "") {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter((w) => {
+      const name = (w.name || "").toLowerCase();
+      const idStr = w.id?.toString() || "";
+      return name.includes(q) || idStr.includes(q);
+    });
+  }
 
-    if (sortBy === "name") {
-      filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-    } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
-      filtered = filtered
-        .filter((w) => (w.role || "").toLowerCase() === sortBy)
-        .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-    }
+  // Fixed role priority: head (3) > supervisor (2) > sdw (1)
+  const roleOrder = { head: 1, supervisor: 2, sdw: 3 };
 
-    if (sortOrder === "desc") filtered.reverse();
+  // Always sort by role priority first, then name
+  filtered.sort((a, b) => {
+    const roleA = roleOrder[a.role?.toLowerCase()] ?? -1;
+    const roleB = roleOrder[b.role?.toLowerCase()] ?? -1;
+    if (roleA !== roleB) return roleB - roleA; // higher number first (head > supervisor > sdw)
+    return (a.name || "").localeCompare(b.name || "");
+  });
 
-    setArchiveEmp(filtered);
-  }, [allEmployees, viewMode, currentSPU, sortBy, sortOrder, searchQuery]);
+  // Optional reverse toggle
+  if (sortOrder === "desc") filtered.reverse();
+
+  setArchiveEmp(filtered);
+}, [allEmployees, viewMode, currentSPU, sortOrder, searchQuery]);
 
   const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
   if (!loadingComplete) return <Loading color={loadingColor} />;
