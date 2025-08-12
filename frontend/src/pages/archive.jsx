@@ -149,12 +149,12 @@ useEffect(() => {
 
   let filtered = allEmployees.filter((w) => w.is_active === false);
 
-  // SPU filter (by id)
+  // Filter by SPU id
   if (currentSPU) {
     filtered = filtered.filter((w) => w.spu_id === currentSPU);
   }
 
-  // Search filter
+  // Filter by search
   if (searchQuery.trim() !== "") {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter((w) => {
@@ -164,22 +164,30 @@ useEffect(() => {
     });
   }
 
-  // Fixed role priority: head (3) > supervisor (2) > sdw (1)
+  // ✅ Filter by role if "Find By" has a role type selected
+  if (["head", "supervisor", "sdw"].includes(sortBy)) {
+    filtered = filtered.filter(
+      (w) => (w.role || "").toLowerCase() === sortBy
+    );
+  }
+
+  // Fixed role priority order
   const roleOrder = { head: 1, supervisor: 2, sdw: 3 };
 
-  // Always sort by role priority first, then name
   filtered.sort((a, b) => {
-    const roleA = roleOrder[a.role?.toLowerCase()] ?? -1;
-    const roleB = roleOrder[b.role?.toLowerCase()] ?? -1;
-    if (roleA !== roleB) return roleB - roleA; // higher number first (head > supervisor > sdw)
+    const roleA = roleOrder[a.role?.toLowerCase()] ?? 99;
+    const roleB = roleOrder[b.role?.toLowerCase()] ?? 99;
+
+    if (roleA !== roleB) return roleA - roleB; // lower number first
     return (a.name || "").localeCompare(b.name || "");
   });
 
-  // Optional reverse toggle
+  // Reverse if needed
   if (sortOrder === "desc") filtered.reverse();
 
   setArchiveEmp(filtered);
-}, [allEmployees, viewMode, currentSPU, sortOrder, searchQuery]);
+}, [allEmployees, viewMode, currentSPU, sortBy, sortOrder, searchQuery]);
+
 
   const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
   if (!loadingComplete) return <Loading color={loadingColor} />;
