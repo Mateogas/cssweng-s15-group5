@@ -49,7 +49,7 @@ app.use(cors(corsOptions));
 app.set('trust proxy', 1);
 app.use(
     session({
-        secret: process.env.SECRET_KEY||"secret-key", 
+        secret: process.env.SECRET_KEY || "secret-key", 
         resave: false,        
         saveUninitialized: false,
         store: MongoStore.create({
@@ -57,10 +57,10 @@ app.use(
             collectionName: "sessions",
         }),
         cookie: {
-            maxAge: null, 
+            maxAge: process.env.COOKIE_MAX_AGE ? parseInt(process.env.COOKIE_MAX_AGE) : null, 
             httpOnly: true, 
-          secure: process.env.NODE_ENV === 'production', // Only secure in production
-          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+            secure: true, // Keep true since you're using HTTPS everywhere
+            sameSite: 'none'
         }
     })
 );
