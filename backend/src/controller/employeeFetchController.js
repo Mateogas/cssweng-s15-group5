@@ -190,47 +190,68 @@ module.exports = {
  * @param {Object} res - Express response object, used to send JSON data or error.
  * @returns {Object} JSON response with 'cases' (sponsored members) and 'employees' arrays.
  */
+// controller/employeeFetchController.js
 const getHeadView = async (req, res) => {
-  const user = req.session ? req.session.user : req.user;
+  const rawUser = req.user || (req.session && req.session.user) || null;
+
   try {
-    // if (!user) {
-    //   return res.status(401).json({ message: "Authentication Error" });
-    // }
+    if (!rawUser) return res.status(401).json({ message: "Authentication Error" });
 
-    let cases = [];
-    let employee = [];
-    
-    if (user.role == 'head') {
-      cases = await Sponsored_Member.find({ is_active: true })
-        .populate('assigned_sdw')
-        .populate('spu')
-        .lean();
-
-      employee = await Employee.find({}).populate('spu_id').lean();
-    }else{
+    const role = String(rawUser.role || '').trim().toLowerCase();
+    console.log('HEAD VIEW user:', { id: rawUser._id, role });
+    if (role !== 'head') {
       return res.status(403).json({ message: "Permission Error: Head access required" });
     }
 
+    const cases = await Sponsored_Member.find({ is_active: true })
+      .populate('assigned_sdw', 'first_name middle_name last_name')
+      .populate('spu', 'spu_name')  // _id is included automatically
+      .lean();
 
-    // Simplify Sponsored Members
+    const employees = await Employee.find({})
+      .populate('spu_id', 'spu_name') // _id is included automatically
+      .lean();
+
+    // Debug: who’s missing SPU links?
+    const employeesMissingSPU = employees.filter(e => !e.spu_id);
+    const casesMissingSPU = cases.filter(c => !c.spu);
+    console.log('Employees total:', employees.length, '— missing SPU:', employeesMissingSPU.length);
+    if (employeesMissingSPU.length) {
+      console.log('Employees without SPU:', employeesMissingSPU.map(e => ({
+        id: e._id,
+        name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
+        role: e.role
+      })));
+    }
+    console.log('Cases total:', cases.length, '— missing SPU:', casesMissingSPU.length);
+    if (casesMissingSPU.length) {
+      console.log('Cases without SPU:', casesMissingSPU.map(c => ({
+        id: c._id,
+        sm_number: c.sm_number,
+        name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim()
+      })));
+    }
+
+    // ✅ Simplify Sponsored Members (include spu_id)
     const simplifiedCases = cases.map(c => ({
       id: c._id,
       name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
       sm_number: c.sm_number,
-      spu: c.spu.spu_name,
+      spu_id: c.spu?._id ?? null,               // <— added
+      spu: c.spu?.spu_name ?? null,
       is_active: c.is_active,
-      assigned_sdw: c.assigned_sdw?._id || null,
+      assigned_sdw: c.assigned_sdw?._id ?? null,
       assigned_sdw_name: c.assigned_sdw
         ? `${c.assigned_sdw.first_name} ${c.assigned_sdw.middle_name || ''} ${c.assigned_sdw.last_name}`.trim()
         : null
     }));
 
-    // Simplify Employees
-    const simplifiedEmployees = employee.map(e => ({
+    // ✅ Simplify Employees (include spu_id)
+    const simplifiedEmployees = employees.map(e => ({
       id: e._id,
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
-      // sdw_id: e.sdw_id,
-      spu: e.spu_id.spu_name,
+      spu_id: e.spu_id?._id ?? null,            // <— added
+      spu: e.spu_id?.spu_name ?? null,
       role: e.role,
       is_active: e.is_active ?? true
     }));
@@ -241,10 +262,12 @@ const getHeadView = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('getHeadView error:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+
 /**
  * Retrieves all active sponsored members and employees for a specific SPU for the Head view.
  * - Only accessible by users with the 'Head' role.

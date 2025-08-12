@@ -5,306 +5,293 @@ import WorkerEntry from "../Components/WorkerEntry";
 import SideBar from "../Components/SideBar";
 import { fetchAllCases } from "../fetch-connections/case-connection";
 import { fetchHeadView, fetchSession, fetchSupervisorView } from "../fetch-connections/account-connection";
+import { fetchAllSpus } from "../fetch-connections/spu-connection";
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading";
 
 function Archive() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [allCases, setAllCases] = useState([]);
-    const [allEmployees, setAllEmployees] = useState([]);
-    const [archiveEmp, setArchiveEmp] = useState([]);
-    const [currentData, setCurrentData] = useState([]);
-    const [user, setUser] = useState(null);
+  const [allCases, setAllCases] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]);
+  const [archiveEmp, setArchiveEmp] = useState([]);
+  const [currentData, setCurrentData] = useState([]);
+  const [user, setUser] = useState(null);
+  const [projectLocation, setProjectLocation] = useState([]);
 
-    const [currentSPU, setCurrentSPU] = useState("");
-    const [sortBy, setSortBy] = useState("");
-    const [sortOrder, setSortOrder] = useState("desc");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [viewMode, setViewMode] = useState("cases");
+  const [currentSPU, setCurrentSPU] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("cases");
 
-    const [loadingStage, setLoadingStage] = useState(0);
-    const [loadingComplete, setLoadingComplete] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
+  const [loadingComplete, setLoadingComplete] = useState(false);
 
-    useEffect(() => {
-        document.title = `Archive`;
-    }, []);
+  useEffect(() => {
+    document.title = `Archive`;
+  }, []);
 
-    const projectLocation = [
-        { name: "AMP", projectCode: "AMP" },
-        { name: "FDQ", projectCode: "FDQ" },
-        { name: "MPH", projectCode: "MPH" },
-        { name: "MS", projectCode: "MS" },
-        { name: "AP", projectCode: "AP" },
-        { name: "AV", projectCode: "AV" },
-        { name: "MM", projectCode: "MM" },
-        { name: "MMP", projectCode: "MMP" },
-    ];
+  // ===== Single initial fetch (session, SPUs, cases, employees) =====
+  useEffect(() => {
+    const loadAll = async () => {
+      try {
+        setLoadingStage(0);
+        const sessionData = await fetchSession();
+        const currentUser = sessionData?.user;
 
-    useEffect(() => {
-        const loadSessionAndCases = async () => {
-            try {
-                setLoadingStage(0); // red
-                const sessionData = await fetchSession();
-                const currentUser = sessionData.user;
-                setUser(currentUser);
+        if (!currentUser) return navigate("/unauthorized");
+        if (!["head", "supervisor"].includes(currentUser.role)) return navigate("/");
 
-                if (!currentUser || !["head", "supervisor"].includes(currentUser.role)) {
-                    navigate("/unauthorized");
-                    return;
-                }
+        setUser(currentUser);
+        setLoadingStage(1);
 
-                setLoadingStage(1); // blue
+        const [spus, cases, empResp] = await Promise.all([
+          fetchAllSpus(),
+          fetchAllCases(),
+          currentUser.role === "head" ? fetchHeadView() : fetchSupervisorView(),
+        ]);
 
-                const cases = await fetchAllCases();
-                setAllCases(cases);
+        setProjectLocation((spus || []).filter((s) => s.is_active));
 
-                /*if (currentUser.role === "supervisor") {
-                    const employees = await fetchSupervisorView();
-                    setAllEmployees(employees.employees);
-                }*/
+        const normalizedCases = (cases || []).map((c) => ({
+          ...c,
+          spu_id: c.spu_id ?? c.spuObjectId ?? null,
+        }));
+        setAllCases(normalizedCases);
 
-                setLoadingStage(2); // green
-                setLoadingComplete(true);
-            } catch (err) {
-                console.error("Error loading archive page:", err);
-                navigate("/unauthorized");
-            }
-        };
+        const employees = empResp?.employees || [];
+        setAllEmployees(employees);
 
-        loadSessionAndCases();
-    }, []);
+        setLoadingStage(2);
+        setLoadingComplete(true);
+      } catch (err) {
+        console.error("Error loading archive page:", err);
+        if (err.status === 401 || err.status === 403) navigate("/unauthorized");
+      }
+    };
 
-    useEffect(() => {
-        let filtered = [...allCases].filter((client) => !client.is_active);
+    loadAll();
+  }, []); // ← runs once
 
-        if (user?.role === "supervisor") {
-            /*filtered = filtered.filter((client) => {
-                const isSameSPU = client.spu === user.spu_name;
-                const assignedSDWExists = allEmployees.some(
-                    (employee) => employee.id === client.assigned_sdw 
-                );
-                return isSameSPU && assignedSDWExists;
-            });*/
-            filtered = filtered.filter((client) => client.spu === user.spu_name);
-        }
+  // ===== CASES: client-side filtering/sorting only =====
+  useEffect(() => {
+    let filtered = [...allCases].filter((client) => !client.is_active);
 
-        if (currentSPU !== "") {
-            filtered = filtered.filter((client) => client.spu === currentSPU);
-        }
+    if (user?.role === "supervisor") {
+      const userSpuId = user?.spu_id || user?.spu?._id || null;
+      if (userSpuId) filtered = filtered.filter((c) => c.spu_id === userSpuId);
+    }
 
-        if (searchQuery.trim() !== "") {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter((client) => {
-                const fullName = client.name.toLowerCase();
-                const chNumberStr = client.sm_number?.toString() || "";
-                return fullName.includes(query) || chNumberStr.includes(query);
-            });
-        }
+    if (currentSPU) filtered = filtered.filter((c) => c.spu_id === currentSPU);
 
-        if (sortBy === "name") {
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortBy === "sm_number") {
-            filtered.sort((a, b) => a.sm_number - b.sm_number);
-        }
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter((c) => {
+        const name = (c.name || "").toLowerCase();
+        const ch = c.sm_number?.toString() || "";
+        return name.includes(q) || ch.includes(q);
+      });
+    }
 
-        if (sortOrder === "desc") {
-            filtered.reverse();
-        }
+    if (sortBy === "name") {
+      filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } else if (sortBy === "sm_number") {
+      filtered.sort((a, b) => (a.sm_number || 0) - (b.sm_number || 0));
+    }
 
-        setCurrentData(filtered);
-    }, [allCases, currentSPU, sortBy, sortOrder, searchQuery, allEmployees]);
+    if (sortOrder === "desc") filtered.reverse();
 
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            if (viewMode !== "employees") return;
+    setCurrentData(filtered);
+  }, [allCases, currentSPU, sortBy, sortOrder, searchQuery, user]);
 
-            try {
-                let response = null;
+  // ===== EMPLOYEES: client-side filtering/sorting only =====
+  useEffect(() => {
+    if (viewMode !== "employees") return;
 
-                if (user?.role === "head") {
-                    response = await fetchHeadView();
-                } else if (user?.role === "supervisor") {
-                    response = await fetchSupervisorView();
-                }
+    let filtered = allEmployees.filter((w) => w.is_active === false);
 
-                if (!response || !response.employees) return;
+    if (currentSPU) filtered = filtered.filter((w) => w.spu_id === currentSPU);
 
-                let filtered = response.employees.filter(emp => emp.is_active === false);
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter((w) => {
+        const name = (w.name || "").toLowerCase();
+        const idStr = w.id?.toString() || "";
+        return name.includes(q) || idStr.includes(q);
+      });
+    }
 
-                if (currentSPU !== "") {
-                    filtered = filtered.filter(emp => emp.spu === currentSPU);
-                }
+    if (sortBy === "name") {
+      filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
+      filtered = filtered
+        .filter((w) => (w.role || "").toLowerCase() === sortBy)
+        .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    }
 
-                if (sortBy === "name") {
-                    filtered.sort((a, b) =>
-                        `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)
-                    );
-                }
+    if (sortOrder === "desc") filtered.reverse();
 
-                if (sortOrder === "desc") {
-                    filtered.reverse();
-                }
+    setArchiveEmp(filtered);
+  }, [allEmployees, viewMode, currentSPU, sortBy, sortOrder, searchQuery]);
 
-                setAllEmployees(response.employees);
-                setArchiveEmp(filtered);
-            } catch (error) {
-                console.error("Failed to fetch employees:", error);
-            }
-        };
+  const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
+  if (!loadingComplete) return <Loading color={loadingColor} />;
 
-        fetchEmployees();
-    }, [viewMode, currentSPU, sortBy, sortOrder]);
+  return (
+    <>
+      <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
+        <a href="/" className="main-logo">
+          <div className="main-logo-setup folder-logo"></div>
+          <div className="flex flex-col">
+            <p className="main-logo-text-nav-sub mb-[-1rem]">Unbound Manila Foundation Inc.</p>
+            <p className="main-logo-text-nav">Case Management System</p>
+          </div>
+        </a>
 
-    const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";
-    if (!loadingComplete) return <Loading color={loadingColor} />;
+        <div className="flex gap-5 items-center bg-purple-100 rounded-full px-8 py-4 w-full max-w-[40rem] font-label">
+          <div className="nav-search"></div>
+          <input
+            type="text"
+            placeholder="Search"
+            className="focus:outline-none flex-1"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
 
+      <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
+        <SideBar user={user} />
 
-    return (
-        <>
-            <div className="fixed top-0 left-0 right-0 z-50 w-full max-w-[1280px] mx-auto flex justify-between items-center py-5 px-8 bg-white">
-                <a href="/" className="main-logo">
-                    <div className="main-logo-setup folder-logo"></div>
-                    <div className="flex flex-col">
-                        <p className="main-logo-text-nav-sub mb-[-1rem]">Unbound Manila Foundation Inc.</p>
-                        <p className="main-logo-text-nav">Case Management System</p>
-                    </div>
-                </a>
+        <div className="flex flex-col w-full gap-15 ml-[15rem]">
+          <div className="flex justify-between gap-10">
+            <div className="flex gap-5 justify-between items-center w-full">
+              <div className="flex gap-5 w-full">
+                <select
+                  className="text-input font-label max-w-[150px]"
+                  value={viewMode}
+                  id="view-toggle"
+                  onChange={(e) => setViewMode(e.target.value)}
+                >
+                  <option value="cases">Cases</option>
+                  <option value="employees">Employees</option>
+                </select>
 
-                <div className="flex gap-5 items-center bg-purple-100 rounded-full px-8 py-4 w-full max-w-[40rem] font-label">
-                    <div className="nav-search"></div>
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className="focus:outline-none flex-1"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
+                {user?.role === "head" && (
+                  <select
+                    className="text-input font-label max-w-[30rem]"
+                    value={currentSPU}
+                    id="spu"
+                    onChange={(e) => setCurrentSPU(e.target.value)}
+                  >
+                    <option value="">All SPUs</option>
+                    {projectLocation.map((project) => (
+                      <option key={project._id} value={project._id}>
+                        {project.spu_name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                <select
+                  className="text-input font-label max-w-[20rem]"
+                  value={sortBy}
+                  id="filter"
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  {viewMode === "cases" ? (
+                    <>
+                      <option value="">Sort By</option>
+                      <option value="name">Name</option>
+                      <option value="sm_number">CH Number</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="">Find By</option>
+                      <option value="name">Name</option>
+                      <option value="head">Head</option>
+                      <option value="supervisor">Supervisor</option>
+                      <option value="sdw">Social Development Worker</option>
+                    </>
+                  )}
+                </select>
+
+                <button
+                  className="btn-outline font-bold-label"
+                  onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
+                >
+                  <div className="icon-static-setup order-button"></div>
+                </button>
+              </div>
+
+              {user?.role === "sdw" && (
+                <button
+                  onClick={() => navigate("/create-case")}
+                  className="btn-outline font-bold-label flex gap-4 whitespace-nowrap"
+                >
+                  <p>+</p>
+                  <p>New Case</p>
+                </button>
+              )}
             </div>
+          </div>
 
-            <main className="min-h-[calc(100vh-4rem)] w-full flex mt-[9rem]">
-                <SideBar user={user} />
-
-                <div className="flex flex-col w-full gap-15 ml-[15rem]">
-                    <div className="flex justify-between gap-10">
-                        <div className="flex gap-5 justify-between items-center w-full">
-                            <div className="flex gap-5 w-full">
-                                <select
-                                    className="text-input font-label max-w-[150px]"
-                                    value={viewMode}
-                                    id="view-toggle"
-                                    onChange={(e) => setViewMode(e.target.value)}
-                                >
-                                    <option value="cases">Cases</option>
-                                    <option value="employees">Employees</option>
-                                </select>
-
-                                {user?.role === "head" && <select
-                                    className="text-input font-label max-w-[30rem]"
-                                    value={currentSPU}
-                                    id="spu"
-                                    onChange={(e) => setCurrentSPU(e.target.value)}
-                                >
-                                    <option value="">All SPUs</option>
-                                    {projectLocation.map((project) => (
-                                        <option
-                                            key={project.projectCode}
-                                            value={project.projectCode}
-                                        >
-                                            {project.name} ({project.projectCode})
-                                        </option>
-                                    ))}
-                                </select>}
-
-                                <select
-                                    className="text-input font-label max-w-[20rem]"
-                                    value={sortBy}
-                                    id="filter"
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                >
-                                    <option value="">Sort By</option>
-                                    <option value="name">Name</option>
-                                    {viewMode === "cases" && (
-                                        <option value="sm_number">CH Number</option>
-                                    )}
-                                </select>
-
-                                <button
-                                    className="btn-outline font-bold-label"
-                                    onClick={() =>
-                                        setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
-                                    }
-                                >
-                                    <div className="icon-static-setup order-button"></div>
-                                </button>
-                            </div>
-
-                            {user?.role == "sdw" && <button
-                                onClick={() => navigate("/create-case")}
-                                className="btn-outline font-bold-label flex gap-4 whitespace-nowrap">
-                                <p>+</p>
-                                <p>New Case</p>
-                            </button>}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col w-full gap-3">
-                        {viewMode === "cases" ? (
-                            <>
-                                <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                    <p className="font-bold-label ml-[20%]">Name</p>
-                                    <p className="font-bold-label text-center">CH Number</p>
-                                    <p className="font-bold-label text-center">SDW Assigned</p>
-                                </div>
-
-                                {currentData.length === 0 ? (
-                                    <p className="font-bold-label mx-auto">No Clients Found</p>
-                                ) : (
-                                    currentData.map((client) => (
-                                        <ClientEntry
-                                            key={client.id}
-                                            id={client.id}
-                                            sm_number={client.sm_number}
-                                            spu={client.spu}
-                                            name={client.name}
-                                            assigned_sdw_name={client.assigned_sdw_name}
-                                            archive={true}
-                                        />
-                                    ))
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
-                                    <p className="font-bold-label ml-[20%]">Worker</p>
-                                    <p className="font-bold-label text-center">Type</p>
-                                    <p className="font-bold-label text-center">SPU</p>
-                                </div>
-
-                                {archiveEmp.length === 0 ? (
-                                    <p className="font-bold-label mx-auto">No Employees Found</p>
-                                ) : (
-                                    archiveEmp.map((worker, index) => (
-                                        <WorkerEntry
-                                            key={`${worker._id}-${index}`}
-                                            id={worker.id}
-                                            // sdw_id={worker.sdw_id}
-                                            name={worker.name}
-                                            role={worker.role}
-                                            spu_id={worker.spu}
-                                            archive={true}
-                                        />
-                                    ))
-                                )}
-                            </>
-                        )}
-                    </div>
-                    {/* <button className="font-bold-label mx-auto">Show More</button> */}
+          <div className="flex flex-col w/full gap-3">
+            {viewMode === "cases" ? (
+              <>
+                <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                  <p className="font-bold-label ml-[20%]">Name</p>
+                  <p className="font-bold-label text-center">CH Number</p>
+                  <p className="font-bold-label text-center">SDW Assigned</p>
                 </div>
-            </main>
-        </>
-    );
+
+                {currentData.length === 0 ? (
+                  <p className="font-bold-label mx-auto">No Clients Found</p>
+                ) : (
+                  currentData.map((client) => (
+                    <ClientEntry
+                      key={client.id}
+                      id={client.id}
+                      sm_number={client.sm_number}
+                      spu={client.spu}
+                      name={client.name}
+                      assigned_sdw_name={client.assigned_sdw_name}
+                      archive={true}
+                    />
+                  ))
+                )}
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-[2fr_1fr_2fr] items-center border-b border-gray-400 pb-2 mb-2">
+                  <p className="font-bold-label ml-[20%]">Worker</p>
+                  <p className="font-bold-label text-center">Type</p>
+                  <p className="font-bold-label text-center">SPU</p>
+                </div>
+
+                {archiveEmp.length === 0 ? (
+                  <p className="font-bold-label mx-auto">No Employees Found</p>
+                ) : (
+                  archiveEmp.map((worker, index) => (
+                    <WorkerEntry
+                      key={`${worker.id}-${index}`}
+                      id={worker.id}
+                      name={worker.name}
+                      role={worker.role}
+                      spu={worker.spu}
+                      spu_id={worker.spu_id}
+                      archive={true}
+                    />
+                  ))
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </main>
+    </>
+  );
 }
 
 export default Archive;

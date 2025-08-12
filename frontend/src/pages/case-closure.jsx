@@ -262,7 +262,7 @@ function CaseClosure() {
         "Sponsorship Program",
         "Social Development Program",
         "Home Visitation",
-        "Counselling",
+        "Counseling",
         "Financial Assistance",
         "Correspondence",
     ];
