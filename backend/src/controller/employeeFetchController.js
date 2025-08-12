@@ -212,27 +212,6 @@ const getHeadView = async (req, res) => {
       .populate('spu_id', 'spu_name') // _id is included automatically
       .lean();
 
-    // Debug: who’s missing SPU links?
-    const employeesMissingSPU = employees.filter(e => !e.spu_id);
-    const casesMissingSPU = cases.filter(c => !c.spu);
-    console.log('Employees total:', employees.length, '— missing SPU:', employeesMissingSPU.length);
-    if (employeesMissingSPU.length) {
-      console.log('Employees without SPU:', employeesMissingSPU.map(e => ({
-        id: e._id,
-        name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
-        role: e.role
-      })));
-    }
-    console.log('Cases total:', cases.length, '— missing SPU:', casesMissingSPU.length);
-    if (casesMissingSPU.length) {
-      console.log('Cases without SPU:', casesMissingSPU.map(c => ({
-        id: c._id,
-        sm_number: c.sm_number,
-        name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim()
-      })));
-    }
-
-    // ✅ Simplify Sponsored Members (include spu_id)
     const simplifiedCases = cases.map(c => ({
       id: c._id,
       name: `${c.first_name} ${c.middle_name || ''} ${c.last_name}`.trim(),
@@ -246,7 +225,6 @@ const getHeadView = async (req, res) => {
         : null
     }));
 
-    // ✅ Simplify Employees (include spu_id)
     const simplifiedEmployees = employees.map(e => ({
       id: e._id,
       name: `${e.first_name} ${e.middle_name || ''} ${e.last_name}`.trim(),
@@ -266,7 +244,6 @@ const getHeadView = async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 
 /**
  * Retrieves all active sponsored members and employees for a specific SPU for the Head view.
