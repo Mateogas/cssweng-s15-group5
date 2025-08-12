@@ -5,6 +5,7 @@ import { fetchSession } from './fetch-connections/account-connection';
 import HomeSDW from './pages/home-sdw';
 import HomeLeader from './pages/home-leader';
 import Login from './pages/login';
+import Loading from './pages/loading';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -32,7 +33,7 @@ function App() {
     checkSession();
   }, []);
 
-  if (loading) return <div></div>;
+  if (loading) return <Loading></Loading>;
 
   if (!user) {
     return <Login />;

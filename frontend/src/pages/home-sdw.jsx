@@ -127,8 +127,6 @@ function HomeSDW() {
     return filtered;
   };
 
-
-
   const finalClients = getFilteredClients();
 
   const loadingColor = loadingStage === 0 ? "red" : loadingStage === 1 ? "blue" : "green";

@@ -22,41 +22,49 @@ export default function RegisterSpu({ isOpen, onClose, existingSpus = [], onRegi
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
-    setIsSubmitting(true);
 
     const trimmedName = spuName.trim();
     if (!trimmedName) {
       triggerModal("Missing Field", "SPU name is required.");
-      setIsSubmitting(false);
       return;
     }
 
     const exists = existingSpus.some(spu => spu.spu_name.toLowerCase() === trimmedName.toLowerCase());
     if (exists) {
       triggerModal("Duplicate", `The SPU name "${trimmedName}" already exists.`);
-      setIsSubmitting(false);
       return;
     }
 
-    const result = await createSpu(trimmedName);
-    if (result) {
-      triggerModal(
-        "Success",
-        "SPU created successfully.",
-        <div className="success-icon mx-auto"></div>,
-        () => {
-          onRegister?.(result);
-          onClose?.();
-          setShowModal(false);
-          setIsSubmitting(false);
+    // Show confirmation dialog first
+    setModalTitle("Confirm SPU Creation");
+    setModalBody("Are you sure you want to create this SPU? Once created, it will be permanently recorded in the system. Even if deactivated later, it will still appear as an option in the archives.");
+    setModalImageCenter(<div className="info-icon mx-auto"></div>);
+    setModalConfirm(true);
+    setShowModal(true);
+    setModalOnConfirm(() => async () => {
+      try {
+        setIsSubmitting(true);
+        setShowModal(false);
+        
+        const result = await createSpu(trimmedName);
+        if (result) {
+          triggerModal(
+            "Success",
+            "SPU created successfully.",
+            <div className="success-icon mx-auto"></div>,
+            () => {
+              onRegister?.(result);
+              onClose?.();
+            }
+          );
+        } else {
+          triggerModal("Error", "Failed to create SPU.");
         }
-      );
-    } else {
-      triggerModal("Error", "Failed to create SPU.", <div className="warning-icon mx-auto"></div>);
-      setIsSubmitting(false);
-    }
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
   };
-
 
   const triggerModal = (title, body, icon = <div className="warning-icon mx-auto"></div>, onConfirm = null) => {
     setModalTitle(title);
@@ -68,8 +76,12 @@ export default function RegisterSpu({ isOpen, onClose, existingSpus = [], onRegi
   };
 
   const handleModalClose = () => {
-    modalOnConfirm?.();
-    setShowModal(false);
+    if (modalConfirm) {
+      setShowModal(false);
+      modalOnConfirm?.();
+    } else {
+      setShowModal(false);
+    }
   };
 
   return (
@@ -81,7 +93,8 @@ export default function RegisterSpu({ isOpen, onClose, existingSpus = [], onRegi
         bodyText={modalBody}
         imageCenter={modalImageCenter}
         confirm={modalConfirm}
-        onConfirm={handleModalClose}
+        onConfirm={modalOnConfirm}
+        onCancel={handleModalClose}
       />
 
       <AnimatePresence>

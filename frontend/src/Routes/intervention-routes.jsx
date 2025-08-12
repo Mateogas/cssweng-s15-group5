@@ -6,7 +6,7 @@ import CorrespondenceForm from "../pages/intervention-forms/correspondence";
 
 const InterventionRoutes = () => (
     <>
-        <Route path="/counselling-form" element={<CounselingForm />} />
+        <Route path="/counseling-form" element={<CounselingForm />} />
         <Route path="/home-visitation-form" element={<HomeVisitationForm />} />
         <Route
             path="/financial-assessment-form"

@@ -43,8 +43,7 @@ export default function SpuPage() {
         document.title = "SPU Page";
     }, []);
 
-    useEffect(() => {
-        const loadData = async () => {
+const loadData = async () => {
             try {
                 setLoadingStage(0); // red
 
@@ -88,6 +87,7 @@ export default function SpuPage() {
             }
         };
 
+    useEffect(() => {
         loadData();
     }, []);
 

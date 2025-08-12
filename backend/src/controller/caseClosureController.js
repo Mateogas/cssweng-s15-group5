@@ -38,6 +38,9 @@ const loadCaseClosureForm = async(req, res) => {
                // no restrictions
           }
           else if (active_user.role == "super" || active_user.role == "supervisor") {
+               /*if (caseSelected.spu!== active_user.spu_name)
+                    return res.status(403).json({ message: "Unauthorized access." });*/
+
                if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
@@ -75,48 +78,6 @@ const loadCaseClosureForm = async(req, res) => {
 } 
 
 /**
- *   Fetches the case closure form of the sponsored member
- *   @returns the data of the case closure form
- */
-/*const loadCaseClosureForm = async(req, res) => {
-    const sponsor_id = req.params.caseID;
-    const formId = req.params.formID;
-
-    if (!mongoose.Types.ObjectId.isValid(formId) || !mongoose.Types.ObjectId.isValid(sponsor_id)) {
-        return res.status(400).json({ message: 'Invalid Sponsored Member or Form' });
-    }
-     try {
-            const caseSelected = await Sponsored_Member.findById(sponsor_id)
-               .populate('spu') 
-                .lean();
-            
-            if (!caseSelected)
-                return res.status(404).json({ message: "Sponsored member not found" });
-            
-            const formData = await Case_Closure.findById(formId).lean()
-
-            const mergedData = {
-                sponsored_member: {
-                    first_name: caseSelected.first_name,
-                    middle_name: caseSelected.middle_name,
-                    last_name: caseSelected.last_name,
-                    sm_number: caseSelected.sm_number,
-                    dob: caseSelected.dob,
-                    religion: caseSelected.religion,
-                    address: caseSelected.address,
-                    spu: caseSelected.spu.spu_name
-                },
-                form: formData
-            };
-
-          return res.status(200).json(mergedData)
-     } catch(error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error', error: error.message });
-     }
-} */
-
-/**
  *   Creates new case closure form and updates the sponsored member to inactive
  *   @returns New intervention made
  */
@@ -125,6 +86,9 @@ const createCaseClosureForm = async(req, res) => {
           const caseSelected = await Sponsored_Member.findById(req.params.caseID) 
           if (!caseSelected)
                return res.status(404).json({ message: "Sponsored member not found" });
+
+          if (!caseSelected.is_active)
+               return res.status(400).json({ message: "The case has already been closed." })
 
           // if a form is found, load the form immediately
           const formSelected = await Case_Closure.findOne({ sm: caseSelected._id.toString() })
@@ -214,6 +178,9 @@ const loadExistingCaseClosureForm = async (req, res) => {
                // no restrictions
           }
           else if (active_user.role == "super" || active_user.role == "supervisor") {
+               /*if (caseSelected.spu.toString() !== active_user.spu_id.toString())
+                    return res.status(403).json({ message: "Unauthorized access." });*/
+
                if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
@@ -334,6 +301,9 @@ const deleteCaseClosureForm = async (req, res) => {
           if (!caseSelected._id.equals(formSelected.sm))
                return res.status(400).json({ message: "Case selected does not match the form." })
 
+          if (!caseSelected.is_active)
+               return res.status(400).json({ message: "The case has already been closed." })
+
           // Uses sessions already, please comment out if needed or force assign an employee
           const active_user = req.session.user
           const handler = await Employee.findById(caseSelected.assigned_sdw)
@@ -342,6 +312,9 @@ const deleteCaseClosureForm = async (req, res) => {
                // no restrictions
           }
           else if (active_user.role == "super" || active_user.role == "supervisor") {
+               /*if (caseSelected.spu.toString() !== active_user.spu_id.toString())
+                    return res.status(403).json({ message: "Unauthorized access." });*/
+
                if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
@@ -367,6 +340,7 @@ const deleteCaseClosureForm = async (req, res) => {
           }
 
           // delete
+          // console.log("passed")
           await formSelected.deleteOne();
           return res.status(200).json({ message: "Case closure form deleted successfully.", case: caseSelected });
      } catch (error) {
@@ -406,6 +380,9 @@ const confirmCaseTermination = async (req, res) => {
           const handler = await Employee.findById(caseSelected.assigned_sdw)
           var supervisor
           if (active_user.role == "super" || active_user.role == "supervisor") {
+               /*if (caseSelected.spu.toString() !== active_user.spu_id.toString())
+                    return res.status(403).json({ message: "Unauthorized access." });*/
+
                if (handler.role === "sdw") {
                     supervisor = await Employee.findById(handler.manager);
                     if (!supervisor || !supervisor._id.equals(active_user._id)) {
@@ -427,6 +404,8 @@ const confirmCaseTermination = async (req, res) => {
           else {
                return res.status(403).json({ message: "Unauthorized access." })
           }
+
+          // console.log("passed")
 
           // security checks passed, proceed to deactivation
           caseSelected.is_active = false;
