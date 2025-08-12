@@ -281,7 +281,7 @@ function CounselingForm() {
         };
 
         setModalTitle("Confirm Creation");
-        setModalBody("Are you sure you want to save this Counselling Form? This cannot be edited or deleted after creation.");
+        setModalBody("Are you sure you want to save this Counseling Form? This cannot be edited or deleted after creation.");
         setModalImageCenter(<div className="info-icon mx-auto" />);
         setModalConfirm(true);
         setModalOnConfirm(() => async () => {
@@ -492,7 +492,7 @@ function CounselingForm() {
                             Go Back
                         </button>
                     </div>
-                    <h3 className="header-md">Counselling Form</h3>
+                    <h3 className="header-md">Counseling Form</h3>
                     <p className="text-3xl red"> No form found. </p>
                 </div>
             </main>
@@ -511,7 +511,7 @@ function CounselingForm() {
                             Go Back
                         </button>
                     </div>
-                    <h3 className="header-md">Counselling Form</h3>
+                    <h3 className="header-md">Counseling Form</h3>
                     <p className="text-3xl red"> No case found. </p>
                 </div>
             </main>
@@ -521,9 +521,9 @@ function CounselingForm() {
 
     useEffect(() => {
         if (viewForm && form_num) {
-            document.title = `Counselling Form #${form_num}`;
+            document.title = `Counseling Form #${form_num}`;
         } else if (!viewForm) {
-            document.title = `Create Counselling Form`;
+            document.title = `Create Counseling Form`;
         }
 
     }, [form_num]);
@@ -558,7 +558,7 @@ function CounselingForm() {
                     </button>
                     <h4 className="header-sm self-end">Form #: {form_num}</h4>
                 </div>
-                <h3 className="header-md">Counselling Form</h3>
+                <h3 className="header-md">Counseling Form</h3>
 
                 {/* Sponsored Member and General Info */}
                 <section className="flex w-full flex-col gap-16">
@@ -658,7 +658,7 @@ function CounselingForm() {
                     </div>
                 </section>
 
-                <section className="flex w-full items-end gap-10">
+                <section className="flex w-full items-start gap-10">
                     <TextArea
                         label="Purpose/Reason for Counseling"
                         value={reason_for_counseling}
@@ -774,7 +774,7 @@ function CounselingForm() {
                                         <button
                                             onClick={() => {
                                                 setShowSuccessModal(false);
-                                                navigate(`/counselling-form/?action=view&caseID=${caseID}&formID=${newformID}`);
+                                                navigate(`/counseling-form/?action=view&caseID=${caseID}&formID=${newformID}`);
                                             }}
                                             className="btn-primary font-bold-label"
                                         >

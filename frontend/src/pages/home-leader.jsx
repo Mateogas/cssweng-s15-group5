@@ -73,35 +73,48 @@ function HomeLeader() {
     loadData();
   }, [currentSPU, isRegisterOpen]);
 
-  useEffect(() => {
-    let filtered = [...allData];
+useEffect(() => {
+  let filtered = [...allData];
 
-    if (currentSPU !== "") {
-      filtered = filtered.filter((w) => w.spu_id === currentSPU);
+  if (currentSPU !== "") {
+    filtered = filtered.filter((w) => w.spu_id === currentSPU);
+  }
+
+  if (searchQuery.trim() !== "") {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter((w) => {
+      const name = `${w.name}`.toLowerCase();
+      const idStr = w.sdw_id?.toString() || "";
+      return name.includes(query) || idStr.includes(query);
+    });
+  }
+
+  // Role priority mapping
+  const roleOrder = {
+    head: 3,
+    supervisor: 2,
+    sdw: 1
+  };
+
+  // Always sort by role priority first, then name
+  filtered.sort((a, b) => {
+    const roleA = roleOrder[a.role?.toLowerCase()] ?? 99;
+    const roleB = roleOrder[b.role?.toLowerCase()] ?? 99;
+
+    if (roleA !== roleB) {
+      return roleA - roleB;
     }
+    return (a.name || "").localeCompare(b.name || "");
+  });
 
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((w) => {
-        const name = `${w.name}`.toLowerCase();
-        const idStr = w.sdw_id?.toString() || "";
-        return name.includes(query) || idStr.includes(query);
-      });
-    }
+  // Optional: apply manual reverse if user toggles
+  if (sortOrder === "desc") {
+    filtered.reverse();
+  }
 
-    if (sortBy === "name") {
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (["head", "supervisor", "sdw"].includes(sortBy)) {
-      filtered = filtered.filter((w) => w.role === sortBy)
-        .sort((a, b) => a.name.localeCompare(b.name));
-    }
+  setCurrentData(filtered);
+}, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
 
-    if (sortOrder === "desc") {
-      filtered.reverse();
-    }
-
-    setCurrentData(filtered);
-  }, [allData, currentSPU, sortBy, sortOrder, searchQuery]);
 
   useEffect(() => {
     if (!user) return;

@@ -749,12 +749,16 @@ export default function WorkerProfile() {
                                             const isValid = await checkEmployeeCore();
                                             if (isValid === false) return;
 
+                                            // Check if supervisor is reassigning SDW to another supervisor
+                                            const isSupervisor = user?.role === "supervisor";
+                                            const isSDW = data.role === "sdw";
+                                            const managerChanged = isSDW && drafts.manager && drafts.manager !== data.manager && isSupervisor && data.manager === user._id;
+
                                             const payload = {
                                                 ...drafts,
                                                 manager: drafts.manager === "" || drafts.manager?.trim() === "" ? null : drafts.manager,
                                                 spu_id: projectLocation.find(spu => spu._id === drafts.spu_id)?.spu_name || null,
                                             };
-
 
                                             if (isValid === "demotion") {
                                                 setModalTitle("Role Demotion");
@@ -792,7 +796,47 @@ export default function WorkerProfile() {
                                                 setModalOnClose(() => { });
                                                 setShowModal(true);
                                                 return;
-                                            } else {
+                                            } 
+                                            // --- NEW: Supervisor reassigning SDW to another supervisor ---
+                                            else if (managerChanged) {
+                                                setModalTitle("Reassign Supervisor");
+                                                setModalBody("You are about to assign this worker to a different supervisor. After this change, you will no longer be able to edit this worker's profile. Are you sure you want to proceed?");
+                                                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                setModalConfirm(true);
+
+                                                setModalOnConfirm(() => async () => {
+                                                    const { ok, data: result } = await updateEmployeeById(workerId, payload);
+                                                    if (ok) {
+                                                        setModalTitle("Success");
+                                                        setModalBody("Worker profile updated successfully! You will now be redirected.");
+                                                        setModalImageCenter(<div className="success-icon mx-auto"></div>);
+                                                        setModalConfirm(false);
+                                                        setShowModal(true);
+
+                                                        const onUpdate = () => {
+                                                            setData(result.employee);
+                                                            setEditingField(null);
+                                                            // Redirect supervisor away since they lose access
+                                                            setTimeout(() => navigate("/"), 500);
+                                                        };
+
+                                                        setModalOnConfirm(() => onUpdate);
+                                                        setModalOnClose(() => onUpdate);
+                                                    }
+                                                    else {
+                                                        setModalTitle("Error");
+                                                        setModalBody(result.message || "Failed to update worker.");
+                                                        setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                                                        setModalConfirm(false);
+                                                        setShowModal(true);
+                                                    }
+                                                });
+                                                setModalOnClose(() => { });
+                                                setShowModal(true);
+                                                return;
+                                            }
+                                            // --- END NEW ---
+                                            else {
                                                 const { ok, data: result } = await updateEmployeeById(workerId, payload);
                                                 if (ok) {
                                                     setModalTitle("Success");

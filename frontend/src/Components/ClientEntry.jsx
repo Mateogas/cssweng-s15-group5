@@ -70,7 +70,7 @@ export default function ClientEntry({
 
       {pendingTermination && (
         <div className="col-span-3 text-left mt-4">
-          <p className="font-label">
+          <p className="font-label !text-xl !text-red-600">
             Termination Request Found
           </p>
         </div>
