@@ -14,7 +14,7 @@ import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connecti
 import { fetchAllSpus } from "../fetch-connections/spu-connection";
 import NotFound from "./not-found";
 import Loading from "./loading";
-//test/
+
 export default function WorkerProfile() {
     const navigate = useNavigate();
     const { workerId } = useParams();
@@ -675,6 +675,7 @@ export default function WorkerProfile() {
                                         <div className="flex flex-col w-full">
                                             <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
                                             <select
+                                                disabled={user?.role !== "head" || data.manager === user?._id}
                                                 className="text-input font-label"
                                                 value={drafts.spu_id}
                                                 onChange={(e) =>
@@ -723,6 +724,7 @@ export default function WorkerProfile() {
                                         {(drafts.role === "" || drafts.role === "sdw") && (<div className="flex flex-col w-full">
                                             <label className="font-bold-label">Manager</label>
                                             <select
+                                                disabled={user?.role !== "head" || data.manager === user?._id}
                                                 className="text-input font-label"
                                                 value={drafts.manager}
                                                 onChange={(e) =>
@@ -875,7 +877,8 @@ export default function WorkerProfile() {
                                             {data.first_name || "-"} {data.middle_name || "-"} {data.last_name || "-"}
                                         </h1>
 
-                                        {(data.is_active) && (
+                                        {(
+                                            data.is_active) && (
                                                 <button
                                                     className="icon-button-setup dots-button"
                                                     onClick={() => setEditingField("core-fields")}
