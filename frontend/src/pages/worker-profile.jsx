@@ -14,7 +14,7 @@ import { fetchEmployeeBySDWId, fetchEmployeeByUsername } from "../fetch-connecti
 import { fetchAllSpus } from "../fetch-connections/spu-connection";
 import NotFound from "./not-found";
 import Loading from "./loading";
-//test
+//test/
 export default function WorkerProfile() {
     const navigate = useNavigate();
     const { workerId } = useParams();
