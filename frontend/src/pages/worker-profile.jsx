@@ -675,7 +675,7 @@ export default function WorkerProfile() {
                                         <div className="flex flex-col w-full">
                                             <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
                                             <select
-                                                disabled={user?.role !== "head" || data.role !== "supervisor"}
+                                                disabled={user?.role === "head" || data.role !== "supervisor"}
                                                 className="text-input font-label"
                                                 value={drafts.spu_id}
                                                 onChange={(e) =>
