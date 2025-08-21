@@ -875,9 +875,7 @@ export default function WorkerProfile() {
                                             {data.first_name || "-"} {data.middle_name || "-"} {data.last_name || "-"}
                                         </h1>
 
-                                        {(user?.username !== "MasterAccount" &&
-                                            (user?.role === "head" || data.manager === user?._id) &&
-                                            data.is_active) && (
+                                        {(data.is_active) && (
                                                 <button
                                                     className="icon-button-setup dots-button"
                                                     onClick={() => setEditingField("core-fields")}
