@@ -875,6 +875,16 @@ export default function WorkerProfile() {
                                             {data.first_name || "-"} {data.middle_name || "-"} {data.last_name || "-"}
                                         </h1>
 
+                                                      <button
+                                                    className="icon-button-setup dots-button"
+                                                    onClick={() => setEditingField("core-fields")}
+                                                ></button>
+
+                                                              <button
+                                                    className="icon-button-setup dots-button"
+                                                    onClick={() => setEditingField("core-fields")}
+                                                ></button>
+
                                         {(data.is_active) && (
                                                 <button
                                                     className="icon-button-setup dots-button"
