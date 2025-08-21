@@ -716,7 +716,7 @@ export default function WorkerProfile() {
                                         <div className="flex flex-col w-full">
                                             <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
                                             <select
-                                                disabled={!(user?.role === "head" || user?._id === data.manager)}
+                                                disabled={user?.role !== "head"}
                                                 className="text-input font-label"
                                                 value={drafts.role}
                                                 onChange={(e) =>
