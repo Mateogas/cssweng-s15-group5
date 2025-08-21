@@ -563,7 +563,7 @@ export default function WorkerProfile() {
                         <section className="flex flex-col gap-5" id="core-fields">
                             {editingField === "core-fields" && (
                                 <div className="flex justify-between items-center">
-                                    <h1 className="header-main">Worker Profile EEEEEEE</h1>
+                                    <h1 className="header-main">Worker Profile EEEEEEExxx</h1>
                                     {data.is_active === true && (
                                         <button
                                             className="icon-button-setup x-button"
@@ -675,7 +675,7 @@ export default function WorkerProfile() {
                                         <div className="flex flex-col w-full">
                                             <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
                                             <select
-                                                disabled={user?.role === "head" || data.role !== "supervisor"}
+                                                disabled={user?.role !== "head" || user.role !== "supervisor"}
                                                 className="text-input font-label"
                                                 value={drafts.spu_id}
                                                 onChange={(e) =>
