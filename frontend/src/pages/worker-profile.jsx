@@ -426,6 +426,15 @@ export default function WorkerProfile() {
                 setShowModal(true);
                 return false;
             }
+
+            if (data.role === "supervisor" && handledWorkers.length > 0) {
+                setModalTitle("Role Change Not Allowed");
+                setModalBody("This supervisor is currently managing workers. Please reassign all workers before changing role as they would lose access to their supervised employees.");
+                setModalImageCenter(<div className="warning-icon mx-auto"></div>);
+                setModalConfirm(false);
+                setShowModal(true);
+                return false;
+            }
         }
 
 
@@ -563,7 +572,7 @@ export default function WorkerProfile() {
                         <section className="flex flex-col gap-5" id="core-fields">
                             {editingField === "core-fields" && (
                                 <div className="flex justify-between items-center">
-                                    <h1 className="header-main">Worker Profile EEEEEEExxx123</h1>
+                                    <h1 className="header-main">Worker Profile11111</h1>
                                     {data.is_active === true && (
                                         <button
                                             className="icon-button-setup x-button"
