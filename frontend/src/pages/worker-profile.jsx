@@ -684,7 +684,7 @@ export default function WorkerProfile() {
                                         <div className="flex flex-col w-full">
                                             <label className="font-bold-label"><span className='text-red-500'>*</span> SPU Project</label>
                                             <select
-                                                disabled={user?.role === "sdw"}
+                                                disabled={!(user?.role === "head" || user?._id === data.manager)}
                                                 className="text-input font-label"
                                                 value={drafts.spu_id}
                                                 onChange={(e) =>
@@ -716,7 +716,7 @@ export default function WorkerProfile() {
                                         <div className="flex flex-col w-full">
                                             <label className="font-bold-label"><span className='text-red-500'>*</span> Role</label>
                                             <select
-                                                disabled={user?.role !== "head"}
+                                                disabled={!(user?.role === "head" || user?._id === data.manager)}
                                                 className="text-input font-label"
                                                 value={drafts.role}
                                                 onChange={(e) =>
@@ -733,7 +733,7 @@ export default function WorkerProfile() {
                                         {(drafts.role === "" || drafts.role === "sdw") && (<div className="flex flex-col w-full">
                                             <label className="font-bold-label">Manager</label>
                                             <select
-                                                disabled={user?.role !== "head" || data.role !== "supervisor"}
+                                                disabled={!(user?.role === "head" || user?._id === data.manager)}
                                                 className="text-input font-label"
                                                 value={drafts.manager}
                                                 onChange={(e) =>
