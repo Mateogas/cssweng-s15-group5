@@ -563,7 +563,7 @@ export default function WorkerProfile() {
                         <section className="flex flex-col gap-5" id="core-fields">
                             {editingField === "core-fields" && (
                                 <div className="flex justify-between items-center">
-                                    <h1 className="header-main">Worker Profile</h1>
+                                    <h1 className="header-main">Worker Profile EEEEEEE</h1>
                                     {data.is_active === true && (
                                         <button
                                             className="icon-button-setup x-button"
